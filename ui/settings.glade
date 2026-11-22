@@ -177,6 +177,13 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
+  <object class="GtkAdjustment" id="adjustmentHoldToShapeDelay">
+    <property name="lower">100</property>
+    <property name="upper">3000</property>
+    <property name="value">500</property>
+    <property name="step-increment">50</property>
+    <property name="page-increment">250</property>
+  </object>
   <object class="GtkAdjustment" id="adjustmentStrokeRecognizerMinSize">
     <property name="lower">1</property>
     <property name="upper">200</property>
@@ -5359,13 +5366,41 @@ Determination Radius: Radius at which modifiers will lock in until finished draw
                                     <property name="margin-start">12</property>
                                     <property name="margin-end">12</property>
                                     <property name="margin-bottom">8</property>
+                                    <property name="orientation">vertical</property>
+                                    <property name="spacing">4</property>
                                     <child>
-                                      <object class="GtkLabel">
-                                        <property name="name">lbStrokeRecognizerMinSize</property>
+                                      <object class="GtkBox">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
-                                        <property name="margin-end">6</property>
-                                        <property name="label" translatable="yes">Minimum Stroke Size</property>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="name">lbStrokeRecognizerMinSize</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="margin-end">6</property>
+                                            <property name="label" translatable="yes">Minimum Stroke Size</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkSpinButton" id="spStrokeRecognizerMinSize">
+                                            <property name="name">spStrokeRecognizerMinSize</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="adjustment">adjustmentStrokeRecognizerMinSize</property>
+                                            <property name="climb-rate">2</property>
+                                            <property name="value">25</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -5374,18 +5409,58 @@ Determination Radius: Radius at which modifiers will lock in until finished draw
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkSpinButton" id="spStrokeRecognizerMinSize">
-                                        <property name="name">spStrokeRecognizerMinSize</property>
+                                      <object class="GtkCheckButton" id="cbHoldToShapeEnabled">
+                                        <property name="label" translatable="yes">Convert to shape when holding the pen still</property>
+                                        <property name="name">cbHoldToShapeEnabled</property>
                                         <property name="visible">True</property>
                                         <property name="can-focus">True</property>
-                                        <property name="adjustment">adjustmentStrokeRecognizerMinSize</property>
-                                        <property name="climb-rate">2</property>
-                                        <property name="value">25</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="tooltip-text" translatable="yes">While drawing with the pen or the highlighter, keep the pen still to replace the stroke with a line, triangle, rectangle or circle.</property>
+                                        <property name="draw-indicator">True</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
                                         <property name="fill">True</property>
                                         <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkBox" id="boxHoldToShapeDelay">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="margin-end">6</property>
+                                            <property name="label" translatable="yes">Hold duration (ms)</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkSpinButton" id="spHoldToShapeDelay">
+                                            <property name="name">spHoldToShapeDelay</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="adjustment">adjustmentHoldToShapeDelay</property>
+                                            <property name="climb-rate">2</property>
+                                            <property name="value">500</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">2</property>
                                       </packing>
                                     </child>
                                   </object>

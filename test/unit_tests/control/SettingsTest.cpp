@@ -79,3 +79,38 @@ TEST(SettingsTest, testReadWrite) {
     };
     saveReloadTest(fs::temp_directory_path());
 }
+
+TEST(SettingsTest, testHoldToShapeDefaults) {
+    Settings settings{"non-existing-file-path"};
+    EXPECT_TRUE(settings.isHoldToShapeEnabled());
+    EXPECT_EQ(settings.getHoldToShapeDelay(), 500);
+}
+
+TEST(SettingsTest, testHoldToShapeDelayIsClamped) {
+    Settings settings{"non-existing-file-path"};
+    settings.transactionStart();  // do not write the settings file
+    settings.setHoldToShapeDelay(10);
+    EXPECT_EQ(settings.getHoldToShapeDelay(), HOLD_TO_SHAPE_DELAY_MIN);
+    settings.setHoldToShapeDelay(100000);
+    EXPECT_EQ(settings.getHoldToShapeDelay(), HOLD_TO_SHAPE_DELAY_MAX);
+    settings.setHoldToShapeDelay(750);
+    EXPECT_EQ(settings.getHoldToShapeDelay(), 750);
+}
+
+TEST(SettingsTest, testHoldToShapeReadWrite) {
+    const fs::path outPath = fs::temp_directory_path() / "xournalpp-test-units_Settings_testHoldToShape.xml";
+    fs::remove(outPath);
+
+    Settings settings(outPath);
+    settings.transactionStart();
+    settings.setHoldToShapeEnabled(false);
+    settings.setHoldToShapeDelay(1250);
+    settings.transactionEnd();  // calls save()
+
+    Settings loaded(outPath);
+    loaded.load();
+    EXPECT_FALSE(loaded.isHoldToShapeEnabled());
+    EXPECT_EQ(loaded.getHoldToShapeDelay(), 1250);
+
+    fs::remove(outPath);
+}

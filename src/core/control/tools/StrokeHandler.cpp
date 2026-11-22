@@ -32,6 +32,7 @@
 #include "util/DispatchPool.h"                              // for DispatchPool
 #include "util/Range.h"                                     // for Range
 #include "util/Rectangle.h"                                 // for Rectangle, util
+#include "util/glib_casts.h"                                // for wrap_for_once_v
 #include "view/overlays/StrokeToolFilledHighlighterView.h"  // for StrokeToolFilledHighlighterView
 #include "view/overlays/StrokeToolFilledView.h"             // for StrokeToolFilledView
 #include "view/overlays/StrokeToolView.h"                   // for StrokeToolView
@@ -58,12 +59,25 @@ auto StrokeHandler::onMotionNotifyEvent(const PositionInputData& pos, double zoo
         return false;
     }
 
+    if (convertedToShape) {
+        // The shape is final: ignore any further motion until the button is released
+        return true;
+    }
+
     if (pos.pressure == 0) {
         /**
          * Some devices emit a move event with pressure 0 when lifting the stylus tip
          * Ignore those events
          */
         return true;
+    }
+
+    if (holdToShapeEnabled) {
+        // Use the raw position: stabilizers lag behind the input device
+        lastRawPos = Point(pos.x / zoom, pos.y / zoom);
+        if (holdDetector.update({lastRawPos.x, lastRawPos.y}, zoom)) {
+            restartHoldTimer();
+        }
     }
 
     stabilizer->processEvent(pos);
@@ -125,6 +139,7 @@ void StrokeHandler::drawSegmentTo(const Point& point) {
 }
 
 void StrokeHandler::onSequenceCancelEvent() {
+    holdTimer.cancel();
     if (this->stroke) {
         this->viewPool->dispatchAndClear(xoj::view::StrokeToolView::CANCELLATION_REQUEST,
                                          Range(this->stroke->getBoundingBox()));
@@ -164,7 +179,11 @@ void StrokeHandler::onButtonReleaseEvent(const PositionInputData& pos, double zo
     if (!stroke) {
         return;
     }
-    finalizeStroke(pos.pressure);
+    holdTimer.cancel();
+    if (!convertedToShape) {
+        // The shape is final: finalizing would let the stabilizer add points to it
+        finalizeStroke(pos.pressure);
+    }
 
     Layer* layer = page->getSelectedLayer();
 
@@ -187,7 +206,7 @@ void StrokeHandler::onButtonReleaseEvent(const PositionInputData& pos, double zo
     }
 
     ToolHandler* h = control->getToolHandler();
-    if (h->getDrawingType() == DRAWING_TYPE_SHAPE_RECOGNIZER) {
+    if (!convertedToShape && h->getDrawingType() == DRAWING_TYPE_SHAPE_RECOGNIZER) {
         ShapeRecognizer reco;
 
         auto recognized = reco.recognizePatterns(stroke.get(), control->getSettings()->getStrokeRecognizerMinSize());
@@ -213,26 +232,11 @@ void StrokeHandler::onButtonReleaseEvent(const PositionInputData& pos, double zo
 }
 
 void StrokeHandler::strokeRecognizerDetected(std::unique_ptr<Stroke> recognized, Layer* layer) {
-    recognized->setWidth(stroke->hasPressure() ? stroke->getAvgPressure() : stroke->getWidth());
+    recognized->setWidth(getRecognizedWidth());
 
     // snapping
     if (control->getSettings()->getSnapRecognizedShapesEnabled()) {
-        Rectangle<double> oldSnappedBounds = recognized->getSnappedBounds();
-        Point topLeft = Point(oldSnappedBounds.x, oldSnappedBounds.y);
-        Point topLeftSnapped = snappingHandler.snapToGrid(topLeft, false);
-
-        recognized->move(topLeftSnapped.x - topLeft.x, topLeftSnapped.y - topLeft.y);
-        Rectangle<double> snappedBounds = recognized->getSnappedBounds();
-        Point belowRight = Point(snappedBounds.x + snappedBounds.width, snappedBounds.y + snappedBounds.height);
-        Point belowRightSnapped = snappingHandler.snapToGrid(belowRight, false);
-
-        double fx = (std::abs(snappedBounds.width) > std::numeric_limits<double>::epsilon()) ?
-                            (belowRightSnapped.x - topLeftSnapped.x) / snappedBounds.width :
-                            1;
-        double fy = (std::abs(snappedBounds.height) > std::numeric_limits<double>::epsilon()) ?
-                            (belowRightSnapped.y - topLeftSnapped.y) / snappedBounds.height :
-                            1;
-        recognized->scale(topLeftSnapped.x, topLeftSnapped.y, fx, fy, 0, false);
+        snapRecognizedBoundsToGrid(*recognized);
     }
 
     UndoRedoHandler* undo = control->getUndoRedoHandler();
@@ -255,6 +259,89 @@ void StrokeHandler::strokeRecognizerDetected(std::unique_ptr<Stroke> recognized,
     page->fireElementChanged(recognizedPtr);
 }
 
+auto StrokeHandler::getRecognizedWidth() const -> double {
+    return stroke->hasPressure() ? stroke->getAvgPressure() : stroke->getWidth();
+}
+
+void StrokeHandler::snapRecognizedBoundsToGrid(Stroke& recognized) const {
+    Rectangle<double> oldSnappedBounds = recognized.getSnappedBounds();
+    Point topLeft = Point(oldSnappedBounds.x, oldSnappedBounds.y);
+    Point topLeftSnapped = snappingHandler.snapToGrid(topLeft, false);
+
+    recognized.move(topLeftSnapped.x - topLeft.x, topLeftSnapped.y - topLeft.y);
+    Rectangle<double> snappedBounds = recognized.getSnappedBounds();
+    Point belowRight = Point(snappedBounds.x + snappedBounds.width, snappedBounds.y + snappedBounds.height);
+    Point belowRightSnapped = snappingHandler.snapToGrid(belowRight, false);
+
+    double fx = (std::abs(snappedBounds.width) > std::numeric_limits<double>::epsilon()) ?
+                        (belowRightSnapped.x - topLeftSnapped.x) / snappedBounds.width :
+                        1;
+    double fy = (std::abs(snappedBounds.height) > std::numeric_limits<double>::epsilon()) ?
+                        (belowRightSnapped.y - topLeftSnapped.y) / snappedBounds.height :
+                        1;
+    recognized.scale(topLeftSnapped.x, topLeftSnapped.y, fx, fy, 0, false);
+}
+
+void StrokeHandler::snapRecognizedLine(Stroke& recognized) const {
+    xoj_assert(recognized.getPointCount() == 2);
+    Point first = recognized.getPoint(0);
+    Point second = recognized.getPoint(1);
+
+    if (control->getSettings()->getSnapRecognizedShapesEnabled()) {
+        // Move the whole line with its first point, then snap the second point to the angles and to the grid
+        const Point firstSnapped = snappingHandler.snapToGrid(first, false);
+        second.x += firstSnapped.x - first.x;
+        second.y += firstSnapped.y - first.y;
+        first = firstSnapped;
+        second = snappingHandler.snap(second, first, false);
+    } else {
+        second = snappingHandler.snapRotation(second, first, false);
+    }
+
+    recognized.setPointVector({first, second});
+}
+
+void StrokeHandler::restartHoldTimer() {
+    holdTimer = g_timeout_add(holdToShapeDelay, xoj::util::wrap_for_once_v<holdTimerCallback>, this);
+}
+
+void StrokeHandler::holdTimerCallback(StrokeHandler* self) {
+    self->holdTimer.consume();
+    self->tryConvertToShape();
+}
+
+void StrokeHandler::tryConvertToShape() {
+    if (!stroke || convertedToShape || !holdDetector.isArmed()) {
+        return;
+    }
+
+    // Recognize a copy: the stroke may lag behind the input device (stabilizer), so add the device's position to it
+    auto probe = stroke->cloneStroke();
+    probe->addPoint(lastRawPos);
+
+    ShapeRecognizer reco;
+    auto recognized = reco.recognizePatterns(probe.get(), control->getSettings()->getStrokeRecognizerMinSize());
+    if (!recognized) {
+        // Keep drawing normally. The next movement re-arms the detector.
+        holdDetector.disarm();
+        return;
+    }
+
+    recognized->setWidth(getRecognizedWidth());
+    if (recognized->getPointCount() == 2) {
+        snapRecognizedLine(*recognized);
+    } else if (control->getSettings()->getSnapRecognizedShapesEnabled()) {
+        snapRecognizedBoundsToGrid(*recognized);
+    }
+
+    Range dirtyRange = Range(stroke->getBoundingBox()).unite(Range(recognized->getBoundingBox()));
+    stroke = std::move(recognized);
+    convertedToShape = true;
+
+    this->viewPool->dispatch(xoj::view::StrokeToolView::STROKE_REPLACEMENT_REQUEST, *stroke);
+    this->viewPool->dispatch(xoj::view::StrokeToolView::FLAG_DIRTY_REGION, dirtyRange);
+}
+
 void StrokeHandler::onButtonPressEvent(const PositionInputData& pos, double zoom) {
     xoj_assert(!stroke);
 
@@ -269,6 +356,20 @@ void StrokeHandler::onButtonPressEvent(const PositionInputData& pos, double zoom
     stroke->addPoint(Point(this->buttonDownPoint.x, this->buttonDownPoint.y, width));
 
     stabilizer->initialize(this, zoom, pos);
+
+    ToolHandler* h = control->getToolHandler();
+    Settings* settings = control->getSettings();
+    // Only for freehand pen and highlighter strokes: not for the laser pointer nor the whiteout eraser. The shape
+    // recognizer drawing type already converts strokes on release.
+    holdToShapeEnabled = settings->isHoldToShapeEnabled() &&
+                         (h->getToolType() == TOOL_PEN || h->getToolType() == TOOL_HIGHLIGHTER) &&
+                         h->getDrawingType() != DRAWING_TYPE_SHAPE_RECOGNIZER;
+    if (holdToShapeEnabled) {
+        holdToShapeDelay = static_cast<unsigned int>(settings->getHoldToShapeDelay());
+        lastRawPos = Point(this->buttonDownPoint.x, this->buttonDownPoint.y);
+        holdDetector.start({lastRawPos.x, lastRawPos.y});
+        restartHoldTimer();
+    }
 }
 
 void StrokeHandler::onButtonDoublePressEvent(const PositionInputData&, double) {

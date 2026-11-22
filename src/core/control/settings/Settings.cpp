@@ -1,6 +1,6 @@
 #include "Settings.h"
 
-#include <algorithm>    // for max
+#include <algorithm>    // for max, clamp
 #include <cstdint>      // for uint32_t, int32_t
 #include <cstdio>       // for sscanf, size_t
 #include <cstdlib>      // for atoi
@@ -158,6 +158,8 @@ void Settings::loadDefault() {
     this->snapGridSize = DEFAULT_GRID_SIZE;
 
     this->strokeRecognizerMinSize = 40;
+    this->holdToShapeEnabled = true;
+    this->holdToShapeDelay = 500;
 
     this->touchDrawing = false;
     this->gtkTouchInertialScrolling = true;
@@ -631,6 +633,12 @@ void Settings::parseItem(xmlDocPtr doc, xmlNodePtr cur) {
         this->snapGridTolerance = tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr);
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("strokeRecognizerMinSize")) == 0) {
         this->strokeRecognizerMinSize = tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr);
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("holdToShapeEnabled")) == 0) {
+        this->holdToShapeEnabled = xmlStrcmp(value, reinterpret_cast<const xmlChar*>("true")) == 0;
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("holdToShapeDelay")) == 0) {
+        this->holdToShapeDelay =
+                std::clamp(static_cast<int>(g_ascii_strtoll(reinterpret_cast<const char*>(value), nullptr, 10)),
+                           HOLD_TO_SHAPE_DELAY_MIN, HOLD_TO_SHAPE_DELAY_MAX);
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("touchDrawing")) == 0) {
         this->touchDrawing = xmlStrcmp(value, reinterpret_cast<const xmlChar*>("true")) == 0;
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("gtkTouchInertialScrolling")) == 0) {
@@ -1150,6 +1158,8 @@ void Settings::save() {
     SAVE_DOUBLE_PROP(snapGridSize);
 
     SAVE_DOUBLE_PROP(strokeRecognizerMinSize);
+    SAVE_BOOL_PROP(holdToShapeEnabled);
+    SAVE_INT_PROP(holdToShapeDelay);
 
     SAVE_BOOL_PROP(touchDrawing);
     SAVE_BOOL_PROP(gtkTouchInertialScrolling);
@@ -1664,6 +1674,27 @@ void Settings::setStrokeRecognizerMinSize(double value) {
     this->strokeRecognizerMinSize = value;
     save();
 };
+
+auto Settings::isHoldToShapeEnabled() const -> bool { return this->holdToShapeEnabled; }
+
+void Settings::setHoldToShapeEnabled(bool enabled) {
+    if (this->holdToShapeEnabled == enabled) {
+        return;
+    }
+    this->holdToShapeEnabled = enabled;
+    save();
+}
+
+auto Settings::getHoldToShapeDelay() const -> int { return this->holdToShapeDelay; }
+
+void Settings::setHoldToShapeDelay(int delay) {
+    delay = std::clamp(delay, HOLD_TO_SHAPE_DELAY_MIN, HOLD_TO_SHAPE_DELAY_MAX);
+    if (this->holdToShapeDelay == delay) {
+        return;
+    }
+    this->holdToShapeDelay = delay;
+    save();
+}
 
 auto Settings::getTouchDrawingEnabled() const -> bool { return this->touchDrawing; }
 
