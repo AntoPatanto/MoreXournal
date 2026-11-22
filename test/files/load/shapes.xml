@@ -1,0 +1,23 @@
+<?xml version="1.0" standalone="no"?>
+<xournal creator="MoreXournal test" fileversion="4">
+<title>Xournal++ document - see https://xournalpp.github.io/</title>
+<page width="595.27559" height="841.88976">
+<background type="solid" color="#ffffffff" style="plain"/>
+<layer>
+<stroke tool="pen" color="#000000ff" width="2.26" capStyle="round" mxShape="line" mxShapeParams="10 20 110 70">10 20 110 70</stroke>
+<stroke tool="pen" color="#000000ff" width="2.26" capStyle="round" fill="128" mxFillColor="#ff000080" mxShape="rectangle" mxShapeParams="100 100 200 100 100 150">100 100 200 100 200 150 100 150 100 100</stroke>
+<stroke tool="pen" color="#000000ff" width="2.26" capStyle="round" mxShape="ellipse" mxShapeParams="300 300 350 300 300 330">350 300 349.039 305.853 346.194 311.481 341.573 316.667 335.355 321.213 327.779 324.944 319.134 327.716 309.755 329.424 300 330 290.245 329.424 280.866 327.716 272.221 324.944 264.645 321.213 258.427 316.667 253.806 311.481 250.961 305.853 250 300 250.961 294.147 253.806 288.519 258.427 283.333 264.645 278.787 272.221 275.056 280.866 272.284 290.245 270.576 300 270 309.755 270.576 319.134 272.284 327.779 275.056 335.355 278.787 341.573 283.333 346.194 288.519 349.039 294.147 350 300</stroke>
+<stroke tool="pen" color="#000000ff" width="2.26" capStyle="round" mxShape="polygon" mxShapeParams="400 100 500 100 450 180">400 100 500 100 450 180 400 100</stroke>
+<stroke tool="pen" color="#000000ff" width="2.26" capStyle="round" mxShape="hexagon" mxShapeParams="10 20 110 70">10 20 110 70</stroke>
+<stroke tool="pen" color="#000000ff" width="2.26" capStyle="round" mxShape="line" mxShapeParams="10 20 110">10 20 110 70</stroke>
+<stroke tool="pen" color="#000000ff" width="2.26" capStyle="round" mxShape="line" mxShapeParams="nan 20 110 70">10 20 110 70</stroke>
+<stroke tool="pen" color="#000000ff" width="2.26" capStyle="round" mxShape="line" mxShapeParams="0 0 500 500">10 20 110 70</stroke>
+<stroke tool="pen" color="#000000ff" width="2.26 0.5" capStyle="round" mxShape="line" mxShapeParams="10 20 110 70">10 20 110 70</stroke>
+<stroke tool="pen" color="#000000ff" width="2.26" capStyle="round" mxShape="line" mxShapeParams="10 20 abc 70">10 20 110 70</stroke>
+<stroke tool="pen" color="#000000ff" width="2.26" capStyle="round" mxShape="rectangle" mxShapeParams="100 100 200 100 300 100">100 100 200 100 200 150 100 150 100 100</stroke>
+<stroke tool="pen" color="#000000ff" width="2.26" capStyle="round" mxShape="line">10 20 110 70</stroke>
+<stroke tool="pen" color="#000000ff" width="2.26" capStyle="round" fill="255" mxFillColor="blue">100 100 200 100 200 150 100 150 100 100</stroke>
+<stroke tool="pen" color="#000000ff" width="2.26" capStyle="round" mxShape="polygon" mxShapeParams="1e400 100 500 100 450 180">400 100 500 100 450 180 400 100</stroke>
+</layer>
+</page>
+</xournal>

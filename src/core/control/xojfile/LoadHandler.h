@@ -99,7 +99,8 @@ private:
     void addLayer(const std::optional<std::string_view>& name) override;
     void finalizeLayer() override;
     void addStroke(StrokeTool tool, Color color, double width, int fill, StrokeCapStyle capStyle,
-                   const LineStyle& lineStyle, fs::path filename, size_t timestamp) override;
+                   const LineStyle& lineStyle, fs::path filename, size_t timestamp, std::optional<ShapeInfo> shape,
+                   std::optional<Color> fillColor) override;
     void setStrokePoints(std::vector<Point> pointVector, bool hasPressure) override;
     void finalizeStroke() override;
     void addText(std::string font, double size, xoj::util::Matrix matrix, Color color, std::optional<double> wrap,
@@ -205,6 +206,8 @@ private:
     PageRef page;
     std::unique_ptr<Layer> layer;
     std::unique_ptr<Stroke> stroke;
+    /// Shape of the current stroke, attached in finalizeStroke() once the points are known and checked
+    std::optional<ShapeInfo> strokeShape;
     std::unique_ptr<Text> text;
     std::unique_ptr<Image> image;
     std::unique_ptr<TexImage> teximage;

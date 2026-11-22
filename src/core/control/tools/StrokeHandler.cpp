@@ -23,6 +23,7 @@
 #include "model/Element.h"
 #include "model/Layer.h"                                    // for Layer
 #include "model/LineStyle.h"                                // for LineStyle
+#include "model/ShapeInfo.h"                                // for ShapeInfo, ShapeType
 #include "model/Stroke.h"                                   // for Stroke, STROKE_...
 #include "model/XojPage.h"                                  // for XojPage
 #include "undo/InsertUndoAction.h"                          // for InsertUndoAction
@@ -212,6 +213,8 @@ void StrokeHandler::onButtonReleaseEvent(const PositionInputData& pos, double zo
         auto recognized = reco.recognizePatterns(stroke.get(), control->getSettings()->getStrokeRecognizerMinSize());
 
         if (recognized) {
+            // This drawing type keeps producing plain strokes
+            recognized->clearShape();
             // strokeRecognizerDetected handles the repainting and the deletion of the views.
             strokeRecognizerDetected(std::move(recognized), layer);
             return;
@@ -229,6 +232,10 @@ void StrokeHandler::onButtonReleaseEvent(const PositionInputData& pos, double zo
     this->viewPool->dispatchAndClear(xoj::view::StrokeToolView::FINALIZATION_REQUEST, Range());
 
     page->fireElementChanged(ptr);
+
+    if (convertedToShape && ptr->getShape()) {
+        createdShape = ptr;
+    }
 }
 
 void StrokeHandler::strokeRecognizerDetected(std::unique_ptr<Stroke> recognized, Layer* layer) {
@@ -298,7 +305,12 @@ void StrokeHandler::snapRecognizedLine(Stroke& recognized) const {
         second = snappingHandler.snapRotation(second, first, false);
     }
 
-    recognized.setPointVector({first, second});
+    ShapeInfo info{ShapeType::LINE, {first.getPosition(), second.getPosition()}};
+    if (recognized.getShape() && info.isValid()) {
+        recognized.setShape(std::move(info));
+    } else {
+        recognized.setPointVector({first, second});
+    }
 }
 
 void StrokeHandler::restartHoldTimer() {

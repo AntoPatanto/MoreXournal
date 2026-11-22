@@ -25,11 +25,13 @@
 
 #include "control/xojfile/LoadHandler.h"
 #include "control/xojfile/SaveHandler.h"
+#include "control/xojfile/XojExportHandler.h"
 #include "model/Element.h"
 #include "model/Image.h"
 #include "model/Link.h"
 #include "model/PageRef.h"
 #include "model/PageType.h"
+#include "model/ShapeInfo.h"
 #include "model/Stroke.h"
 #include "model/StrokeStyle.h"
 #include "model/TexImage.h"
@@ -37,6 +39,7 @@
 #include "model/TextAlignment.h"
 #include "model/XojPage.h"
 #include "util/Color.h"
+#include "util/OutputStream.h"
 #include "util/PathUtil.h"
 #include "util/StringUtils.h"
 
@@ -329,6 +332,17 @@ static void checkSaveAndReload(const std::unique_ptr<Document>& doc) {
                         EXPECT_NEAR(p1.y, p2.y, DOUBLE_COMPARE_ERROR);
                         EXPECT_NEAR(p1.z, p2.z, DOUBLE_COMPARE_ERROR);
                     }
+                    EXPECT_EQ(s1.getFillColor(), s2.getFillColor());
+                    ASSERT_EQ(s1.getShape().has_value(), s2.getShape().has_value());
+                    if (s1.getShape()) {
+                        EXPECT_EQ(s1.getShape()->type, s2.getShape()->type);
+                        const auto params1 = s1.getShape()->toDoubles();
+                        const auto params2 = s2.getShape()->toDoubles();
+                        ASSERT_EQ(params1.size(), params2.size());
+                        for (size_t n = 0; n < params1.size(); n++) {
+                            EXPECT_NEAR(params1[n], params2[n], 1e-5);
+                        }
+                    }
                 });
                 break;
             case ELEMENT_TEXT:
@@ -607,6 +621,96 @@ TEST(ControlLoadHandler, testStrokes) {
                 {{0, {143.58172, 506.94589, Point::NO_PRESSURE}}, {1, {451.69387, 506.94589, Point::NO_PRESSURE}}});
 
     checkSaveAndReload(doc);
+}
+
+namespace {
+/// Collects what a SaveHandler writes
+class StringOutputStream: public OutputStream {
+public:
+    void write(const char* data, size_t len) override { str.append(data, len); }
+    void close() override {}
+    std::string str;
+};
+
+template <class Handler>
+std::string saveToString(const Document& doc) {
+    Handler handler;
+    const fs::path target = fs::temp_directory_path() / "xournalpp-test-units-unused.xopp";
+    handler.prepareSave(&doc, target);
+    StringOutputStream out;
+    handler.saveTo(&out, target);
+    return out.str;
+}
+
+const Stroke* strokeAt(const Layer* layer, size_t index) {
+    return dynamic_cast<const Stroke*>(layer->getElementsView()[index]);
+}
+}  // namespace
+
+TEST(ControlLoadHandler, testShapes) {
+    auto doc = loadTestDocument(GET_TESTFILE(u8"load/shapes.xopp"));
+    ASSERT_TRUE(doc);
+    ConstPageRef page = doc->getPage(0);
+    const Layer* layer = page->getLayersView().front();
+
+    // Invalid shapes still load, as plain strokes
+    ASSERT_EQ(size_t{14}, layer->getElementsView().size());
+
+    auto expectShape = [&](size_t index, ShapeType type, const std::vector<double>& params) {
+        SCOPED_TRACE(index);
+        const Stroke* s = strokeAt(layer, index);
+        ASSERT_TRUE(s);
+        ASSERT_TRUE(s->getShape());
+        EXPECT_EQ(s->getShape()->type, type);
+        EXPECT_EQ(s->getShape()->toDoubles(), params);
+    };
+    expectShape(0, ShapeType::LINE, {10, 20, 110, 70});
+    expectShape(1, ShapeType::RECTANGLE, {100, 100, 200, 100, 100, 150});
+    expectShape(2, ShapeType::ELLIPSE, {300, 300, 350, 300, 300, 330});
+    expectShape(3, ShapeType::POLYGON, {400, 100, 500, 100, 450, 180});
+
+    // Unknown type, wrong parameter count, NaN, parameters not matching the points, pressure stroke, unparsable
+    // parameters, flat rectangle, missing parameters, overflowing value
+    for (size_t index: std::vector<size_t>{4, 5, 6, 7, 8, 9, 10, 11, 13}) {
+        const Stroke* s = strokeAt(layer, index);
+        ASSERT_TRUE(s);
+        EXPECT_FALSE(s->getShape()) << "stroke " << index;
+        EXPECT_GE(s->getPointCount(), 2U) << "stroke " << index;
+    }
+    EXPECT_TRUE(strokeAt(layer, 8)->hasPressure());
+
+    // Fill color
+    EXPECT_EQ(strokeAt(layer, 1)->getFillColor(), std::optional<Color>(Color(0x80ff0000)));
+    EXPECT_EQ(strokeAt(layer, 1)->getFill(), 128);
+    EXPECT_FALSE(strokeAt(layer, 12)->getFillColor());  // "blue" is not a color code
+    EXPECT_EQ(strokeAt(layer, 12)->getFill(), 255);
+    EXPECT_FALSE(strokeAt(layer, 0)->getFillColor());
+
+    checkSaveAndReload(doc);
+}
+
+TEST(ControlLoadHandler, testShapesSaveFormat) {
+    auto doc = loadTestDocument(GET_TESTFILE(u8"load/shapes.xopp"));
+    ASSERT_TRUE(doc);
+
+    const std::string xopp = saveToString<SaveHandler>(*doc);
+    EXPECT_NE(xopp.find(R"(mxShape="rectangle" mxShapeParams="100 100 200 100 100 150")"), std::string::npos);
+    EXPECT_NE(xopp.find(R"(mxFillColor="#ff000080")"), std::string::npos);
+    // Plain strokes get no extra attribute
+    EXPECT_NE(xopp.find(R"(<stroke tool="pen" color="#000000ff" width="2.26" capStyle="round">10 20 110 70</stroke>)"),
+              std::string::npos);
+
+    // The legacy .xoj export drops the extensions
+    const std::string xoj = saveToString<XojExportHandler>(*doc);
+    EXPECT_NE(xoj.find("<stroke"), std::string::npos);
+    EXPECT_EQ(xoj.find(" mx"), std::string::npos);
+}
+
+TEST(ControlLoadHandler, testPlainStrokesHaveNoExtensions) {
+    auto doc = loadTestDocument(GET_TESTFILE(u8"load/strokes.xopp"));
+    ASSERT_TRUE(doc);
+    // Attribute names follow a space, which cannot appear in the base64 preview
+    EXPECT_EQ(saveToString<SaveHandler>(*doc).find(" mx"), std::string::npos);
 }
 
 TEST(ControlLoadHandler, testText_v4) {

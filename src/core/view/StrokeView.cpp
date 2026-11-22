@@ -91,7 +91,9 @@ void StrokeView::draw(const Context& ctx) const {
                 cairo_set_source_rgba(cr, 1, 1, 1, static_cast<double>(fill) / 255.0);
             }
         } else {
-            Util::cairo_set_source_rgbi(cr, s->getColor(), static_cast<double>(fill) / 255.0);
+            // Filled highlighters always go through the colorless mask above, so this is a pen stroke
+            Util::cairo_set_source_rgbi(cr, s->getFillColor().value_or(s->getColor()),
+                                        static_cast<double>(fill) / 255.0);
         }
         cairo_set_operator(cr, useMask ? CAIRO_OPERATOR_SOURCE : CAIRO_OPERATOR_OVER);
 

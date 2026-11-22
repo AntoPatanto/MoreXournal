@@ -11,14 +11,16 @@
 
 #pragma once
 
-#include <memory>  // for shared_ptr
-#include <utility>  // for pair
+#include <memory>    // for shared_ptr
+#include <optional>  // for optional
+#include <utility>   // for pair
 #include <vector>   // for vector
 
 #include <gdk/gdk.h>  // for GdkEventKey
 
-#include "model/PageRef.h"  // for PageRef
-#include "model/Point.h"    // for Point
+#include "model/PageRef.h"    // for PageRef
+#include "model/Point.h"      // for Point
+#include "model/ShapeInfo.h"  // for ShapeInfo
 #include "util/Range.h"     // for Range
 
 #include "InputHandler.h"            // for InputHandler
@@ -93,6 +95,12 @@ protected:
 
 protected:
     std::vector<Point> shape;
+
+    /**
+     * @brief Shape metadata matching `shape`, set by createShape() for the tools that make editable shapes. Attached
+     * to the stroke on release if valid.
+     */
+    std::optional<ShapeInfo> shapeInfo;
 
     /**
      * @brief Bounding box of the stroke after its last update

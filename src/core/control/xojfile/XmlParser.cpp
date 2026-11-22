@@ -20,6 +20,7 @@
 #include "control/xojfile/XmlTags.h"                   // for XmlTags
 #include "model/PageType.h"                            // for PageType
 #include "model/Point.h"                               // for Point
+#include "model/ShapeInfo.h"                           // for ShapeInfo, ShapeType
 #include "model/Stroke.h"                              // for StrokeTool, StrokeCapStyle
 #include "model/TextAlignment.h"                       // for TextAlignment
 #include "util/Assert.h"                               // for xoj_assert
@@ -95,6 +96,29 @@ static auto getMatrix(const XmlParserHelper::AttributeMap& attributeMap) -> std:
     bool success = parseDouble(it, end, m.xx) && parseDouble(it, end, m.yx) && parseDouble(it, end, m.xy) &&
                    parseDouble(it, end, m.yy) && parseDouble(it, end, m.shift.x) && parseDouble(it, end, m.shift.y);
     return success ? std::make_optional(m) : std::nullopt;
+}
+
+static auto parseShapeParams(ShapeType type, const XmlParserHelper::AttributeMap& attributeMap)
+        -> std::optional<ShapeInfo> {
+    const auto sv = XmlParserHelper::getAttrib<std::string_view>(xoj::xml_attrs::MX_SHAPE_PARAMS_STR, attributeMap);
+    if (!sv) {
+        g_warning("XML parser: Ignoring shape without parameters");
+        return std::nullopt;
+    }
+    auto it = sv->data();
+    const auto end = sv->data() + sv->size();
+    std::vector<double> values;
+    double value{};
+    while (parseDouble(it, end, value)) {
+        values.emplace_back(value);
+    }
+    // parseDouble() stops on the first value it cannot parse: anything left over makes the parameters invalid
+    const bool fullyParsed = std::all_of(it, end, [](char c) { return std::isspace(static_cast<unsigned char>(c)); });
+    auto shape = fullyParsed ? ShapeInfo::fromDoubles(type, values) : std::nullopt;
+    if (!shape) {
+        g_warning("XML parser: Ignoring invalid shape parameters \"%s\"", StringUtils::ellipsize(*sv).c_str());
+    }
+    return shape;
 }
 
 static auto getNaturalSize(const XmlParserHelper::AttributeMap& attributeMap)
@@ -403,9 +427,16 @@ void XmlParser::parseStrokeTag(const XmlParserHelper::AttributeMap& attributeMap
                 XmlParserHelper::getAttribMandatory<size_t>(xoj::xml_attrs::TIMESTAMP_STR, attributeMap, 0UL);
     }
 
+    // MoreXournal extensions. Invalid values are dropped with a warning: the stroke still loads as a plain stroke.
+    std::optional<ShapeInfo> shape;
+    if (const auto shapeType = XmlParserHelper::getAttrib<ShapeType>(xoj::xml_attrs::MX_SHAPE_STR, attributeMap)) {
+        shape = parseShapeParams(*shapeType, attributeMap);
+    }
+    const auto fillColor = XmlParserHelper::getAttribColor(xoj::xml_attrs::MX_FILL_COLOR_STR, attributeMap);
+
     // forward data to builder
     this->builder.addStroke(tool, color, width, fill, capStyle, lineStyle, std::move(this->tempFilename),
-                            this->tempTimestamp);
+                            this->tempTimestamp, std::move(shape), fillColor);
 
     // Reset timestamp, filename was already moved from
     this->tempTimestamp = 0;

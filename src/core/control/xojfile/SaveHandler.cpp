@@ -28,6 +28,7 @@
 #include "model/Link.h"                        // for Link
 #include "model/PageType.h"                    // for PageType
 #include "model/Point.h"                       // for Point
+#include "model/ShapeInfo.h"                   // for ShapeInfo, ShapeType
 #include "model/Stroke.h"                      // for Stroke, StrokeCapStyle
 #include "model/StrokeStyle.h"                 // for StrokeStyle
 #include "model/TexImage.h"                    // for TexImage
@@ -161,6 +162,15 @@ void SaveHandler::visitStrokeExtended(XmlPointNode* stroke, const Stroke* s) {
 
     if (s->getLineStyle().hasDashes()) {
         stroke->setAttrib(xoj::xml_attrs::STYLE_STR, StrokeStyle::formatStyle(s->getLineStyle()));
+    }
+
+    // MoreXournal extensions: extra attributes that Xournal++ ignores
+    if (const auto& fillColor = s->getFillColor(); fillColor) {
+        stroke->setAttrib(xoj::xml_attrs::MX_FILL_COLOR_STR, getColorStr(*fillColor, fillColor->alpha));
+    }
+    if (const auto& shape = s->getShape(); shape) {
+        stroke->setAttrib(xoj::xml_attrs::MX_SHAPE_STR, ShapeType::NAMES[shape->type]);
+        stroke->setAttrib(xoj::xml_attrs::MX_SHAPE_PARAMS_STR, shape->toDoubles());
     }
 }
 

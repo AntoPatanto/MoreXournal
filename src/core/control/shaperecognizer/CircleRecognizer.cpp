@@ -3,10 +3,12 @@
 #include <cmath>     // for hypot, cos, fabs, sin, M_PI
 #include <iterator>  // for begin, end, next
 #include <memory>
+#include <utility>   // for move
 #include <vector>    // for vector
 
-#include "model/Point.h"   // for Point
-#include "model/Stroke.h"  // for Stroke
+#include "model/Point.h"      // for Point
+#include "model/ShapeInfo.h"  // for ShapeInfo, ShapeType
+#include "model/Stroke.h"     // for Stroke
 
 #include "Inertia.h"                // for Inertia
 #include "ShapeRecognizerConfig.h"  // for RDEBUG, CIRCLE_MAX_SCORE, CIRCLE_...
@@ -27,6 +29,15 @@ auto CircleRecognizer::makeCircleShape(Stroke* originalStroke, Inertia& inertia)
         double x = inertia.centerX() + inertia.rad() * cos((2 * M_PI * i) / npts);
         double y = inertia.centerY() + inertia.rad() * sin((2 * M_PI * i) / npts);
         s->addPoint(Point(x, y));
+    }
+
+    // After the addPoint() calls, which drop the shape
+    const double cx = inertia.centerX();
+    const double cy = inertia.centerY();
+    const double r = inertia.rad();
+    ShapeInfo info{ShapeType::ELLIPSE, {{cx, cy}, {cx + r, cy}, {cx, cy + r}}};
+    if (info.isValid()) {
+        s->attachShape(std::move(info));
     }
 
     return s;

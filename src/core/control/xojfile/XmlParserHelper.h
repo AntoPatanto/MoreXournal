@@ -90,6 +90,8 @@ std::optional<LineStyle> getAttrib<LineStyle>(std::u8string_view name, const Att
 
 // "color" attribute
 Color getAttribColorMandatory(const AttributeMap& attributeMap, const Color& defaultValue, bool bg = false);
+// Optional color attribute given as a #rrggbbaa code. Invalid values are ignored with a warning.
+std::optional<Color> getAttribColor(std::u8string_view name, const AttributeMap& attributeMap);
 // Attempt to match string with background-specific color aliases
 std::optional<Color> parseBgColor(string_utf8_view sv);
 // Parse a string as a RGBA hex color code

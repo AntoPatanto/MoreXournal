@@ -8,6 +8,7 @@
 #include "control/tools/BaseShapeHandler.h"        // for BaseShapeHandler
 #include "control/tools/SnapToGridInputHandler.h"  // for SnapToGridInputHan...
 #include "model/Point.h"                           // for Point
+#include "model/ShapeInfo.h"                       // for ShapeInfo, ShapeType
 #include "util/Assert.h"
 
 EllipseHandler::EllipseHandler(Control* control, const PageRef& page, bool flipShift, bool flipControl):
@@ -101,6 +102,9 @@ auto EllipseHandler::createShape(bool isAltDown, bool isShiftDown, bool isContro
     Range rg(center_x + radiusX, center_y + radiusY);
     rg.addPoint(center_x - radiusX, center_y - radiusY);
     res.second = rg;
+
+    this->shapeInfo = ShapeInfo{ShapeType::ELLIPSE,
+                                {{center_x, center_y}, {center_x + radiusX, center_y}, {center_x, center_y + radiusY}}};
 
     return res;
 }
