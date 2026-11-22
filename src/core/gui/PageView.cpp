@@ -691,12 +691,20 @@ auto XojPageView::onButtonReleaseEvent(const PositionInputData& pos) -> bool {
     if (this->inputHandler) {
         double zoom = xournal->getZoom();
         this->inputHandler->onButtonReleaseEvent(pos, zoom);
+        // A shape just drawn: show its handles until the next stroke
+        Stroke* createdShape = this->inputHandler->getCreatedShape();
 
         ToolHandler* h = control->getToolHandler();
         bool isDrawingTypeSpline = h->getDrawingType() == DRAWING_TYPE_SPLINE;
         if (!isDrawingTypeSpline || !this->inputHandler->getStroke()) {  // The Spline Tool finalizes drawing manually
             xoj_assert(hasNoViewOf(overlayViews, inputHandler.get()));
             this->inputHandler.reset();
+        }
+
+        if (createdShape) {
+            auto sel = SelectionFactory::createFromElementOnActiveLayer(control, this->page, this, createdShape);
+            sel->setTransient(true);
+            this->xournal->setSelection(sel.release());
         }
     } else if (auto tt = control->getToolHandler()->getToolType();
                this->laserPointer && (tt == TOOL_LASER_POINTER_PEN || tt == TOOL_LASER_POINTER_HIGHLIGHTER)) {

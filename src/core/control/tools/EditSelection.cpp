@@ -13,6 +13,8 @@
 
 #include "control/Control.h"                       // for Control
 #include "control/settings/Settings.h"             // for Settings
+#include "control/shapes/ShapeEditController.h"    // for applyGeometry
+#include "control/shapes/ShapeHandles.h"           // for handlesFor, dragHandle
 #include "control/tools/CursorSelectionType.h"     // for CURSOR_SELECTION_NONE
 #include "control/tools/SnapToGridInputHandler.h"  // for SnapToGridInputHan...
 #include "control/zoom/ZoomControl.h"              // for ZoomControl
@@ -26,6 +28,8 @@
 #include "model/Layer.h"                          // for Layer
 #include "model/LineStyle.h"                      // for LineStyle
 #include "model/Point.h"                          // for Point
+#include "model/ShapeInfo.h"                      // for ShapeInfo
+#include "model/Stroke.h"                         // for Stroke
 #include "model/XojPage.h"                        // for XojPage
 #include "undo/ArrangeUndoAction.h"               // for ArrangeUndoAction
 #include "undo/InsertUndoAction.h"                // for InsertsUndoAction
@@ -36,6 +40,8 @@
 #include "util/i18n.h"                            // for _
 #include "util/serializing/ObjectInputStream.h"   // for ObjectInputStream
 #include "util/serializing/ObjectOutputStream.h"  // for ObjectOutputStream
+#include "view/StrokeView.h"                      // for StrokeView
+#include "view/View.h"                            // for Context
 
 #include "EditSelectionContents.h"  // for EditSelectionConte...
 
@@ -50,6 +56,9 @@ constexpr size_t MINPIXSIZE = 5;
 /// Padding for ui buttons
 constexpr int DELETE_PADDING = 20;
 constexpr int ROTATE_PADDING = 8;
+
+/// Distance between a shape and its rotation knob, in pixels
+constexpr double SHAPE_ROTATE_DISTANCE = 24;
 
 /// Number of times to trigger edge pan timer per second
 constexpr unsigned int PAN_TIMER_RATE = 30;
@@ -391,6 +400,37 @@ auto EditSelection::setFill(int alphaPen, int alphaHighligther) -> UndoActionPtr
     return this->contents->setFill(alphaPen, alphaHighligther);
 }
 
+auto EditSelection::setFillStyle(int fill, std::optional<Color> fillColor) -> UndoActionPtr {
+    return this->contents->setFillStyle(fill, fillColor);
+}
+
+auto EditSelection::getShapeStroke() const -> Stroke* {
+    if (!this->contents) {
+        return nullptr;
+    }
+    const InsertionOrder& elements = this->contents->getInsertionOrder();
+    if (elements.size() != 1 || elements.front().e->getType() != ELEMENT_STROKE) {
+        return nullptr;
+    }
+    auto* s = static_cast<Stroke*>(elements.front().e.get());
+    return s->getShape() ? s : nullptr;
+}
+
+void EditSelection::setTransient(bool transient) { this->transient = transient; }
+
+auto EditSelection::isTransient() const -> bool { return this->transient; }
+
+void EditSelection::setGrabPointToCenter() {
+    this->relMousePosX = this->snappedBounds.width / 2;
+    this->relMousePosY = this->snappedBounds.height / 2;
+}
+
+auto EditSelection::getDestinationView() -> XojPageView* {
+    // Same choice as in finalizeSelection()
+    XojPageView* v = getPageViewUnderCursor();
+    return v ? v : this->contents->getSourceView();
+}
+
 /**
  * Set the line style of all elements, return an undo action
  * (Or nullptr if nothing done)
@@ -498,6 +538,19 @@ void EditSelection::mouseUp() {
         return;
     }
 
+    if (this->mouseDownType == CURSOR_SELECTION_SHAPE_HANDLE) {
+        this->mouseDownType = CURSOR_SELECTION_NONE;
+        const std::unique_ptr<Stroke> preview = std::move(this->shapePreview);
+        const Stroke* s = getShapeStroke();
+        if (s && preview && preview->getShape() && *preview->getShape() != *s->getShape()) {
+            // Replaces this selection by a new one: this object is deleted
+            ShapeEditController::applyGeometry(this->view->getXournal()->getControl(), this, *preview->getShape());
+            return;
+        }
+        this->view->getXournal()->repaintSelection();
+        return;
+    }
+
 
     PageRef page = this->view->getPage();
     Layer* layer = page->getSelectedLayer();
@@ -530,13 +583,34 @@ void EditSelection::mouseDown(CursorSelectionType type, double x, double y) {
 
     // coordinates relative to top left corner of snapped bounds in coordinate system which is rotated to make bounding
     // box edges horizontal/vertical
+    const double viewX = x;
+    const double viewY = y;
     cairo_matrix_transform_point(&this->cmatrix, &x, &y);
     this->relMousePosRotX = x / zoom - this->snappedBounds.x;
     this->relMousePosRotY = y / zoom - this->snappedBounds.y;
+
+    if (type == CURSOR_SELECTION_SHAPE_HANDLE) {
+        const Stroke* s = getShapeStroke();
+        auto handle = s ? shapeHandleAt(s, viewX, viewY, zoom) : std::nullopt;
+        if (!handle) {
+            this->mouseDownType = CURSOR_SELECTION_NONE;
+            return;
+        }
+        this->shapeHandle = *handle;
+        this->shapeDownPos = xoj::util::Point<double>(viewX / zoom, viewY / zoom) - getShapeOffset();
+        this->shapeMousePos = this->shapeDownPos;
+        this->shapePreview.reset();
+    }
 }
 
 void EditSelection::mouseMove(double mouseX, double mouseY, bool alt) {
     double zoom = this->view->getXournal()->getZoom();
+
+    if (this->mouseDownType == CURSOR_SELECTION_SHAPE_HANDLE) {
+        shapeMouseMove(mouseX, mouseY, alt, zoom);
+        this->view->getXournal()->repaintSelection();
+        return;
+    }
 
     if (this->mouseDownType == CURSOR_SELECTION_MOVE) {
         // compute translation (without snapping)
@@ -959,6 +1033,10 @@ void EditSelection::ensureWithinVisibleArea() {
  * Get the cursor type for the current position (if 0 then the default cursor should be used)
  */
 auto EditSelection::getSelectionTypeForPos(double x, double y, double zoom) -> CursorSelectionType {
+    if (const Stroke* s = getShapeStroke()) {
+        return getShapeSelectionTypeForPos(s, x, y, zoom);
+    }
+
     double x1 = getXOnView() * zoom;
     double x2 = x1 + this->width * zoom;
     double y1 = getYOnView() * zoom;
@@ -1033,6 +1111,11 @@ auto EditSelection::getSelectionTypeForPos(double x, double y, double zoom) -> C
  * should be relative to the provided view by getView() (use translateEvent())
  */
 void EditSelection::paint(cairo_t* cr, double zoom) {
+    if (const Stroke* s = getShapeStroke()) {
+        paintShape(cr, s, zoom);
+        return;
+    }
+
     double x = this->x;
     double y = this->y;
 
@@ -1148,6 +1231,159 @@ void EditSelection::drawDeleteRect(cairo_t* cr, double x, double y, double zoom)
     cairo_stroke(cr);
 }
 
+
+auto EditSelection::getShapeOffset() const -> xoj::util::Point<double> {
+    return {this->x - this->contents->getOriginalX(), this->y - this->contents->getOriginalY()};
+}
+
+auto EditSelection::shapeHandleAt(const Stroke* s, double x, double y, double zoom) const -> std::optional<size_t> {
+    const auto p = xoj::util::Point<double>(x / zoom, y / zoom) - getShapeOffset();
+    const auto handles = ShapeHandles::handlesFor(*s->getShape(), SHAPE_ROTATE_DISTANCE / zoom);
+    return ShapeHandles::handleAt(handles, p, (this->btnWidth / 2.0 + 2) / zoom);
+}
+
+auto EditSelection::getShapeSelectionTypeForPos(const Stroke* s, double x, double y, double zoom) const
+        -> CursorSelectionType {
+    if (shapeHandleAt(s, x, y, zoom)) {
+        return CURSOR_SELECTION_SHAPE_HANDLE;
+    }
+    const auto p = xoj::util::Point<double>(x / zoom, y / zoom) - getShapeOffset();
+    const double tolerance = std::max(s->getWidth() / 2, this->btnWidth / zoom);
+    if (ShapeHandles::contains(*s->getShape(), p, tolerance)) {
+        return CURSOR_SELECTION_MOVE;
+    }
+    return CURSOR_SELECTION_NONE;
+}
+
+void EditSelection::shapeMouseMove(double mouseX, double mouseY, bool alt, double zoom) {
+    const Stroke* s = getShapeStroke();
+    if (!s) {
+        return;
+    }
+    const ShapeInfo& base = *s->getShape();
+    const auto handles = ShapeHandles::handlesFor(base, SHAPE_ROTATE_DISTANCE / zoom);
+    if (this->shapeHandle >= handles.size()) {
+        return;
+    }
+    const auto offset = getShapeOffset();
+    // In the coordinates of the view, where the grid is
+    const Point mouse(mouseX / zoom, mouseY / zoom);
+
+    ShapeInfo pending;
+    if (handles[this->shapeHandle].kind == ShapeHandles::HandleKind::ROTATE) {
+        const auto c = ShapeHandles::center(base);
+        const auto m = mouse.getPosition() - offset;
+        const double angle =
+                std::atan2(m.y - c.y, m.x - c.x) - std::atan2(this->shapeDownPos.y - c.y, this->shapeDownPos.x - c.x);
+        pending = ShapeHandles::rotate(base, c, snappingHandler.snapAngle(angle, alt));
+        this->shapeMousePos = m;
+    } else {
+        Point snapped;
+        if (base.type == ShapeType::LINE) {
+            // Like the line tool: snap the angle around the other end, then to the grid
+            const auto other = base.pts[1 - this->shapeHandle] + offset;
+            snapped = snappingHandler.snap(mouse, Point(other.x, other.y), alt);
+        } else {
+            snapped = snappingHandler.snapToGrid(mouse, alt);
+        }
+        const auto target = snapped.getPosition() - offset;
+        pending = ShapeHandles::dragHandle(base, this->shapeHandle, target, MINPIXSIZE / zoom);
+        this->shapeMousePos = target;
+    }
+
+    if (!this->shapePreview) {
+        this->shapePreview = std::make_unique<Stroke>(*s);
+    }
+    this->shapePreview->setShape(std::move(pending));
+}
+
+void EditSelection::paintShape(cairo_t* cr, const Stroke* s, double zoom) {
+    const auto offset = getShapeOffset();
+    const bool dragging = this->shapePreview != nullptr;
+
+    if (dragging) {
+        // The stroke with the new geometry, at the position of the selection
+        cairo_save(cr);
+        cairo_scale(cr, zoom, zoom);
+        cairo_translate(cr, offset.x, offset.y);
+        xoj::view::StrokeView(this->shapePreview.get()).draw(xoj::view::Context::createDefault(cr));
+        cairo_restore(cr);
+    } else {
+        this->contents->paint(cr, this->x, this->y, this->rotation, this->width, this->height, zoom);
+    }
+
+    if (view->getXournal()->getControl()->getToolHandler()->getToolType() == TOOL_HAND) {
+        return;
+    }
+
+    const ShapeInfo& info = dragging ? *this->shapePreview->getShape() : *s->getShape();
+    auto toView = [&](const xoj::util::Point<double>& p) { return (p + offset) * zoom; };
+
+    cairo_save(cr);
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+    cairo_set_dash(cr, nullptr, 0, 0);
+    cairo_set_line_width(cr, 1);
+    GdkRGBA selectionColor = view->getSelectionColor();
+    gdk_cairo_set_source_rgba(cr, &selectionColor);
+
+    // A thin frame: the outline of polygons and rectangles, the bounding parallelogram of ellipses
+    std::vector<xoj::util::Point<double>> frame;
+    if (info.type == ShapeType::ELLIPSE) {
+        const auto& c = info.pts[0];
+        const auto a = info.pts[1] - c;
+        const auto b = info.pts[2] - c;
+        frame = {c + a + b, c - a + b, c - a - b, c + a - b};
+    } else if (info.type != ShapeType::LINE) {
+        for (const auto& h: ShapeHandles::handlesFor(info, 0)) {
+            if (h.kind == ShapeHandles::HandleKind::VERTEX) {
+                frame.push_back(h.pos);
+            }
+        }
+    }
+    for (size_t i = 0; i < frame.size(); i++) {
+        const auto p = toView(frame[i]);
+        if (i == 0) {
+            cairo_move_to(cr, p.x, p.y);
+        } else {
+            cairo_line_to(cr, p.x, p.y);
+        }
+    }
+    if (!frame.empty()) {
+        cairo_close_path(cr);
+        cairo_stroke(cr);
+    }
+
+    const double radius = this->btnWidth / 2.0;
+    const auto handles = ShapeHandles::handlesFor(info, SHAPE_ROTATE_DISTANCE / zoom);
+    for (size_t i = 0; i < handles.size(); i++) {
+        const auto& h = handles[i];
+        auto pos = toView(h.pos);
+        auto anchor = toView(h.anchor);
+        if (h.kind == ShapeHandles::HandleKind::ROTATE && dragging && i == this->shapeHandle) {
+            // Follow the pointer, attached to the centre
+            pos = toView(this->shapeMousePos);
+            anchor = toView(ShapeHandles::center(info));
+        }
+        gdk_cairo_set_source_rgba(cr, &selectionColor);
+        if (h.kind == ShapeHandles::HandleKind::ROTATE) {
+            cairo_move_to(cr, anchor.x, anchor.y);
+            cairo_line_to(cr, pos.x, pos.y);
+            cairo_stroke(cr);
+            cairo_arc(cr, pos.x, pos.y, radius, 0, 2 * M_PI);
+            cairo_fill(cr);
+            continue;
+        }
+        if (h.kind == ShapeHandles::HandleKind::SIDE) {
+            cairo_rectangle(cr, pos.x - radius, pos.y - radius, 2 * radius, 2 * radius);
+        } else {
+            cairo_arc(cr, pos.x, pos.y, radius, 0, 2 * M_PI);
+        }
+        cairo_stroke_preserve(cr);
+        cairo_set_source_rgb(cr, 1, 1, 1);
+        cairo_fill(cr);
+    }
+    cairo_restore(cr);
+}
 
 auto EditSelection::getView() -> XojPageView* { return this->view; }
 

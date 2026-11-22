@@ -1161,6 +1161,8 @@ void Control::undoRedoPageChanged(PageRef page) {
 }
 
 void Control::selectTool(ToolType type) {
+    dismissTransientSelection();
+
     // keep text-selection when switching from text to seletion tool
     auto oldTool = getToolHandler()->getActiveTool();
     if (oldTool && win && isSelectToolType(type) && oldTool->getToolType() == ToolType::TOOL_TEXT &&
@@ -1354,6 +1356,7 @@ void Control::toolColorChanged() {
 }
 
 void Control::changeColorOfSelection() {
+    dismissTransientSelection();
     if (this->win && toolHandler->hasCapability(TOOL_CAP_COLOR)) {
         EditSelection* sel = this->win->getXournal()->getSelection();
         if (sel) {
@@ -2591,6 +2594,14 @@ void Control::clearSelection() {
     }
 }
 
+void Control::dismissTransientSelection() {
+    if (this->win) {
+        if (const EditSelection* sel = this->win->getXournal()->getSelection(); sel && sel->isTransient()) {
+            this->win->getXournal()->clearSelection();
+        }
+    }
+}
+
 void Control::setClipboardHandlerSelection(EditSelection* selection) {
     if (this->clipboardHandler) {
         this->clipboardHandler->setSelection(selection);
@@ -2604,6 +2615,7 @@ void Control::removeChangedDocumentListener(DocumentListener* dl) { this->change
 void Control::setCopyCutEnabled(bool enabled) { this->clipboardHandler->setCopyCutEnabled(enabled); }
 
 void Control::setFill(bool fill) {
+    dismissTransientSelection();
     EditSelection* sel = nullptr;
     if (this->win) {
         sel = this->win->getXournal()->getSelection();
@@ -2618,6 +2630,7 @@ void Control::setFill(bool fill) {
 
 void Control::setLineStyle(const string& style) {
     LineStyle stl = StrokeStyle::parseStyle(style);
+    dismissTransientSelection();
 
     if (this->win && this->win->getXournal()->getSelection()) {
         undoRedo->addUndoAction(this->win->getXournal()->getSelection()->setLineStyle(stl));
@@ -2637,6 +2650,7 @@ void Control::setEraserType(EraserType type) {
 }
 
 void Control::setToolSize(ToolSize size) {
+    dismissTransientSelection();
     EditSelection* sel = nullptr;
     if (this->win) {
         sel = this->win->getXournal()->getSelection();

@@ -22,6 +22,7 @@
 #include "model/XojPage.h"                        // for XojPage
 #include "undo/ColorUndoAction.h"                 // for ColorUndoAction
 #include "undo/DeleteUndoAction.h"                // for DeleteUndoAction
+#include "undo/FillColorUndoAction.h"             // for FillColorUndoAction
 #include "undo/FillUndoAction.h"                  // for FillUndoAction
 #include "undo/FontUndoAction.h"                  // for FontUndoAction
 #include "undo/InsertUndoAction.h"                // for InsertsUndoAction
@@ -197,6 +198,35 @@ auto EditSelectionContents::setFill(int alphaPen, int alphaHighligther) -> UndoA
     }
 
     return nullptr;
+}
+
+auto EditSelectionContents::setFillStyle(int fill, std::optional<Color> fillColor) -> UndoActionPtr {
+    auto undo = std::make_unique<FillColorUndoAction>(this->sourcePage);
+    const FillColorUndoAction::FillState after{fill, fillColor};
+
+    for (Element* e: this->selected) {
+        if (e->getType() != ELEMENT_STROKE) {
+            continue;
+        }
+        auto* s = static_cast<Stroke*>(e);
+        if (s->getToolType() == StrokeTool::ERASER) {
+            continue;
+        }
+        const auto before = FillColorUndoAction::stateOf(s);
+        if (before == after) {
+            continue;
+        }
+        s->setFill(fill);
+        s->setFillColor(fillColor);
+        undo->addStroke(s, before, after);
+    }
+
+    if (undo->empty()) {
+        return nullptr;
+    }
+    this->deleteViewBuffer();
+    this->sourceView->getXournal()->repaintSelection();
+    return undo;
 }
 
 /**

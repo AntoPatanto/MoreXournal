@@ -45,4 +45,9 @@ private:
      * Selected elements
      */
     std::vector<const Element*> elements;
+
+    /**
+     * Whether the selection was transient (see EditSelection::setTransient())
+     */
+    bool transient = false;
 };

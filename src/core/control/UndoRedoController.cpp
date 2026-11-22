@@ -10,10 +10,10 @@
 #include "gui/XournalView.h"              // for XournalView
 #include "model/Document.h"               // for Document
 #include "model/ElementInsertionPosition.h"
-#include "model/Layer.h"                  // for Layer
-#include "model/PageRef.h"                // for PageRef
-#include "model/XojPage.h"                // for XojPage
-#include "undo/UndoRedoHandler.h"         // for UndoRedoHandler
+#include "model/Layer.h"           // for Layer
+#include "model/PageRef.h"         // for PageRef
+#include "model/XojPage.h"         // for XojPage
+#include "undo/UndoRedoHandler.h"  // for UndoRedoHandler
 
 #include "Control.h"  // for Control
 
@@ -28,6 +28,7 @@ void UndoRedoController::before() {
     if (selection != nullptr) {
         layer = selection->getSourceLayer();
         elements = selection->getElementsView().clone();
+        transient = selection->isTransient();
     }
 
     control->clearSelectionEndText();
@@ -65,6 +66,7 @@ void UndoRedoController::after() {
         lock.unlock();  // For all other paths, the lock is released via ~unique_lock()
         auto [sel, bounds] =
                 SelectionFactory::createFromFloatingElements(control, page, layer, view, std::move(removedElements));
+        sel->setTransient(transient);
         control->getWindow()->getXournal()->setSelection(sel.release());
         page->fireRangeChanged(bounds);
     }
