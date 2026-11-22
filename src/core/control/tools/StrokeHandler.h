@@ -15,9 +15,11 @@
 
 #include <gdk/gdk.h>  // for GdkEventKey
 
-#include "model/PageRef.h"  // for PageRef
-#include "model/Point.h"    // for Point
+#include "model/PageRef.h"          // for PageRef
+#include "model/Point.h"            // for Point
+#include "util/raii/GSourceURef.h"  // for GSourceURef
 
+#include "HoldDetector.h"            // for HoldDetector
 #include "InputHandler.h"            // for InputHandler
 #include "SnapToGridInputHandler.h"  // for SnapToGridInputHandler
 
@@ -85,6 +87,29 @@ protected:
 
     void strokeRecognizerDetected(std::unique_ptr<Stroke> recognized, Layer* layer);
 
+    /// Width of a shape recognized from the current stroke
+    double getRecognizedWidth() const;
+
+    /// Snap the bounding box of a recognized shape to the grid
+    void snapRecognizedBoundsToGrid(Stroke& recognized) const;
+
+    /**
+     * @brief Snap a recognized line (2 points) to the rotation snapping angles, and its end points to the grid if
+     * snapping of recognized shapes is enabled. Snapping the bounding box would change the line's angle.
+     */
+    void snapRecognizedLine(Stroke& recognized) const;
+
+    /// (Re)start the timer that calls tryConvertToShape() once the pen has been held still long enough
+    void restartHoldTimer();
+
+    static void holdTimerCallback(StrokeHandler* self);
+
+    /**
+     * @brief Replace the stroke in progress by the recognized shape, if any.
+     * If no shape is recognized, the stroke is kept and the hold detector is disarmed until the pen moves again.
+     */
+    void tryConvertToShape();
+
     /// Finalizes the stroke using the provided pressure as last point
     void finalizeStroke(double pressure);
 
@@ -101,6 +126,18 @@ private:
     std::unique_ptr<StrokeStabilizer::Base> stabilizer;
 
     std::shared_ptr<xoj::util::DispatchPool<xoj::view::StrokeToolView>> viewPool;
+
+    /**
+     * Hold to shape: convert the stroke to a shape when the pen stays still for holdToShapeDelay ms
+     */
+    bool holdToShapeEnabled = false;
+    unsigned int holdToShapeDelay = 0;  ///< in ms
+    HoldDetector holdDetector;
+    xoj::util::GSourceURef holdTimer;
+    /// Last position of the input device in page coordinates, before stabilization
+    Point lastRawPos;
+    /// Once converted, the shape is final: further motion is ignored and the stroke is not finalized
+    bool convertedToShape = false;
 
     friend class StrokeStabilizer::Active;
 

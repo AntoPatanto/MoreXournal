@@ -44,6 +44,8 @@ struct Palette;
 
 constexpr auto DEFAULT_GRID_SIZE = 14.17;
 constexpr unsigned int MAX_SPACES_FOR_TAB = 8U;
+constexpr int HOLD_TO_SHAPE_DELAY_MIN = 100;   ///< in ms
+constexpr int HOLD_TO_SHAPE_DELAY_MAX = 3000;  ///< in ms
 
 class ButtonConfig;
 class InputDevice;
@@ -337,6 +339,13 @@ public:
 
     double getStrokeRecognizerMinSize() const;
     void setStrokeRecognizerMinSize(double value);
+
+    bool isHoldToShapeEnabled() const;
+    void setHoldToShapeEnabled(bool enabled);
+    /// Time in ms the pen must stay still before the stroke is converted to a shape
+    int getHoldToShapeDelay() const;
+    /// The value is clamped to [HOLD_TO_SHAPE_DELAY_MIN, HOLD_TO_SHAPE_DELAY_MAX]
+    void setHoldToShapeDelay(int delay);
 
     StylusCursorType getStylusCursorType() const;
     void setStylusCursorType(StylusCursorType stylusCursorType);
@@ -1073,6 +1082,12 @@ private:
      * Minimum size of stroke to detect shape
      */
     double strokeRecognizerMinSize{};
+
+    /**
+     * Convert the stroke to a shape when the pen is held still for holdToShapeDelay ms
+     */
+    bool holdToShapeEnabled{};
+    int holdToShapeDelay{};
 
     /// Touchscreens act like multi-touch-aware pens.
     bool touchDrawing{};
