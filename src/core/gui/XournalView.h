@@ -169,6 +169,9 @@ private:
 
     void cleanupBufferCache();
 
+    /// Show or hide the menu of a selected shape
+    void updateShapeToolbox();
+
 private:
     /**
      * Scrollbars
