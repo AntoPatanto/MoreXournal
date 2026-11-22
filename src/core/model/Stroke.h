@@ -14,12 +14,16 @@
 #include <array>    // for array
 #include <cstddef>  // for size_t
 #include <memory>   // for unique_ptr
-#include <vector>   // for vector
+#include <optional>  // for optional
+#include <vector>    // for vector
+
+#include "util/Color.h"  // for Color
 
 #include "AudioContent.h"  // for AudioContent
 #include "Element.h"       // for Element
 #include "LineStyle.h"     // for LineStyle
 #include "Point.h"         // for Point
+#include "ShapeInfo.h"     // for ShapeInfo
 
 class ObjectInputStream;
 class ObjectOutputStream;
@@ -97,6 +101,7 @@ public:
 
     /**
      * Clone style attributes, but not the data (position, width etc.)
+     * The fill color is copied, the shape metadata is not.
      */
     void applyStyleFrom(const Stroke* other);
 
@@ -120,6 +125,26 @@ public:
      *   1: The shape is nearly fully transparent filled
      */
     void setFill(int fill);
+
+    /// Color of the filling. If not set, the filling uses the stroke's color.
+    const std::optional<Color>& getFillColor() const;
+    void setFillColor(std::optional<Color> color);
+
+    /**
+     * @brief The shape this stroke draws, if it is a shape (e.g. drawn with a shape tool).
+     * Invariant: the points of the stroke draw the shape. Moving, scaling and rotating the stroke transform the shape
+     * too. Any other change of the points (addPoint, setPointVector, deletePointsFrom) drops the shape.
+     */
+    const std::optional<ShapeInfo>& getShape() const;
+
+    /// Set the shape and replace the stroke's points by the ones it generates
+    void setShape(ShapeInfo info);
+
+    /// Set the shape and keep the current points. The caller guarantees that the points draw the shape.
+    void attachShape(ShapeInfo info);
+
+    /// Drop the shape metadata and keep the points: the stroke becomes a plain stroke
+    void clearShape();
 
     void addPoint(const Point& p);
     size_t getPointCount() const;
@@ -235,6 +260,10 @@ private:
      *   1: The shape is nearly fully transparent filled
      */
     int fill = -1;
+
+    std::optional<Color> fillColor;
+
+    std::optional<ShapeInfo> shape;
 
     StrokeCapStyle capStyle = StrokeCapStyle::ROUND;
 };

@@ -31,13 +31,22 @@
 #include "util/TinyVector.h"                      // for TinyVector
 #include "util/i18n.h"                            // for FC, FORMAT_STR
 #include "util/serdesstream.h"                    // for serdes_stream
-#include "util/serializing/ObjectInputStream.h"   // for ObjectInputStream
-#include "util/serializing/ObjectOutputStream.h"  // for ObjectOutputStream
+#include "util/serializing/InputStreamException.h"  // for InputStreamException
+#include "util/serializing/ObjectInputStream.h"     // for ObjectInputStream
+#include "util/serializing/ObjectOutputStream.h"    // for ObjectOutputStream
 
 #include "PathParameter.h"  // for PathParameter
 #include "config-debug.h"   // for ENABLE_ERASER_DEBUG
 
 using xoj::util::Rectangle;
+
+namespace {
+/// Name of the optional MoreXournal sub-object at the end of a serialized stroke
+constexpr const char* MX_EXTENSION_OBJECT = "MxStrokeExt";
+constexpr int MX_EXTENSION_VERSION = 1;
+constexpr int MX_HAS_FILL_COLOR = 1 << 0;
+constexpr int MX_HAS_SHAPE = 1 << 1;
+}  // namespace
 
 #define COMMA ,
 // #define ENABLE_ERASER_DEBUG // See config-debug.h.in
@@ -95,6 +104,7 @@ void Stroke::applyStyleFrom(const Stroke* other) {
     setFill(other->getFill());
     setStrokeCapStyle(other->getStrokeCapStyle());
     setLineStyle(other->getLineStyle());
+    setFillColor(other->getFillColor());
 
     static_cast<AudioContent&>(*this) = *other;
 }
@@ -103,6 +113,7 @@ auto Stroke::cloneStroke() const -> std::unique_ptr<Stroke> {
     auto s = std::make_unique<Stroke>();
     s->applyStyleFrom(this);
     s->points = this->points;
+    s->shape = this->shape;
     s->boundingBox = this->boundingBox;
     s->snappedBounds = this->snappedBounds;
     s->sizeCalculated = this->sizeCalculated;
@@ -182,6 +193,21 @@ void Stroke::serialize(ObjectOutputStream& out) const {
 
     this->lineStyle.serialize(out);
 
+    // MoreXournal extension. Only written when needed, so that plain strokes serialize exactly as in Xournal++
+    if (shape || fillColor) {
+        out.writeObject(MX_EXTENSION_OBJECT);
+        out.writeInt(MX_EXTENSION_VERSION);
+        out.writeInt((fillColor ? MX_HAS_FILL_COLOR : 0) | (shape ? MX_HAS_SHAPE : 0));
+        if (fillColor) {
+            out.writeUInt(uint32_t(*fillColor));
+        }
+        if (shape) {
+            out.writeInt(shape->type);
+            out.writeData(shape->toDoubles());
+        }
+        out.endObject();
+    }
+
     out.endObject();
 }
 
@@ -201,6 +227,35 @@ void Stroke::readSerialized(ObjectInputStream& in) {
 
     in.readData(this->points);
     this->lineStyle.readSerialized(in);
+
+    this->fillColor.reset();
+    this->shape.reset();
+    if (in.isNextObject(MX_EXTENSION_OBJECT)) {
+        in.readObject(MX_EXTENSION_OBJECT);
+        const int version = in.readInt();
+        const int flags = in.readInt();
+        if (version != MX_EXTENSION_VERSION) {
+            // A newer layout: skipping it is not possible without knowing it
+            throw InputStreamException(FS(FORMAT_STR("Unknown stroke extension version {1}") % version), __FILE__,
+                                       __LINE__);
+        }
+        if (flags & MX_HAS_FILL_COLOR) {
+            this->fillColor = Color(in.readUInt());
+        }
+        if (flags & MX_HAS_SHAPE) {
+            const int type = in.readInt();
+            std::vector<double> values;
+            in.readData(values);
+            if (type >= 0 && static_cast<size_t>(type) < ShapeType::NAMES.size()) {
+                this->shape = ShapeInfo::fromDoubles(static_cast<ShapeType::Value>(type), values);
+            }
+            if (!this->shape || this->hasPressure()) {
+                g_warning("Stroke::readSerialized: ignoring invalid shape data");
+                this->shape.reset();
+            }
+        }
+        in.endObject();
+    }
 
     in.endObject();
 }
@@ -223,6 +278,22 @@ auto Stroke::getFill() const -> int { return fill; }
  */
 void Stroke::setFill(int fill) { this->fill = fill; }
 
+auto Stroke::getFillColor() const -> const std::optional<Color>& { return fillColor; }
+
+void Stroke::setFillColor(std::optional<Color> color) { this->fillColor = color; }
+
+auto Stroke::getShape() const -> const std::optional<ShapeInfo>& { return shape; }
+
+void Stroke::setShape(ShapeInfo info) {
+    this->points = info.generatePoints();
+    this->shape = std::move(info);
+    this->sizeCalculated = false;
+}
+
+void Stroke::attachShape(ShapeInfo info) { this->shape = std::move(info); }
+
+void Stroke::clearShape() { this->shape.reset(); }
+
 void Stroke::setWidth(double width) {
     this->width = width;
     this->sizeCalculated = false;
@@ -241,6 +312,7 @@ auto Stroke::isInSelection(ShapeContainer* container) const -> bool {
 }
 
 void Stroke::addPoint(const Point& p) {
+    this->shape.reset();
     this->points.emplace_back(p);
     if (!sizeCalculated) {
         return;
@@ -259,6 +331,7 @@ auto Stroke::getPointCount() const -> size_t { return this->points.size(); }
 auto Stroke::getPointVector() const -> std::vector<Point> const& { return points; }
 
 void Stroke::deletePointsFrom(size_t index) {
+    this->shape.reset();
     points.resize(std::min(index, points.size()));
     this->sizeCalculated = false;
 }
@@ -299,11 +372,13 @@ void Stroke::setPointVectorInternal(const Range* const snappingBox) {
 }
 
 void Stroke::setPointVector(const std::vector<Point>& other, const Range* const snappingBox) {
+    this->shape.reset();
     this->points = other;
     this->setPointVectorInternal(snappingBox);
 }
 
 void Stroke::setPointVector(std::vector<Point>&& other, const Range* const snappingBox) {
+    this->shape.reset();
     this->points = std::move(other);
     this->setPointVectorInternal(snappingBox);
 }
@@ -324,6 +399,9 @@ void Stroke::move(double dx, double dy) {
         point.x += dx;
         point.y += dy;
     }
+    if (shape) {
+        shape->transform(xoj::util::Matrix::TRANSLATION(dx, dy));
+    }
     this->boundingBox = this->boundingBox.translated(dx, dy);
     Element::snappedBounds = Element::snappedBounds.translated(dx, dy);
 }
@@ -342,6 +420,9 @@ void Stroke::rotate(double x0, double y0, double th) {
         auto coords = matrix * p.getPosition();
         p.x = coords.x;
         p.y = coords.y;
+    }
+    if (shape) {
+        shape->transform(matrix);
     }
     this->sizeCalculated = false;
     // Width and Height will likely be changed after this operation
@@ -363,6 +444,9 @@ void Stroke::scale(double x0, double y0, double fx, double fy, double rotation, 
         if (p.z != Point::NO_PRESSURE) {
             p.z *= fz;
         }
+    }
+    if (shape) {
+        shape->transform(matrix);
     }
     this->width *= fz;
 

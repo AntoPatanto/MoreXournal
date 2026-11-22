@@ -34,6 +34,8 @@ public:
     void readObject(const char* name);
     std::string readObject();
     std::string getNextObjectName();
+    /// True if the next item is the beginning of an object with this name. Never throws, does not move in the stream.
+    bool isNextObject(const char* name);
     void endObject();
 
     int readInt();

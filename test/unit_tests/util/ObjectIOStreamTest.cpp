@@ -9,6 +9,7 @@
 #include <gtest/gtest.h>
 
 #include "model/Link.h"
+#include "model/ShapeInfo.h"
 #include "model/Stroke.h"
 #include "model/TextAlignment.h"
 #include "util/StringUtils.h"
@@ -457,6 +458,76 @@ TEST(UtilObjectIOStream, testReadLink) {
         }
     } catch (const InputStreamException& e) {
         std::cerr << "InputStreamException testing link " << i << ": " << e.what() << std::endl;
+        FAIL();
+    }
+}
+
+TEST(UtilObjectIOStream, testReadShapeStroke) {
+    Stroke shape;
+    shape.setWidth(3.);
+    shape.setFill(100);
+    shape.setFillColor(Color(0x8012abcd));
+    shape.setShape(ShapeInfo{ShapeType::RECTANGLE, {{10, 20}, {50, 20}, {10, 45}}});
+
+    Stroke plain;
+    plain.addPoint(Point(1, 2));
+    plain.addPoint(Point(3, 4));
+
+    // A stroke with only a fill color
+    Stroke filled = plain;
+    filled.setFillColor(Color(0xff00ff00));
+
+    try {
+        for (Stroke* stroke: {&shape, &plain, &filled}) {
+            std::string out_string = serializeStroke(*stroke);
+            ObjectInputStream istream;
+            ASSERT_TRUE(istream.read(out_string.c_str(), out_string.size()));
+
+            Stroke in_stroke;
+            // Leftovers from a previous read must not survive
+            in_stroke.setFillColor(Color(0xff000000));
+            in_stroke.attachShape(ShapeInfo{ShapeType::LINE, {{0, 0}, {1, 1}}});
+            in_stroke.readSerialized(istream);
+            assertStrokeEquality(*stroke, in_stroke);
+            EXPECT_EQ(stroke->getFillColor(), in_stroke.getFillColor());
+            EXPECT_EQ(stroke->getShape(), in_stroke.getShape());
+        }
+    } catch (const InputStreamException& e) {
+        std::cerr << "InputStreamException testing shape stroke: " << e.what() << std::endl;
+        FAIL();
+    }
+
+    // Plain strokes keep the Xournal++ layout, without the extension
+    EXPECT_EQ(serializeStroke(plain).find("MxStrokeExt"), std::string::npos);
+    EXPECT_NE(serializeStroke(shape).find("MxStrokeExt"), std::string::npos);
+}
+
+TEST(UtilObjectIOStream, testIsNextObject) {
+    ObjectOutputStream outStream(new BinObjectEncoding);
+    outStream.writeObject("Outer");
+    outStream.writeObject("Inner");
+    outStream.endObject();
+    outStream.endObject();
+    auto gstr = outStream.stealData();
+    std::string str(gstr->str, gstr->len);
+    g_string_free(gstr, true);
+
+    ObjectInputStream stream;
+    ASSERT_TRUE(stream.read(str.data(), str.size()));
+    try {
+        stream.readObject("Outer");
+        EXPECT_FALSE(stream.isNextObject("Other"));
+        EXPECT_TRUE(stream.isNextObject("Inner"));
+        // Peeking does not consume anything
+        stream.readObject("Inner");
+        // At the end of an object: no exception, nothing consumed
+        EXPECT_FALSE(stream.isNextObject("Inner"));
+        stream.endObject();
+        stream.endObject();
+        // At the end of the stream
+        EXPECT_FALSE(stream.isNextObject("Inner"));
+    } catch (const InputStreamException& e) {
+        std::cerr << "InputStreamException testing isNextObject: " << e.what() << std::endl;
         FAIL();
     }
 }
