@@ -22,6 +22,8 @@ InputHandler::~InputHandler() = default;
 
 auto InputHandler::getStroke() const -> Stroke* { return stroke.get(); }
 
+auto InputHandler::getCreatedShape() const -> Stroke* { return createdShape; }
+
 auto InputHandler::createStroke(Control* control) -> std::unique_ptr<Stroke> {
     ToolHandler* h = control->getToolHandler();
 

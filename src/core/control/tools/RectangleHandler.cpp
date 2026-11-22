@@ -7,6 +7,7 @@
 #include "control/tools/BaseShapeHandler.h"        // for BaseShapeHandler
 #include "control/tools/SnapToGridInputHandler.h"  // for SnapToGridInputHan...
 #include "model/Point.h"                           // for Point
+#include "model/ShapeInfo.h"                       // for ShapeInfo, ShapeType
 
 
 RectangleHandler::RectangleHandler(Control* control, const PageRef& page, bool flipShift, bool flipControl):
@@ -54,6 +55,9 @@ auto RectangleHandler::createShape(bool isAltDown, bool isShiftDown, bool isCont
 
     Range rg(p1.x, p1.y);
     rg.addPoint(p2.x, p2.y);
+
+    // Same corner order as the points below
+    this->shapeInfo = ShapeInfo{ShapeType::RECTANGLE, {{p1.x, p1.y}, {p1.x, p2.y}, {p2.x, p1.y}}};
 
     return {{p1, {p1.x, p2.y}, p2, {p2.x, p1.y}, p1}, rg};
 }

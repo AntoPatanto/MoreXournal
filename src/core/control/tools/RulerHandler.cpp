@@ -3,6 +3,7 @@
 #include "control/tools/BaseShapeHandler.h"        // for BaseShapeHandler
 #include "control/tools/SnapToGridInputHandler.h"  // for SnapToGridInputHan...
 #include "model/Point.h"                           // for Point
+#include "model/ShapeInfo.h"                       // for ShapeInfo, ShapeType
 
 class XournalView;
 
@@ -15,5 +16,6 @@ auto RulerHandler::createShape(bool isAltDown, bool isShiftDown, bool isControlD
     Point secondPoint = snappingHandler.snap(this->currPoint, this->startPoint, isAltDown);
     Range rg(this->startPoint.x, this->startPoint.y);
     rg.addPoint(secondPoint.x, secondPoint.y);
+    this->shapeInfo = ShapeInfo{ShapeType::LINE, {this->startPoint.getPosition(), secondPoint.getPosition()}};
     return {{this->startPoint, secondPoint}, rg};
 }

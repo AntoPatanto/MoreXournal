@@ -103,6 +103,10 @@ void BaseShapeHandler::onButtonReleaseEvent(const PositionInputData& pos, double
     UndoRedoHandler* undo = control->getUndoRedoHandler();
 
     stroke->setPointVector(this->shape, &lastSnappingRange);
+    // After setPointVector(), which drops the shape
+    if (this->shapeInfo && this->shapeInfo->isValid()) {
+        stroke->attachShape(*this->shapeInfo);
+    }
 
     Range repaintRange = lastSnappingRange;
     repaintRange.addPadding(0.5 * this->stroke->getWidth());
@@ -116,6 +120,10 @@ void BaseShapeHandler::onButtonReleaseEvent(const PositionInputData& pos, double
     layer->addElement(std::move(stroke));
     doc->unlock();
     page->fireElementChanged(ptr);
+
+    if (ptr->getShape()) {
+        createdShape = ptr;
+    }
 
     control->getCursor()->updateCursor();
 }

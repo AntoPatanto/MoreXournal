@@ -89,6 +89,9 @@ public:
 
     Stroke* getStroke() const;
 
+    /// The shape stroke this handler added to the page on the last button release, if any. Owned by the layer.
+    Stroke* getCreatedShape() const;
+
 protected:
     [[nodiscard]] static std::unique_ptr<Stroke> createStroke(Control* control);
 
@@ -105,4 +108,6 @@ protected:
     PageRef page;
 
     std::unique_ptr<Stroke> stroke;
+
+    Stroke* createdShape = nullptr;
 };
