@@ -47,9 +47,11 @@ void StrokeToolFilledView::on(StrokeToolView::AddPointRequest, const Point& p) {
 
 void StrokeToolFilledView::on(StrokeToolView::StrokeReplacementRequest, const Stroke& newStroke) {
     StrokeToolView::on(STROKE_REPLACEMENT_REQUEST, newStroke);
-    this->filling.contour = this->pointBuffer;
+    this->filling.contour.clear();
     if (!this->pointBuffer.empty()) {
+        // The next draw() appends the whole pointBuffer but its first point to the contour (see appendSegments)
         const Point& fp = this->pointBuffer.front();
+        this->filling.contour.emplace_back(fp);
         this->filling.firstPoint = xoj::util::Point<double>(fp.x, fp.y);
     }
 }

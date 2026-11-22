@@ -52,6 +52,10 @@ public:
     } STROKE_REPLACEMENT_REQUEST = {};
     virtual void on(StrokeReplacementRequest, const Stroke& newStroke);
 
+    static constexpr struct FlagDirtyRegionRequest {
+    } FLAG_DIRTY_REGION = {};
+    void on(FlagDirtyRegionRequest, const Range& rg);
+
     static constexpr struct CancellationRequest {
     } CANCELLATION_REQUEST = {};
     void deleteOn(CancellationRequest, const Range& rg);

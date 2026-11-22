@@ -116,6 +116,8 @@ void StrokeToolView::on(StrokeToolView::StrokeReplacementRequest, const Stroke& 
                (newStroke.getToolType() == StrokeTool::HIGHLIGHTER ? CAIRO_OPERATOR_MULTIPLY : CAIRO_OPERATOR_OVER));
 }
 
+void StrokeToolView::on(StrokeToolView::FlagDirtyRegionRequest, const Range& rg) { this->parent->flagDirtyRegion(rg); }
+
 void StrokeToolView::deleteOn(StrokeToolView::FinalizationRequest, const Range& rg) {
     this->parent->drawAndDeleteToolView(this, rg);
 }
