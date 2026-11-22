@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2019 Tobias Mueller <tobiasmue@gnome.org>  -->
 <component type="desktop">
-  <id>com.github.xournalpp.xournalpp</id>
-  <translation type="gettext">xournalpp</translation>
-  <name>Xournal++</name>
+  <id>io.github.antopatanto.morexournal</id>
+  <translation type="gettext">morexournal</translation>
+  <name>MoreXournal</name>
   <summary>Take handwritten notes</summary>
-  <developer_name>Xournalpp Developers</developer_name>
+  <developer_name>Xournal++ developers and MoreXournal contributors</developer_name>
   <description>
     <p>
-      Xournal++ is a hand note-taking software written in C++ with the target of
+      MoreXournal, based on Xournal++, is a hand note-taking software written in C++ with the target of
       flexibility, functionality and speed. Stroke recognizer and other parts are
       based on Xournal Code, which you can find at sourceforge. It supports GNU/Linux
       (e.g. Ubuntu, Debian, Arch, SUSE), macOS and Windows. Supports pen input
       from devices such as Wacom Tablets.
     </p>
     <p>
-      Xournal++ features:
+      MoreXournal features:
     </p>
     <ul>
       <li>Supports pressure-sensitive styluses and digital pen tables (e.g. Wacom, Huion, XP Pen, etc. tablets)</li>
@@ -69,10 +69,10 @@
     <color type="primary" scheme_preference="light">#77767b</color>
     <color type="primary" scheme_preference="dark">#241f31</color>
   </branding>
-  <launchable type="desktop-id">com.github.xournalpp.xournalpp.desktop</launchable>
+  <launchable type="desktop-id">io.github.antopatanto.morexournal.desktop</launchable>
   <provides>
-    <id>xournalpp.desktop</id>
-    <binary>xournalpp</binary>
+    <id>morexournal.desktop</id>
+    <binary>morexournal</binary>
     <mediatype>application/x-xojpp</mediatype>
     <mediatype>application/x-xopp</mediatype>
     <mediatype>application/x-xopt</mediatype>

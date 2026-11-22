@@ -644,7 +644,7 @@ if(XGETTEXT_FOUND)
           FILES
             "${inifile_abs}"
           DESTINATION
-            "share/xournalpp/ui"
+            "share/morexournal/ui"
         )
       endforeach()
 

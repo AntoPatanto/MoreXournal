@@ -89,6 +89,8 @@ auto migrateSettings() -> MigrateResult {
 
     if (!fs::exists(newConfigPath)) {
         const std::array oldPaths = {
+                // Settings of the upstream Xournal++ are copied (never moved) on first run
+                Util::getConfigFolder().parent_path() / "xournalpp",
                 Util::getConfigFolder().parent_path() / "com.github.xournalpp.xournalpp",
                 Util::getConfigFolder().parent_path() / "com.github.xournalpp.xournalpp.exe",
                 Util::GFilename(g_get_home_dir()).toPath().value_or(fs::path()) / ".xournalpp",
@@ -102,13 +104,14 @@ auto migrateSettings() -> MigrateResult {
             Util::ensureFolderExists(newConfigPath.parent_path());
             try {
                 fs::copy(oldPath, newConfigPath, fs::copy_options::recursive);
-                constexpr auto msg = "Due to a recent update, Xournal++ has changed where its configuration files are "
-                                     "stored.\nThey have been automatically copied from\n\t{1}\nto\n\t{2}";
+                constexpr auto msg =
+                        "MoreXournal uses its own configuration folder.\nThe configuration files have been "
+                        "automatically copied from\n\t{1}\nto\n\t{2}";
                 return {MigrateStatus::Success, FS(_F(msg) % oldPath.u8string() % newConfigPath.u8string())};
             } catch (const fs::filesystem_error& e) {
-                constexpr auto msg =
-                        "Due to a recent update, Xournal++ has changed where its configuration files are "
-                        "stored.\nHowever, when attempting to copy\n\t{1}\nto\n\t{2}\nmigration failed:\n{3}";
+                constexpr auto msg = "MoreXournal uses its own configuration folder.\nHowever, when attempting to "
+                                     "copy\n\t{1}\nto\n\t{2}\n"
+                                     "migration failed:\n{3}";
                 g_message("Migration failed: %s", e.what());
                 return {MigrateStatus::Failure, FS(_F(msg) % oldPath.u8string() % newConfigPath.u8string() % e.what())};
             }
@@ -135,7 +138,7 @@ void checkForEmergencySave(Control* control) {
         return;
     }
 
-    const std::string msg = _("Xournal++ crashed last time. Would you like to restore the last edited file?");
+    const std::string msg = _("MoreXournal crashed last time. Would you like to restore the last edited file?");
     enum { DELETE_FILE = 1, RESTORE_FILE };
     XojMsgBox::askQuestion(
             control->getGtkWindow(), _("Recovery file detected"), msg,
@@ -326,7 +329,7 @@ void ensure_input_model_compatibility() {
  */
 auto findResourcePath(const fs::path& searchFile) -> fs::path {
     auto search_for = [&searchFile](fs::path start) -> std::optional<fs::path> {
-        constexpr auto* postfix = "share/xournalpp";
+        constexpr auto* postfix = "share/morexournal";
         /// 1. relative install
         /// 2. windows install
         /// 3. build dir
@@ -605,9 +608,9 @@ void XournalMain::initLocalisation() {
 auto XournalMain::run(int argc, char** argv) -> int {
 
     XournalMainPrivate app_data;
-    GtkApplication* app = gtk_application_new("com.github.xournalpp.xournalpp", APP_FLAGS);
+    GtkApplication* app = gtk_application_new("io.github.antopatanto.morexournal", APP_FLAGS);
     g_object_set(G_OBJECT(app), "register-session", true, nullptr);  // Needed for opening files on MacOS from Finder
-    g_set_prgname("com.github.xournalpp.xournalpp");
+    g_set_prgname("io.github.antopatanto.morexournal");
     g_signal_connect(app, "activate", G_CALLBACK(&on_activate), &app_data);
     g_signal_connect(app, "command-line", G_CALLBACK(&on_command_line), &app_data);
     g_signal_connect(app, "open", G_CALLBACK(&on_open_files), &app_data);

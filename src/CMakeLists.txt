@@ -37,7 +37,7 @@ add_subdirectory(util)
 add_subdirectory(core)
 
 ##############################
-# xournalpp-wrapper: catches crashes
+# morexournal-wrapper: catches crashes
 ##############################
 
 # The crash dialog's ui file is stored as gresource to make sure the wrapper is standalone
@@ -66,35 +66,35 @@ add_custom_target(
     DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${XOURNAL_WRAPPER_GRESOURCE_C}
 )
 
-add_executable(xournalpp-wrapper exe/Xournalpp-wrapper.cpp ${CMAKE_CURRENT_BINARY_DIR}/${XOURNAL_WRAPPER_GRESOURCE_C})
+add_executable(morexournal-wrapper exe/Xournalpp-wrapper.cpp ${CMAKE_CURRENT_BINARY_DIR}/${XOURNAL_WRAPPER_GRESOURCE_C})
 set_source_files_properties(
     ${CMAKE_CURRENT_BINARY_DIR}/${XOURNAL_WRAPPER_GRESOURCE_C}
     PROPERTIES GENERATED TRUE
 )
 
-add_dependencies(xournalpp-wrapper xournalpp-wrapper-resource)
-target_link_libraries(xournalpp-wrapper
+add_dependencies(morexournal-wrapper xournalpp-wrapper-resource)
+target_link_libraries(morexournal-wrapper
         PUBLIC xoj::defaults xoj::util xoj::external_modules)
-set_target_properties(xournalpp-wrapper PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+set_target_properties(morexournal-wrapper PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
         MACOSX_BUNDLE $<IF:$<PLATFORM_ID:Darwin>,TRUE,${CMAKE_MACOSX_BUNDLE}>
         WIN32_EXECUTABLE $<IF:$<PLATFORM_ID:Windows>,TRUE,${CMAKE_WIN32_EXECUTABLE}>
         )
-target_include_directories(xournalpp-wrapper PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories(morexournal-wrapper PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 
 ##############################
 # xournalpp main program
 ##############################
 
-add_executable(xournalpp exe/Xournalpp.cpp)
-target_link_libraries(xournalpp PRIVATE xoj::core xoj::util)
-set_target_properties(xournalpp PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+add_executable(morexournal exe/Xournalpp.cpp)
+target_link_libraries(morexournal PRIVATE xoj::core xoj::util)
+set_target_properties(morexournal PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
         MACOSX_BUNDLE $<IF:$<PLATFORM_ID:Darwin>,TRUE,${CMAKE_MACOSX_BUNDLE}>
         WIN32_EXECUTABLE $<IF:$<PLATFORM_ID:Windows>,TRUE,${CMAKE_WIN32_EXECUTABLE}>
         )
 if (WIN32)
   # Make sure Windows executable has all symbols
-  target_link_options(xournalpp PRIVATE "-Wl,--export-all-symbols")
+  target_link_options(morexournal PRIVATE "-Wl,--export-all-symbols")
 endif()
 
 ###############################
@@ -112,8 +112,8 @@ endif()
 if (APPLE)
   # MacOS specific source files
   file (GLOB xournalpp-sources-osx exe/osx/*.cpp exe/osx/*.h)
-  target_sources(xournalpp PRIVATE ${xournalpp-sources-osx})
-  target_include_directories(xournalpp PRIVATE exe)
+  target_sources(morexournal PRIVATE ${xournalpp-sources-osx})
+  target_include_directories(morexournal PRIVATE exe)
 endif()
 
 if (WIN32)
@@ -124,7 +124,7 @@ if (WIN32)
     set (RESIZED_ICON ${PROJECT_BINARY_DIR}/xournalpp-icon-${SIZE}.png)
     add_custom_command (
                 OUTPUT ${RESIZED_ICON}
-                COMMAND rsvg-convert ${PROJECT_SOURCE_DIR}/ui/pixmaps/com.github.xournalpp.xournalpp.svg --width=${SIZE} --height=${SIZE} -o ${RESIZED_ICON}
+                COMMAND rsvg-convert ${PROJECT_SOURCE_DIR}/ui/pixmaps/io.github.antopatanto.morexournal.svg --width=${SIZE} --height=${SIZE} -o ${RESIZED_ICON}
 	)
   set (ICON_DEPS ${ICON_DEPS} ${RESIZED_ICON})
   unset (RESIZED_ICON)
@@ -137,15 +137,15 @@ if (WIN32)
   unset(ICON_SIZES)
   unset(ICON_DEPS)
   add_custom_target(xournalpp_icon DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/win32/xournalpp.ico)
-  add_dependencies(xournalpp xournalpp_icon)
-  add_dependencies(xournalpp-wrapper xournalpp_icon)
+  add_dependencies(morexournal xournalpp_icon)
+  add_dependencies(morexournal-wrapper xournalpp_icon)
   
   # windows specific source files
-  target_sources(xournalpp PRIVATE exe/win32/console.cpp)
-  target_sources(xournalpp-wrapper PRIVATE exe/win32/console.cpp)
+  target_sources(morexournal PRIVATE exe/win32/console.cpp)
+  target_sources(morexournal-wrapper PRIVATE exe/win32/console.cpp)
   if (MSVC)
-    target_sources(xournalpp PRIVATE exe/win32/gui_main.cpp)
-    target_sources(xournalpp-wrapper PRIVATE exe/win32/gui_main.cpp)
+    target_sources(morexournal PRIVATE exe/win32/gui_main.cpp)
+    target_sources(morexournal-wrapper PRIVATE exe/win32/gui_main.cpp)
   endif()
   
   # windows specific appinfo
@@ -156,19 +156,19 @@ if (WIN32)
   enable_language(RC)
 
   configure_file(exe/win32/xpp.rc.in ${CMAKE_CURRENT_BINARY_DIR}/win32/xpp.rc)
-  target_sources(xournalpp PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/win32/xpp.rc)
-  target_sources(xournalpp-wrapper PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/win32/xpp.rc)
+  target_sources(morexournal PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/win32/xpp.rc)
+  target_sources(morexournal-wrapper PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/win32/xpp.rc)
 endif ()
 # Until here
 ################################
 
-install(TARGETS xournalpp-wrapper
+install(TARGETS morexournal-wrapper
         RUNTIME DESTINATION bin
-        COMPONENT xournalpp-wrapper
+        COMPONENT morexournal-wrapper
         )
-install(TARGETS xournalpp
+install(TARGETS morexournal
         RUNTIME DESTINATION bin
-        COMPONENT xournalpp
+        COMPONENT morexournal
         )
 
 add_subdirectory(xoj-preview-extractor)

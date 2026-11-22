@@ -222,3 +222,8 @@ TEST(UtilPath, pathGFilenameConvertion) {
     test(u8"foo/µbar/Ñ/ë€ds测试q.pdf");
     test(u8"/foo/µbar/Ñ/ë€ds测试q.pdf");
 }
+
+TEST(UtilPath, testConfigFolderIsNotSharedWithXournalpp) {
+    // MoreXournal must not read or write the configuration of an installed Xournal++
+    EXPECT_EQ(Util::getConfigFolder().filename(), fs::path("morexournal"));
+}
