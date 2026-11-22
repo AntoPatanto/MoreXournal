@@ -11,9 +11,10 @@
 
 #pragma once
 
-#include <memory>   // for unique_ptr
-#include <utility>  // for pair
-#include <vector>   // for vector
+#include <memory>    // for unique_ptr
+#include <optional>  // for optional
+#include <utility>   // for pair
+#include <vector>    // for vector
 
 #include <cairo.h>  // for cairo_surface_t, cairo_t
 
@@ -81,6 +82,12 @@ public:
      * (Or nullptr if nothing done, e.g. because there is only an image)
      */
     UndoActionPtr setFill(int alphaPen, int alphaHighligther);
+
+    /**
+     * Sets the fill opacity (-1 for no filling) and the fill color of all strokes but eraser strokes, returns an undo
+     * action (or nullptr if nothing changed)
+     */
+    UndoActionPtr setFillStyle(int fill, std::optional<Color> fillColor);
 
 public:
     /**

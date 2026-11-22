@@ -13,7 +13,8 @@
 #pragma once
 
 #include <array>
-#include <memory>  // for unique_ptr
+#include <memory>    // for unique_ptr
+#include <optional>  // for optional
 #include <string>
 #include <utility>  // for pair
 #include <vector>   // for vector
@@ -26,6 +27,7 @@
 #include "model/PageRef.h"                   // for PageRef
 #include "undo/UndoAction.h"                 // for UndoAction (ptr only)
 #include "util/Color.h"                      // for Color
+#include "util/Point.h"                      // for Point
 #include "util/PointerContainerView.h"       // for PointerContainerView
 #include "util/Rectangle.h"                  // for Rectangle
 #include "util/raii/GSourceURef.h"           // for GSourceURef
@@ -46,6 +48,7 @@ class ObjectOutputStream;
 class XojFont;
 class Document;
 class EditSelection;
+class Stroke;
 
 namespace SelectionFactory {
 auto createFromFloatingElement(Control* ctrl, const PageRef& page, Layer* layer, XojPageView* view, ElementPtr e)
@@ -186,6 +189,32 @@ public:
      */
     UndoActionPtr setFill(int alphaPen, int alphaHighligther);
 
+    /**
+     * Sets the fill opacity (-1 for no filling) and the fill color of all strokes but eraser strokes, returns an undo
+     * action (or nullptr if nothing changed)
+     */
+    UndoActionPtr setFillStyle(int fill, std::optional<Color> fillColor);
+
+public:
+    /**
+     * @brief The selected shape, if the selection is exactly one stroke with shape metadata. The selection is then in
+     * shape mode: it shows the handles of the shape instead of the bounding box.
+     */
+    Stroke* getShapeStroke() const;
+
+    /**
+     * A transient selection is opened on a shape right after it is drawn. A press outside of it dismisses it and starts
+     * drawing in the same gesture, and the toolbar settings apply to the tool instead of the shape.
+     */
+    void setTransient(bool transient);
+    bool isTransient() const;
+
+    /// Let the centre of the selection decide which page the elements land on when the selection is finalized
+    void setGrabPointToCenter();
+
+    /// The view whose page receives the elements when the selection is finalized
+    XojPageView* getDestinationView();
+
 public:
     /**
      * Add an element to the this selection
@@ -312,6 +341,19 @@ private:
      */
     void drawDeleteRect(cairo_t* cr, double x, double y, double zoom) const;
 
+    /**
+     * Shape mode: the translation from the shape's coordinates to the coordinates of the current view, i.e. the
+     * pending move of the selection
+     */
+    xoj::util::Point<double> getShapeOffset() const;
+
+    /// Shape mode: the index of the handle under (x, y), in pixels relative to the view
+    std::optional<size_t> shapeHandleAt(const Stroke* s, double x, double y, double zoom) const;
+
+    CursorSelectionType getShapeSelectionTypeForPos(const Stroke* s, double x, double y, double zoom) const;
+    void shapeMouseMove(double mouseX, double mouseY, bool alt, double zoom);
+    void paintShape(cairo_t* cr, const Stroke* s, double zoom);
+
 
     /**
      * Finishes all pending changes, move the elements, scale the elements and add
@@ -434,4 +476,16 @@ private:  // HANDLER
      * the selection in mouseDown while edge panning.
      */
     bool edgePanInhibitNext = false;
+
+    /// See setTransient()
+    bool transient = false;
+
+    /**
+     * Shape mode, while a handle is dragged: the index of the handle, the press and the current positions (in the
+     * shape's coordinates) and a copy of the stroke with the new geometry (nullptr until the first motion)
+     */
+    size_t shapeHandle = 0;
+    xoj::util::Point<double> shapeDownPos{};
+    xoj::util::Point<double> shapeMousePos{};
+    std::unique_ptr<Stroke> shapePreview;
 };

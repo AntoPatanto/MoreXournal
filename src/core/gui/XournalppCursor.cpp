@@ -278,6 +278,9 @@ void XournalppCursor::updateCursor() {
                 case CURSOR_SELECTION_DELETE:
                     setCursor(CRSR_PIRATE);
                     break;
+                case CURSOR_SELECTION_SHAPE_HANDLE:
+                    setCursor(CRSR_TCROSS);
+                    break;
                 default:
                     break;
             }

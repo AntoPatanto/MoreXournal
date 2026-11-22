@@ -171,7 +171,7 @@ public:
     void selectTool(ToolType type);
     void selectDefaultTool();
 
-    void fontChanged(const XojFont& font);      ///< Set the font after the user selected a font
+    void fontChanged(const XojFont& font);  ///< Set the font after the user selected a font
 
     void updatePageNumbers(size_t page, size_t pdfPage);
 
@@ -257,6 +257,10 @@ public:
 
     // selection handling
     void clearSelection();
+
+    /// Close the selection if it is transient (the handles of a shape just drawn), so that a change of the toolbar
+    /// applies to the tool and not to that shape
+    void dismissTransientSelection();
 
     void moveSelectionToLayer(size_t layerNo);
 
