@@ -357,12 +357,13 @@ void StrokeHandler::onButtonPressEvent(const PositionInputData& pos, double zoom
 
     stabilizer->initialize(this, zoom, pos);
 
+    convertedToShape = false;
+
     ToolHandler* h = control->getToolHandler();
     Settings* settings = control->getSettings();
     // Only for freehand pen and highlighter strokes: not for the laser pointer nor the whiteout eraser. The shape
     // recognizer drawing type already converts strokes on release.
-    convertedToShape = false;
-    holdToShapeEnabled =settings->isHoldToShapeEnabled() &&
+    holdToShapeEnabled = settings->isHoldToShapeEnabled() &&
                          (h->getToolType() == TOOL_PEN || h->getToolType() == TOOL_HIGHLIGHTER) &&
                          h->getDrawingType() != DRAWING_TYPE_SHAPE_RECOGNIZER;
     if (holdToShapeEnabled) {
