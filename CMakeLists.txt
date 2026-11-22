@@ -20,16 +20,16 @@ endif()
 
 ## Project related Variables
 ## Also update changelog in debian folder!
-project(xournalpp
+project(morexournal
         VERSION 1.3.8
-        DESCRIPTION "Xournal++ - Open source hand note-taking program"
+        DESCRIPTION "MoreXournal - hand note-taking program based on Xournal++"
         HOMEPAGE_URL "https://xournalpp.github.io/"
         LANGUAGES CXX C)
 # according to https://cmake.org/cmake/help/latest/command/project.html we must fix the suffix:
 # And https://gitlab.kitware.com/cmake/cmake/-/issues/16716 is still open:
 set(VERSION_SUFFIX "+dev")
 set(PROJECT_VERSION "${PROJECT_VERSION}${VERSION_SUFFIX}")
-set(xournalpp_VERSION ${PROJECT_VERSION})
+set(morexournal_VERSION ${PROJECT_VERSION})
 set(CMAKE_PROJECT_VERSION ${PROJECT_VERSION})
 set(PROJECT_CONTACT "core.xournalpp@github.com")
 
@@ -377,20 +377,20 @@ add_subdirectory (man)
 
 # Install resources
 install(DIRECTORY ui
-        DESTINATION "share/xournalpp"
-        COMPONENT xournalpp
+        DESTINATION "share/morexournal"
+        COMPONENT morexournal
         )
 install(DIRECTORY plugins
-        DESTINATION "share/xournalpp"
-        COMPONENT xournalpp
+        DESTINATION "share/morexournal"
+        COMPONENT morexournal
         )
 install(DIRECTORY resources
-        DESTINATION "share/xournalpp"
-        COMPONENT xournalpp
+        DESTINATION "share/morexournal"
+        COMPONENT morexournal
         )
 install(DIRECTORY palettes
-        DESTINATION "share/xournalpp"
-        COMPONENT xournalpp
+        DESTINATION "share/morexournal"
+        COMPONENT morexournal
         )
 
 # Install desktop shortcuts for Linux
@@ -398,7 +398,7 @@ if (${INSTALL_DESKTOP_FILES})
     message("Installing desktop files")
 
     # Install icons
-    install(FILES ui/pixmaps/com.github.xournalpp.xournalpp.svg
+    install(FILES ui/pixmaps/io.github.antopatanto.morexournal.svg
             DESTINATION share/icons/hicolor/scalable/apps)
     install(FILES ui/pixmaps/application-x-xopp.svg
             DESTINATION share/icons/hicolor/scalable/mimetypes/)
@@ -410,11 +410,11 @@ if (${INSTALL_DESKTOP_FILES})
             DESTINATION share/icons/hicolor/scalable/mimetypes/)
     install(FILES ui/pixmaps/gnome-mime-application-x-xopt.svg
             DESTINATION share/icons/hicolor/scalable/mimetypes/)
-    install(FILES ${CMAKE_BINARY_DIR}/generated/com.github.xournalpp.xournalpp.xml
+    install(FILES ${CMAKE_BINARY_DIR}/generated/io.github.antopatanto.morexournal.xml
             DESTINATION share/mime/packages)
-    install(FILES desktop/com.github.xournalpp.xournalpp.thumbnailer
+    install(FILES desktop/io.github.antopatanto.morexournal.thumbnailer
             DESTINATION share/thumbnailers)
-    install(FILES ${CMAKE_BINARY_DIR}/generated/com.github.xournalpp.xournalpp.appdata.xml
+    install(FILES ${CMAKE_BINARY_DIR}/generated/io.github.antopatanto.morexournal.appdata.xml
             DESTINATION share/metainfo)
 endif ()
 
@@ -428,7 +428,7 @@ configure_file(
 add_custom_target(uninstall
         COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake/cmake_uninstall.cmake
 
-        COMMENT "Uninstall entire Xournal++"
+        COMMENT "Uninstall entire MoreXournal"
         )
 
 message("
@@ -455,8 +455,8 @@ set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION}~git${PACKAGE_TIMESTAMP}-${RELEASE_IDENTIFIER}-${DISTRO_CODENAME})
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${PROJECT_SOURCE_DIR}/package_description")
 set(CPACK_PACKAGE_CONTACT "${PROJECT_CONTACT}")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "Xournal++")
-set(CPACK_PACKAGE_FILE_NAME "xournalpp-${PROJECT_VERSION}-${DISTRO_NAME}-${DISTRO_CODENAME}-${PACKAGE_ARCH}")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "MoreXournal")
+set(CPACK_PACKAGE_FILE_NAME "morexournal-${PROJECT_VERSION}-${DISTRO_NAME}-${DISTRO_CODENAME}-${PACKAGE_ARCH}")
 set(CPACK_OUTPUT_FILE_PREFIX packages)
 set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE")
 set(CPACK_STRIP_FILES ON) # Debian packages must be stripped from debug messages, so lintian doesn't complain
@@ -484,14 +484,14 @@ if (CPACK_GENERATOR MATCHES "DEB")
     message("Preparing documentation for DEB package")
     add_custom_target(package_documentation ALL)
 
-    #Compress changelog and save it as share/doc/xournalpp/changelog.Debian.gz
+    #Compress changelog and save it as share/doc/morexournal/changelog.Debian.gz
     add_custom_command(TARGET package_documentation PRE_BUILD
             COMMAND gzip -c -9 -n "${PROJECT_SOURCE_DIR}/debian/changelog" > "changelog.Debian.gz" VERBATIM)
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/changelog.Debian.gz" DESTINATION "share/doc/xournalpp/")
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/changelog.Debian.gz" DESTINATION "share/doc/morexournal/")
 
     message("Install copyright for DEB package")
     #Copy copyright to share/doc/xournalpp/copyright
-    install(FILES "${PROJECT_SOURCE_DIR}/debian/copyright" DESTINATION "share/doc/xournalpp/")
+    install(FILES "${PROJECT_SOURCE_DIR}/debian/copyright" DESTINATION "share/doc/morexournal/")
 endif ()
 
 if (NOT DEFINED CPACK_GENERATOR)
