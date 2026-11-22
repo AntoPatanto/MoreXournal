@@ -84,4 +84,7 @@ private:
 
     /// Set while the widgets are updated from the stroke, to ignore their signals
     bool updating = false;
+    /// Opacity remembered for the current stroke while fill is off (0..255)
+    int fillAlpha = 128;
+    const Stroke* lastStroke = nullptr;
 };

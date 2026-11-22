@@ -1278,14 +1278,20 @@ void EditSelection::shapeMouseMove(double mouseX, double mouseY, bool alt, doubl
         pending = ShapeHandles::rotate(base, c, snappingHandler.snapAngle(angle, alt));
         this->shapeMousePos = m;
     } else {
+        const PageRef page = this->view->getPage();
+        const double maxX = page->getWidth();
+        const double maxY = page->getHeight();
+        const Point clampedMouse(std::clamp(mouse.x, 0.0, maxX), std::clamp(mouse.y, 0.0, maxY));
         Point snapped;
         if (base.type == ShapeType::LINE) {
             // Like the line tool: snap the angle around the other end, then to the grid
             const auto other = base.pts[1 - this->shapeHandle] + offset;
-            snapped = snappingHandler.snap(mouse, Point(other.x, other.y), alt);
+            snapped = snappingHandler.snap(clampedMouse, Point(other.x, other.y), alt);
         } else {
-            snapped = snappingHandler.snapToGrid(mouse, alt);
+            snapped = snappingHandler.snapToGrid(clampedMouse, alt);
         }
+        snapped.x = std::clamp(snapped.x, 0.0, maxX);
+        snapped.y = std::clamp(snapped.y, 0.0, maxY);
         const auto target = snapped.getPosition() - offset;
         pending = ShapeHandles::dragHandle(base, this->shapeHandle, target, MINPIXSIZE / zoom);
         this->shapeMousePos = target;

@@ -193,7 +193,12 @@ auto ShapeToolbox::getShapeSelection() const -> EditSelection* {
 
 void ShapeToolbox::update() {
     EditSelection* sel = getShapeSelection();
-    if (!sel || sel->isMoving()) {
+    if (!sel) {
+        this->lastStroke = nullptr;
+        gtk_widget_hide(this->box);
+        return;
+    }
+    if (sel->isMoving()) {
         gtk_widget_hide(this->box);
         return;
     }
@@ -210,9 +215,15 @@ void ShapeToolbox::refresh(const Stroke* s) {
     gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(this->colorButton), &color);
 
     const bool filled = s->getFill() != -1;
+    if (filled) {
+        this->fillAlpha = s->getFill();
+    } else if (s != this->lastStroke) {
+        this->fillAlpha = DEFAULT_FILL_ALPHA;
+    }
+    this->lastStroke = s;
+
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(this->fillToggle), filled);
-    const int alpha = filled ? s->getFill() : DEFAULT_FILL_ALPHA;
-    GdkRGBA fill = Util::argb_to_GdkRGBA(s->getFillColor().value_or(s->getColor()), alpha / 255.0);
+    GdkRGBA fill = Util::argb_to_GdkRGBA(s->getFillColor().value_or(s->getColor()), this->fillAlpha / 255.0);
     gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(this->fillColorButton), &fill);
     // Filled highlighters are drawn through a colorless mask: only the opacity matters
     gtk_widget_set_visible(this->fillColorButton, s->getToolType() != StrokeTool::HIGHLIGHTER);
@@ -335,8 +346,11 @@ void ShapeToolbox::fillColorSetCb(GtkColorButton* button, ShapeToolbox* self) {
     }
     GdkRGBA rgba;
     gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(button), &rgba);
-    // The color without alpha goes to the fill color, the alpha to the fill opacity (as Xournal++ reads it)
-    self->addUndoAction(sel->setFillStyle(self->getFillAlpha(), Util::GdkRGBA_to_rgb(rgba)));
+    const Stroke* s = sel->getShapeStroke();
+    self->fillAlpha = self->getFillAlpha();
+    // Keep fill disabled until the user enables it; when enabled, update RGB in fillColor and alpha in fill
+    const int fill = s->getFill() != -1 ? self->fillAlpha : -1;
+    self->addUndoAction(sel->setFillStyle(fill, Util::GdkRGBA_to_rgb(rgba)));
     self->update();
 }
 
