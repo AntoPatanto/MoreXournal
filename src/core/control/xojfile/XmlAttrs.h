@@ -49,6 +49,10 @@ constexpr auto TOOL_STR = u8"tool";
 constexpr auto PRESSURES_STR = u8"pressures";
 constexpr auto FILL_STR = u8"fill";
 constexpr auto CAPSTYLE_STR = u8"capStyle";
+// MoreXournal extensions, ignored by Xournal++
+constexpr auto MX_SHAPE_STR = u8"mxShape";               // one of ShapeType::NAMES
+constexpr auto MX_SHAPE_PARAMS_STR = u8"mxShapeParams";  // control points: x0 y0 x1 y1 ...
+constexpr auto MX_FILL_COLOR_STR = u8"mxFillColor";      // #rrggbbaa
 
 // text
 constexpr auto FONT_STR = u8"font";  // also in link

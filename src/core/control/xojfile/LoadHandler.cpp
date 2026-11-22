@@ -303,9 +303,11 @@ void LoadHandler::finalizeLayer() {
 }
 
 void LoadHandler::addStroke(StrokeTool tool, Color color, double width, int fill, StrokeCapStyle capStyle,
-                            const LineStyle& lineStyle, fs::path filename, size_t timestamp) {
+                            const LineStyle& lineStyle, fs::path filename, size_t timestamp,
+                            std::optional<ShapeInfo> shape, std::optional<Color> fillColor) {
     xoj_assert(!this->stroke);
     this->stroke = std::make_unique<Stroke>();
+    this->strokeShape = std::move(shape);
 
     this->stroke->setToolType(tool);
     this->stroke->setColor(color);
@@ -313,6 +315,7 @@ void LoadHandler::addStroke(StrokeTool tool, Color color, double width, int fill
     this->stroke->setFill(fill);
     this->stroke->setStrokeCapStyle(capStyle);
     this->stroke->setLineStyle(lineStyle);
+    this->stroke->setFillColor(fillColor);
 
     setAudioAttributes(*this->stroke, std::move(filename), timestamp);
 }
@@ -337,6 +340,7 @@ void LoadHandler::setStrokePoints(std::vector<Point> pointVector, bool hasPressu
 }
 
 void LoadHandler::finalizeStroke() {
+    auto shape = std::exchange(this->strokeShape, std::nullopt);
     // fixNullPressureValues() may have deleted the stroke. Check if it still
     // exists before accessing it.
     if (this->stroke) {
@@ -345,6 +349,17 @@ void LoadHandler::finalizeStroke() {
             g_warning("LoadHandler: Ignoring stroke with less than two points");
             this->stroke.reset();
             return;
+        }
+
+        // Attach the shape only if the points really draw it. Otherwise keep the drawing as a plain stroke.
+        if (shape) {
+            if (!shape->isValid() || this->stroke->hasPressure()) {
+                g_warning("LoadHandler: Ignoring invalid shape on a stroke");
+            } else if (!shape->matchesBounds(this->stroke->getSnappedBounds())) {
+                g_warning("LoadHandler: Ignoring shape that does not match the stroke's points");
+            } else {
+                this->stroke->attachShape(std::move(*shape));
+            }
         }
 
         this->layer->addElement(std::move(this->stroke));

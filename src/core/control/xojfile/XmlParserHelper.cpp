@@ -148,6 +148,20 @@ auto XmlParserHelper::getAttribColorMandatory(const AttributeMap& attributeMap, 
     }
 }
 
+auto XmlParserHelper::getAttribColor(std::u8string_view name, const AttributeMap& attributeMap)
+        -> std::optional<Color> {
+    const auto sv = getAttrib<std::string_view>(name, attributeMap);
+    if (!sv) {
+        return std::nullopt;
+    }
+    auto color = parseColorCode(*sv);  // Warns about malformed color codes
+    if (!color && (sv->empty() || sv->front() != '#')) {
+        g_warning("XML parser: Attribute \"" SV_FMT "\" is not a color code: \"" SV_FMT "\". Ignoring it",
+                  U8SV_ARG(name), SV_ARG(*sv));
+    }
+    return color;
+}
+
 struct PredefinedColor {
     std::u8string_view name{};
     Color color{};
