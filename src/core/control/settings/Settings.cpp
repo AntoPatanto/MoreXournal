@@ -15,10 +15,11 @@
 
 #include "control/DeviceListHelper.h"               // for InputDevice
 #include "control/ToolEnums.h"                      // for ERASER_TYPE_NONE
-#include "control/settings/LatexSettings.h"         // for LatexSettings
-#include "control/settings/PageTemplateSettings.h"  // for PageTemplateSettings
-#include "control/settings/SettingsEnums.h"         // for InputDeviceTypeOp...
-#include "gui/TopBarLogic.h"                        // for isShapeDrawingType
+#include "control/settings/LatexSettings.h"                     // for LatexSettings
+#include "control/settings/PageTemplateSettings.h"              // for PageTemplateSettings
+#include "control/settings/SettingsEnums.h"                     // for InputDeviceTypeOp...
+#include "control/shaperecognizer/ShapeSensitivityLogic.h"      // for clampParam, clamp...
+#include "gui/TopBarLogic.h"                                    // for isShapeDrawingType
 #include "gui/toolbarMenubar/model/ColorPalette.h"  // for Palette
 #include "model/FormatDefinitions.h"                // for FormatUnits, XOJ_...
 #include "util/Color.h"
@@ -162,9 +163,12 @@ void Settings::loadDefault() {
     this->snapGridTolerance = 0.50;
     this->snapGridSize = DEFAULT_GRID_SIZE;
 
-    this->strokeRecognizerMinSize = 40;
+    this->strokeRecognizerMinSize = xoj::shapes::STROKE_MIN_SIZE_RANGE.def;
     this->holdToShapeEnabled = true;
     this->holdToShapeDelay = 400;
+    this->holdToShapeTolerancePx = xoj::shapes::HOLD_TOLERANCE_PX_RANGE.def;
+    this->shapeSensitivity = xoj::shapes::SHAPE_SENSITIVITY_DEFAULT;
+    this->shapeRecognizerParams = ShapeRecognizerParams{};
 
     this->touchDrawing = false;
     this->gtkTouchInertialScrolling = true;
@@ -648,13 +652,50 @@ void Settings::parseItem(xmlDocPtr doc, xmlNodePtr cur) {
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("snapGridTolerance")) == 0) {
         this->snapGridTolerance = tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr);
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("strokeRecognizerMinSize")) == 0) {
-        this->strokeRecognizerMinSize = tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr);
+        this->strokeRecognizerMinSize = xoj::shapes::clampParam(
+                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr), xoj::shapes::STROKE_MIN_SIZE_RANGE);
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("holdToShapeEnabled")) == 0) {
         this->holdToShapeEnabled = xmlStrcmp(value, reinterpret_cast<const xmlChar*>("true")) == 0;
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("holdToShapeDelay")) == 0) {
         this->holdToShapeDelay =
                 std::clamp(static_cast<int>(g_ascii_strtoll(reinterpret_cast<const char*>(value), nullptr, 10)),
                            HOLD_TO_SHAPE_DELAY_MIN, HOLD_TO_SHAPE_DELAY_MAX);
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("holdToShapeTolerancePx")) == 0) {
+        this->holdToShapeTolerancePx = xoj::shapes::clampParam(
+                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr), xoj::shapes::HOLD_TOLERANCE_PX_RANGE);
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("shapeSensitivity")) == 0) {
+        this->shapeSensitivity =
+                std::clamp(static_cast<int>(g_ascii_strtoll(reinterpret_cast<const char*>(value), nullptr, 10)),
+                           xoj::shapes::SHAPE_SENSITIVITY_MIN, xoj::shapes::SHAPE_SENSITIVITY_MAX);
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("shapeLineMaxDet")) == 0) {
+        this->shapeRecognizerParams.lineMaxDet = xoj::shapes::clampParam(
+                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr), xoj::shapes::LINE_MAX_DET_RANGE);
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("shapeSegmentMaxDet")) == 0) {
+        this->shapeRecognizerParams.segmentMaxDet = xoj::shapes::clampParam(
+                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr), xoj::shapes::SEGMENT_MAX_DET_RANGE);
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("shapeCircleMinDet")) == 0) {
+        this->shapeRecognizerParams.circleMinDet = xoj::shapes::clampParam(
+                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr), xoj::shapes::CIRCLE_MIN_DET_RANGE);
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("shapeCircleMaxScore")) == 0) {
+        this->shapeRecognizerParams.circleMaxScore = xoj::shapes::clampParam(
+                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr),
+                xoj::shapes::CIRCLE_MAX_SCORE_RANGE);
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("shapeRectangleAngleTolerance")) == 0) {
+        this->shapeRecognizerParams.rectangleAngleToleranceDeg = xoj::shapes::clampParam(
+                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr),
+                xoj::shapes::RECTANGLE_ANGLE_TOLERANCE_DEG_RANGE);
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("shapeRectangleLinearTolerance")) == 0) {
+        this->shapeRecognizerParams.rectangleLinearTolerance = xoj::shapes::clampParam(
+                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr),
+                xoj::shapes::RECTANGLE_LINEAR_TOLERANCE_RANGE);
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("shapeTriangleLinearTolerance")) == 0) {
+        this->shapeRecognizerParams.triangleLinearTolerance = xoj::shapes::clampParam(
+                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr),
+                xoj::shapes::TRIANGLE_LINEAR_TOLERANCE_RANGE);
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("shapeSlantTolerance")) == 0) {
+        this->shapeRecognizerParams.slantToleranceDeg = xoj::shapes::clampParam(
+                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr),
+                xoj::shapes::SLANT_TOLERANCE_DEG_RANGE);
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("touchDrawing")) == 0) {
         this->touchDrawing = xmlStrcmp(value, reinterpret_cast<const xmlChar*>("true")) == 0;
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("gtkTouchInertialScrolling")) == 0) {
@@ -1187,6 +1228,16 @@ void Settings::save() {
     SAVE_DOUBLE_PROP(strokeRecognizerMinSize);
     SAVE_BOOL_PROP(holdToShapeEnabled);
     SAVE_INT_PROP(holdToShapeDelay);
+    SAVE_DOUBLE_PROP(holdToShapeTolerancePx);
+    SAVE_INT_PROP(shapeSensitivity);
+    xmlNode = savePropertyDouble("shapeLineMaxDet", shapeRecognizerParams.lineMaxDet, root);
+    xmlNode = savePropertyDouble("shapeSegmentMaxDet", shapeRecognizerParams.segmentMaxDet, root);
+    xmlNode = savePropertyDouble("shapeCircleMinDet", shapeRecognizerParams.circleMinDet, root);
+    xmlNode = savePropertyDouble("shapeCircleMaxScore", shapeRecognizerParams.circleMaxScore, root);
+    xmlNode = savePropertyDouble("shapeRectangleAngleTolerance", shapeRecognizerParams.rectangleAngleToleranceDeg, root);
+    xmlNode = savePropertyDouble("shapeRectangleLinearTolerance", shapeRecognizerParams.rectangleLinearTolerance, root);
+    xmlNode = savePropertyDouble("shapeTriangleLinearTolerance", shapeRecognizerParams.triangleLinearTolerance, root);
+    xmlNode = savePropertyDouble("shapeSlantTolerance", shapeRecognizerParams.slantToleranceDeg, root);
 
     SAVE_BOOL_PROP(touchDrawing);
     SAVE_BOOL_PROP(gtkTouchInertialScrolling);
@@ -1694,6 +1745,7 @@ void Settings::setSnapGridSize(double gridSize) {
 
 auto Settings::getStrokeRecognizerMinSize() const -> double { return this->strokeRecognizerMinSize; };
 void Settings::setStrokeRecognizerMinSize(double value) {
+    value = xoj::shapes::clampParam(value, xoj::shapes::STROKE_MIN_SIZE_RANGE);
     if (this->strokeRecognizerMinSize == value) {
         return;
     }
@@ -1769,6 +1821,39 @@ void Settings::setHoldToShapeDelay(int delay) {
         return;
     }
     this->holdToShapeDelay = delay;
+    save();
+}
+
+auto Settings::getHoldToShapeTolerancePx() const -> double { return this->holdToShapeTolerancePx; }
+
+void Settings::setHoldToShapeTolerancePx(double tolerancePx) {
+    tolerancePx = xoj::shapes::clampParam(tolerancePx, xoj::shapes::HOLD_TOLERANCE_PX_RANGE);
+    if (this->holdToShapeTolerancePx == tolerancePx) {
+        return;
+    }
+    this->holdToShapeTolerancePx = tolerancePx;
+    save();
+}
+
+auto Settings::getShapeSensitivity() const -> int { return this->shapeSensitivity; }
+
+void Settings::setShapeSensitivity(int sensitivity) {
+    sensitivity = std::clamp(sensitivity, xoj::shapes::SHAPE_SENSITIVITY_MIN, xoj::shapes::SHAPE_SENSITIVITY_MAX);
+    if (this->shapeSensitivity == sensitivity) {
+        return;
+    }
+    this->shapeSensitivity = sensitivity;
+    save();
+}
+
+auto Settings::getShapeRecognizerParams() const -> const ShapeRecognizerParams& { return this->shapeRecognizerParams; }
+
+void Settings::setShapeRecognizerParams(const ShapeRecognizerParams& params) {
+    const ShapeRecognizerParams clamped = xoj::shapes::clampShapeRecognizerParams(params);
+    if (this->shapeRecognizerParams == clamped) {
+        return;
+    }
+    this->shapeRecognizerParams = clamped;
     save();
 }
 
