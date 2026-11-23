@@ -157,7 +157,9 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
 
     Util::execInUiThread([=]() {
         // Execute after the window is visible, else the check won't work
-        control->setShowMenubar(control->getSettings()->isMenubarVisible());
+        // menubarVisible is saved from the view mode active on quit (e.g. fullscreen): start from the view mode itself
+        Settings* settings = control->getSettings();
+        control->setShowMenubar(settings->getViewModes().at(settings->getActiveViewMode()).showMenubar);
     });
 
     // Drag and Drop
