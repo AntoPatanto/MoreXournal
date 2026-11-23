@@ -1143,3 +1143,13 @@ struct ActionProperties<Action::POSITION_HIGHLIGHTING> {
         ctrl->getSettings()->setHighlightPosition(enable);
     }
 };
+
+template <>
+struct ActionProperties<Action::HOLD_TO_SHAPE> {
+    using state_type = bool;
+    static state_type initialState(Control* ctrl) { return ctrl->getSettings()->isHoldToShapeEnabled(); }
+    static void callback(GSimpleAction* ga, GVariant* p, Control* ctrl) {
+        g_simple_action_set_state(ga, p);
+        ctrl->getSettings()->setHoldToShapeEnabled(g_variant_get_boolean(p));
+    }
+};

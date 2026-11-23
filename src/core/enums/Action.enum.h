@@ -177,6 +177,9 @@ enum class Action : size_t {
     // Miscellaneous
     POSITION_HIGHLIGHTING,
 
+    // Pen options
+    HOLD_TO_SHAPE,  ///< Convert a stroke to a shape when the pen is held still
+
     // Keep this last value
     ENUMERATOR_COUNT
 };

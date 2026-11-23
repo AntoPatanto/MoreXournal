@@ -1504,6 +1504,7 @@ void Control::showSettings() {
 
                 ctrl->getActionDatabase()->setActionState(Action::TOGGLE_TOUCH_DRAWING,
                                                           settings->getTouchDrawingEnabled());
+                ctrl->getActionDatabase()->setActionState(Action::HOLD_TO_SHAPE, settings->isHoldToShapeEnabled());
             });
     dlg.show(GTK_WINDOW(this->win->getWindow()));
 }
