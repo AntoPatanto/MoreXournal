@@ -266,10 +266,7 @@ bool PenInputHandler::isCurrentTapSelection(InputEvent const& event) const {
     const bool fastEnoughTap = event.timestamp - this->lastActionStartTimeStamp < as_unsigned(tapMaxDuration);
     const bool notAnAftershock = event.timestamp - this->lastActionEndTimeStamp > as_unsigned(filterRepetitionTime);
 
-    auto* selection = inputContext->getView()->getSelection();
-    const bool notInSelectionDeleteButton = !selection || !selection->isDeleting();
-
-    return noMovement && fastEnoughTap && notAnAftershock && notInSelectionDeleteButton;
+    return noMovement && fastEnoughTap && notAnAftershock;
 }
 
 auto PenInputHandler::actionMotion(InputEvent const& event) -> bool {
@@ -430,8 +427,7 @@ auto PenInputHandler::actionEnd(InputEvent const& event) -> bool {
     // Holding shift (with selections) also does not imply drawing
     if (toolHandler->supportsTapFilter()) {
         if (inputContext->getSettings()->getStrokeFilterEnabled()) {
-            // Tapping/Clicking in the selection delete button should still delete the selection
-            cancelAction |= (event.state & GDK_SHIFT_MASK) && xournal->selection != nullptr && !selection->isDeleting();
+            cancelAction |= (event.state & GDK_SHIFT_MASK) && xournal->selection != nullptr;
         }
     }
 

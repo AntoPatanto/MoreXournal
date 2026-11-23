@@ -306,11 +306,6 @@ public:
      */
     bool isMoving() const;
 
-    /**
-     * If the user started pressing the delete button
-     */
-    bool isDeleting() const;
-
     void copySelection();
 
 public:
@@ -327,20 +322,14 @@ public:
 
 private:
     /**
-     * Draws an indicator where you can scale the selection
+     * Draws a circular handle where you can scale the selection
      */
-    void drawAnchorRect(cairo_t* cr, double x, double y, double zoom);
+    void drawAnchorDot(cairo_t* cr, double x, double y, double zoom);
 
     /**
-     * Draws an indicator where you can rotate the selection
+     * Draws a circular handle and stem where you can rotate the selection
      */
-    void drawAnchorRotation(cairo_t* cr, double x, double y, double zoom);
-
-
-    /**
-     * Draws an indicator where you can delete the selection
-     */
-    void drawDeleteRect(cairo_t* cr, double x, double y, double zoom) const;
+    void drawAnchorRotation(cairo_t* cr, double anchorX, double x, double y, double zoom);
 
     /**
      * Shape mode: the translation from the shape's coordinates to the coordinates of the current view, i.e. the

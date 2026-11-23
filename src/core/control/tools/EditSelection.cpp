@@ -53,8 +53,7 @@ using xoj::util::Rectangle;
 /// Smallest can scale down to, in pixels.
 constexpr size_t MINPIXSIZE = 5;
 
-/// Padding for ui buttons
-constexpr int DELETE_PADDING = 20;
+/// Padding for the rotation handle
 constexpr int ROTATE_PADDING = 8;
 
 /// Distance between a shape and its rotation knob, in pixels
@@ -533,11 +532,6 @@ auto EditSelection::rearrangeInsertionOrder(const OrderChange change) -> UndoAct
  * (should be called in the mouse-button-released event handler)
  */
 void EditSelection::mouseUp() {
-    if (this->mouseDownType == CURSOR_SELECTION_DELETE) {
-        this->view->getXournal()->deleteSelection();
-        return;
-    }
-
     if (this->mouseDownType == CURSOR_SELECTION_SHAPE_HANDLE) {
         this->mouseDownType = CURSOR_SELECTION_NONE;
         const std::unique_ptr<Stroke> preview = std::move(this->shapePreview);
@@ -844,9 +838,6 @@ void EditSelection::copySelection() {
  */
 auto EditSelection::isMoving() const -> bool { return this->mouseDownType != CURSOR_SELECTION_NONE; }
 
-auto EditSelection::isDeleting() const -> bool { return this->mouseDownType == CURSOR_SELECTION_DELETE; }
-
-
 /**
  * Move the selection
  */
@@ -1066,13 +1057,6 @@ auto EditSelection::getSelectionTypeForPos(double x, double y, double zoom) -> C
         return CURSOR_SELECTION_BOTTOM_RIGHT;
     }
 
-    if (xmin - (DELETE_PADDING + this->btnWidth) - BORDER_PADDING <= x &&
-        x <= xmin - (DELETE_PADDING + this->btnWidth) + BORDER_PADDING && y1 - BORDER_PADDING <= y &&
-        y <= y1 + BORDER_PADDING) {
-        return CURSOR_SELECTION_DELETE;
-    }
-
-
     if (xmax - BORDER_PADDING + ROTATE_PADDING + this->btnWidth <= x &&
         x <= xmax + BORDER_PADDING + ROTATE_PADDING + this->btnWidth && (y2 + y1) / 2 - 4 - BORDER_PADDING <= y &&
         (y2 + y1) / 2 + 4 + BORDER_PADDING >= y) {
@@ -1165,70 +1149,50 @@ void EditSelection::paint(cairo_t* cr, double zoom) {
     ToolHandler* toolHandler = view->getXournal()->getControl()->getToolHandler();
     if (toolHandler->getToolType() != TOOL_HAND) {
         cairo_set_dash(cr, nullptr, 0, 0);
+
+        // rotation handle (drawn before the scale dots so the right-middle dot covers the start of the stem)
+        const double rightEdge = std::min(x, x + width) + std::abs(width);
+        drawAnchorRotation(cr, rightEdge, rightEdge + (ROTATE_PADDING + this->btnWidth) / zoom, y + height / 2, zoom);
+
         // top
-        drawAnchorRect(cr, x + width / 2, y, zoom);
+        drawAnchorDot(cr, x + width / 2, y, zoom);
         // bottom
-        drawAnchorRect(cr, x + width / 2, y + height, zoom);
+        drawAnchorDot(cr, x + width / 2, y + height, zoom);
         // left
-        drawAnchorRect(cr, x, y + height / 2, zoom);
+        drawAnchorDot(cr, x, y + height / 2, zoom);
         // right
-        drawAnchorRect(cr, x + width, y + height / 2, zoom);
+        drawAnchorDot(cr, x + width, y + height / 2, zoom);
         // top left
-        drawAnchorRect(cr, x, y, zoom);
+        drawAnchorDot(cr, x, y, zoom);
         // top right
-        drawAnchorRect(cr, x + width, y, zoom);
+        drawAnchorDot(cr, x + width, y, zoom);
         // bottom left
-        drawAnchorRect(cr, x, y + height, zoom);
+        drawAnchorDot(cr, x, y + height, zoom);
         // bottom right
-        drawAnchorRect(cr, x + width, y + height, zoom);
-
-        drawDeleteRect(cr, std::min(x, x + width) - (DELETE_PADDING + this->btnWidth) / zoom, y, zoom);
-
-        // rotation handle
-        drawAnchorRotation(cr, std::min(x, x + width) + std::abs(width) + (ROTATE_PADDING + this->btnWidth) / zoom,
-                           y + height / 2, zoom);
+        drawAnchorDot(cr, x + width, y + height, zoom);
     }
 }
 
-void EditSelection::drawAnchorRotation(cairo_t* cr, double x, double y, double zoom) {
+void EditSelection::drawAnchorRotation(cairo_t* cr, double anchorX, double x, double y, double zoom) {
     GdkRGBA selectionColor = view->getSelectionColor();
     gdk_cairo_set_source_rgba(cr, &selectionColor);
-    cairo_rectangle(cr, x * zoom - (this->btnWidth / 2), y * zoom - (this->btnWidth / 2), this->btnWidth,
-                    this->btnWidth);
-    cairo_stroke_preserve(cr);
-    cairo_set_source_rgb(cr, 1, 0, 0);
+    cairo_move_to(cr, anchorX * zoom, y * zoom);
+    cairo_line_to(cr, x * zoom, y * zoom);
+    cairo_stroke(cr);
+    cairo_arc(cr, x * zoom, y * zoom, this->btnWidth / 2.0, 0, 2 * M_PI);
     cairo_fill(cr);
 }
 
 /**
- * draws an idicator where you can scale the selection
+ * Draws a circular handle where you can scale the selection
  */
-void EditSelection::drawAnchorRect(cairo_t* cr, double x, double y, double zoom) {
+void EditSelection::drawAnchorDot(cairo_t* cr, double x, double y, double zoom) {
     GdkRGBA selectionColor = view->getSelectionColor();
     gdk_cairo_set_source_rgba(cr, &selectionColor);
-    cairo_rectangle(cr, x * zoom - (this->btnWidth / 2), y * zoom - (this->btnWidth / 2), this->btnWidth,
-                    this->btnWidth);
+    cairo_arc(cr, x * zoom, y * zoom, this->btnWidth / 2.0, 0, 2 * M_PI);
     cairo_stroke_preserve(cr);
     cairo_set_source_rgb(cr, 1, 1, 1);
     cairo_fill(cr);
-}
-
-
-/**
- * draws an idicator where you can delete the selection
- */
-void EditSelection::drawDeleteRect(cairo_t* cr, double x, double y, double zoom) const {
-    cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_rectangle(cr, x * zoom - (this->btnWidth / 2), y * zoom - (this->btnWidth / 2), this->btnWidth,
-                    this->btnWidth);
-    cairo_stroke(cr);
-    cairo_set_source_rgb(cr, 1, 0, 0);
-    cairo_move_to(cr, x * zoom - (this->btnWidth / 2), y * zoom - (this->btnWidth / 2));
-    cairo_rel_move_to(cr, this->btnWidth, 0);
-    cairo_rel_line_to(cr, -this->btnWidth, this->btnWidth);
-    cairo_rel_move_to(cr, this->btnWidth, 0);
-    cairo_rel_line_to(cr, -this->btnWidth, -this->btnWidth);
-    cairo_stroke(cr);
 }
 
 
@@ -1379,11 +1343,7 @@ void EditSelection::paintShape(cairo_t* cr, const Stroke* s, double zoom) {
             cairo_fill(cr);
             continue;
         }
-        if (h.kind == ShapeHandles::HandleKind::SIDE) {
-            cairo_rectangle(cr, pos.x - radius, pos.y - radius, 2 * radius, 2 * radius);
-        } else {
-            cairo_arc(cr, pos.x, pos.y, radius, 0, 2 * M_PI);
-        }
+        cairo_arc(cr, pos.x, pos.y, radius, 0, 2 * M_PI);
         cairo_stroke_preserve(cr);
         cairo_set_source_rgb(cr, 1, 1, 1);
         cairo_fill(cr);
