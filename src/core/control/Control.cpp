@@ -2379,8 +2379,9 @@ auto Control::loadViewMode(ViewModeId mode) -> bool {
         return false;
     }
     setShowMenubar(settings->isMenubarVisible());
-    this->win->setToolbarVisible(settings->isToolbarVisible());
-    this->win->setSidebarVisible(settings->isSidebarVisible());
+    // Also keeps the toggles bound to these actions (the top bar's sidebar button, the View menu) in sync
+    setShowToolbar(settings->isToolbarVisible());
+    setShowSidebar(settings->isSidebarVisible());
     setFullscreen(settings->isFullscreen());
     return false;
 }
