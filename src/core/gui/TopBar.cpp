@@ -1,6 +1,5 @@
 #include "TopBar.h"
 
-#include <cstring>  // for strcmp
 #include <utility>  // for pair
 
 #include "control/Control.h"                 // for Control
@@ -312,23 +311,8 @@ void TopBar::onToolClicked(ToolGroup group) {
     syncTools();
 }
 
-void TopBar::onActionStateChanged(GAction* action) {
-    // Remember the shape only when a shape action is switched on while the pen is the tool. Reading the drawing
-    // type while the tool changes would see the previous tool's type: SELECT_TOOL is updated before the others.
-    // Stylus and mouse button tools (e.g. a button bound to "pen + line") are temporary and must not change it.
-    ToolHandler* toolHandler = control->getToolHandler();
-    const bool penIsToolbarTool = toolHandler->getActiveTool() == &toolHandler->getTool(TOOL_PEN);
-    const char* name = g_action_get_name(action);
-    for (const auto& [shapeAction, type]: DRAWING_TYPE_ACTIONS) {
-        if (std::strcmp(name, Action_toString(shapeAction)) == 0) {
-            xoj::util::GVariantSPtr state(g_action_get_state(action), xoj::util::adopt);
-            if (penIsToolbarTool && getGVariantValue<bool>(state.get()) &&
-                getActionState<ToolType>(control->getActionDatabase(), Action::SELECT_TOOL) == TOOL_PEN) {
-                control->getSettings()->setLastShapeType(type);
-            }
-            break;
-        }
-    }
+void TopBar::onActionStateChanged(GAction*) {
+    // ToolHandler::setDrawingType() remembers the last pen shape: here only the pressed button follows the tool
     syncTools();
 }
 

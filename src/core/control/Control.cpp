@@ -654,8 +654,10 @@ void Control::setShowSidebar(bool enabled) {
     win->setSidebarVisible(enabled);
     actionDB->setActionState(Action::SHOW_SIDEBAR, enabled);
 
-    if (settings->isSidebarVisible() != enabled &&
-        settings->getActiveViewMode() == PresetViewModeIds::VIEW_MODE_DEFAULT) {
+    // Compare with the view mode too: a stale showSidebar saved from fullscreen must not block saving
+    if (settings->getActiveViewMode() == PresetViewModeIds::VIEW_MODE_DEFAULT &&
+        (settings->isSidebarVisible() != enabled ||
+         settings->getViewModes()[PresetViewModeIds::VIEW_MODE_DEFAULT].showSidebar != enabled)) {
         settings->setSidebarVisible(enabled);
         ViewMode viewMode = settings->getViewModes()[PresetViewModeIds::VIEW_MODE_DEFAULT];
         viewMode.showSidebar = enabled;

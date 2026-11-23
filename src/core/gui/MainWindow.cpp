@@ -90,7 +90,9 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
     initXournalWidget();
     this->shapeToolbox = std::make_unique<ShapeToolbox>(this, overlay);
 
-    setSidebarVisible(control->getSettings()->isSidebarVisible());
+    // showSidebar is saved from the view mode active on quit (e.g. fullscreen): start from the view mode itself
+    setSidebarVisible(
+            control->getSettings()->getViewModes().at(control->getSettings()->getActiveViewMode()).showSidebar);
 
     // Window handler
     g_signal_connect(this->window, "delete-event", xoj::util::wrap_for_g_callback_v<deleteEventCallback>,

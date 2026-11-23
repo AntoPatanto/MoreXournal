@@ -311,7 +311,10 @@ struct ActionProperties<Action::FULLSCREEN> {
 template <>
 struct ActionProperties<Action::SHOW_SIDEBAR> {
     using state_type = bool;
-    static state_type initialState(Control* ctrl) { return ctrl->getSettings()->isSidebarVisible(); }
+    static state_type initialState(Control* ctrl) {
+        Settings* settings = ctrl->getSettings();
+        return settings->getViewModes().at(settings->getActiveViewMode()).showSidebar;
+    }
     static void callback(GSimpleAction*, GVariant* p, Control* ctrl) { ctrl->setShowSidebar(g_variant_get_boolean(p)); }
 };
 
