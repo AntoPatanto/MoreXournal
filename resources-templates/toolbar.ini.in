@@ -49,6 +49,12 @@ toolbarLeft1=SAVEPDF,PRINT,SEARCH,DELETE,SETSQUARE,COMPASS,MANAGE_TOOLBAR,CUSTOM
 toolbarLeft2=SELECT_REGION,SELECT_RECTANGLE,SELECT_OBJECT,PLAY_OBJECT,GOTO_PREVIOUS_LAYER,GOTO_NEXT_LAYER,GOTO_TOP_LAYER,FILL_OPACITY
 name=All Tools
 
+# MoreXournal: the default layout. The tools, undo/redo and page navigation are in the top bar of the window,
+# so this layout only adds the colors, the thickness and the fill of the current tool
+[MoreXournal]
+name=MoreXournal
+toolbarTop1=SPACER,COLOR(0),COLOR(1),COLOR(2),COLOR(3),COLOR(4),COLOR(5),COLOR(6),COLOR(7),COLOR(8),COLOR(9),COLOR(10),COLOR_SELECT,SEPARATOR,FINE,MEDIUM,THICK,SEPARATOR,TOOL_FILL,SPACER
+
 # Portrait: The name in brackets have to be unique, but is not displayed, it should not start with an underline (_)
 [Portrait]
 # The name of the toolbar, which is display in the menu, can be localized

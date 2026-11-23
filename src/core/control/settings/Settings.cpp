@@ -18,6 +18,7 @@
 #include "control/settings/LatexSettings.h"         // for LatexSettings
 #include "control/settings/PageTemplateSettings.h"  // for PageTemplateSettings
 #include "control/settings/SettingsEnums.h"         // for InputDeviceTypeOp...
+#include "gui/TopBarLogic.h"                        // for isShapeDrawingType
 #include "gui/toolbarMenubar/model/ColorPalette.h"  // for Palette
 #include "model/FormatDefinitions.h"                // for FormatUnits, XOJ_...
 #include "util/Color.h"
@@ -37,7 +38,6 @@ using std::string;
 
 constexpr auto const* DEFAULT_FONT = "Sans";
 constexpr auto DEFAULT_FONT_SIZE = 12;
-constexpr auto DEFAULT_TOOLBAR = "Portrait";
 
 /// Zoomstep value for Ctrl - and Zoom In and Out Button. Effect depends on dpi (REAL_PERCENTAGE_VALUE * zoom100Value)
 constexpr auto DEFAULT_ZOOM_STEP{10.};
@@ -103,7 +103,7 @@ void Settings::loadDefault() {
 
     this->fullscreenActive = false;
 
-    this->showSidebar = true;
+    this->showSidebar = false;
     this->sidebarWidth = 150;
     this->sidebarNumberingStyle = SidebarNumberingStyle::DEFAULT;
 
@@ -114,7 +114,11 @@ void Settings::loadDefault() {
 
     this->scrollbarOnLeft = false;
 
-    this->menubarVisible = true;
+    this->menubarVisible = false;
+    this->uiLayoutVersion = UI_LAYOUT_VERSION;
+    this->pendingToolbarMigration = false;
+    this->useClientSideDecorations = true;
+    this->lastShapeType = DRAWING_TYPE_RECTANGLE;
 
     this->autoloadMostRecent = false;
     this->autoloadPdfXoj = true;
@@ -483,6 +487,15 @@ void Settings::parseItem(xmlDocPtr doc, xmlNodePtr cur) {
         this->scrollbarOnLeft = xmlStrcmp(value, reinterpret_cast<const xmlChar*>("true")) == 0;
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("menubarVisible")) == 0) {
         this->menubarVisible = xmlStrcmp(value, reinterpret_cast<const xmlChar*>("true")) == 0;
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("uiLayoutVersion")) == 0) {
+        this->uiLayoutVersion = static_cast<int>(g_ascii_strtoll(reinterpret_cast<const char*>(value), nullptr, 10));
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("useClientSideDecorations")) == 0) {
+        this->useClientSideDecorations = xmlStrcmp(value, reinterpret_cast<const xmlChar*>("true")) == 0;
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("lastShapeType")) == 0) {
+        DrawingType type = drawingTypeFromString(reinterpret_cast<const char*>(value));
+        if (xoj::topbar::isShapeDrawingType(type)) {
+            this->lastShapeType = type;
+        }
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("numColumns")) == 0) {
         this->numColumns = g_ascii_strtoll(reinterpret_cast<const char*>(value), nullptr, 10);
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("numRows")) == 0) {
@@ -891,6 +904,9 @@ auto Settings::load() -> bool {
     cur = xmlDocGetRootElement(doc);
     cur = cur->xmlChildrenNode;
 
+    // Files written before uiLayoutVersion existed have no such entry
+    this->uiLayoutVersion = 0;
+
     while (cur != nullptr) {
         parseItem(doc, cur);
 
@@ -898,6 +914,8 @@ auto Settings::load() -> bool {
     }
 
     xmlFreeDoc(doc);
+
+    migrateUiLayout();
 
     loadButtonConfig();
     loadDeviceClasses();
@@ -1068,6 +1086,9 @@ void Settings::save() {
     SAVE_BOOL_PROP(sidebarOnRight);
     SAVE_BOOL_PROP(scrollbarOnLeft);
     SAVE_BOOL_PROP(menubarVisible);
+    SAVE_INT_PROP(uiLayoutVersion);
+    SAVE_BOOL_PROP(useClientSideDecorations);
+    xmlNode = saveProperty("lastShapeType", drawingTypeToString(lastShapeType).data(), root);
     SAVE_BOOL_PROP(filepathShownInTitlebar);
     SAVE_BOOL_PROP(pageNumberShownInTitlebar);
     SAVE_INT_PROP(numColumns);
@@ -1676,6 +1697,45 @@ void Settings::setStrokeRecognizerMinSize(double value) {
 };
 
 auto Settings::isHoldToShapeEnabled() const -> bool { return this->holdToShapeEnabled; }
+
+void Settings::migrateUiLayout() {
+    if (this->uiLayoutVersion >= 1) {
+        return;
+    }
+    // Version 1 introduced the top bar: the menu bar and the page sidebar start hidden
+    this->menubarVisible = false;
+    this->showSidebar = false;
+    ViewMode& defaultMode = this->viewModes.at(PresetViewModeIds::VIEW_MODE_DEFAULT);
+    defaultMode.showMenubar = false;
+    defaultMode.showSidebar = false;
+    this->pendingToolbarMigration = true;
+    this->uiLayoutVersion = 1;
+    save();
+}
+
+auto Settings::consumePendingToolbarMigration() -> bool { return std::exchange(this->pendingToolbarMigration, false); }
+
+auto Settings::getUiLayoutVersion() const -> int { return this->uiLayoutVersion; }
+
+auto Settings::isUseClientSideDecorations() const -> bool { return this->useClientSideDecorations; }
+
+void Settings::setUseClientSideDecorations(bool use) {
+    if (this->useClientSideDecorations == use) {
+        return;
+    }
+    this->useClientSideDecorations = use;
+    save();
+}
+
+auto Settings::getLastShapeType() const -> DrawingType { return this->lastShapeType; }
+
+void Settings::setLastShapeType(DrawingType type) {
+    if (!xoj::topbar::isShapeDrawingType(type) || this->lastShapeType == type) {
+        return;
+    }
+    this->lastShapeType = type;
+    save();
+}
 
 void Settings::setHoldToShapeEnabled(bool enabled) {
     if (this->holdToShapeEnabled == enabled) {

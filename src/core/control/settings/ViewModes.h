@@ -40,7 +40,7 @@ struct ViewMode {
 };
 
 // default ViewModes
-constexpr ViewMode VIEW_MODE_STRUCT_DEFAULT{false, true, true, true};
+constexpr ViewMode VIEW_MODE_STRUCT_DEFAULT{false, false, true, false};
 constexpr ViewMode VIEW_MODE_STRUCT_FULLSCREEN{true, false, true, true};
 constexpr ViewMode VIEW_MODE_STRUCT_PRESENTATION{true, false, true, false};
 
