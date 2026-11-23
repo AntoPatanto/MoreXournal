@@ -346,8 +346,9 @@ window.compact .mx-topbar .mx-page-label {
 	margin: 10px;
 }
 
+/* GTK scales an oversized radius down to half the height, so the ends stay semicircles at any pill height */
 .mx-pill {
-	border-radius: 22px;
+	border-radius: 9999px;
 	padding: 4px 10px;
 	min-height: 36px;
 }
