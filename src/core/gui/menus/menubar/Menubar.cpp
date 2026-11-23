@@ -18,7 +18,6 @@
 
 constexpr auto MENU_XML_FILE = "mainmenubar.xml";
 constexpr auto MENU_ID = "menubar";
-constexpr auto UNDO_REDO_SECTION_ID = "sectionUndoRedo";
 
 Menubar::Menubar() = default;
 Menubar::~Menubar() noexcept = default;
@@ -84,65 +83,85 @@ void Menubar::populate(const GladeSearchpath* gladeSearchPath, MainWindow* win) 
         removeItemsWithClass(G_MENU(menu), "audio");
     }
 
-    undoRedoSection = G_MENU(gtk_builder_get_object(builder.get(), UNDO_REDO_SECTION_ID));
-
     createSectionedMenu();
 }
 
-void Menubar::createSectionedMenu() {
-    // Section titles of the main menu. They differ from the menu bar labels and have no mnemonic.
-    const std::pair<const char*, std::string> titles[] = {
-            {"menuFile", _("Document")}, {"menuEdit", _("Edit")},
-            {"menuView", _("View")},     {"menuNavigation", _("Navigation")},
-            {"menuJournal", _("Page")},  {"menuTools", _("Tools")},
-            {"menuHelp", _("Help")}};
+auto Menubar::buildMainMenu(GtkBuilder* builder, GMenuModel* pluginsModel) -> xoj::util::GObjectSPtr<GMenu> {
+    auto getModelById = [builder](const char* id) -> GMenuModel* {
+        GObject* obj = gtk_builder_get_object(builder, id);
+        if (obj == nullptr) {
+            g_warning("Menubar::buildMainMenu: Could not find menu object: \"%s\"", id);
+            return nullptr;
+        }
+        return G_MENU_MODEL(obj);
+    };
 
-    sectionedMenu.reset(g_menu_new(), xoj::util::adopt);
-    const int n = g_menu_model_get_n_items(menu);
-    for (int i = 0; i < n; ++i) {
-        // Link the existing submenu instead of copying it, so its dynamic parts stay up to date
-        xoj::util::GObjectSPtr<GMenuModel> sub(g_menu_model_get_item_link(menu, i, G_MENU_LINK_SUBMENU),
-                                               xoj::util::adopt);
-        if (!sub) {
-            continue;
+    xoj::util::GObjectSPtr<GMenu> mainMenu(g_menu_new(), xoj::util::adopt);
+
+    // Inline document items: link the File sections so dynamic entries (recent documents) stay live
+    for (const char* id: {"sectionFileDocument", "sectionFileExport", "sectionFilePrint"}) {
+        if (GMenuModel* sec = getModelById(id)) {
+            g_menu_append_section(mainMenu.get(), nullptr, sec);
         }
-        std::string title;
-        for (const auto& [id, label]: titles) {
-            if (G_OBJECT(sub.get()) == gtk_builder_get_object(builder.get(), id)) {
-                title = label;
-            }
-        }
-#ifdef ENABLE_PLUGINS
-        if (sub.get() == pluginsSubmenu->getModel()) {
-            title = _("Plugins");
-        }
-#endif
-        if (title.empty()) {
-            // Unknown menu: use its menu bar label without the mnemonic marker
-            gchar* label = nullptr;
-            if (g_menu_model_get_item_attribute(menu, i, G_MENU_ATTRIBUTE_LABEL, "s", &label)) {
-                for (const char* c = label; *c; ++c) {
-                    if (*c != '_') {
-                        title += *c;
-                    }
-                }
-                g_free(label);
-            }
-        }
-        g_menu_append_section(sectionedMenu.get(), title.c_str(), sub.get());
     }
+
+    // Category submenus
+    xoj::util::GObjectSPtr<GMenu> categoriesSection(g_menu_new(), xoj::util::adopt);
+
+    // Edit omits Preferences and Toolbars, which sit in the top-level section below
+    xoj::util::GObjectSPtr<GMenu> editSubmenu(g_menu_new(), xoj::util::adopt);
+    for (const char* id:
+         {"sectionEditClipboard", "sectionEditSelectFind", "sectionEditSelection", "sectionEditSnapping"}) {
+        if (GMenuModel* sec = getModelById(id)) {
+            g_menu_append_section(editSubmenu.get(), nullptr, sec);
+        }
+    }
+    g_menu_append_submenu(categoriesSection.get(), _("Edit"), G_MENU_MODEL(editSubmenu.get()));
+
+    const std::pair<const char*, std::string> categorySubmenus[] = {
+            {"menuPage", _("Page")},
+            {"menuLayers", _("Layers")},
+            {"menuView", _("View")},
+            {"menuTools", _("Tools")},
+    };
+    for (const auto& [id, label]: categorySubmenus) {
+        if (GMenuModel* sub = getModelById(id)) {
+            g_menu_append_submenu(categoriesSection.get(), label.c_str(), sub);
+        }
+    }
+    if (pluginsModel != nullptr) {
+        g_menu_append_submenu(categoriesSection.get(), _("Plugins"), pluginsModel);
+    }
+    g_menu_append_section(mainMenu.get(), nullptr, G_MENU_MODEL(categoriesSection.get()));
+
+    // Preferences, Toolbars (keeping its live submenu link), and Help in one section
+    xoj::util::GObjectSPtr<GMenu> appSection(g_menu_new(), xoj::util::adopt);
+    if (GMenuModel* editPrefs = getModelById("sectionEditPreferences")) {
+        const int n = g_menu_model_get_n_items(editPrefs);
+        for (int i = 0; i < n; ++i) {
+            xoj::util::GObjectSPtr<GMenuItem> item(g_menu_item_new_from_model(editPrefs, i), xoj::util::adopt);
+            g_menu_append_item(appSection.get(), item.get());
+        }
+    }
+    if (GMenuModel* help = getModelById("menuHelp")) {
+        g_menu_append_submenu(appSection.get(), _("Help"), help);
+    }
+    g_menu_append_section(mainMenu.get(), nullptr, G_MENU_MODEL(appSection.get()));
+
+    if (GMenuModel* quitSec = getModelById("sectionFileQuit")) {
+        g_menu_append_section(mainMenu.get(), nullptr, quitSec);
+    }
+
+    return mainMenu;
 }
 
-void Menubar::setUndoDescription(const std::string& description) {
-    xoj_assert(undoRedoSection);
-    g_menu_remove(undoRedoSection, 0);
-    g_menu_prepend(undoRedoSection, description.c_str(), "win.undo");
-}
-
-void Menubar::setRedoDescription(const std::string& description) {
-    xoj_assert(undoRedoSection);
-    g_menu_remove(undoRedoSection, 1);
-    g_menu_append(undoRedoSection, description.c_str(), "win.redo");
+void Menubar::createSectionedMenu() {
+#ifdef ENABLE_PLUGINS
+    GMenuModel* pluginsModel = pluginsSubmenu ? pluginsSubmenu->getModel() : nullptr;
+#else
+    GMenuModel* pluginsModel = nullptr;
+#endif
+    sectionedMenu = buildMainMenu(builder.get(), pluginsModel);
 }
 
 void Menubar::setDisabled(bool disabled) {

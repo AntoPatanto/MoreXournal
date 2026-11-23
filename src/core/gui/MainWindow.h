@@ -111,9 +111,6 @@ public:
 
     void updateScrollbarSidebarPosition();
 
-    void setUndoDescription(const std::string& description);
-    void setRedoDescription(const std::string& description);
-
     ToolbarModel* getToolbarModel() const;
     ToolMenuHandler* getToolMenuHandler() const;
 

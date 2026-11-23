@@ -3,9 +3,9 @@
  <menu id="menubar">
   <submenu id="menuFile">
    <attribute name="label" translatable="yes">_File</attribute>
-   <section id="menu1">
+   <section id="sectionFileDocument">
     <item>
-     <attribute name="label" translatable="true">New</attribute>
+     <attribute name="label" translatable="yes">New</attribute>
      <attribute name="action">win.new-file</attribute>
      <attribute name="accel">&lt;Ctrl&gt;n</attribute>
     </item>
@@ -33,7 +33,7 @@
      <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;s</attribute>
     </item>
    </section>
-   <section>
+   <section id="sectionFileExport">
     <item>
      <attribute name="label" translatable="yes">_Export as PDF</attribute>
      <attribute name="action">win.export-as-pdf</attribute>
@@ -44,12 +44,14 @@
      <attribute name="accel">&lt;Ctrl&gt;e</attribute>
     </item>
    </section>
-   <section>
+   <section id="sectionFilePrint">
     <item>
      <attribute name="label" translatable="yes">Print</attribute>
      <attribute name="action">win.print</attribute>
      <attribute name="accel">&lt;Ctrl&gt;p</attribute>
     </item>
+   </section>
+   <section id="sectionFileQuit">
     <item>
      <attribute name="label" translatable="yes">Quit</attribute>
      <attribute name="action">app.quit</attribute>
@@ -59,19 +61,7 @@
   </submenu>
   <submenu id="menuEdit">
    <attribute name="label" translatable="yes">_Edit</attribute>
-   <section id="sectionUndoRedo">
-    <item>
-     <attribute name="label" translatable="yes">Undo</attribute>
-     <attribute name="action">win.undo</attribute>
-     <!-- Undo/Redo accelerators are set in control/actions/ActionDatabase.cpp -->
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Redo</attribute>
-     <attribute name="action">win.redo</attribute>
-     <!-- Undo/Redo accelerators are set in control/actions/ActionDatabase.cpp -->
-    </item>
-   </section>
-   <section>
+   <section id="sectionEditClipboard">
     <item>
      <attribute name="label" translatable="yes">Cut</attribute>
      <attribute name="action">win.cut</attribute>
@@ -88,55 +78,44 @@
      <!-- Paste accelerators are defined in control/actions/ActionProperties.h -->
     </item>
    </section>
-   <section>
+   <section id="sectionEditSelectFind">
     <item>
      <attribute name="label" translatable="yes">Select All</attribute>
      <attribute name="action">win.select-all</attribute>
      <attribute name="accel">&lt;Ctrl&gt;a</attribute>
     </item>
-   </section>
-   <section>
     <item>
      <attribute name="label" translatable="yes">Find</attribute>
      <attribute name="action">win.search</attribute>
      <attribute name="accel">&lt;Ctrl&gt;f</attribute>
     </item>
    </section>
-   <section>
-    <item>
-     <attribute name="label" translatable="yes">Delete</attribute>
-     <attribute name="action">win.delete</attribute>
-     <attribute name="accel">Delete</attribute>
-    </item>
-   </section>
-   <section>
-     <submenu>
-       <attribute name="label" translatable="yes">Arrange Selection</attribute>
-       <section>
-         <item>
-           <attribute name="label" translatable="yes">Bring to Front</attribute>
-           <attribute name="action">win.arrange-selection-order</attribute>
-           <attribute name="target" type="t">0</attribute>
-         </item>
-         <item>
-           <attribute name="label" translatable="yes">Bring Forward</attribute>
-           <attribute name="action">win.arrange-selection-order</attribute>
-           <attribute name="target" type="t">1</attribute>
-         </item>
-         <item>
-           <attribute name="label" translatable="yes">Send Backward</attribute>
-           <attribute name="action">win.arrange-selection-order</attribute>
-           <attribute name="target" type="t">2</attribute>
-         </item>
-         <item>
-           <attribute name="label" translatable="yes">Send to Back</attribute>
-           <attribute name="action">win.arrange-selection-order</attribute>
-           <attribute name="target" type="t">3</attribute>
-         </item>
-       </section>
-     </submenu>
-   </section>
-   <section>
+   <section id="sectionEditSelection">
+    <submenu>
+     <attribute name="label" translatable="yes">Arrange Selection</attribute>
+     <section>
+      <item>
+       <attribute name="label" translatable="yes">Bring to Front</attribute>
+       <attribute name="action">win.arrange-selection-order</attribute>
+       <attribute name="target" type="t">0</attribute>
+      </item>
+      <item>
+       <attribute name="label" translatable="yes">Bring Forward</attribute>
+       <attribute name="action">win.arrange-selection-order</attribute>
+       <attribute name="target" type="t">1</attribute>
+      </item>
+      <item>
+       <attribute name="label" translatable="yes">Send Backward</attribute>
+       <attribute name="action">win.arrange-selection-order</attribute>
+       <attribute name="target" type="t">2</attribute>
+      </item>
+      <item>
+       <attribute name="label" translatable="yes">Send to Back</attribute>
+       <attribute name="action">win.arrange-selection-order</attribute>
+       <attribute name="target" type="t">3</attribute>
+      </item>
+     </section>
+    </submenu>
     <item>
      <attribute name="label" translatable="yes">Move Selection Layer Up</attribute>
      <attribute name="action">win.move-selection-layer-up</attribute>
@@ -146,7 +125,7 @@
      <attribute name="action">win.move-selection-layer-down</attribute>
     </item>
    </section>
-   <section>
+   <section id="sectionEditSnapping">
     <item>
      <attribute name="label" translatable="yes">Rotation Snapping</attribute>
      <attribute name="action">win.rotation-snapping</attribute>
@@ -156,7 +135,7 @@
      <attribute name="action">win.grid-snapping</attribute>
     </item>
    </section>
-   <section>
+   <section id="sectionEditPreferences">
     <item>
      <attribute name="label" translatable="yes">Preferences</attribute>
      <attribute name="action">app.preferences</attribute>
@@ -177,9 +156,138 @@
     </submenu>
    </section>
   </submenu>
+  <submenu id="menuPage">
+   <attribute name="label" translatable="yes">_Page</attribute>
+   <section>
+    <item>
+     <attribute name="label" translatable="yes">New Page _Before</attribute>
+     <attribute name="action">win.new-page-before</attribute>
+    </item>
+    <item>
+     <attribute name="label" translatable="yes">New Page at _End</attribute>
+     <attribute name="action">win.new-page-at-end</attribute>
+    </item>
+    <item>
+     <attribute name="label" translatable="yes">Duplicate Page</attribute>
+     <attribute name="action">win.duplicate-page</attribute>
+    </item>
+    <item>
+     <attribute name="label" translatable="yes">Move Page _Up</attribute>
+     <attribute name="action">win.move-page-towards-beginning</attribute>
+    </item>
+    <item>
+     <attribute name="label" translatable="yes">Move Page _Down</attribute>
+     <attribute name="action">win.move-page-towards-end</attribute>
+    </item>
+    <item>
+     <attribute name="label" translatable="yes">_Delete Page</attribute>
+     <attribute name="action">win.delete-page</attribute>
+     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;Delete</attribute>
+    </item>
+   </section>
+   <section>
+    <item>
+     <attribute name="label" translatable="yes">Append New PDF Pages</attribute>
+     <attribute name="action">win.append-new-pdf-pages</attribute>
+    </item>
+   </section>
+   <section>
+    <item>
+     <attribute name="label" translatable="yes">Paper _Format</attribute>
+     <attribute name="action">win.paper-format</attribute>
+    </item>
+    <item>
+     <attribute name="label" translatable="yes">Paper _Color</attribute>
+     <attribute name="action">win.paper-background-color</attribute>
+    </item>
+    <submenu id="menuJournalPaperBackground">
+     <!-- Filled dynamically -->
+     <attribute name="label" translatable="yes">Paper B_ackground</attribute>
+    </submenu>
+    <item>
+     <attribute name="label" translatable="yes">Configure Page Template</attribute>
+     <attribute name="action">win.configure-page-template</attribute>
+    </item>
+   </section>
+   <section>
+    <submenu>
+     <attribute name="label" translatable="yes">Go to</attribute>
+     <section>
+      <item>
+       <attribute name="label" translatable="yes">_First Page</attribute>
+       <attribute name="action">win.goto-first</attribute>
+       <attribute name="accel">&lt;Ctrl&gt;Home</attribute>
+      </item>
+      <item>
+       <attribute name="label" translatable="yes">_Last Page</attribute>
+       <attribute name="action">win.goto-last</attribute>
+       <attribute name="accel">&lt;Ctrl&gt;End</attribute>
+      </item>
+     </section>
+     <section>
+      <item>
+       <attribute name="label" translatable="yes">P_revious Annotated Page</attribute>
+       <attribute name="action">win.goto-previous-annotated-page</attribute>
+       <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;Page_Up</attribute>
+      </item>
+      <item>
+       <attribute name="label" translatable="yes">N_ext Annotated Page</attribute>
+       <attribute name="action">win.goto-next-annotated-page</attribute>
+       <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;Page_Down</attribute>
+      </item>
+     </section>
+     <section>
+      <item>
+       <attribute name="label" translatable="yes">Jump _Back</attribute>
+       <attribute name="action">win.navigate-back</attribute>
+      </item>
+      <item>
+       <attribute name="label" translatable="yes">Jump _Forward</attribute>
+       <attribute name="action">win.navigate-forward</attribute>
+      </item>
+     </section>
+    </submenu>
+   </section>
+  </submenu>
+  <submenu id="menuLayers">
+   <attribute name="label" translatable="yes">_Layers</attribute>
+   <section>
+    <item>
+     <attribute name="label" translatable="yes">_Previous Layer</attribute>
+     <attribute name="action">win.layer-goto-previous</attribute>
+     <attribute name="accel">&lt;Shift&gt;Page_Down</attribute>
+    </item>
+    <item>
+     <attribute name="label" translatable="yes">_Next Layer</attribute>
+     <attribute name="action">win.layer-goto-next</attribute>
+     <attribute name="accel">&lt;Shift&gt;Page_Up</attribute>
+    </item>
+    <item>
+     <attribute name="label" translatable="yes">_Top Layer</attribute>
+     <attribute name="action">win.layer-goto-top</attribute>
+    </item>
+   </section>
+   <section>
+    <item>
+     <attribute name="label" translatable="yes">Rename Layer</attribute>
+     <attribute name="action">win.layer-rename</attribute>
+     <attribute name="accel">&lt;Ctrl&gt;r</attribute>
+    </item>
+    <item>
+     <attribute name="label" translatable="yes">Merge Layer Down</attribute>
+     <attribute name="action">win.layer-merge-down</attribute>
+     <attribute name="accel">&lt;Ctrl&gt;m</attribute>
+    </item>
+    <item>
+     <attribute name="label" translatable="yes">Delete Layer</attribute>
+     <attribute name="action">win.layer-delete</attribute>
+     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;l</attribute>
+    </item>
+   </section>
+  </submenu>
   <submenu id="menuView">
    <attribute name="label" translatable="yes">_View</attribute>
-   <section id="menu4">
+   <section>
     <item>
      <attribute name="label" translatable="yes">_Pair Pages</attribute>
      <attribute name="action">win.paired-pages-mode</attribute>
@@ -188,28 +296,6 @@
      <attribute name="label" translatable="yes">_Presentation Mode</attribute>
      <attribute name="action">win.presentation-mode</attribute>
      <attribute name="accel">F5</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Fullscreen</attribute>
-     <attribute name="action">win.fullscreen</attribute>
-     <attribute name="accel">F11</attribute>
-    </item>
-   </section>
-   <section>
-    <item>
-     <attribute name="label" translatable="yes">Show Toolbars</attribute>
-     <attribute name="action">win.show-toolbar</attribute>
-     <attribute name="accel">F9</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Show Menubar</attribute>
-     <attribute name="action">win.show-menubar</attribute>
-     <attribute name="accel">F10</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Show Sidebar</attribute>
-     <attribute name="action">win.show-sidebar</attribute>
-     <attribute name="accel">F12</attribute>
     </item>
    </section>
    <section>
@@ -352,212 +438,43 @@
    </section>
    <section>
     <item>
-     <attribute name="label" translatable="yes">Zoom In</attribute>
-     <attribute name="action">win.zoom-in</attribute>
-     <!-- Zoom accelerators are defined in control/actions/ActionProperties.h -->
+     <attribute name="label" translatable="yes">Show Menubar</attribute>
+     <attribute name="action">win.show-menubar</attribute>
+     <attribute name="accel">F10</attribute>
     </item>
     <item>
-     <attribute name="label" translatable="yes">Zoom Out</attribute>
-     <attribute name="action">win.zoom-out</attribute>
-     <!-- Zoom accelerators are defined in control/actions/ActionProperties.h -->
+     <attribute name="label" translatable="yes">Show Toolbars</attribute>
+     <attribute name="action">win.show-toolbar</attribute>
+     <attribute name="accel">F9</attribute>
     </item>
-    <item>
-     <attribute name="label" translatable="yes">Normal Size</attribute>
-     <attribute name="action">win.zoom-100</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Zoom to Fit</attribute>
-     <attribute name="action">win.zoom-fit</attribute>
-    </item>
-   </section>
-  </submenu>
-  <submenu id="menuNavigation">
-   <attribute name="label" translatable="yes">_Navigation</attribute>
-   <section id="menu6">
-    <item>
-     <attribute name="label" translatable="yes">_First Page</attribute>
-     <attribute name="action">win.goto-first</attribute>
-     <attribute name="accel">&lt;Ctrl&gt;Home</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">_Previous Page</attribute>
-     <attribute name="action">win.goto-previous</attribute>
-     <attribute name="accel">&lt;Ctrl&gt;Page_Up</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Jump _Back</attribute>
-     <attribute name="action">win.navigate-back</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">_Goto Page</attribute>
-     <attribute name="action">win.goto-page</attribute>
-     <attribute name="accel">&lt;Ctrl&gt;g</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Jump _Forward</attribute>
-     <attribute name="action">win.navigate-forward</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">_Next Page</attribute>
-     <attribute name="action">win.goto-next</attribute>
-     <attribute name="accel">&lt;Ctrl&gt;Page_Down</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">_Last Page</attribute>
-     <attribute name="action">win.goto-last</attribute>
-     <attribute name="accel">&lt;Ctrl&gt;End</attribute>
-    </item>
-   </section>
-   <section>
-    <item>
-     <attribute name="label" translatable="yes">_Previous Layer</attribute>
-     <attribute name="action">win.layer-goto-previous</attribute>
-     <attribute name="accel">&lt;Shift&gt;Page_Down</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">_Next Layer</attribute>
-     <attribute name="action">win.layer-goto-next</attribute>
-     <attribute name="accel">&lt;Shift&gt;Page_Up</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">_Top Layer</attribute>
-     <attribute name="action">win.layer-goto-top</attribute>
-    </item>
-   </section>
-   <section>
-    <item>
-     <attribute name="label" translatable="yes">N_ext Annotated Page</attribute>
-     <attribute name="action">win.goto-next-annotated-page</attribute>
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;Page_Down</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">P_revious Annotated Page</attribute>
-     <attribute name="action">win.goto-previous-annotated-page</attribute>
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;Page_Up</attribute>
-    </item>
-   </section>
-  </submenu>
-  <submenu id="menuJournal">
-   <attribute name="label" translatable="yes">_Journal</attribute>
-   <section id="menu7">
-    <item>
-     <attribute name="label" translatable="yes">New Page _Before</attribute>
-     <attribute name="action">win.new-page-before</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">New Page _After</attribute>
-     <attribute name="action">win.new-page-after</attribute>
-     <attribute name="accel">&lt;Ctrl&gt;d</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">New Page at _End</attribute>
-     <attribute name="action">win.new-page-at-end</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Duplicate Page</attribute>
-     <attribute name="action">win.duplicate-page</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Move Page _Up</attribute>
-     <attribute name="action">win.move-page-towards-beginning</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Move Page _Down</attribute>
-     <attribute name="action">win.move-page-towards-end</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Append New PDF Pages</attribute>
-     <attribute name="action">win.append-new-pdf-pages</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Configure Page Template</attribute>
-     <attribute name="action">win.configure-page-template</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">_Delete Page</attribute>
-     <attribute name="action">win.delete-page</attribute>
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;Delete</attribute>
-    </item>
-   </section>
-   <section>
-    <item>
-     <attribute name="label" translatable="yes">Add a _Layer above the active layer</attribute>
-     <attribute name="action">win.layer-new-above-current</attribute>
-     <attribute name="accel">&lt;Ctrl&gt;l</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Add a layer below the active layer</attribute>
-     <attribute name="action">win.layer-new-below-current</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Delete Layer</attribute>
-     <attribute name="action">win.layer-delete</attribute>
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;l</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Merge Layer Down</attribute>
-     <attribute name="action">win.layer-merge-down</attribute>
-     <attribute name="accel">&lt;Ctrl&gt;m</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Rename Layer</attribute>
-     <attribute name="action">win.layer-rename</attribute>
-     <attribute name="accel">&lt;Ctrl&gt;r</attribute>
-    </item>
-   </section>
-   <section>
-    <item>
-     <attribute name="label" translatable="yes">Paper _Format</attribute>
-     <attribute name="action">win.paper-format</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Paper _Color</attribute>
-     <attribute name="action">win.paper-background-color</attribute>
-    </item>
-    <submenu id="menuJournalPaperBackground">
-     <attribute name="label" translatable="yes">Paper B_ackground</attribute>
-    </submenu>
    </section>
   </submenu>
   <submenu id="menuTools">
    <attribute name="label" translatable="yes">_Tools</attribute>
-   <section id="menu10">
-    <item>
-     <attribute name="label" translatable="yes">_Pen</attribute>
-     <attribute name="action">win.select-tool</attribute>
-     <attribute name="target" type="t">1</attribute> <!-- TOOL_PEN -->
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;p</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">_Eraser</attribute>
-     <attribute name="action">win.select-tool</attribute>
-     <attribute name="target" type="t">2</attribute> <!-- TOOL_ERASER -->
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;e</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Select Linear Text</attribute>
-     <attribute name="action">win.select-tool</attribute>
-     <attribute name="target" type="t">21</attribute> <!-- TOOL_SELECT_PDF_TEXT_LINEAR -->
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;w</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Select Text In Rectangle</attribute>
-     <attribute name="action">win.select-tool</attribute>
-     <attribute name="target" type="t">22</attribute> <!-- TOOL_SELECT_PDF_TEXT_RECT -->
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;y</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">_Highlighter</attribute>
-     <attribute name="action">win.select-tool</attribute>
-     <attribute name="target" type="t">3</attribute> <!-- TOOL_HIGHLIGHTER -->
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;h</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">_Text</attribute>
-     <attribute name="action">win.select-tool</attribute>
-     <attribute name="target" type="t">4</attribute> <!-- TOOL_TEXT -->
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;t</attribute>
-    </item>
+   <section>
+    <submenu>
+     <attribute name="label" translatable="yes">Select PDF Text</attribute>
+     <section>
+      <item>
+       <attribute name="label" translatable="yes">Select Linear Text</attribute>
+       <attribute name="action">win.select-tool</attribute>
+       <attribute name="target" type="t">21</attribute> <!-- TOOL_SELECT_PDF_TEXT_LINEAR -->
+       <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;w</attribute>
+      </item>
+      <item>
+       <attribute name="label" translatable="yes">Select Text In Rectangle</attribute>
+       <attribute name="action">win.select-tool</attribute>
+       <attribute name="target" type="t">22</attribute> <!-- TOOL_SELECT_PDF_TEXT_RECT -->
+       <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;y</attribute>
+      </item>
+     </section>
+     <section>
+      <item>
+       <attribute name="label" translatable="yes">Marker Opacity</attribute>
+       <attribute name="action">win.tool-select-pdf-text-marker-opacity</attribute>
+      </item>
+     </section>
+    </submenu>
     <item>
      <attribute name="label" translatable="yes">_Link</attribute>
      <attribute name="action">win.select-tool</attribute>
@@ -571,10 +488,10 @@
      <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;x</attribute>
     </item>
     <item>
-     <attribute name="label" translatable="yes">_Image</attribute>
+     <attribute name="label" translatable="yes">_Vertical Space</attribute>
      <attribute name="action">win.select-tool</attribute>
-     <attribute name="target" type="t">5</attribute> <!-- TOOL_IMAGE -->
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;i</attribute>
+     <attribute name="target" type="t">12</attribute> <!-- TOOL_VERTICAL_SPACE -->
+     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;v</attribute>
     </item>
     <item>
      <attribute name="label" translatable="yes">_Default Tool</attribute>
@@ -583,97 +500,17 @@
     </item>
    </section>
    <section>
-    <submenu>
-     <attribute name="label" translatable="yes">Drawing Type</attribute>
-     <item>
-      <attribute name="label" translatable="yes">_Shape Recognizer</attribute>
-      <attribute name="action">win.tool-draw-shape-recognizer</attribute>
-      <attribute name="accel">&lt;Ctrl&gt;1</attribute>
-     </item>
-     <item>
-      <attribute name="label" translatable="yes">Draw Rectangle</attribute>
-      <attribute name="action">win.tool-draw-rectangle</attribute>
-      <attribute name="accel">&lt;Ctrl&gt;2</attribute>
-     </item>
-     <item>
-      <attribute name="label" translatable="yes">Draw Ellipse</attribute>
-      <attribute name="action">win.tool-draw-ellipse</attribute>
-      <attribute name="accel">&lt;Ctrl&gt;3</attribute>
-     </item>
-     <item>
-      <attribute name="label" translatable="yes">Draw Arrow</attribute>
-      <attribute name="action">win.tool-draw-arrow</attribute>
-      <attribute name="accel">&lt;Ctrl&gt;4</attribute>
-     </item>
-     <item>
-      <attribute name="label" translatable="yes">Draw Double Arrow</attribute>
-      <attribute name="action">win.tool-draw-double-arrow</attribute>
-      <attribute name="accel">&lt;Ctrl&gt;5</attribute>
-     </item>
-     <item>
-      <attribute name="label" translatable="yes">Draw Coordinate System</attribute>
-      <attribute name="action">win.tool-draw-coordinate-system</attribute>
-      <attribute name="accel">&lt;Ctrl&gt;6</attribute>
-     </item>
-     <item>
-      <attribute name="label" translatable="yes">Draw _Line</attribute>
-      <attribute name="action">win.tool-draw-line</attribute>
-      <attribute name="accel">&lt;Ctrl&gt;7</attribute>
-     </item>
-     <item>
-      <attribute name="label" translatable="yes">Draw Spline</attribute>
-      <attribute name="action">win.tool-draw-spline</attribute>
-      <attribute name="accel">&lt;Ctrl&gt;8</attribute>
-     </item>
-    </submenu>
+    <item>
+     <attribute name="label" translatable="yes">_Shape Recognizer</attribute>
+     <attribute name="action">win.tool-draw-shape-recognizer</attribute>
+     <attribute name="accel">&lt;Ctrl&gt;1</attribute>
+    </item>
+    <item>
+     <attribute name="label" translatable="yes">Automatic shapes</attribute>
+     <attribute name="action">win.hold-to-shape</attribute>
+    </item>
    </section>
    <section>
-    <item>
-     <attribute name="label" translatable="yes">Select Rectangle</attribute>
-     <attribute name="action">win.select-tool</attribute>
-     <attribute name="target" type="t">6</attribute> <!-- TOOL_SELECT_RECT -->
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;r</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Select Region</attribute>
-     <attribute name="action">win.select-tool</attribute>
-     <attribute name="target" type="t">7</attribute> <!-- TOOL_SELECT_REGION -->
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;g</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Select Multi-Layer Rectangle</attribute>
-     <attribute name="action">win.select-tool</attribute>
-     <attribute name="target" type="t">8</attribute> <!-- TOOL_SELECT_MULTILAYER_RECT -->
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Select Multi-Layer Region</attribute>
-     <attribute name="action">win.select-tool</attribute>
-     <attribute name="target" type="t">9</attribute> <!-- TOOL_SELECT_MULTILAYER_REGION -->
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Select Object</attribute>
-     <attribute name="action">win.select-tool</attribute>
-     <attribute name="target" type="t">10</attribute> <!-- TOOL_SELECT_OBJECT -->
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;o</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">_Vertical Space</attribute>
-     <attribute name="action">win.select-tool</attribute>
-     <attribute name="target" type="t">12</attribute> <!-- TOOL_VERTICAL_SPACE -->
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;v</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Play Object</attribute>
-     <attribute name="action">win.select-tool</attribute>
-     <attribute name="target" type="t">11</attribute> <!-- TOOL_PLAY_OBJECT -->
-     <attribute name="class">audio</attribute> <!-- Gets removed when audio is disabled -->
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">H_and Tool</attribute>
-     <attribute name="action">win.select-tool</attribute>
-     <attribute name="target" type="t">13</attribute> <!-- TOOL_HAND -->
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;a</attribute>
-    </item>
     <item>
      <attribute name="label" translatable="yes">Setsquare</attribute>
      <attribute name="action">win.setsquare</attribute>
@@ -685,212 +522,55 @@
    </section>
    <section>
     <submenu>
-     <attribute name="label" translatable="yes">Pen _Options</attribute>
-     <section id="menu11">
+     <attribute name="label" translatable="yes">Eraser</attribute>
+     <section>
       <item>
        <attribute name="label" translatable="yes">_very fine</attribute>
-       <attribute name="action">win.tool-pen-size</attribute>
+       <attribute name="action">win.tool-eraser-size</attribute>
        <attribute name="target" type="t">0</attribute> <!-- TOOL_SIZE_VERY_FINE -->
       </item>
       <item>
-       <attribute name="label" translatable="yes">_fine</attribute>
-       <attribute name="action">win.tool-pen-size</attribute>
-       <attribute name="target" type="t">1</attribute> <!-- TOOL_SIZE_FINE -->
-      </item>
-      <item>
-       <attribute name="label" translatable="yes">_medium</attribute>
-       <attribute name="action">win.tool-pen-size</attribute>
-       <attribute name="target" type="t">2</attribute> <!-- TOOL_SIZE_MEDIUM -->
-      </item>
-      <item>
-       <attribute name="label" translatable="yes">_thick</attribute>
-       <attribute name="action">win.tool-pen-size</attribute>
-       <attribute name="target" type="t">3</attribute> <!-- TOOL_SIZE_THICK -->
-      </item>
-      <item>
        <attribute name="label" translatable="yes">ver_y thick</attribute>
-       <attribute name="action">win.tool-pen-size</attribute>
+       <attribute name="action">win.tool-eraser-size</attribute>
        <attribute name="target" type="t">4</attribute> <!-- TOOL_SIZE_VERY_THICK -->
       </item>
      </section>
-     <section>
-      <item>
-       <attribute name="label" translatable="yes">standard</attribute>
-       <attribute name="action">win.tool-pen-line-style</attribute>
-       <attribute name="target">plain</attribute>
-      </item>
-      <item>
-       <attribute name="label" translatable="yes">dashed</attribute>
-       <attribute name="action">win.tool-pen-line-style</attribute>
-       <attribute name="target">dash</attribute>
-      </item>
-      <item>
-       <attribute name="label" translatable="yes">dash-/ dotted</attribute>
-       <attribute name="action">win.tool-pen-line-style</attribute>
-       <attribute name="target">dashdot</attribute>
-      </item>
-      <item>
-       <attribute name="label" translatable="yes">dotted</attribute>
-       <attribute name="action">win.tool-pen-line-style</attribute>
-       <attribute name="target">dot</attribute>
-      </item>
-     </section>
-     <section>
-      <item>
-       <attribute name="label" translatable="yes">Fi_ll</attribute>
-       <attribute name="action">win.tool-pen-fill</attribute>
-   </item>
-      <item>
-       <attribute name="label" translatable="yes">Fill opacity</attribute>
-       <attribute name="action">win.tool-pen-fill-opacity</attribute>
-      </item>
-     </section>
-     <section>
-      <item>
-       <attribute name="label" translatable="yes">Automatic shapes</attribute>
-       <attribute name="action">win.hold-to-shape</attribute>
-      </item>
-     </section>
     </submenu>
     <submenu>
-     <attribute name="label" translatable="yes">Eraser Optio_ns</attribute>
-     <section id="menu12">
-         <item>
-             <attribute name="label" translatable="yes">_very fine</attribute>
-             <attribute name="action">win.tool-eraser-size</attribute>
-             <attribute name="target" type="t">0</attribute> <!-- TOOL_SIZE_VERY_FINE -->
-         </item>
-         <item>
-             <attribute name="label" translatable="yes">_fine</attribute>
-             <attribute name="action">win.tool-eraser-size</attribute>
-             <attribute name="target" type="t">1</attribute> <!-- TOOL_SIZE_FINE -->
-         </item>
-         <item>
-             <attribute name="label" translatable="yes">_medium</attribute>
-             <attribute name="action">win.tool-eraser-size</attribute>
-             <attribute name="target" type="t">2</attribute> <!-- TOOL_SIZE_MEDIUM -->
-         </item>
-         <item>
-             <attribute name="label" translatable="yes">_thick</attribute>
-             <attribute name="action">win.tool-eraser-size</attribute>
-             <attribute name="target" type="t">3</attribute> <!-- TOOL_SIZE_THICK -->
-         </item>
-         <item>
-             <attribute name="label" translatable="yes">ver_y thick</attribute>
-             <attribute name="action">win.tool-eraser-size</attribute>
-             <attribute name="target" type="t">4</attribute> <!-- TOOL_SIZE_VERY_THICK -->
-      </item>
-     </section>
+     <attribute name="label" translatable="yes">Audio</attribute>
+     <attribute name="class">audio</attribute> <!-- Gets removed when audio is disabled -->
      <section>
       <item>
-       <attribute name="label" translatable="yes">_standard</attribute>
-       <attribute name="action">win.tool-eraser-type</attribute>
-       <attribute name="target" type="t">1</attribute> <!-- ERASER_TYPE_DEFAULT -->
+       <attribute name="label" translatable="yes">Record / Stop</attribute>
+       <attribute name="action">win.audio-record</attribute>
       </item>
       <item>
-       <attribute name="label" translatable="yes">_whiteout</attribute>
-       <attribute name="action">win.tool-eraser-type</attribute>
-       <attribute name="target" type="t">2</attribute> <!-- ERASER_TYPE_WHITEOUT -->
+       <attribute name="label" translatable="yes">Pause</attribute>
+       <attribute name="action">win.audio-pause-playback</attribute>
       </item>
       <item>
-       <attribute name="label" translatable="yes">_delete strokes</attribute>
-       <attribute name="action">win.tool-eraser-type</attribute>
-       <attribute name="target" type="t">3</attribute> <!-- ERASER_TYPE_DELETE_STROKE -->
+       <attribute name="label" translatable="yes">Stop</attribute>
+       <attribute name="action">win.audio-stop-playback</attribute>
+      </item>
+      <item>
+       <attribute name="label" translatable="yes">Forward</attribute>
+       <attribute name="action">win.audio-seek-forwards</attribute>
+      </item>
+      <item>
+       <attribute name="label" translatable="yes">Back</attribute>
+       <attribute name="action">win.audio-seek-backwards</attribute>
       </item>
      </section>
     </submenu>
-    <submenu>
-     <attribute name="label" translatable="yes">Highlighter Opti_ons</attribute>
-     <section id="menu13">
-         <item>
-             <attribute name="label" translatable="yes">_very fine</attribute>
-             <attribute name="action">win.tool-highlighter-size</attribute>
-             <attribute name="target" type="t">0</attribute> <!-- TOOL_SIZE_VERY_FINE -->
-         </item>
-         <item>
-             <attribute name="label" translatable="yes">_fine</attribute>
-             <attribute name="action">win.tool-highlighter-size</attribute>
-             <attribute name="target" type="t">1</attribute> <!-- TOOL_SIZE_FINE -->
-         </item>
-         <item>
-             <attribute name="label" translatable="yes">_medium</attribute>
-             <attribute name="action">win.tool-highlighter-size</attribute>
-             <attribute name="target" type="t">2</attribute> <!-- TOOL_SIZE_MEDIUM -->
-         </item>
-         <item>
-             <attribute name="label" translatable="yes">_thick</attribute>
-             <attribute name="action">win.tool-highlighter-size</attribute>
-             <attribute name="target" type="t">3</attribute> <!-- TOOL_SIZE_THICK -->
-         </item>
-         <item>
-             <attribute name="label" translatable="yes">ver_y thick</attribute>
-             <attribute name="action">win.tool-highlighter-size</attribute>
-             <attribute name="target" type="t">4</attribute> <!-- TOOL_SIZE_VERY_THICK -->
-        </item>
-     </section>
-     <section>
-         <item>
-             <attribute name="label" translatable="yes">Fi_ll</attribute>
-             <attribute name="action">win.tool-highlighter-fill</attribute>
-         </item>
-         <item>
-             <attribute name="label" translatable="yes">Fill opacity</attribute>
-             <attribute name="action">win.tool-highlighter-fill-opacity</attribute>
-         </item>
-     </section>
-    </submenu>
-    <submenu>
-      <attribute name="label" translatable="yes">Select PDF Text Options</attribute>
-      <section>
-        <item>
-          <attribute name="label" translatable="yes">Marker Opacity</attribute>
-          <attribute name="action">win.tool-select-pdf-text-marker-opacity</attribute>
-        </item>
-      </section>
-    </submenu>
-    <item>
-     <attribute name="label" translatable="yes">Text Font...</attribute>
-     <attribute name="action">win.select-font</attribute>
-     <attribute name="accel">&lt;Ctrl&gt;&lt;Shift&gt;f</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Record / Stop</attribute>
-     <attribute name="action">win.audio-record</attribute>
-     <attribute name="class">audio</attribute> <!-- Gets removed when audio is disabled -->
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Pause</attribute>
-     <attribute name="action">win.audio-pause-playback</attribute>
-     <attribute name="class">audio</attribute> <!-- Gets removed when audio is disabled -->
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Stop</attribute>
-     <attribute name="action">win.audio-stop-playback</attribute>
-     <attribute name="class">audio</attribute> <!-- Gets removed when audio is disabled -->
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Forward</attribute>
-     <attribute name="action">win.audio-seek-forwards</attribute>
-     <attribute name="class">audio</attribute> <!-- Gets removed when audio is disabled -->
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Back</attribute>
-     <attribute name="action">win.audio-seek-backwards</attribute>
-     <attribute name="class">audio</attribute> <!-- Gets removed when audio is disabled -->
-    </item>
    </section>
   </submenu>
   <submenu id="menuHelp">
    <attribute name="label" translatable="yes">_Help</attribute>
    <attribute name="accel">&lt;Ctrl&gt;h</attribute>
-   <section id="menu3">
+   <section>
     <item>
      <attribute name="label" translatable="yes">Help</attribute>
      <attribute name="action">win.help</attribute>
-    </item>
-    <item>
-     <attribute name="label" translatable="yes">Run Gtk3 demo</attribute>
-     <attribute name="action">win.demo</attribute>
     </item>
     <item>
      <attribute name="label" translatable="yes">About</attribute>

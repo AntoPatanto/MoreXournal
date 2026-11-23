@@ -998,10 +998,6 @@ auto MainWindow::getMenubar() const -> Menubar* { return menubar.get(); }
 
 void MainWindow::show(GtkWindow* parent) { gtk_widget_show(this->window); }
 
-void MainWindow::setUndoDescription(const string& description) { menubar->setUndoDescription(description); }
-
-void MainWindow::setRedoDescription(const string& description) { menubar->setRedoDescription(description); }
-
 auto MainWindow::getToolbarModel() const -> ToolbarModel* { return this->toolbar->getModel(); }
 
 auto MainWindow::getToolMenuHandler() const -> ToolMenuHandler* { return this->toolbar.get(); }
