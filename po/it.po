@@ -4976,3 +4976,21 @@ msgstr "Mentre disegni con la penna o l'evidenziatore, tieni ferma la penna per 
 
 msgid "Whole stroke"
 msgstr "Tratto intero"
+
+msgid "_Page"
+msgstr "_Pagina"
+
+msgid "_Layers"
+msgstr "_Livelli"
+
+msgid "Layers"
+msgstr "Livelli"
+
+msgid "Go to"
+msgstr "Vai a"
+
+msgid "Select PDF Text"
+msgstr "Seleziona testo PDF"
+
+msgid "Audio"
+msgstr "Audio"
