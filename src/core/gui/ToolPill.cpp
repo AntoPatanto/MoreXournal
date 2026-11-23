@@ -1,0 +1,744 @@
+#include "ToolPill.h"
+
+#include <algorithm>  // for clamp, min
+#include <cstdio>     // for snprintf
+#include <string>     // for string
+
+#include "control/Control.h"                        // for Control
+#include "control/Tool.h"                           // for Tool
+#include "control/ToolHandler.h"                    // for ToolHandler
+#include "control/actions/ActionDatabase.h"         // for ActionDatabase
+#include "control/settings/Settings.h"              // for Settings
+#include "enums/Action.enum.h"                      // for Action
+#include "gui/IconNameHelper.h"                     // for IconNameHelper
+#include "gui/MainWindow.h"                         // for MainWindow
+#include "gui/XournalView.h"                        // for XournalView
+#include "gui/toolbarMenubar/ColorToolItem.h"       // for ColorToolItem
+#include "gui/toolbarMenubar/FontButton.h"          // for FontButton
+#include "gui/toolbarMenubar/model/ColorPalette.h"  // for Palette
+#include "model/TextAlignment.h"                    // for TextAlignment
+#include "util/GtkUtil.h"                           // for setToggleButtonUnreleasable
+#include "util/i18n.h"                              // for _
+#include "util/raii/GVariantSPtr.h"                 // for makeGVariantSPtr
+
+#include "ToolPillLogic.h"  // for sectionsFor
+
+using xoj::topbar::ToolGroup;
+namespace pill = xoj::toolpill;
+
+namespace {
+/// How many palette colors the pill shows; the others are in the "more colors" popover
+constexpr size_t PILL_COLOR_COUNT = 6;
+constexpr int SWATCH_SIZE = 20;
+constexpr int ICON_SIZE = 18;
+/// Data key of the line width (in 1/100 px) drawn by a thickness sample
+constexpr const char* SAMPLE_WIDTH_KEY = "mx-sample-width";
+
+std::string winAction(Action a) { return std::string("win.") + Action_toString(a); }
+
+void addClass(GtkWidget* w, const char* cssClass) {
+    gtk_style_context_add_class(gtk_widget_get_style_context(w), cssClass);
+}
+
+GtkWidget* newIcon(const std::string& iconName) {
+    GtkWidget* img = gtk_image_new_from_icon_name(iconName.c_str(), GTK_ICON_SIZE_SMALL_TOOLBAR);
+    gtk_image_set_pixel_size(GTK_IMAGE(img), ICON_SIZE);
+    return img;
+}
+
+GtkWidget* newSeparator() {
+    GtkWidget* sep = gtk_separator_new(GTK_ORIENTATION_VERTICAL);
+    addClass(sep, "mx-separator");
+    return sep;
+}
+
+/// A group of buttons drawn as one control
+GtkWidget* newSegment() {
+    GtkWidget* seg = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+    addClass(seg, "mx-seg");
+    gtk_widget_set_valign(seg, GTK_ALIGN_CENTER);
+    return seg;
+}
+
+/// A flat button that never takes the keyboard focus from the page
+GtkWidget* prepareButton(GtkWidget* btn, const char* tooltip) {
+    gtk_widget_set_can_focus(btn, false);
+    gtk_widget_set_focus_on_click(btn, false);
+    addClass(btn, "flat");
+    if (tooltip) {
+        gtk_widget_set_tooltip_text(btn, tooltip);
+    }
+    return btn;
+}
+
+/// A left-aligned button for a popover row (avoids deprecated gtk_button_set_alignment)
+GtkWidget* makePopoverRowChild(const char* label, const std::string& icon) {
+    GtkWidget* rowBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+    if (!icon.empty()) {
+        gtk_box_pack_start(GTK_BOX(rowBox), newIcon(icon), false, false, 0);
+    }
+    if (label) {
+        GtkWidget* lbl = gtk_label_new(label);
+        gtk_label_set_xalign(GTK_LABEL(lbl), 0.0);
+        gtk_box_pack_start(GTK_BOX(rowBox), lbl, true, true, 0);
+    }
+    return rowBox;
+}
+
+/// A toggle button showing whether the state of `action` equals `target`, and setting it when clicked
+GtkWidget* newTargetToggle(Action action, GVariant* target, const char* label, const std::string& icon,
+                           const char* tooltip) {
+    GtkWidget* btn = prepareButton(gtk_toggle_button_new(), tooltip);
+    if (!icon.empty()) {
+        gtk_button_set_image(GTK_BUTTON(btn), newIcon(icon));
+    }
+    if (label) {
+        gtk_button_set_label(GTK_BUTTON(btn), label);
+    }
+    if (!icon.empty() && label) {
+        gtk_button_set_always_show_image(GTK_BUTTON(btn), true);
+    }
+    gtk_actionable_set_action_name(GTK_ACTIONABLE(btn), winAction(action).c_str());
+    gtk_actionable_set_action_target_value(GTK_ACTIONABLE(btn), target);
+    xoj::util::gtk::setToggleButtonUnreleasable(GTK_TOGGLE_BUTTON(btn));
+    xoj::util::gtk::fixActionableInitialSensitivity(GTK_ACTIONABLE(btn));
+    return btn;
+}
+
+template <typename T>
+GtkWidget* newTargetToggle(Action action, T target, const char* label, const std::string& icon = {},
+                           const char* tooltip = nullptr) {
+    auto value = xoj::util::makeGVariantSPtr(target);
+    return newTargetToggle(action, value.get(), label, icon, tooltip);
+}
+
+/// A button activating `action`
+GtkWidget* newActionButton(GtkWidget* btn, Action action, const char* label, const std::string& icon,
+                           const char* tooltip) {
+    prepareButton(btn, tooltip);
+    if (!icon.empty()) {
+        gtk_button_set_image(GTK_BUTTON(btn), newIcon(icon));
+        gtk_button_set_always_show_image(GTK_BUTTON(btn), true);
+    }
+    if (label) {
+        gtk_button_set_label(GTK_BUTTON(btn), label);
+    }
+    gtk_actionable_set_action_name(GTK_ACTIONABLE(btn), winAction(action).c_str());
+    xoj::util::gtk::fixActionableInitialSensitivity(GTK_ACTIONABLE(btn));
+    return btn;
+}
+
+void latchClicked(GtkButton* b, gpointer a) {
+    xoj::util::GVariantSPtr state(g_action_get_state(G_ACTION(a)), xoj::util::adopt);
+    if (!g_variant_get_boolean(state.get())) {
+        g_action_change_state(G_ACTION(a), g_variant_new_boolean(true));
+    } else {
+        // GTK already untoggled the button: restore it without re-entering this handler
+        g_signal_handlers_block_by_func(b, reinterpret_cast<gpointer>(latchClicked), a);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(b), true);
+        g_signal_handlers_unblock_by_func(b, reinterpret_cast<gpointer>(latchClicked), a);
+    }
+}
+
+void latchSync(GObject* a, GParamSpec*, gpointer b) {
+    xoj::util::GVariantSPtr state(g_action_get_state(G_ACTION(a)), xoj::util::adopt);
+    g_signal_handlers_block_by_func(b, reinterpret_cast<gpointer>(latchClicked), a);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(b), g_variant_get_boolean(state.get()));
+    g_signal_handlers_unblock_by_func(b, reinterpret_cast<gpointer>(latchClicked), a);
+}
+
+/**
+ * A toggle button for a boolean action that a click turns on but never off. Used for the shape types: a click on the
+ * active shape keeps it, instead of going back to freehand drawing (and to the Pen button).
+ */
+GtkWidget* newLatchButton(GAction* action, const std::string& icon, const char* tooltip) {
+    GtkWidget* btn = prepareButton(gtk_toggle_button_new(), tooltip);
+    gtk_button_set_image(GTK_BUTTON(btn), newIcon(icon));
+
+    // Both handlers go away with the button
+    g_signal_connect_object(btn, "clicked", G_CALLBACK(latchClicked), action, GConnectFlags(0));
+    g_signal_connect_object(action, "notify::state", G_CALLBACK(latchSync), btn, GConnectFlags(0));
+    latchSync(G_OBJECT(action), nullptr, btn);
+    xoj::util::gtk::setWidgetFollowActionEnabled(btn, action);
+    return btn;
+}
+
+/// Closes `popover` when `btn` is clicked
+void popdownOnClick(GtkWidget* btn, GtkWidget* popover) {
+    g_signal_connect_object(btn, "clicked",
+                            G_CALLBACK(+[](GtkButton*, gpointer p) { gtk_popover_popdown(GTK_POPOVER(p)); }), popover,
+                            GConnectFlags(0));
+}
+
+/// A popover attached to a menu button, with a vertical box as content
+GtkBox* newPopover(GtkWidget* menuButton) {
+    GtkWidget* popover = gtk_popover_new(menuButton);
+    addClass(popover, "mx-popover");
+    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+    gtk_container_add(GTK_CONTAINER(popover), box);
+    gtk_menu_button_set_popover(GTK_MENU_BUTTON(menuButton), popover);
+    return GTK_BOX(box);
+}
+
+void addPopoverTitle(GtkBox* box, const char* title) {
+    GtkWidget* lbl = gtk_label_new(title);
+    gtk_label_set_xalign(GTK_LABEL(lbl), 0.0);
+    addClass(lbl, "mx-popover-title");
+    gtk_box_pack_start(box, lbl, false, false, 0);
+}
+
+/// Line width shown for a thickness in pt, in pixels
+double sampleWidth(double thickness) { return std::clamp(thickness * 1.5, 1.0, 12.0); }
+
+void setSampleWidth(GtkWidget* sample, double px) {
+    g_object_set_data(G_OBJECT(sample), SAMPLE_WIDTH_KEY, GINT_TO_POINTER(static_cast<int>(px * 100)));
+    gtk_widget_queue_draw(sample);
+}
+
+/// A horizontal line of the given width, in the color of the text
+GtkWidget* newSample(double px, int width, int height) {
+    GtkWidget* area = gtk_drawing_area_new();
+    gtk_widget_set_size_request(area, width, height);
+    gtk_widget_set_valign(area, GTK_ALIGN_CENTER);
+    setSampleWidth(area, px);
+    g_signal_connect(area, "draw", G_CALLBACK(+[](GtkWidget* w, cairo_t* cr, gpointer) -> gboolean {
+                         const double lineWidth =
+                                 GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), SAMPLE_WIDTH_KEY)) / 100.0;
+                         GtkStyleContext* ctx = gtk_widget_get_style_context(w);
+                         GdkRGBA color;
+                         gtk_style_context_get_color(ctx, gtk_style_context_get_state(ctx), &color);
+                         gdk_cairo_set_source_rgba(cr, &color);
+                         const double h = gtk_widget_get_allocated_height(w);
+                         const double inset = 2 + lineWidth / 2;
+                         cairo_set_line_width(cr, lineWidth);
+                         cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+                         cairo_move_to(cr, inset, h / 2);
+                         cairo_line_to(cr, gtk_widget_get_allocated_width(w) - inset, h / 2);
+                         cairo_stroke(cr);
+                         return true;
+                     }),
+                     nullptr);
+    return area;
+}
+
+gboolean drawLineStyleSample(GtkWidget* w, cairo_t* cr, gpointer) {
+    const int k = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), SAMPLE_WIDTH_KEY));
+    GtkStyleContext* ctx = gtk_widget_get_style_context(w);
+    GdkRGBA color;
+    gtk_style_context_get_color(ctx, gtk_style_context_get_state(ctx), &color);
+    gdk_cairo_set_source_rgba(cr, &color);
+    const double h = gtk_widget_get_allocated_height(w);
+    const double width = gtk_widget_get_allocated_width(w);
+    cairo_set_line_width(cr, 2.2);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+    if (k == 1) {
+        const double dashes[] = {5.0, 4.0};
+        cairo_set_dash(cr, dashes, 2, 0);
+    } else if (k == 2) {
+        const double dashes[] = {5.0, 3.5, 0.1, 3.5};
+        cairo_set_dash(cr, dashes, 4, 0);
+    } else if (k == 3) {
+        const double dashes[] = {0.1, 4.5};
+        cairo_set_dash(cr, dashes, 2, 0);
+    }
+    cairo_move_to(cr, 3.0, h / 2.0);
+    cairo_line_to(cr, width - 3.0, h / 2.0);
+    cairo_stroke(cr);
+    return true;
+}
+
+/// A horizontal line style preview (0=plain, 1=dash, 2=dashdot, 3=dot) in the color of the text
+GtkWidget* newLineStyleSample(int kind) {
+    GtkWidget* area = gtk_drawing_area_new();
+    gtk_widget_set_size_request(area, 26, 12);
+    gtk_widget_set_valign(area, GTK_ALIGN_CENTER);
+    g_object_set_data(G_OBJECT(area), SAMPLE_WIDTH_KEY, GINT_TO_POINTER(kind));
+    g_signal_connect(area, "draw", G_CALLBACK(drawLineStyleSample), nullptr);
+    return area;
+}
+
+/// "1.41 pt", without trailing zeros
+std::string formatThickness(double thickness) {
+    char buf[32];
+    std::snprintf(buf, sizeof(buf), "%.2f", thickness);
+    std::string s = buf;
+    while (!s.empty() && s.back() == '0') {
+        s.pop_back();
+    }
+    if (!s.empty() && s.back() == '.') {
+        s.pop_back();
+    }
+    return s + " pt";
+}
+
+GtkWidget* newHintLabel(const char* text) {
+    GtkWidget* lbl = gtk_label_new(text);
+    addClass(lbl, "mx-hint");
+    addClass(lbl, "dim-label");
+    gtk_label_set_ellipsize(GTK_LABEL(lbl), PANGO_ELLIPSIZE_END);
+    return lbl;
+}
+
+const char* toolDisplayName(ToolType tool) {
+    switch (tool) {
+        case TOOL_LASER_POINTER_PEN:
+        case TOOL_LASER_POINTER_HIGHLIGHTER:
+            return _("Laser pointer");
+        case TOOL_SELECT_PDF_TEXT_LINEAR:
+            return _("Select Linear PDF Text");
+        case TOOL_SELECT_PDF_TEXT_RECT:
+            return _("Select PDF Text in Rectangle");
+        case TOOL_LINK:
+            return _("Add/Edit Link");
+        case TOOL_LATEX:
+            return _("Add/Edit TeX");
+        default:
+            return "";
+    }
+}
+
+struct ShapeChoice {
+    Action action;
+    const char* icon;
+    const char* tooltip;
+};
+const ShapeChoice SHAPES[] = {{Action::TOOL_DRAW_RECTANGLE, "mx-rect-symbolic", N_("Draw Rectangle")},
+                              {Action::TOOL_DRAW_ELLIPSE, "mx-ellipse-symbolic", N_("Draw Ellipse")},
+                              {Action::TOOL_DRAW_ARROW, "mx-arrow-symbolic", N_("Draw Arrow")},
+                              {Action::TOOL_DRAW_DOUBLE_ARROW, "mx-double-arrow-symbolic", N_("Draw Double Arrow")},
+                              {Action::TOOL_DRAW_LINE, "mx-line-symbolic", N_("Draw Line")},
+                              {Action::TOOL_DRAW_SPLINE, "mx-spline-symbolic", N_("Draw Spline")},
+                              {Action::TOOL_DRAW_COORDINATE_SYSTEM, "mx-coord-symbolic", N_("Draw Coordinate System")}};
+
+/// The actions whose state changes when the tool or the drawing type changes
+constexpr Action TOOL_ACTIONS[] = {Action::SELECT_TOOL,
+                                   Action::TOOL_DRAW_SHAPE_RECOGNIZER,
+                                   Action::TOOL_DRAW_RECTANGLE,
+                                   Action::TOOL_DRAW_ELLIPSE,
+                                   Action::TOOL_DRAW_ARROW,
+                                   Action::TOOL_DRAW_DOUBLE_ARROW,
+                                   Action::TOOL_DRAW_COORDINATE_SYSTEM,
+                                   Action::TOOL_DRAW_LINE,
+                                   Action::TOOL_DRAW_SPLINE,
+                                   Action::TOOL_SIZE};
+}  // namespace
+
+ToolPill::ToolPill(Control* control): control(control) {
+    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    pill.reset(box, xoj::util::refsink);
+    gtk_widget_set_name(box, "toolPill");
+    addClass(box, "mx-pill");
+    addClass(box, "mx-float");
+    gtk_widget_set_halign(box, GTK_ALIGN_START);
+    gtk_widget_set_valign(box, GTK_ALIGN_START);
+
+    // The action callbacks change the tool after the state: coalesce multiple action updates at high idle priority
+    // so the pill rebuilds before the next frame is drawn (avoiding starvation by button transition animations)
+    ActionDatabase* db = control->getActionDatabase();
+    auto onStateChanged = +[](GObject*, GParamSpec*, gpointer self) {
+        auto* p = static_cast<ToolPill*>(self);
+        if (p->pendingUpdate == 0) {
+            p->pendingUpdate = g_idle_add_full(
+                    G_PRIORITY_HIGH_IDLE,
+                    +[](gpointer self) -> gboolean {
+                        auto* p = static_cast<ToolPill*>(self);
+                        p->pendingUpdate = 0;
+                        p->onToolChanged();
+                        return G_SOURCE_REMOVE;
+                    },
+                    self, nullptr);
+        }
+    };
+    for (Action a: TOOL_ACTIONS) {
+        ActionRef action = db->getAction(a);
+        gulong id = g_signal_connect(action.get(), "notify::state", G_CALLBACK(onStateChanged), this);
+        watchedActions.emplace_back(std::move(action), id);
+    }
+    onToolChanged();
+}
+
+ToolPill::~ToolPill() {
+    if (pendingUpdate != 0) {
+        g_source_remove(pendingUpdate);
+    }
+    for (auto& [action, id]: watchedActions) {
+        g_signal_handler_disconnect(action.get(), id);
+    }
+    gtk_widget_destroy(pill.get());
+}
+
+GtkWidget* ToolPill::getWidget() const { return pill.get(); }
+
+void ToolPill::onToolChanged() {
+    ToolHandler* th = control->getToolHandler();
+    const ToolType tool = th->getToolType();
+    const ToolGroup group = xoj::topbar::toolGroupFor(tool, th->getDrawingType());
+    const uint32_t sections = pill::sectionsFor(
+            group,
+            {th->hasCapability(TOOL_CAP_COLOR), th->hasCapability(TOOL_CAP_SIZE), th->hasCapability(TOOL_CAP_FILL)});
+
+    // The thickness values differ between tools without a button, so their content is rebuilt on any tool change
+    if (built && group == shownGroup && sections == shownSections && (group != ToolGroup::NONE || tool == shownTool)) {
+        updateThickness();
+        return;
+    }
+    shownGroup = group;
+    shownTool = tool;
+    shownSections = sections;
+    rebuild();
+}
+
+void ToolPill::rebuild() {
+    built = true;
+    if (content) {
+        gtk_widget_destroy(content);
+    }
+    thicknessSample = nullptr;
+    thicknessLabel = nullptr;
+
+    content = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+    GtkBox* box = GTK_BOX(content);
+    const uint32_t s = shownSections;
+
+    // Each section gets a separator before it, except the first one
+    bool first = true;
+    auto section = [&](uint32_t bit, auto&& add) {
+        if (!(s & bit)) {
+            return;
+        }
+        if (!first) {
+            gtk_box_pack_start(box, newSeparator(), false, false, 0);
+        }
+        first = false;
+        add();
+    };
+    section(pill::TOOL_NAME, [&] { addToolName(box, shownTool); });
+    section(pill::SHAPE_TYPES, [&] { addShapeTypes(box); });
+    section(pill::SELECTION_MODES, [&] { addSelectionModes(box); });
+    section(pill::ERASER_OPTIONS, [&] { addEraserOptions(box); });
+    section(pill::FONT, [&] { addFont(box); });
+    section(pill::COLORS, [&] { addColors(box); });
+    section(pill::THICKNESS, [&] { addThickness(box, s, shownGroup); });
+    section(pill::TEXT_ALIGNMENT, [&] { addTextAlignment(box); });
+    section(pill::HOLD_TO_SHAPE, [&] { addHoldToShape(box); });
+    section(pill::IMAGE_HINT, [&] {
+        addHint(box, _("Click on the page to insert an image"));
+        gtk_box_pack_start(box,
+                           newActionButton(gtk_button_new(), Action::PASTE, _("Paste"), "mx-copy-symbolic", nullptr),
+                           false, false, 0);
+    });
+    section(pill::HAND_HINT, [&] { addHint(box, _("Drag the page to move it")); });
+
+    gtk_container_add(GTK_CONTAINER(pill.get()), content);
+    gtk_widget_show_all(content);
+    updateThickness();
+    // Redraw the overlay and canvas below when the pill changes width, so no drop shadow stays behind
+    if (GtkWidget* parent = gtk_widget_get_parent(pill.get())) {
+        gtk_widget_queue_draw(parent);
+    }
+    if (MainWindow* win = control->getWindow(); win && win->getXournal()) {
+        gtk_widget_queue_draw(win->getXournal()->getWidget());
+    }
+}
+
+void ToolPill::addToolName(GtkBox* box, ToolType tool) {
+    GtkWidget* lbl = gtk_label_new(toolDisplayName(tool));
+    addClass(lbl, "mx-tool-name");
+    gtk_box_pack_start(box, lbl, false, false, 0);
+}
+
+void ToolPill::addShapeTypes(GtkBox* box) {
+    ActionDatabase* db = control->getActionDatabase();
+    GtkWidget* seg = newSegment();
+    for (const auto& shape: SHAPES) {
+        gtk_box_pack_start(GTK_BOX(seg),
+                           newLatchButton(G_ACTION(db->getAction(shape.action).get()), shape.icon, _(shape.tooltip)),
+                           false, false, 0);
+    }
+    gtk_box_pack_start(box, seg, false, false, 0);
+}
+
+void ToolPill::addSelectionModes(GtkBox* box) {
+    GtkWidget* seg = newSegment();
+    gtk_box_pack_start(GTK_BOX(seg), newTargetToggle(Action::SELECT_TOOL, TOOL_SELECT_REGION, _("Lasso")), false, false,
+                       0);
+    gtk_box_pack_start(GTK_BOX(seg), newTargetToggle(Action::SELECT_TOOL, TOOL_SELECT_RECT, _("Rectangle")), false,
+                       false, 0);
+    gtk_box_pack_start(GTK_BOX(seg), newTargetToggle(Action::SELECT_TOOL, TOOL_SELECT_OBJECT, _("Object")), false,
+                       false, 0);
+    gtk_box_pack_start(box, seg, false, false, 0);
+
+    // The other selection tools
+    GtkWidget* more = prepareButton(gtk_menu_button_new(), _("More selection tools"));
+    gtk_button_set_image(GTK_BUTTON(more), newIcon("mx-more-symbolic"));
+    GtkBox* pop = newPopover(more);
+    GtkWidget* popover = GTK_WIDGET(gtk_menu_button_get_popover(GTK_MENU_BUTTON(more)));
+    IconNameHelper icons(control->getSettings());
+    struct Choice {
+        ToolType tool;
+        const char* icon;
+        const char* label;
+    };
+    std::vector<Choice> choices = {
+            {TOOL_SELECT_MULTILAYER_REGION, "select-multilayer-lasso", _("Select Multi-Layer Region")},
+            {TOOL_SELECT_MULTILAYER_RECT, "select-multilayer-rect", _("Select Multi-Layer Rectangle")}};
+    if (control->getAudioController()) {
+        choices.push_back({TOOL_PLAY_OBJECT, "object-play", _("Play Object")});
+    }
+    for (const auto& c: choices) {
+        GtkWidget* row = newTargetToggle(Action::SELECT_TOOL, c.tool, nullptr);
+        gtk_container_add(GTK_CONTAINER(row), makePopoverRowChild(c.label, icons.iconName(c.icon)));
+        addClass(row, "mx-prow");
+        popdownOnClick(row, popover);
+        gtk_box_pack_start(pop, row, false, false, 0);
+    }
+    gtk_widget_show_all(GTK_WIDGET(pop));
+    gtk_box_pack_start(box, more, false, false, 0);
+
+    gtk_box_pack_start(box, newSeparator(), false, false, 0);
+    gtk_box_pack_start(box,
+                       newTargetToggle(Action::SELECT_TOOL, TOOL_VERTICAL_SPACE, _("Vertical Space"),
+                                       "mx-vertical-space-symbolic"),
+                       false, false, 0);
+}
+
+void ToolPill::addEraserOptions(GtkBox* box) {
+    GtkWidget* type = newSegment();
+    gtk_box_pack_start(GTK_BOX(type), newTargetToggle(Action::TOOL_ERASER_TYPE, ERASER_TYPE_DEFAULT, _("Standard")),
+                       false, false, 0);
+    gtk_box_pack_start(GTK_BOX(type), newTargetToggle(Action::TOOL_ERASER_TYPE, ERASER_TYPE_WHITEOUT, _("Whiteout")),
+                       false, false, 0);
+    gtk_box_pack_start(GTK_BOX(type),
+                       newTargetToggle(Action::TOOL_ERASER_TYPE, ERASER_TYPE_DELETE_STROKE, _("Whole stroke")), false,
+                       false, 0);
+    gtk_box_pack_start(box, type, false, false, 0);
+
+    gtk_box_pack_start(box, newSeparator(), false, false, 0);
+    GtkWidget* size = newSegment();
+    gtk_box_pack_start(GTK_BOX(size), newTargetToggle(Action::TOOL_ERASER_SIZE, TOOL_SIZE_FINE, _("Fine")), false,
+                       false, 0);
+    gtk_box_pack_start(GTK_BOX(size), newTargetToggle(Action::TOOL_ERASER_SIZE, TOOL_SIZE_MEDIUM, _("Medium")), false,
+                       false, 0);
+    gtk_box_pack_start(GTK_BOX(size), newTargetToggle(Action::TOOL_ERASER_SIZE, TOOL_SIZE_THICK, _("Thick")), false,
+                       false, 0);
+    gtk_box_pack_start(box, size, false, false, 0);
+}
+
+void ToolPill::addFont(GtkBox* box) {
+    GtkWidget* btn = FontButton::makeButton(G_ACTION(control->getActionDatabase()->getAction(Action::FONT).get()));
+    prepareButton(btn, nullptr);
+    gtk_box_pack_start(box, btn, false, false, 0);
+}
+
+void ToolPill::addColors(GtkBox* box) {
+    const Palette& palette = control->getPalette();
+    const auto& recolorParams = control->getSettings()->getRecolorParameters();
+    auto secondary = [&](const NamedColor& c) -> std::optional<Color> {
+        if (recolorParams.recolorizeMainView) {
+            return recolorParams.recolor.convertColor(c.getColor());
+        }
+        return std::nullopt;
+    };
+    auto newSwatch = [&](size_t i) {
+        const NamedColor& c = palette.getColorAt(i);
+        GtkWidget* btn = ColorToolItem::makeButton(c, secondary(c), SWATCH_SIZE);
+        prepareButton(btn, nullptr);
+        addClass(btn, "mx-swatch");
+        return btn;
+    };
+
+    GtkWidget* dots = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+    const size_t shown = std::min(PILL_COLOR_COUNT, palette.size());
+    for (size_t i = 0; i < shown; i++) {
+        gtk_box_pack_start(GTK_BOX(dots), newSwatch(i), false, false, 0);
+    }
+
+    // The whole palette and the color chooser
+    GtkWidget* more = prepareButton(gtk_menu_button_new(), _("More colors"));
+    gtk_button_set_image(GTK_BUTTON(more), newIcon("mx-down-symbolic"));
+    GtkBox* pop = newPopover(more);
+    GtkWidget* popover = GTK_WIDGET(gtk_menu_button_get_popover(GTK_MENU_BUTTON(more)));
+    addPopoverTitle(pop, _("Colors"));
+    GtkWidget* grid = gtk_flow_box_new();
+    gtk_flow_box_set_selection_mode(GTK_FLOW_BOX(grid), GTK_SELECTION_NONE);
+    gtk_flow_box_set_max_children_per_line(GTK_FLOW_BOX(grid), static_cast<guint>(PILL_COLOR_COUNT));
+    gtk_flow_box_set_min_children_per_line(GTK_FLOW_BOX(grid),
+                                           static_cast<guint>(std::min(PILL_COLOR_COUNT, palette.size())));
+    for (size_t i = 0; i < palette.size(); i++) {
+        GtkWidget* swatch = newSwatch(i);
+        popdownOnClick(swatch, popover);
+        gtk_container_add(GTK_CONTAINER(grid), swatch);
+        // Flow box children take the focus and draw a hover box: keep only the button's look
+        GtkWidget* child = gtk_widget_get_parent(swatch);
+        gtk_widget_set_can_focus(child, false);
+    }
+    gtk_box_pack_start(pop, grid, false, false, 0);
+    GtkWidget* custom = newActionButton(gtk_button_new(), Action::SELECT_COLOR, nullptr, {}, nullptr);
+    gtk_container_add(GTK_CONTAINER(custom), makePopoverRowChild(_("Custom color…"), "mx-plus-symbolic"));
+    addClass(custom, "mx-prow");
+    popdownOnClick(custom, popover);
+    gtk_box_pack_start(pop, custom, false, false, 0);
+    gtk_widget_show_all(GTK_WIDGET(pop));
+    gtk_box_pack_start(GTK_BOX(dots), more, false, false, 0);
+
+    gtk_box_pack_start(box, dots, false, false, 0);
+}
+
+void ToolPill::addThickness(GtkBox* box, uint32_t sections, ToolGroup group) {
+    ToolHandler* th = control->getToolHandler();
+    const Tool* tool = th->getActiveTool();
+
+    GtkWidget* btn = prepareButton(gtk_menu_button_new(), group == ToolGroup::SHAPES ?
+                                                                  _("Thickness and line style, shared with the pen") :
+                                                                  _("Thickness"));
+    GtkWidget* inner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+    thicknessSample = newSample(1, 28, 14);
+    thicknessLabel = GTK_LABEL(gtk_label_new(nullptr));
+    addClass(GTK_WIDGET(thicknessLabel), "mx-numeric");
+    gtk_box_pack_start(GTK_BOX(inner), thicknessSample, false, false, 0);
+    gtk_box_pack_start(GTK_BOX(inner), GTK_WIDGET(thicknessLabel), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(inner), newIcon("mx-down-symbolic"), false, false, 0);
+    gtk_container_add(GTK_CONTAINER(btn), inner);
+
+    GtkBox* pop = newPopover(btn);
+    GtkWidget* popover = GTK_WIDGET(gtk_menu_button_get_popover(GTK_MENU_BUTTON(btn)));
+    addPopoverTitle(pop, _("Thickness"));
+    struct SizeChoice {
+        ToolSize size;
+        const char* name;
+    };
+    const SizeChoice sizes[] = {{TOOL_SIZE_VERY_FINE, _("Very Fine")},
+                                {TOOL_SIZE_FINE, _("Fine")},
+                                {TOOL_SIZE_MEDIUM, _("Medium")},
+                                {TOOL_SIZE_THICK, _("Thick")},
+                                {TOOL_SIZE_VERY_THICK, _("Very Thick")}};
+    for (const auto& c: sizes) {
+        const double thickness = tool ? tool->getThickness(c.size) : 1.0;
+        GtkWidget* row = newTargetToggle(Action::TOOL_SIZE, c.size, nullptr);
+        addClass(row, "mx-prow");
+        GtkWidget* rowBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
+        GtkWidget* name = gtk_label_new(c.name);
+        gtk_label_set_xalign(GTK_LABEL(name), 0.0);
+        gtk_label_set_width_chars(GTK_LABEL(name), 9);
+        GtkWidget* sample = newSample(sampleWidth(thickness), 120, 16);
+        gtk_widget_set_hexpand(sample, true);
+        GtkWidget* value = gtk_label_new(formatThickness(thickness).c_str());
+        gtk_label_set_xalign(GTK_LABEL(value), 1.0);
+        gtk_label_set_width_chars(GTK_LABEL(value), 7);
+        addClass(value, "mx-numeric");
+        gtk_box_pack_start(GTK_BOX(rowBox), name, false, false, 0);
+        gtk_box_pack_start(GTK_BOX(rowBox), sample, true, true, 0);
+        gtk_box_pack_start(GTK_BOX(rowBox), value, false, false, 0);
+        gtk_container_add(GTK_CONTAINER(row), rowBox);
+        popdownOnClick(row, popover);
+        gtk_box_pack_start(pop, row, false, false, 0);
+    }
+
+    if (sections & pill::LINE_STYLE) {
+        addPopoverTitle(pop, _("Line style"));
+        GtkWidget* seg = newSegment();
+        gtk_widget_set_halign(seg, GTK_ALIGN_START);
+        struct StyleChoice {
+            const char* style;
+            int kind;
+            const char* tooltip;
+        };
+        const StyleChoice styles[] = {{"plain", 0, _("standard")},
+                                      {"dash", 1, _("dashed")},
+                                      {"dashdot", 2, _("dash-/ dotted")},
+                                      {"dot", 3, _("dotted")}};
+        for (const auto& st: styles) {
+            GtkWidget* b = newTargetToggle(Action::TOOL_PEN_LINE_STYLE, st.style, nullptr, {}, st.tooltip);
+            gtk_container_add(GTK_CONTAINER(b), newLineStyleSample(st.kind));
+            gtk_box_pack_start(GTK_BOX(seg), b, false, false, 0);
+        }
+        gtk_box_pack_start(pop, seg, false, false, 0);
+    }
+
+    if (sections & pill::FILL) {
+        addPopoverTitle(pop, _("Fill"));
+        GtkWidget* row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+        addClass(row, "mx-switch-row");
+        GtkWidget* sw = gtk_switch_new();
+        gtk_widget_set_can_focus(sw, false);
+        gtk_widget_set_valign(sw, GTK_ALIGN_CENTER);
+        gtk_actionable_set_action_name(GTK_ACTIONABLE(sw), winAction(Action::TOOL_FILL).c_str());
+        xoj::util::gtk::fixActionableInitialSensitivity(GTK_ACTIONABLE(sw));
+        gtk_widget_set_tooltip_text(sw, _("Fill"));
+        gtk_box_pack_start(GTK_BOX(row), sw, false, false, 0);
+        GtkWidget* opacity = newActionButton(gtk_button_new(), Action::TOOL_FILL_OPACITY, _("Fill opacity"),
+                                             "mx-droplet-symbolic", nullptr);
+        popdownOnClick(opacity, popover);
+        gtk_box_pack_start(GTK_BOX(row), opacity, false, false, 0);
+        gtk_box_pack_start(pop, row, false, false, 0);
+    }
+    gtk_widget_show_all(GTK_WIDGET(pop));
+
+    gtk_box_pack_start(box, btn, false, false, 0);
+}
+
+void ToolPill::addTextAlignment(GtkBox* box) {
+    GtkWidget* seg = newSegment();
+    gtk_box_pack_start(GTK_BOX(seg),
+                       newTargetToggle(Action::TEXT_ALIGNMENT, TextAlignment::LEFT, nullptr,
+                                       "format-justify-left-symbolic", _("Align text to the left")),
+                       false, false, 0);
+    gtk_box_pack_start(GTK_BOX(seg),
+                       newTargetToggle(Action::TEXT_ALIGNMENT, TextAlignment::CENTER, nullptr,
+                                       "format-justify-center-symbolic", _("Center text")),
+                       false, false, 0);
+    gtk_box_pack_start(GTK_BOX(seg),
+                       newTargetToggle(Action::TEXT_ALIGNMENT, TextAlignment::RIGHT, nullptr,
+                                       "format-justify-right-symbolic", _("Align text to the right")),
+                       false, false, 0);
+    gtk_box_pack_start(box, seg, false, false, 0);
+
+    GtkWidget* justify = prepareButton(gtk_toggle_button_new(), _("Justify text"));
+    gtk_button_set_image(GTK_BUTTON(justify), newIcon("format-justify-fill-symbolic"));
+    gtk_actionable_set_action_name(GTK_ACTIONABLE(justify), winAction(Action::TEXT_JUSTIFY).c_str());
+    xoj::util::gtk::fixActionableInitialSensitivity(GTK_ACTIONABLE(justify));
+    gtk_box_pack_start(box, justify, false, false, 0);
+}
+
+void ToolPill::addHoldToShape(GtkBox* box) {
+    GtkWidget* row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+    addClass(row, "mx-switch-row");
+    GtkWidget* sw = gtk_switch_new();
+    gtk_widget_set_can_focus(sw, false);
+    gtk_widget_set_valign(sw, GTK_ALIGN_CENTER);
+    gtk_actionable_set_action_name(GTK_ACTIONABLE(sw), winAction(Action::HOLD_TO_SHAPE).c_str());
+    xoj::util::gtk::fixActionableInitialSensitivity(GTK_ACTIONABLE(sw));
+    gtk_box_pack_start(GTK_BOX(row), sw, false, false, 0);
+
+    // A click on the label flips the switch too
+    GtkWidget* labelBox = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(labelBox), gtk_label_new(_("Automatic shapes")));
+    g_signal_connect_object(labelBox, "button-release-event",
+                            G_CALLBACK(+[](GtkWidget*, GdkEventButton* e, gpointer sw) -> gboolean {
+                                if (e->button == 1) {
+                                    gtk_switch_set_active(GTK_SWITCH(sw), !gtk_switch_get_active(GTK_SWITCH(sw)));
+                                }
+                                return true;
+                            }),
+                            sw, GConnectFlags(0));
+    gtk_box_pack_start(GTK_BOX(row), labelBox, false, false, 0);
+    gtk_widget_set_tooltip_text(row, _("Keep the pen still at the end of a stroke to turn it into a line, rectangle "
+                                       "or circle"));
+    gtk_box_pack_start(box, row, false, false, 0);
+}
+
+void ToolPill::addHint(GtkBox* box, const char* text) { gtk_box_pack_start(box, newHintLabel(text), false, false, 0); }
+
+void ToolPill::updateThickness() {
+    if (!thicknessLabel) {
+        return;
+    }
+    const Tool* tool = control->getToolHandler()->getActiveTool();
+    if (!tool || tool->getSize() == TOOL_SIZE_NONE) {
+        gtk_label_set_text(thicknessLabel, "");
+        return;
+    }
+    const double thickness = tool->getThickness(tool->getSize());
+    gtk_label_set_text(thicknessLabel, formatThickness(thickness).c_str());
+    setSampleWidth(thicknessSample, sampleWidth(thickness));
+}

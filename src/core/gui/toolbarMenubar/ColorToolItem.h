@@ -56,6 +56,13 @@ public:
 
     xoj::util::WidgetSPtr createItem(bool horizontal) override;
 
+    /**
+     * A toggle button that selects the color for the current tool (win.tool-color) and shows when it is selected
+     * @param secondaryColor Shown as a small disk when recoloring is active
+     * @return The button, a floating ref
+     */
+    static GtkWidget* makeButton(const NamedColor& namedColor, std::optional<Color> secondaryColor, int iconSize);
+
 private:
     NamedColor namedColor;
     xoj::util::GVariantSPtr target;       ///< Contains the color in ARGB as a uint32_t
