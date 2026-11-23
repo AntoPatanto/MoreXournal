@@ -1,5 +1,7 @@
 #include "Menubar.h"
 
+#include <utility>  // for pair
+
 #include "control/Control.h"
 #include "gui/GladeSearchpath.h"
 #include "gui/MainWindow.h"
@@ -83,6 +85,52 @@ void Menubar::populate(const GladeSearchpath* gladeSearchPath, MainWindow* win) 
     }
 
     undoRedoSection = G_MENU(gtk_builder_get_object(builder.get(), UNDO_REDO_SECTION_ID));
+
+    createSectionedMenu();
+}
+
+void Menubar::createSectionedMenu() {
+    // Section titles of the main menu. They differ from the menu bar labels and have no mnemonic.
+    const std::pair<const char*, std::string> titles[] = {
+            {"menuFile", _("Document")}, {"menuEdit", _("Edit")},
+            {"menuView", _("View")},     {"menuNavigation", _("Navigation")},
+            {"menuJournal", _("Page")},  {"menuTools", _("Tools")},
+            {"menuHelp", _("Help")}};
+
+    sectionedMenu.reset(g_menu_new(), xoj::util::adopt);
+    const int n = g_menu_model_get_n_items(menu);
+    for (int i = 0; i < n; ++i) {
+        // Link the existing submenu instead of copying it, so its dynamic parts stay up to date
+        xoj::util::GObjectSPtr<GMenuModel> sub(g_menu_model_get_item_link(menu, i, G_MENU_LINK_SUBMENU),
+                                               xoj::util::adopt);
+        if (!sub) {
+            continue;
+        }
+        std::string title;
+        for (const auto& [id, label]: titles) {
+            if (G_OBJECT(sub.get()) == gtk_builder_get_object(builder.get(), id)) {
+                title = label;
+            }
+        }
+#ifdef ENABLE_PLUGINS
+        if (sub.get() == pluginsSubmenu->getModel()) {
+            title = _("Plugins");
+        }
+#endif
+        if (title.empty()) {
+            // Unknown menu: use its menu bar label without the mnemonic marker
+            gchar* label = nullptr;
+            if (g_menu_model_get_item_attribute(menu, i, G_MENU_ATTRIBUTE_LABEL, "s", &label)) {
+                for (const char* c = label; *c; ++c) {
+                    if (*c != '_') {
+                        title += *c;
+                    }
+                }
+                g_free(label);
+            }
+        }
+        g_menu_append_section(sectionedMenu.get(), title.c_str(), sub.get());
+    }
 }
 
 void Menubar::setUndoDescription(const std::string& description) {

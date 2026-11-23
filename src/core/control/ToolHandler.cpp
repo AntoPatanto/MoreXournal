@@ -402,6 +402,10 @@ auto ToolHandler::getDrawingType(SelectedTool selectedTool) const -> DrawingType
 void ToolHandler::setDrawingType(DrawingType drawingType) {
     Tool* tool = this->toolbarSelectedTool;
     tool->setDrawingType(drawingType);
+    // The top bar's Shapes button picks the last shape drawn with the pen. Button tools never get here.
+    if (tool == &getTool(TOOL_PEN) && this->settings) {
+        this->settings->setLastShapeType(drawingType);
+    }
 }
 
 void ToolHandler::setButtonDrawingType(DrawingType drawingType, Button button) {

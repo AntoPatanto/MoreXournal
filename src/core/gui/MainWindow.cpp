@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 
+#include <algorithm>  // for find_if
 #include <regex>
 
 #include <gdk-pixbuf/gdk-pixbuf.h>  // for gdk_pixbuf_new_fr...
@@ -22,6 +23,7 @@
 #include "gui/PdfFloatingToolbox.h"                     // for PdfFloatingToolbox
 #include "gui/SearchBar.h"                              // for SearchBar
 #include "gui/ShapeToolbox.h"                           // for ShapeToolbox
+#include "gui/TopBar.h"                                 // for TopBar
 #include "gui/inputdevices/InputEvents.h"               // for INPUT_DEVICE_TOUC...
 #include "gui/menus/menubar/Menubar.h"                  // for Menubar
 #include "gui/menus/menubar/ToolbarSelectionSubmenu.h"  // for ToolbarSelectionSubmenu
@@ -75,6 +77,8 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
 
     loadMainCSS(gladeSearchPath, "xournalpp.css");
 
+    createWindowBox();
+
     GtkOverlay* overlay = GTK_OVERLAY(get("mainOverlay"));
     this->pdfFloatingToolBox = std::make_unique<PdfFloatingToolbox>(this, overlay);
     this->floatingToolbox = std::make_unique<FloatingToolbox>(this, overlay);
@@ -86,7 +90,9 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
     initXournalWidget();
     this->shapeToolbox = std::make_unique<ShapeToolbox>(this, overlay);
 
-    setSidebarVisible(control->getSettings()->isSidebarVisible());
+    // showSidebar is saved from the view mode active on quit (e.g. fullscreen): start from the view mode itself
+    setSidebarVisible(
+            control->getSettings()->getViewModes().at(control->getSettings()->getActiveViewMode()).showSidebar);
 
     // Window handler
     g_signal_connect(this->window, "delete-event", xoj::util::wrap_for_g_callback_v<deleteEventCallback>,
@@ -116,11 +122,29 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
             this);
 
     // "watch over" all key events
-    auto keyPropagate = +[](GtkWidget* w, GdkEvent* e, gpointer) {
-        return gtk_window_propagate_key_event(GTK_WINDOW(w), (GdkEventKey*)(e));
-    };
-    g_signal_connect(this->window, "key-press-event", G_CALLBACK(keyPropagate), nullptr);
-    g_signal_connect(this->window, "key-release-event", G_CALLBACK(keyPropagate), nullptr);
+    g_signal_connect(this->window, "key-press-event", G_CALLBACK(onKeyEvent), this);
+    g_signal_connect(this->window, "key-release-event", G_CALLBACK(onKeyEvent), this);
+    g_signal_connect(this->window, "notify::is-active", G_CALLBACK(+[](GObject* w, GParamSpec*, gpointer self) {
+                         auto* win = static_cast<MainWindow*>(self);
+                         // An open menu of the menu bar grabs the keyboard, which also makes the window inactive
+                         const bool menuOpen =
+                                 win->menubarWidget &&
+                                 gtk_menu_shell_get_selected_item(GTK_MENU_SHELL(win->menubarWidget)) != nullptr;
+                         if (!gtk_window_is_active(GTK_WINDOW(w)) && !menuOpen) {
+                             win->altArmed = false;
+                             win->setMenubarTemporarilyVisible(false);
+                         }
+                     }),
+                     this);
+    g_signal_connect(
+            this->window, "window-state-event",
+            G_CALLBACK(+[](GtkWidget*, GdkEventWindowState* e, gpointer self) -> gboolean {
+                if (e->changed_mask & GDK_WINDOW_STATE_FULLSCREEN) {
+                    static_cast<MainWindow*>(self)->placeTopBar(e->new_window_state & GDK_WINDOW_STATE_FULLSCREEN);
+                }
+                return false;
+            }),
+            this);
 
     updateScrollbarSidebarPosition();
 
@@ -135,7 +159,9 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
 
     Util::execInUiThread([=]() {
         // Execute after the window is visible, else the check won't work
-        control->setShowMenubar(control->getSettings()->isMenubarVisible());
+        // menubarVisible is saved from the view mode active on quit (e.g. fullscreen): start from the view mode itself
+        Settings* settings = control->getSettings();
+        control->setShowMenubar(settings->getViewModes().at(settings->getActiveViewMode()).showMenubar);
     });
 
     // Drag and Drop
@@ -156,7 +182,10 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
 void MainWindow::populate(GladeSearchpath* gladeSearchPath) {
 
     toolbar->populate(gladeSearchPath);
+    // Before the menu bar, whose toolbar list shows the selected layout
+    migrateSelectedToolbar();
     menubar->populate(gladeSearchPath, this);
+    createTopBar();
 
     // need to create tool buttons registered in plugins, so they can be added to toolbars
     control->registerPluginToolButtons(this->toolbar.get());
@@ -171,6 +200,131 @@ GMenuModel* MainWindow::getMenuModel() const { return menubar->getModel(); }
 MainWindow::~MainWindow() {
     // First, so that the selection deleted with the view does not update it
     this->shapeToolbox.reset();
+
+    // The window is destroyed after this object (see GladeGui::~GladeGui()): drop the handlers that use `this`
+    g_signal_handlers_disconnect_by_data(this->window, this);
+    if (menubarWidget) {
+        g_signal_handlers_disconnect_by_data(menubarWidget, this);
+    }
+}
+
+void MainWindow::createWindowBox() {
+    GtkWidget* overlay = get("mainOverlay");
+    g_object_ref(overlay);
+    gtk_container_remove(GTK_CONTAINER(this->window), overlay);
+
+    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_widget_set_name(box, "windowBox");
+
+    // Shown only while fullscreen or without client-side decorations, see placeTopBar()
+    inlineBar = gtk_header_bar_new();
+    gtk_style_context_add_class(gtk_widget_get_style_context(inlineBar), "mx-topbar");
+    gtk_widget_set_no_show_all(inlineBar, true);
+    gtk_box_append(GTK_BOX(box), inlineBar);
+
+    // The menu bar is always in the window but stays hidden unless pinned or shown with Alt.
+    // The GtkApplicationWindow menu bar stays off: gtk_application_set_menubar() is only kept for the accelerators.
+    gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(this->window), false);
+    menubarRevealer = gtk_revealer_new();
+    gtk_revealer_set_transition_type(GTK_REVEALER(menubarRevealer), GTK_REVEALER_TRANSITION_TYPE_SLIDE_DOWN);
+    gtk_revealer_set_transition_duration(GTK_REVEALER(menubarRevealer), 120);
+    gtk_box_append(GTK_BOX(box), menubarRevealer);
+    gtk_widget_show(menubarRevealer);
+
+    gtk_widget_set_vexpand(overlay, true);
+    gtk_box_append(GTK_BOX(box), overlay);
+    g_object_unref(overlay);
+
+    gtk_container_add(GTK_CONTAINER(this->window), box);
+    gtk_widget_show(box);
+}
+
+void MainWindow::createTopBar() {
+    menubarWidget = gtk_menu_bar_new_from_model(menubar->getModel());
+    gtk_container_add(GTK_CONTAINER(menubarRevealer), menubarWidget);
+    gtk_widget_show(menubarWidget);
+    // Emitted when a menu closes, after an item was chosen or the menu was cancelled
+    g_signal_connect(menubarWidget, "deactivate", G_CALLBACK(+[](GtkMenuShell*, gpointer self) {
+                         static_cast<MainWindow*>(self)->setMenubarTemporarilyVisible(false);
+                     }),
+                     this);
+
+    topBar = std::make_unique<TopBar>(control, menubar->getSectionedModel());
+
+    if (control->getSettings()->isUseClientSideDecorations()) {
+        // Must happen before the window is realized
+        titlebar = gtk_header_bar_new();
+        gtk_header_bar_set_show_close_button(GTK_HEADER_BAR(titlebar), true);
+        gtk_style_context_add_class(gtk_widget_get_style_context(titlebar), "mx-topbar");
+        gtk_widget_show(titlebar);
+        gtk_window_set_titlebar(GTK_WINDOW(this->window), titlebar);
+    }
+    placeTopBar(false);
+
+    topBar->setPageInfo(pageNumber, pageCount);
+    control->updateWindowTitle();
+}
+
+void MainWindow::placeTopBar(bool fullscreen) {
+    if (!topBar) {
+        return;
+    }
+    // GTK hides the title bar while fullscreen
+    const bool useInline = fullscreen || titlebar == nullptr;
+    gtk_widget_set_visible(inlineBar, useInline);
+    topBar->attachTo(GTK_HEADER_BAR(useInline ? inlineBar : titlebar));
+}
+
+auto MainWindow::onKeyEvent(GtkWidget* window, GdkEventKey* event, MainWindow* self) -> gboolean {
+    if (self->handleMenubarKey(event)) {
+        return true;
+    }
+    return gtk_window_propagate_key_event(GTK_WINDOW(window), event);
+}
+
+bool MainWindow::handleMenubarKey(GdkEventKey* event) {
+    constexpr auto BUTTONS =
+            GDK_BUTTON1_MASK | GDK_BUTTON2_MASK | GDK_BUTTON3_MASK | GDK_BUTTON4_MASK | GDK_BUTTON5_MASK;
+    constexpr auto OTHER_MODIFIERS =
+            GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK;
+    const bool isAlt = event->keyval == GDK_KEY_Alt_L || event->keyval == GDK_KEY_Alt_R;
+
+    if (event->type == GDK_KEY_PRESS) {
+        if (!isAlt) {
+            // Alt+key is a shortcut, not a tap on Alt
+            altArmed = false;
+            if (event->keyval == GDK_KEY_Escape && menubarTemporary) {
+                setMenubarTemporarilyVisible(false);
+                return true;
+            }
+        } else if (!(event->state & GDK_MOD1_MASK)) {
+            // First press, not a key repeat. Alt held while drawing is a drawing modifier.
+            altArmed = !(event->state & (BUTTONS | OTHER_MODIFIERS));
+        }
+    } else if (event->type == GDK_KEY_RELEASE && isAlt) {
+        if (altArmed && !(event->state & BUTTONS)) {
+            setMenubarTemporarilyVisible(!menubarTemporary);
+        }
+        altArmed = false;
+    }
+    return false;
+}
+
+void MainWindow::onPagePressed() {
+    altArmed = false;
+    setMenubarTemporarilyVisible(false);
+}
+
+void MainWindow::setMenubarTemporarilyVisible(bool visible) {
+    visible = visible && !menubarPinned;
+    if (menubarTemporary != visible) {
+        menubarTemporary = visible;
+        updateMenubarReveal();
+    }
+}
+
+void MainWindow::updateMenubarReveal() {
+    gtk_revealer_set_reveal_child(GTK_REVEALER(menubarRevealer), menubarPinned || menubarTemporary);
 }
 
 struct ThemeProperties {
@@ -611,6 +765,9 @@ void MainWindow::setToolbarVisible(bool visible) {
     Settings* settings = control->getSettings();
 
     settings->setToolbarVisible(visible);
+    if (topBar) {
+        topBar->setToolsVisible(visible);
+    }
     for (auto& w: this->toolbarWidgets) {
         if (!visible || (gtk_toolbar_get_n_items(GTK_TOOLBAR(w.get())) != 0)) {
             gtk_widget_set_visible(w.get(), visible);
@@ -619,7 +776,9 @@ void MainWindow::setToolbarVisible(bool visible) {
 }
 
 void MainWindow::setMenubarVisible(bool visible) {
-    gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(this->getWindow()), visible);
+    menubarPinned = visible;
+    menubarTemporary = false;
+    updateMenubarReveal();
 }
 
 void MainWindow::setMaximized(bool maximized) { this->maximized = maximized; }
@@ -708,6 +867,20 @@ void MainWindow::updateToolbarMenu() {
     menubar->getToolbarSelectionSubmenu().update(toolbar.get(), this->selectedToolbar);
 }
 
+void MainWindow::migrateSelectedToolbar() {
+    Settings* settings = control->getSettings();
+    if (!settings->consumePendingToolbarMigration()) {
+        return;
+    }
+    // Settings from before the top bar: a predefined layout is replaced by the default one, custom layouts stay
+    const auto& toolbars = toolbar->getModel()->getToolbars();
+    auto it = std::find_if(toolbars.begin(), toolbars.end(),
+                           [&](const auto& d) { return d->getId() == settings->getSelectedToolbar(); });
+    if (it == toolbars.end() || (*it)->isPredefined()) {
+        settings->setSelectedToolbar(DEFAULT_TOOLBAR);
+    }
+}
+
 void MainWindow::createToolbar() {
     toolbarSelected(control->getSettings()->getSelectedToolbar());
 
@@ -716,6 +889,17 @@ void MainWindow::createToolbar() {
 
 void MainWindow::updatePageNumbers(size_t page, size_t pagecount, size_t pdfpage) {
     toolbar->setPageInfo(page, pagecount, pdfpage);
+    this->pageNumber = page;
+    this->pageCount = pagecount;
+    if (topBar) {
+        topBar->setPageInfo(page, pagecount);
+    }
+}
+
+void MainWindow::setDocumentTitle(const std::string& name, const std::string& status) {
+    if (topBar) {
+        topBar->setDocumentTitle(name, status);
+    }
 }
 
 auto MainWindow::getMenubar() const -> Menubar* { return menubar.get(); }

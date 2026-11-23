@@ -638,7 +638,9 @@ void SettingsDialog::load() {
     loadCheckbox("cbShowPresentationToolbar", showPresentationToolbar);
     loadCheckbox("cbShowPresentationSidebar", showPresentationSidebar);
     loadCheckbox("cbPresentationGoFullscreen", goPresentationFullscreen);
-    loadCheckbox("cbHideMenubarStartup", settings->isMenubarVisible());
+    // The pinned menu bar is a property of the default view mode, not of the one in use (fullscreen, presentation)
+    loadCheckbox("cbHideMenubarStartup", settings->getViewModes().at(PresetViewModeIds::VIEW_MODE_DEFAULT).showMenubar);
+    loadCheckbox("cbUseCSD", settings->isUseClientSideDecorations());
     loadCheckbox("cbShowFilepathInTitlebar", settings->isFilepathInTitlebarShown());
     loadCheckbox("cbShowPageNumberInTitlebar", settings->isPageNumberInTitlebarShown());
 
@@ -927,7 +929,20 @@ void SettingsDialog::save() {
     viewModePresentation.goFullscreen = getCheckbox("cbPresentationGoFullscreen");
     settings->setViewMode(PresetViewModeIds::VIEW_MODE_PRESENTATION, viewModePresentation);
 
-    settings->setMenubarVisible(getCheckbox("cbHideMenubarStartup"));
+    const bool alwaysShowMenubar = getCheckbox("cbHideMenubarStartup");
+    bool menubarPreferenceChanged = false;
+    const bool inDefaultViewMode = settings->getActiveViewMode() == PresetViewModeIds::VIEW_MODE_DEFAULT;
+    {
+        // Leaving fullscreen restores the default view mode: keep it in line with the preference
+        ViewMode viewModeDefault = settings->getViewModes()[PresetViewModeIds::VIEW_MODE_DEFAULT];
+        menubarPreferenceChanged = alwaysShowMenubar != viewModeDefault.showMenubar;
+        viewModeDefault.showMenubar = alwaysShowMenubar;
+        settings->setViewMode(PresetViewModeIds::VIEW_MODE_DEFAULT, viewModeDefault);
+    }
+    if (inDefaultViewMode) {
+        settings->setMenubarVisible(alwaysShowMenubar);
+    }
+    settings->setUseClientSideDecorations(getCheckbox("cbUseCSD"));
     settings->setFilepathInTitlebarShown(getCheckbox("cbShowFilepathInTitlebar"));
     settings->setPageNumberInTitlebarShown(getCheckbox("cbShowPageNumberInTitlebar"));
 
@@ -1121,6 +1136,10 @@ void SettingsDialog::save() {
     this->latexPanel.save(settings->latexSettings);
 
     settings->transactionEnd();
+
+    if (menubarPreferenceChanged && inDefaultViewMode) {
+        this->control->setShowMenubar(alwaysShowMenubar);
+    }
 
     this->control->getWindow()->setGtkTouchscreenScrollingForDeviceMapping();
 

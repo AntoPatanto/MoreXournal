@@ -311,7 +311,10 @@ struct ActionProperties<Action::FULLSCREEN> {
 template <>
 struct ActionProperties<Action::SHOW_SIDEBAR> {
     using state_type = bool;
-    static state_type initialState(Control* ctrl) { return ctrl->getSettings()->isSidebarVisible(); }
+    static state_type initialState(Control* ctrl) {
+        Settings* settings = ctrl->getSettings();
+        return settings->getViewModes().at(settings->getActiveViewMode()).showSidebar;
+    }
     static void callback(GSimpleAction*, GVariant* p, Control* ctrl) { ctrl->setShowSidebar(g_variant_get_boolean(p)); }
 };
 
@@ -389,7 +392,10 @@ struct ActionProperties<Action::CUSTOMIZE_TOOLBAR> {
 template <>
 struct ActionProperties<Action::SHOW_MENUBAR> {
     using state_type = bool;
-    static state_type initialState(Control* ctrl) { return ctrl->getSettings()->isMenubarVisible(); }
+    static state_type initialState(Control* ctrl) {
+        Settings* settings = ctrl->getSettings();
+        return settings->getViewModes().at(settings->getActiveViewMode()).showMenubar;
+    }
     static void callback(GSimpleAction*, GVariant* p, Control* ctrl) { ctrl->setShowMenubar(g_variant_get_boolean(p)); }
 };
 

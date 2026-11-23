@@ -9,8 +9,11 @@
  * @license GNU GPLv2 or later
  */
 
+#include <fstream>  // for ofstream
+
 #include <gtest/gtest.h>
 
+#include "control/settings/ButtonConfig.h"
 #include "control/settings/Settings.h"
 
 TEST(SettingsTest, testLoadDoesNotThrowForNonExistingFilePath) {
@@ -111,6 +114,119 @@ TEST(SettingsTest, testHoldToShapeReadWrite) {
     loaded.load();
     EXPECT_FALSE(loaded.isHoldToShapeEnabled());
     EXPECT_EQ(loaded.getHoldToShapeDelay(), 1250);
+
+    fs::remove(outPath);
+}
+
+TEST(SettingsTest, testTopBarSettingsReadWrite) {
+    const fs::path outPath = fs::temp_directory_path() / "xournalpp-test-units_Settings_testTopBar.xml";
+    fs::remove(outPath);
+
+    Settings settings(outPath);
+    settings.transactionStart();
+    settings.setUseClientSideDecorations(false);
+    settings.setLastShapeType(DRAWING_TYPE_ELLIPSE);
+    settings.setMenubarVisible(true);
+    settings.transactionEnd();  // calls save()
+
+    Settings loaded(outPath);
+    ASSERT_TRUE(loaded.load());
+    EXPECT_EQ(loaded.getUiLayoutVersion(), UI_LAYOUT_VERSION);
+    EXPECT_FALSE(loaded.isUseClientSideDecorations());
+    EXPECT_EQ(loaded.getLastShapeType(), DRAWING_TYPE_ELLIPSE);
+    // A current file is not migrated: the user's choice to always show the menu bar stays
+    EXPECT_TRUE(loaded.isMenubarVisible());
+    EXPECT_FALSE(loaded.consumePendingToolbarMigration());
+
+    fs::remove(outPath);
+}
+
+TEST(SettingsTest, testLastShapeTypeOnlyAcceptsShapes) {
+    Settings settings{"non-existing-file-path"};
+    settings.transactionStart();  // do not write the settings file
+    EXPECT_EQ(settings.getLastShapeType(), DRAWING_TYPE_RECTANGLE);
+    settings.setLastShapeType(DRAWING_TYPE_SHAPE_RECOGNIZER);
+    EXPECT_EQ(settings.getLastShapeType(), DRAWING_TYPE_RECTANGLE);
+    settings.setLastShapeType(DRAWING_TYPE_SPLINE);
+    EXPECT_EQ(settings.getLastShapeType(), DRAWING_TYPE_SPLINE);
+}
+
+TEST(SettingsTest, testNewSettingsFileUsesTopBarDefaults) {
+    const fs::path outPath = fs::temp_directory_path() / "xournalpp-test-units_Settings_testFresh.xml";
+    fs::remove(outPath);
+
+    Settings settings(outPath);
+    ASSERT_TRUE(settings.load());  // writes the defaults, then reads them back
+    EXPECT_EQ(settings.getUiLayoutVersion(), UI_LAYOUT_VERSION);
+    EXPECT_FALSE(settings.isMenubarVisible());
+    EXPECT_FALSE(settings.isSidebarVisible());
+    EXPECT_TRUE(settings.isUseClientSideDecorations());
+    EXPECT_EQ(settings.getSelectedToolbar(), "MoreXournal");
+    const ViewMode& defaultMode = settings.getViewModes().at(PresetViewModeIds::VIEW_MODE_DEFAULT);
+    EXPECT_FALSE(defaultMode.showMenubar);
+    EXPECT_FALSE(defaultMode.showSidebar);
+    EXPECT_TRUE(defaultMode.showToolbar);
+    EXPECT_FALSE(settings.consumePendingToolbarMigration());
+
+    fs::remove(outPath);
+}
+
+TEST(SettingsTest, testLegacySettingsAreMigratedOnce) {
+    const fs::path outPath = fs::temp_directory_path() / "xournalpp-test-units_Settings_testLegacy.xml";
+    {
+        // Settings written before the top bar existed: no uiLayoutVersion
+        std::ofstream legacy(outPath);
+        legacy << R"(<?xml version="1.0"?>
+<settings>
+  <property name="menubarVisible" value="true"/>
+  <property name="showSidebar" value="true"/>
+  <property name="selectedToolbar" value="Portrait"/>
+  <property name="defaultViewModeAttributes" value="showMenubar,showToolbar,showSidebar"/>
+  <property name="sidebarWidth" value="222"/>
+  <data name="buttonConfig">
+    <data name="right">
+      <attribute name="tool" type="string" value="hand"/>
+    </data>
+  </data>
+  <data name="deviceClasses">
+    <data name="Test Tablet">
+      <attribute name="deviceClass" type="int" value="2"/>
+      <attribute name="deviceSource" type="int" value="2"/>
+    </data>
+  </data>
+</settings>
+)";
+    }
+
+    Settings settings(outPath);
+    ASSERT_TRUE(settings.load());
+    EXPECT_EQ(settings.getUiLayoutVersion(), UI_LAYOUT_VERSION);
+    EXPECT_FALSE(settings.isMenubarVisible());
+    EXPECT_FALSE(settings.isSidebarVisible());
+    const ViewMode& defaultMode = settings.getViewModes().at(PresetViewModeIds::VIEW_MODE_DEFAULT);
+    EXPECT_FALSE(defaultMode.showMenubar);
+    EXPECT_FALSE(defaultMode.showSidebar);
+    EXPECT_TRUE(defaultMode.showToolbar);
+    // Leaving fullscreen loads the default view mode: the menu bar must stay hidden
+    ASSERT_TRUE(settings.loadViewMode(PresetViewModeIds::VIEW_MODE_DEFAULT));
+    EXPECT_FALSE(settings.isMenubarVisible());
+    // Other settings and the toolbar choice are kept; the window switches the toolbar once
+    EXPECT_EQ(settings.getSidebarWidth(), 222);
+    EXPECT_EQ(settings.getSelectedToolbar(), "Portrait");
+    EXPECT_TRUE(settings.consumePendingToolbarMigration());
+    EXPECT_FALSE(settings.consumePendingToolbarMigration());
+    // The migration saves the file: user data loaded from it must not be replaced by defaults
+    EXPECT_EQ(settings.getButtonConfig(BUTTON_MOUSE_RIGHT)->getAction(), TOOL_HAND);
+    EXPECT_EQ(settings.getDeviceClassForDevice("Test Tablet", GDK_SOURCE_PEN), static_cast<InputDeviceTypeOption>(2));
+
+    // The migration was saved: loading again does not migrate a second time
+    Settings reloaded(outPath);
+    ASSERT_TRUE(reloaded.load());
+    EXPECT_EQ(reloaded.getUiLayoutVersion(), UI_LAYOUT_VERSION);
+    EXPECT_FALSE(reloaded.isMenubarVisible());
+    EXPECT_FALSE(reloaded.consumePendingToolbarMigration());
+    EXPECT_EQ(reloaded.getButtonConfig(BUTTON_MOUSE_RIGHT)->getAction(), TOOL_HAND);
+    EXPECT_EQ(reloaded.getDeviceClassForDevice("Test Tablet", GDK_SOURCE_PEN), static_cast<InputDeviceTypeOption>(2));
 
     fs::remove(outPath);
 }

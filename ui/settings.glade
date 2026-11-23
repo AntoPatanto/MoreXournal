@@ -2962,7 +2962,7 @@ This setting can make it easier to draw with touch.</property>
                                             <property name="halign">start</property>
                                             <child>
                                               <object class="GtkCheckButton" id="cbHideMenubarStartup">
-                                                <property name="label" translatable="yes">Show Menubar on Startup</property>
+                                                <property name="label" translatable="yes">Always show the menu bar</property>
                                                 <property name="name">cbHideMenubarStartup</property>
                                                 <property name="visible">True</property>
                                                 <property name="can-focus">True</property>
@@ -2980,7 +2980,7 @@ This setting can make it easier to draw with touch.</property>
                                                 <property name="visible">True</property>
                                                 <property name="can-focus">False</property>
                                                 <property name="margin-start">5</property>
-                                                <property name="label" translatable="yes">&lt;i&gt;Toggle visibility of menubar with F10&lt;/i&gt;</property>
+                                                <property name="label" translatable="yes">&lt;i&gt;Otherwise press Alt to show it. F10 toggles it.&lt;/i&gt;</property>
                                                 <property name="use-markup">True</property>
                                               </object>
                                               <packing>
@@ -3024,6 +3024,21 @@ This setting can make it easier to draw with touch.</property>
                                             <property name="expand">False</property>
                                             <property name="fill">True</property>
                                             <property name="position">2</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkCheckButton" id="cbUseCSD">
+                                            <property name="label" translatable="yes">Show the tools in the window title bar (restart required)</property>
+                                            <property name="name">cbUseCSD</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="draw-indicator">True</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">3</property>
                                           </packing>
                                         </child>
                                       </object>

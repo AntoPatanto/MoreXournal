@@ -24,6 +24,7 @@
 #include <glib.h>         // for gchar, gboolean, gint
 #include <libxml/tree.h>  // for xmlNodePtr, xmlDocPtr
 
+#include "control/ToolEnums.h"                   // for DrawingType
 #include "control/tools/StrokeStabilizerEnum.h"  // for AveragingMethod, Pre...
 #include "model/Font.h"                          // for XojFont
 #include "util/Color.h"                          // for Color
@@ -46,6 +47,10 @@ constexpr auto DEFAULT_GRID_SIZE = 14.17;
 constexpr unsigned int MAX_SPACES_FOR_TAB = 8U;
 constexpr int HOLD_TO_SHAPE_DELAY_MIN = 100;   ///< in ms
 constexpr int HOLD_TO_SHAPE_DELAY_MAX = 3000;  ///< in ms
+/// Id of the toolbar layout in toolbar.ini selected by default
+constexpr auto DEFAULT_TOOLBAR = "MoreXournal";
+/// Version of the window layout defaults. Settings files older than this are migrated in Settings::load()
+constexpr int UI_LAYOUT_VERSION = 1;
 
 class ButtonConfig;
 class InputDevice;
@@ -129,6 +134,9 @@ private:
     void saveData(xmlNodePtr root, const std::string& name, SElement& elem);
 
     void saveButtonConfig();
+
+    /// Applies the layout defaults of UI_LAYOUT_VERSION to files written by older versions
+    void migrateUiLayout();
     void loadButtonConfig();
 
 public:
@@ -168,6 +176,22 @@ public:
      */
     void setSelectedToolbar(const std::string& name);
     std::string const& getSelectedToolbar() const;
+
+    /**
+     * True once after loading a settings file written before UI_LAYOUT_VERSION 1: the window should switch from a
+     * predefined toolbar layout to the new default one. Custom layouts are kept.
+     */
+    bool consumePendingToolbarMigration();
+
+    int getUiLayoutVersion() const;
+
+    /// Show the top bar as the window title bar (client-side decorations). Applied on the next start.
+    bool isUseClientSideDecorations() const;
+    void setUseClientSideDecorations(bool use);
+
+    /// The drawing type the Shapes button of the top bar selects
+    DrawingType getLastShapeType() const;
+    void setLastShapeType(DrawingType type);
 
     void setEdgePanSpeed(double speed);
     double getEdgePanSpeed() const;
@@ -750,9 +774,16 @@ private:
     bool useStockIcons{};
 
     /**
-     * If the menu bar is visible on startup
+     * If the menu bar is always visible. Otherwise a lone Alt press shows it.
      */
     bool menubarVisible{};
+
+    /// See UI_LAYOUT_VERSION
+    int uiLayoutVersion{};
+    /// Set by load() when migrating from uiLayoutVersion 0, not saved
+    bool pendingToolbarMigration{};
+    bool useClientSideDecorations{};
+    DrawingType lastShapeType{};
 
     /**
      * If the filepath is shown in titlebar

@@ -654,8 +654,10 @@ void Control::setShowSidebar(bool enabled) {
     win->setSidebarVisible(enabled);
     actionDB->setActionState(Action::SHOW_SIDEBAR, enabled);
 
-    if (settings->isSidebarVisible() != enabled &&
-        settings->getActiveViewMode() == PresetViewModeIds::VIEW_MODE_DEFAULT) {
+    // Compare with the view mode too: a stale showSidebar saved from fullscreen must not block saving
+    if (settings->getActiveViewMode() == PresetViewModeIds::VIEW_MODE_DEFAULT &&
+        (settings->isSidebarVisible() != enabled ||
+         settings->getViewModes()[PresetViewModeIds::VIEW_MODE_DEFAULT].showSidebar != enabled)) {
         settings->setSidebarVisible(enabled);
         ViewMode viewMode = settings->getViewModes()[PresetViewModeIds::VIEW_MODE_DEFAULT];
         viewMode.showSidebar = enabled;
@@ -2104,11 +2106,20 @@ void Control::updateWindowTitle() {
         }
         title += char_cast(refPath.filename().u8string());
     }
+    std::string name = _("Unsaved Document");
+    if (!refPath.empty()) {
+        name = char_cast(refPath.filename().u8string());
+    }
+    // Autosave writes a backup file, not the document: only a real save counts as saved
+    std::string status = doc->getFilepath().empty() ? _("Not saved yet") :
+                         undoRedo->isChanged()      ? _("Unsaved changes") :
+                                                      _("Saved");
     this->doc->unlock_shared();
 
     title += " - MoreXournal";
 
     gtk_window_set_title(getGtkWindow(), title.c_str());
+    win->setDocumentTitle(name, status);
 }
 
 static fs::path createExportFilePath(Document* doc, const Settings* settings) {
@@ -2369,9 +2380,10 @@ auto Control::loadViewMode(ViewModeId mode) -> bool {
     if (!settings->loadViewMode(mode)) {
         return false;
     }
-    this->win->setMenubarVisible(settings->isMenubarVisible());
-    this->win->setToolbarVisible(settings->isToolbarVisible());
-    this->win->setSidebarVisible(settings->isSidebarVisible());
+    setShowMenubar(settings->isMenubarVisible());
+    // Also keeps the toggles bound to these actions (the top bar's sidebar button, the View menu) in sync
+    setShowToolbar(settings->isToolbarVisible());
+    setShowSidebar(settings->isSidebarVisible());
     setFullscreen(settings->isFullscreen());
     return false;
 }
