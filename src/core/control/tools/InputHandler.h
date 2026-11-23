@@ -89,8 +89,9 @@ public:
 
     Stroke* getStroke() const;
 
-    /// The shape stroke this handler added to the page on the last button release, if any. Owned by the layer.
-    Stroke* getCreatedShape() const;
+    /// The stroke this handler added on the last button release that should stay selected (a drawn shape or an
+    /// automatically recognized stroke), if any. Owned by the layer.
+    Stroke* getStrokeToSelect() const;
 
 protected:
     [[nodiscard]] static std::unique_ptr<Stroke> createStroke(Control* control);
@@ -109,5 +110,5 @@ protected:
 
     std::unique_ptr<Stroke> stroke;
 
-    Stroke* createdShape = nullptr;
+    Stroke* strokeToSelect = nullptr;
 };

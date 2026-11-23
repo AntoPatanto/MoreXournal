@@ -258,6 +258,9 @@ public:
     // selection handling
     void clearSelection();
 
+    /// Duplicate every element of the current selection on the active layer, shifted by 10 pt, and select the copies
+    void duplicateSelection();
+
     /// Close the selection if it is transient (the handles of a shape just drawn), so that a change of the toolbar
     /// applies to the tool and not to that shape
     void dismissTransientSelection();

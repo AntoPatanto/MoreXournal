@@ -1,11 +1,12 @@
 #include "Control.h"
 
-#include <algorithm>  // for max
-#include <cstdlib>    // for size_t
-#include <exception>  // for exce...
+#include <algorithm>   // for max
+#include <cstdlib>     // for size_t
+#include <exception>   // for exce...
 #include <functional>  // for bind
 #include <iterator>    // for end
 #include <memory>      // for make...
+#include <mutex>       // for lock_guard
 #include <optional>    // for opti...
 #include <regex>       // for regex
 #include <string>      // for string
@@ -101,6 +102,7 @@
 #include "util/PathUtil.h"                                       // for clea...
 #include "util/PlaceholderString.h"                              // for Plac...
 #include "util/PopupWindowWrapper.h"                             // for PopupWindowWrapper
+#include "util/Range.h"                                          // for Range
 #include "util/Stacktrace.h"                                     // for Stac...
 #include "util/StringUtils.h"                                    // for char_cast
 #include "util/Util.h"                                           // for exec...
@@ -2598,6 +2600,63 @@ void Control::deleteSelection() {
     if (win) {
         win->getXournal()->deleteSelection();
     }
+}
+
+void Control::duplicateSelection() {
+    if (!this->win) {
+        return;
+    }
+    XournalView* xournal = this->win->getXournal();
+    EditSelection* sel = xournal ? xournal->getSelection() : nullptr;
+    if (!sel) {
+        return;
+    }
+
+    sel->setGrabPointToCenter();
+    XojPageView* view = sel->getDestinationView();
+    const bool transient = sel->isTransient();
+    const std::vector<const Element*> originals = sel->getElementsView().clone();
+    if (originals.empty()) {
+        return;
+    }
+
+    // Finalize the selection first so pending moves, scaling and rotation are applied to the originals before cloning
+    xournal->clearSelection();  // Deletes sel
+
+    const PageRef page = view->getPage();
+    constexpr double DUPLICATE_OFFSET = 10.0;
+    Layer* layer = nullptr;
+    std::vector<const Element*> copyPtrs;
+    copyPtrs.reserve(originals.size());
+    InsertionOrderRef inserted;
+    inserted.reserve(originals.size());
+    Range copyBounds;
+    {
+        std::lock_guard lock(*this->doc);
+        layer = page->getSelectedLayer();
+        Element::Index pos = static_cast<Element::Index>(layer->getElements().size());
+        for (const Element* orig: originals) {
+            ElementPtr copy = orig->clone();
+            copy->move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
+            const Element* ptr = copy.get();
+            copyBounds = copyBounds.unite(Range(ptr->getBoundingBox()));
+            // On top, where redo of InsertUndoAction / InsertsUndoAction puts elements back
+            layer->addElement(std::move(copy));
+            copyPtrs.push_back(ptr);
+            inserted.emplace_back(ptr, pos++);
+        }
+    }
+
+    if (copyPtrs.size() == 1) {
+        this->undoRedo->addUndoAction(std::make_unique<InsertUndoAction>(page, layer, copyPtrs.front()));
+    } else {
+        this->undoRedo->addUndoAction(std::make_unique<InsertsUndoAction>(page, layer, std::move(copyPtrs)));
+    }
+    page->fireRangeChanged(copyBounds);
+
+    auto newSel = SelectionFactory::createFromElementsOnActiveLayer(this, page, view, std::move(inserted));
+    newSel->setTransient(transient);
+    xournal->setSelection(newSel.release());
 }
 
 void Control::clearSelection() {

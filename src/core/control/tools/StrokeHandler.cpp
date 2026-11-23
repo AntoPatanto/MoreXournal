@@ -23,7 +23,6 @@
 #include "model/Element.h"
 #include "model/Layer.h"                                    // for Layer
 #include "model/LineStyle.h"                                // for LineStyle
-#include "model/ShapeInfo.h"                                // for ShapeInfo, ShapeType
 #include "model/Stroke.h"                                   // for Stroke, STROKE_...
 #include "model/XojPage.h"                                  // for XojPage
 #include "undo/InsertUndoAction.h"                          // for InsertUndoAction
@@ -214,7 +213,7 @@ void StrokeHandler::onButtonReleaseEvent(const PositionInputData& pos, double zo
         auto recognized = reco.recognizePatterns(stroke.get(), control->getSettings()->getStrokeRecognizerMinSize());
 
         if (recognized) {
-            // This drawing type keeps producing plain strokes
+            // Automatically recognized shapes become plain strokes
             recognized->clearShape();
             // strokeRecognizerDetected handles the repainting and the deletion of the views.
             strokeRecognizerDetected(std::move(recognized), layer);
@@ -234,8 +233,8 @@ void StrokeHandler::onButtonReleaseEvent(const PositionInputData& pos, double zo
 
     page->fireElementChanged(ptr);
 
-    if (convertedToShape && ptr->getShape()) {
-        createdShape = ptr;
+    if (convertedToShape) {
+        strokeToSelect = ptr;
     }
 }
 
@@ -265,6 +264,8 @@ void StrokeHandler::strokeRecognizerDetected(std::unique_ptr<Stroke> recognized,
     // gets displayed instead of the old one).
     this->viewPool->dispatchAndClear(xoj::view::StrokeToolView::FINALIZATION_REQUEST, range);
     page->fireElementChanged(recognizedPtr);
+
+    strokeToSelect = recognizedPtr;
 }
 
 auto StrokeHandler::getRecognizedWidth() const -> double {
@@ -306,12 +307,7 @@ void StrokeHandler::snapRecognizedLine(Stroke& recognized) const {
         second = snappingHandler.snapRotation(second, first, false);
     }
 
-    ShapeInfo info{ShapeType::LINE, {first.getPosition(), second.getPosition()}};
-    if (recognized.getShape() && info.isValid()) {
-        recognized.setShape(std::move(info));
-    } else {
-        recognized.setPointVector({first, second});
-    }
+    recognized.setPointVector({first, second});
 }
 
 void StrokeHandler::restartHoldTimer() {
@@ -346,6 +342,8 @@ void StrokeHandler::tryConvertToShape() {
     } else if (control->getSettings()->getSnapRecognizedShapesEnabled()) {
         snapRecognizedBoundsToGrid(*recognized);
     }
+    // Hold-to-shape produces a plain stroke (selected transiently on release) rather than a shape object
+    recognized->clearShape();
 
     Range dirtyRange = Range(stroke->getBoundingBox()).unite(Range(recognized->getBoundingBox()));
     stroke = std::move(recognized);

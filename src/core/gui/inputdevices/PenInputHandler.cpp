@@ -144,7 +144,7 @@ auto PenInputHandler::actionStart(InputEvent const& event) -> bool {
             return true;
         }
         if (currentPage) {
-            // A press outside of the handles of a shape just drawn dismisses them and starts the next stroke at once
+            // A press outside of a transient selection dismisses it and starts the next stroke at once
             const bool wasTransient = selection->isTransient();
             xournal->view->clearSelection();
             changeTool(event);

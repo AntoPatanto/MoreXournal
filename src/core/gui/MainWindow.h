@@ -78,6 +78,9 @@ public:
     /// Shows the new recent colors in the tool pill
     void updateRecentColors();
 
+    /// Updates the tool pill when a selection appears or disappears
+    void onSelectionChanged();
+
     void updatePageNumbers(size_t page, size_t pagecount, size_t pdfpage);
 
     /// Shows the document name and its save state in the top bar

@@ -234,6 +234,8 @@ void TopBar::createEnd() {
 
     gtk_container_add(GTK_CONTAINER(box),
                       newActionButton(gtk_button_new(), Action::NEW_PAGE_AFTER, "mx-page-add-symbolic", _("New page")));
+    gtk_container_add(GTK_CONTAINER(box), newActionButton(gtk_toggle_button_new(), Action::FULLSCREEN,
+                                                          "mx-fullscreen-symbolic", _("Fullscreen")));
     gtk_widget_show_all(box);
 }
 

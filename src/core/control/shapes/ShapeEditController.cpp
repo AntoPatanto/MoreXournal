@@ -13,7 +13,6 @@
 #include "model/Layer.h"                  // for Layer
 #include "model/Stroke.h"                 // for Stroke
 #include "model/XojPage.h"                // for XojPage
-#include "undo/InsertUndoAction.h"        // for InsertUndoAction
 #include "undo/ShapeEditUndoAction.h"     // for ShapeEditUndoAction
 #include "undo/UndoRedoHandler.h"         // for UndoRedoHandler
 #include "util/Assert.h"                  // for xoj_assert
@@ -22,9 +21,6 @@
 #include "util/i18n.h"                    // for _
 
 namespace {
-/// Offset of a duplicate from its original, in points
-constexpr double DUPLICATE_OFFSET = 10;
-
 struct Committed {
     Stroke* stroke;
     XojPageView* view;  ///< The view of the page the stroke is on now
@@ -94,21 +90,6 @@ void ShapeEditController::convertToStroke(Control* control, EditSelection* sel) 
 }
 
 void ShapeEditController::duplicate(Control* control, EditSelection* sel) {
-    const Committed c = commit(control, sel);
-    const PageRef page = c.view->getPage();
-
-    auto copy = c.stroke->cloneStroke();
-    copy->move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
-    Stroke* ptr = copy.get();
-    Layer* layer = nullptr;
-    {
-        std::lock_guard lock(*control->getDocument());
-        layer = page->getSelectedLayer();
-        // On top, where the redo of InsertUndoAction puts it back
-        layer->addElement(std::move(copy));
-    }
-    control->getUndoRedoHandler()->addUndoAction(std::make_unique<InsertUndoAction>(page, layer, ptr));
-    page->fireElementChanged(ptr);
-
-    select(control, c.view, ptr, c.transient);
+    xoj_assert(sel && sel == control->getWindow()->getXournal()->getSelection());
+    control->duplicateSelection();
 }
