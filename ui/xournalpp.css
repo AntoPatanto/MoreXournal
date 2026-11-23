@@ -349,7 +349,7 @@ window.compact .mx-topbar .mx-page-label {
 /* GTK scales an oversized radius down to half the height, so the ends stay semicircles at any pill height */
 .mx-pill {
 	border-radius: 9999px;
-	padding: 4px 10px;
+	padding: 4px;
 	min-height: 36px;
 }
 
@@ -455,6 +455,31 @@ popover.background.mx-popover .mx-seg button.flat:checked {
 	background-color: @mx_seg_checked;
 	color: @mx_accent_text;
 	box-shadow: 0 1px 2px @mx_shadow;
+}
+
+/* Round the outer side of the first and last pill controls to follow the pill's semicircular ends */
+#toolPill > box > button.flat:not(.mx-swatch):first-child,
+#toolPill > box > box:not(.mx-seg):first-child > button.flat:not(.mx-swatch):first-child,
+#toolPill > box > .mx-seg:first-child > button.flat:first-child {
+	border-top-left-radius: 18px;
+	border-bottom-left-radius: 18px;
+}
+
+#toolPill > box > button.flat:not(.mx-swatch):last-child,
+#toolPill > box > box:not(.mx-seg):last-child > button.flat:not(.mx-swatch):last-child,
+#toolPill > box > .mx-seg:last-child > button.flat:last-child {
+	border-top-right-radius: 18px;
+	border-bottom-right-radius: 18px;
+}
+
+#toolPill > box > .mx-seg:first-child {
+	border-top-left-radius: 20px;
+	border-bottom-left-radius: 20px;
+}
+
+#toolPill > box > .mx-seg:last-child {
+	border-top-right-radius: 20px;
+	border-bottom-right-radius: 20px;
 }
 
 /* Colour swatches: circular dots with an indigo selection ring */
