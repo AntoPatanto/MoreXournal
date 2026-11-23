@@ -32,6 +32,14 @@ TEST(ToolPillLogicTest, testOnlyThePenHasAutomaticShapes) {
     }
 }
 
+TEST(ToolPillLogicTest, testSelectionActionsBitIsAddedOnlyBySelectionState) {
+    for (auto g: {ToolGroup::PEN, ToolGroup::HIGHLIGHTER, ToolGroup::ERASER, ToolGroup::SELECTION, ToolGroup::SHAPES,
+                  ToolGroup::TEXT, ToolGroup::IMAGE, ToolGroup::HAND, ToolGroup::NONE}) {
+        EXPECT_EQ(sectionsFor(g, {true, true, true, true}) & SELECTION_ACTIONS, 0U) << static_cast<int>(g);
+    }
+    EXPECT_GT(static_cast<uint32_t>(SELECTION_ACTIONS), static_cast<uint32_t>(HAND_HINT));
+}
+
 TEST(ToolPillLogicTest, testCapabilitiesForSelectionAndToolsWithoutButton) {
     // Fixed top-bar groups other than selection ignore capabilities
     EXPECT_EQ(sectionsFor(ToolGroup::ERASER, {true, true, true, true}), ERASER_OPTIONS);

@@ -647,6 +647,9 @@ void XournalView::clearSelection() {
     getCursor()->setMouseSelectionType(CURSOR_SELECTION_NONE);
     control->getToolHandler()->setSelectionEditTools(false, false, false, false);
     updateShapeToolbox();
+    if (MainWindow* win = control->getWindow()) {
+        win->onSelectionChanged();
+    }
 }
 
 void XournalView::updateShapeToolbox() {
@@ -717,6 +720,9 @@ void XournalView::setSelection(EditSelection* selection) {
     control->getToolHandler()->setSelectionEditTools(canChangeColor, canChangeSize, canChangeFill, canChangeLineStyle);
 
     repaintSelection();
+    if (MainWindow* win = control->getWindow()) {
+        win->onSelectionChanged();
+    }
 }
 
 void XournalView::repaintSelection(bool evenWithoutSelection) {

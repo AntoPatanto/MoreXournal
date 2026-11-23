@@ -344,20 +344,7 @@ ToolPill::ToolPill(Control* control): control(control) {
     // The action callbacks change the tool after the state: coalesce multiple action updates at high idle priority
     // so the pill rebuilds before the next frame is drawn (avoiding starvation by button transition animations)
     ActionDatabase* db = control->getActionDatabase();
-    auto onStateChanged = +[](GObject*, GParamSpec*, gpointer self) {
-        auto* p = static_cast<ToolPill*>(self);
-        if (p->pendingUpdate == 0) {
-            p->pendingUpdate = g_idle_add_full(
-                    G_PRIORITY_HIGH_IDLE,
-                    +[](gpointer self) -> gboolean {
-                        auto* p = static_cast<ToolPill*>(self);
-                        p->pendingUpdate = 0;
-                        p->onToolChanged();
-                        return G_SOURCE_REMOVE;
-                    },
-                    self, nullptr);
-        }
-    };
+    auto onStateChanged = +[](GObject*, GParamSpec*, gpointer self) { static_cast<ToolPill*>(self)->scheduleUpdate(); };
     for (Action a: TOOL_ACTIONS) {
         ActionRef action = db->getAction(a);
         gulong id = g_signal_connect(action.get(), "notify::state", G_CALLBACK(onStateChanged), this);
@@ -383,6 +370,23 @@ ToolPill::~ToolPill() {
 
 GtkWidget* ToolPill::getWidget() const { return pill.get(); }
 
+void ToolPill::onSelectionChanged() { scheduleUpdate(); }
+
+void ToolPill::scheduleUpdate() {
+    if (pendingUpdate != 0) {
+        return;
+    }
+    pendingUpdate = g_idle_add_full(
+            G_PRIORITY_HIGH_IDLE,
+            +[](gpointer self) -> gboolean {
+                auto* p = static_cast<ToolPill*>(self);
+                p->pendingUpdate = 0;
+                p->onToolChanged();
+                return G_SOURCE_REMOVE;
+            },
+            this, nullptr);
+}
+
 void ToolPill::onToolChanged() {
     ToolHandler* th = control->getToolHandler();
     const ToolType tool = th->getToolType();
@@ -397,7 +401,10 @@ void ToolPill::onToolChanged() {
                     pill::Capabilities{} :
                     pill::Capabilities{th->hasCapability(TOOL_CAP_COLOR), th->hasCapability(TOOL_CAP_SIZE),
                                        th->hasCapability(TOOL_CAP_FILL), th->hasCapability(TOOL_CAP_LINE_STYLE)};
-    const uint32_t sections = pill::sectionsFor(group, caps);
+    uint32_t sections = pill::sectionsFor(group, caps);
+    if (sel) {
+        sections |= pill::SELECTION_ACTIONS;
+    }
 
     // The thickness values differ between tools without a button, so their content is rebuilt on any tool change
     if (built && group == shownGroup && sections == shownSections && (group != ToolGroup::NONE || tool == shownTool)) {
@@ -452,6 +459,7 @@ void ToolPill::rebuild() {
                            false, false, 0);
     });
     section(pill::HAND_HINT, [&] { addHint(box, _("Drag the page to move it")); });
+    section(pill::SELECTION_ACTIONS, [&] { addSelectionActions(box); });
 
     gtk_container_add(GTK_CONTAINER(pill.get()), content);
     gtk_widget_show_all(content);
@@ -518,12 +526,19 @@ void ToolPill::addSelectionModes(GtkBox* box) {
     }
     gtk_widget_show_all(GTK_WIDGET(pop));
     gtk_box_pack_start(box, more, false, false, 0);
+}
 
-    gtk_box_pack_start(box, newSeparator(), false, false, 0);
-    gtk_box_pack_start(box,
-                       newTargetToggle(Action::SELECT_TOOL, TOOL_VERTICAL_SPACE, _("Vertical Space"),
-                                       "mx-vertical-space-symbolic"),
-                       false, false, 0);
+void ToolPill::addSelectionActions(GtkBox* box) {
+    GtkWidget* dup = prepareButton(gtk_button_new(), _("Duplicate"));
+    gtk_button_set_image(GTK_BUTTON(dup), newIcon("mx-copy-symbolic"));
+    g_signal_connect(dup, "clicked",
+                     G_CALLBACK(+[](GtkButton*, gpointer ctrl) { static_cast<Control*>(ctrl)->duplicateSelection(); }),
+                     control);
+    gtk_box_pack_start(box, dup, false, false, 0);
+
+    GtkWidget* del = newActionButton(gtk_button_new(), Action::DELETE, nullptr, "mx-trash-symbolic", _("Delete"));
+    addClass(del, "destructive");
+    gtk_box_pack_start(box, del, false, false, 0);
 }
 
 void ToolPill::addEraserOptions(GtkBox* box) {

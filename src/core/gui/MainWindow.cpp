@@ -936,6 +936,12 @@ void MainWindow::updateRecentColors() {
     }
 }
 
+void MainWindow::onSelectionChanged() {
+    if (floatingTools) {
+        floatingTools->onSelectionChanged();
+    }
+}
+
 auto MainWindow::getSelectedToolbar() const -> ToolbarData* { return this->selectedToolbar; }
 
 auto MainWindow::getToolbarWidgets() const -> const ToolbarWidgetArray& { return toolbarWidgets; }

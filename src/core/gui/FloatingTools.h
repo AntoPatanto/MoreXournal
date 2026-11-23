@@ -43,6 +43,9 @@ public:
     /// Shows the new recent colors in the tool options
     void updateRecentColors();
 
+    /// Updates the tool pill when a selection appears or disappears
+    void onSelectionChanged();
+
 private:
     GtkWidget* createZoom();
     GtkWidget* createLayer();

@@ -46,7 +46,12 @@ public:
     /// Shows the current recent colors, if the content has colors
     void updateColors();
 
+    /// Updates the pill when a selection appears or disappears
+    void onSelectionChanged();
+
 private:
+    /// Coalesces tool and selection updates onto the next high-priority idle turn
+    void scheduleUpdate();
     /// Rebuilds the content if the active tool needs other options than the shown ones
     void onToolChanged();
     void updateThickness();
@@ -54,6 +59,7 @@ private:
     void addToolName(GtkBox* box, ToolType tool);
     void addShapeTypes(GtkBox* box);
     void addSelectionModes(GtkBox* box);
+    void addSelectionActions(GtkBox* box);
     void addEraserOptions(GtkBox* box);
     void addFont(GtkBox* box);
     void addColors(GtkBox* box);
