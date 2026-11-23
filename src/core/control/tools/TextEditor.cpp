@@ -303,6 +303,8 @@ TextEditor::TextEditor(Control* control, const PageRef& page, GtkWidget* xournal
 }
 
 TextEditor::~TextEditor() {
+    // An asynchronous paste keeps the buffer alive and can emit its signals after the editor is gone
+    g_signal_handlers_disconnect_by_data(this->buffer.get(), this);
     gtk_im_context_focus_out(this->imContext.get());
 
     this->xournalWidget = nullptr;
@@ -337,6 +339,10 @@ void TextEditor::replaceBufferContent(const std::string& text) {
 
 void TextEditor::setColor(Color color) {
     this->textElement->setColor(color);
+    // Once something was typed, the box uses the new colour: move it to the front too
+    if (this->colorRecorded) {
+        this->control->recordUsedColor(*this->textElement);
+    }
     repaintEditor(false);
 }
 
