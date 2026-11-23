@@ -14,7 +14,7 @@
 #include "util/Point.h"  // for Point
 
 /// Movements up to this distance (in screen pixels) do not count as moving the pen
-constexpr double HOLD_TO_SHAPE_TOLERANCE_PX = 5.0;
+constexpr double HOLD_TO_SHAPE_TOLERANCE_PX = 8.0;
 
 /**
  * @brief Tells whether the input device moved away from an anchor point.

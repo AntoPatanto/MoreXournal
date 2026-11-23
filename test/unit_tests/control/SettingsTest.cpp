@@ -86,7 +86,7 @@ TEST(SettingsTest, testReadWrite) {
 TEST(SettingsTest, testHoldToShapeDefaults) {
     Settings settings{"non-existing-file-path"};
     EXPECT_TRUE(settings.isHoldToShapeEnabled());
-    EXPECT_EQ(settings.getHoldToShapeDelay(), 500);
+    EXPECT_EQ(settings.getHoldToShapeDelay(), 400);
 }
 
 TEST(SettingsTest, testHoldToShapeDelayIsClamped) {

@@ -164,7 +164,7 @@ void Settings::loadDefault() {
 
     this->strokeRecognizerMinSize = 40;
     this->holdToShapeEnabled = true;
-    this->holdToShapeDelay = 500;
+    this->holdToShapeDelay = 400;
 
     this->touchDrawing = false;
     this->gtkTouchInertialScrolling = true;
