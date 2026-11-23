@@ -119,6 +119,7 @@ void Settings::loadDefault() {
     this->pendingToolbarMigration = false;
     this->useClientSideDecorations = true;
     this->lastShapeType = DRAWING_TYPE_RECTANGLE;
+    this->recentColors = {};
 
     this->autoloadMostRecent = false;
     this->autoloadPdfXoj = true;
@@ -496,6 +497,8 @@ void Settings::parseItem(xmlDocPtr doc, xmlNodePtr cur) {
         if (xoj::topbar::isShapeDrawingType(type)) {
             this->lastShapeType = type;
         }
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("recentColors")) == 0) {
+        this->recentColors = xoj::toolpill::RecentColors::fromString(reinterpret_cast<const char*>(value));
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("numColumns")) == 0) {
         this->numColumns = g_ascii_strtoll(reinterpret_cast<const char*>(value), nullptr, 10);
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("numRows")) == 0) {
@@ -1091,6 +1094,7 @@ void Settings::save() {
     SAVE_INT_PROP(uiLayoutVersion);
     SAVE_BOOL_PROP(useClientSideDecorations);
     xmlNode = saveProperty("lastShapeType", drawingTypeToString(lastShapeType).data(), root);
+    xmlNode = saveProperty("recentColors", recentColors.toString().c_str(), root);
     SAVE_BOOL_PROP(filepathShownInTitlebar);
     SAVE_BOOL_PROP(pageNumberShownInTitlebar);
     SAVE_INT_PROP(numColumns);
@@ -1737,6 +1741,16 @@ void Settings::setLastShapeType(DrawingType type) {
     }
     this->lastShapeType = type;
     save();
+}
+
+auto Settings::getRecentColors() const -> const xoj::toolpill::RecentColors& { return this->recentColors; }
+
+auto Settings::pushRecentColor(Color color) -> bool {
+    if (!this->recentColors.push(color)) {
+        return false;
+    }
+    save();
+    return true;
 }
 
 void Settings::setHoldToShapeEnabled(bool enabled) {

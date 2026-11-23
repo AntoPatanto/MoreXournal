@@ -1221,6 +1221,7 @@ void TextEditor::finalizeEdition() {
         this->viewPool->dispatchAndClear(xoj::view::TextEditionView::FINALIZATION_REQUEST, this->previousBoundingBox);
         this->page->fireElementChanged(ptr);
         undo->addUndoAction(std::make_unique<InsertUndoAction>(page, layer, ptr));
+        this->control->recordUsedColor(*ptr);
     }
 }
 

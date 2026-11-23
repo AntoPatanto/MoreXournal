@@ -328,6 +328,12 @@ public:
     const Palette& getPalette() const;
 
     /**
+     * Records the color of a stroke or text the user just finished drawing or writing, so the tool pill shows it
+     * among the recent colors. Eraser strokes are ignored. Not for pasted, loaded or undone elements.
+     */
+    void recordUsedColor(const Element& e);
+
+    /**
      * Show floating toolbox at specified coordinates
      * @param x x coordinate relative to main window
      * @param y y coordinate relative to main window

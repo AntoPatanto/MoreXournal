@@ -930,6 +930,12 @@ void MainWindow::reloadToolbars() {
     }
 }
 
+void MainWindow::updateRecentColors() {
+    if (floatingTools) {
+        floatingTools->updateRecentColors();
+    }
+}
+
 auto MainWindow::getSelectedToolbar() const -> ToolbarData* { return this->selectedToolbar; }
 
 auto MainWindow::getToolbarWidgets() const -> const ToolbarWidgetArray& { return toolbarWidgets; }

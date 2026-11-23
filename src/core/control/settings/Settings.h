@@ -26,6 +26,7 @@
 
 #include "control/ToolEnums.h"                   // for DrawingType
 #include "control/tools/StrokeStabilizerEnum.h"  // for AveragingMethod, Pre...
+#include "gui/RecentColors.h"                    // for RecentColors
 #include "model/Font.h"                          // for XojFont
 #include "util/Color.h"                          // for Color
 
@@ -192,6 +193,11 @@ public:
     /// The drawing type the Shapes button of the top bar selects
     DrawingType getLastShapeType() const;
     void setLastShapeType(DrawingType type);
+
+    /// The colors the tool pill shows after black, most recent first
+    const xoj::toolpill::RecentColors& getRecentColors() const;
+    /// Records a color the user finished a stroke or an element with. Returns whether the recent colors changed.
+    bool pushRecentColor(Color color);
 
     void setEdgePanSpeed(double speed);
     double getEdgePanSpeed() const;
@@ -784,6 +790,7 @@ private:
     bool pendingToolbarMigration{};
     bool useClientSideDecorations{};
     DrawingType lastShapeType{};
+    xoj::toolpill::RecentColors recentColors;
 
     /**
      * If the filepath is shown in titlebar
