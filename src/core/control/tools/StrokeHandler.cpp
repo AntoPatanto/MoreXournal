@@ -207,7 +207,7 @@ void StrokeHandler::onButtonReleaseEvent(const PositionInputData& pos, double zo
 
     ToolHandler* h = control->getToolHandler();
     if (!convertedToShape && h->getDrawingType() == DRAWING_TYPE_SHAPE_RECOGNIZER) {
-        ShapeRecognizer reco;
+        ShapeRecognizer reco(shapeRecognizerParams);
 
         auto recognized = reco.recognizePatterns(stroke.get(), control->getSettings()->getStrokeRecognizerMinSize());
 
@@ -327,7 +327,7 @@ void StrokeHandler::tryConvertToShape() {
     auto probe = stroke->cloneStroke();
     probe->addPoint(lastRawPos);
 
-    ShapeRecognizer reco;
+    ShapeRecognizer reco(shapeRecognizerParams);
     auto recognized = reco.recognizePatterns(probe.get(), control->getSettings()->getStrokeRecognizerMinSize());
     if (!recognized) {
         // Keep drawing normally. The next movement re-arms the detector.
@@ -374,6 +374,7 @@ void StrokeHandler::onButtonPressEvent(const PositionInputData& pos, double zoom
 
     ToolHandler* h = control->getToolHandler();
     Settings* settings = control->getSettings();
+    shapeRecognizerParams = settings->getShapeRecognizerParams();
     // Only for freehand pen and highlighter strokes: not for the laser pointer nor the whiteout eraser. The shape
     // recognizer drawing type already converts strokes on release.
     holdToShapeEnabled = settings->isHoldToShapeEnabled() &&
@@ -381,6 +382,7 @@ void StrokeHandler::onButtonPressEvent(const PositionInputData& pos, double zoom
                          h->getDrawingType() != DRAWING_TYPE_SHAPE_RECOGNIZER;
     if (holdToShapeEnabled) {
         holdToShapeDelay = static_cast<unsigned int>(settings->getHoldToShapeDelay());
+        holdDetector.setTolerancePx(settings->getHoldToShapeTolerancePx());
         lastRawPos = Point(this->buttonDownPoint.x, this->buttonDownPoint.y);
         holdDetector.start({lastRawPos.x, lastRawPos.y});
         restartHoldTimer();

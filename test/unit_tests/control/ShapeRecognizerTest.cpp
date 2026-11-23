@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 
 #include "control/shaperecognizer/ShapeRecognizer.h"
+#include "control/shaperecognizer/ShapeSensitivityLogic.h"
 #include "model/Point.h"
 #include "model/ShapeInfo.h"
 #include "model/Stroke.h"
@@ -163,4 +164,82 @@ TEST(ShapeRecognizerTest, recognizedStrokesCarryTheirShape) {
             EXPECT_NEAR(p[i].y, q[i].y, 1e-6);
         }
     }
+}
+
+TEST(ShapeRecognizerTest, wobblyLineRespondsToStrictAndTolerantParams) {
+    // Gently bowed stroke: curvature det around 0.025 (rejected at strict 0.005, accepted at tolerant 0.045)
+    auto stroke = std::make_unique<Stroke>();
+    for (int i = 0; i <= 100; i++) {
+        const double t = static_cast<double>(i) / 100.0;
+        const double x = 200.0 * t;
+        const double y = 14.0 * std::sin(M_PI * t);
+        stroke->addPoint(Point(x, y));
+    }
+
+    ShapeRecognizer strictReco(xoj::shapes::paramsForSensitivity(0));
+    ShapeRecognizerDiagnostics strictDiag;
+    EXPECT_EQ(strictReco.recognizePatterns(stroke.get(), MIN_SIZE, &strictDiag), nullptr);
+    EXPECT_EQ(strictDiag.shape, RecognizedShapeKind::None);
+    EXPECT_FALSE(strictDiag.reasons.empty());
+
+    ShapeRecognizer tolerantReco(xoj::shapes::paramsForSensitivity(100));
+    ShapeRecognizerDiagnostics tolerantDiag;
+    auto recognized = tolerantReco.recognizePatterns(stroke.get(), MIN_SIZE, &tolerantDiag);
+    ASSERT_NE(recognized, nullptr);
+    EXPECT_EQ(recognized->getPointCount(), 2U);
+    EXPECT_EQ(tolerantDiag.shape, RecognizedShapeKind::Line);
+}
+
+TEST(ShapeRecognizerTest, imperfectCircleRespondsToStrictAndTolerantParams) {
+    // Slightly oval circle (rx=60, ry=48): det is around 0.90 (below strict 0.985, above tolerant 0.85)
+    auto stroke = std::make_unique<Stroke>();
+    for (int i = 0; i <= 120; i++) {
+        const double angle = 2.0 * M_PI * i / 120.0;
+        stroke->addPoint(Point(100.0 + 60.0 * std::cos(angle), 100.0 + 48.0 * std::sin(angle)));
+    }
+
+    ShapeRecognizer strictReco(xoj::shapes::paramsForSensitivity(0));
+    ShapeRecognizerDiagnostics strictDiag;
+    EXPECT_EQ(strictReco.recognizePatterns(stroke.get(), MIN_SIZE, &strictDiag), nullptr);
+    EXPECT_EQ(strictDiag.shape, RecognizedShapeKind::None);
+    EXPECT_FALSE(strictDiag.reasons.empty());
+
+    ShapeRecognizer tolerantReco(xoj::shapes::paramsForSensitivity(100));
+    ShapeRecognizerDiagnostics tolerantDiag;
+    auto recognized = tolerantReco.recognizePatterns(stroke.get(), MIN_SIZE, &tolerantDiag);
+    ASSERT_NE(recognized, nullptr);
+    EXPECT_EQ(tolerantDiag.shape, RecognizedShapeKind::Circle);
+}
+
+TEST(ShapeRecognizerTest, slantToleranceControlsAxisStraightening) {
+    // Line slanted by ~7 degrees from horizontal
+    const double angleRad = 7.0 * M_PI / 180.0;
+    auto stroke = makePolyline({Point(0, 0), Point(200.0 * std::cos(angleRad), 200.0 * std::sin(angleRad))}, 0.0);
+
+    ShapeRecognizerParams noSlant;
+    noSlant.slantToleranceDeg = 0.0;
+    ShapeRecognizer recoNoSlant(noSlant);
+    auto slanted = recoNoSlant.recognizePatterns(stroke.get(), MIN_SIZE);
+    ASSERT_NE(slanted, nullptr);
+    ASSERT_EQ(slanted->getPointCount(), 2U);
+    EXPECT_GT(std::fabs(slanted->getPoint(1).y - slanted->getPoint(0).y), 10.0);
+
+    ShapeRecognizerParams wideSlant;
+    wideSlant.slantToleranceDeg = 10.0;
+    ShapeRecognizer recoWideSlant(wideSlant);
+    auto straightened = recoWideSlant.recognizePatterns(stroke.get(), MIN_SIZE);
+    ASSERT_NE(straightened, nullptr);
+    ASSERT_EQ(straightened->getPointCount(), 2U);
+    EXPECT_NEAR(straightened->getPoint(1).y, straightened->getPoint(0).y, 1e-6);
+}
+
+TEST(ShapeRecognizerTest, diagnosticsReportTooSmallStroke) {
+    auto stroke = makePolyline({Point(0, 0), Point(15, 0)}, 0.0, 1.0);
+    ShapeRecognizer reco;
+    ShapeRecognizerDiagnostics diag;
+    EXPECT_EQ(reco.recognizePatterns(stroke.get(), MIN_SIZE, &diag), nullptr);
+    EXPECT_EQ(diag.shape, RecognizedShapeKind::None);
+    ASSERT_EQ(diag.reasons.size(), 1U);
+    EXPECT_NE(diag.reasons[0].find("15"), std::string::npos);
+    EXPECT_NE(diag.reasons[0].find("40"), std::string::npos);
 }
