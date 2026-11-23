@@ -18,20 +18,17 @@ namespace xoj::toolpill {
 
 /// The parts of the pill, as bits. The pill shows them in the order of the bits.
 enum Section : uint32_t {
-    TOOL_NAME = 1U << 0,           ///< Name of a tool without a top bar button
-    SHAPE_TYPES = 1U << 1,         ///< Rectangle, ellipse, arrow... of the pen
-    SELECTION_MODES = 1U << 2,     ///< Lasso, rectangle, object and the other selection tools
-    ERASER_OPTIONS = 1U << 3,      ///< Eraser type and size
-    FONT = 1U << 4,                ///< Font of the text tool
-    COLORS = 1U << 5,              ///< Palette colors and the color chooser
-    THICKNESS = 1U << 6,           ///< Button with the thickness popover
-    LINE_STYLE = 1U << 7,          ///< Line styles, in the thickness popover
-    FILL = 1U << 8,                ///< Fill and fill opacity, in the thickness popover
-    TEXT_ALIGNMENT = 1U << 9,      ///< Left, centre, right, justify
-    HOLD_TO_SHAPE = 1U << 10,      ///< "Automatic shapes" switch
-    IMAGE_HINT = 1U << 11,         ///< How to insert an image, and Paste
-    HAND_HINT = 1U << 12,          ///< How to move the page
-    SELECTION_ACTIONS = 1U << 13,  ///< Duplicate and delete for the active selection
+    SHAPE_TYPES = 1U << 0,         ///< Rectangle, ellipse, arrow... of the pen
+    SELECTION_MODES = 1U << 1,     ///< Lasso, rectangle, object and the other selection tools
+    ERASER_OPTIONS = 1U << 2,      ///< Eraser type and size
+    FONT = 1U << 3,                ///< Font of the text tool
+    COLORS = 1U << 4,              ///< Palette colors and the color chooser
+    THICKNESS = 1U << 5,           ///< Button with the thickness popover
+    LINE_STYLE = 1U << 6,          ///< Line styles, in the thickness popover
+    FILL = 1U << 7,                ///< Fill and fill opacity, in the thickness popover
+    TEXT_ALIGNMENT = 1U << 8,      ///< Left, centre, right, justify
+    IMAGE_PASTE = 1U << 9,         ///< Paste button for the image tool
+    SELECTION_ACTIONS = 1U << 10,  ///< Duplicate and delete for the active selection
 };
 
 /// What the active tool (or the current selection) supports, from ToolHandler::hasCapability().
@@ -70,7 +67,7 @@ constexpr uint32_t sectionsFor(xoj::topbar::ToolGroup group, Capabilities caps =
     using xoj::topbar::ToolGroup;
     switch (group) {
         case ToolGroup::PEN:
-            return COLORS | THICKNESS | LINE_STYLE | FILL | HOLD_TO_SHAPE;
+            return COLORS | THICKNESS | LINE_STYLE | FILL;
         case ToolGroup::HIGHLIGHTER:
             return COLORS | THICKNESS | FILL;
         case ToolGroup::ERASER:
@@ -84,13 +81,13 @@ constexpr uint32_t sectionsFor(xoj::topbar::ToolGroup group, Capabilities caps =
         case ToolGroup::TEXT:
             return FONT | COLORS | TEXT_ALIGNMENT;
         case ToolGroup::IMAGE:
-            return IMAGE_HINT;
+            return IMAGE_PASTE;
         case ToolGroup::HAND:
-            return HAND_HINT;
+            return 0U;
         case ToolGroup::NONE:
             break;
     }
-    return TOOL_NAME | (caps.color ? COLORS : 0U) | (caps.size ? THICKNESS : 0U) | (caps.size && caps.fill ? FILL : 0U);
+    return (caps.color ? COLORS : 0U) | (caps.size ? THICKNESS : 0U) | (caps.size && caps.fill ? FILL : 0U);
 }
 
 }  // namespace xoj::toolpill

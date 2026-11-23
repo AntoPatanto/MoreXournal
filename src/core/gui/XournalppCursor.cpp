@@ -42,7 +42,6 @@ enum AVAILABLECURSORS {
     CRSR_BOTTOM_RIGHT_CORNER,
     CRSR_SB_H_DOUBLE_ARROW,
     CRSR_EXCHANGE,
-    CRSR_PIRATE,
     CRSR_SB_V_DOUBLE_ARROW,
     CRSR_ARROW,
     CRSR_BLANK_CURSOR,
@@ -89,7 +88,6 @@ XournalppCursor::XournalppCursor(Control* control): control(control) {
 	cssCursors[CRSR_BOTTOM_RIGHT_CORNER ] = 	{"se-resize", 	""					};
 	cssCursors[CRSR_SB_H_DOUBLE_ARROW   ] = 	{"ew-resize", 	""					};
 	cssCursors[CRSR_EXCHANGE            ] = 	{"exchange", 	"arrow"				};
-	cssCursors[CRSR_PIRATE              ] = 	{"pirate", 		"arrow" 			};
 	cssCursors[CRSR_SB_V_DOUBLE_ARROW   ] = 	{"ns-resize", 	""					};
 	cssCursors[CRSR_ARROW               ] = 	{"default", 	""					};
 	cssCursors[CRSR_BLANK_CURSOR        ] = 	{"none", 		""					};
@@ -274,9 +272,6 @@ void XournalppCursor::updateCursor() {
                     break;
                 case CURSOR_SELECTION_ROTATE:
                     setCursor(CRSR_EXCHANGE);
-                    break;
-                case CURSOR_SELECTION_DELETE:
-                    setCursor(CRSR_PIRATE);
                     break;
                 case CURSOR_SELECTION_SHAPE_HANDLE:
                     setCursor(CRSR_TCROSS);

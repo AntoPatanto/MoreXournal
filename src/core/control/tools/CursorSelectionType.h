@@ -28,7 +28,6 @@ enum CursorSelectionType {
     CURSOR_SELECTION_TOP,
     CURSOR_SELECTION_BOTTOM,
     CURSOR_SELECTION_ROTATE,
-    CURSOR_SELECTION_DELETE,
 
     // A handle of a shape (see EditSelection::getShapeStroke())
     CURSOR_SELECTION_SHAPE_HANDLE

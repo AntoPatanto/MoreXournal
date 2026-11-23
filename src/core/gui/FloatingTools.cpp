@@ -177,7 +177,8 @@ void FloatingTools::onSelectionChanged() { pill->onSelectionChanged(); }
 void FloatingTools::updateVisibility() {
     xoj::util::GVariantSPtr state(g_action_get_state(G_ACTION(presentationAction.get())), xoj::util::adopt);
     const bool visible = toolbarVisible && !g_variant_get_boolean(state.get());
-    for (GtkWidget* w: {pill->getWidget(), zoom.get(), layer.get()}) {
+    pill->setVisible(visible);
+    for (GtkWidget* w: {zoom.get(), layer.get()}) {
         gtk_widget_set_visible(w, visible);
     }
 }

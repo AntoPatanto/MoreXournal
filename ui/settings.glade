@@ -180,7 +180,7 @@
   <object class="GtkAdjustment" id="adjustmentHoldToShapeDelay">
     <property name="lower">100</property>
     <property name="upper">3000</property>
-    <property name="value">500</property>
+    <property name="value">400</property>
     <property name="step-increment">50</property>
     <property name="page-increment">250</property>
   </object>

@@ -85,3 +85,12 @@ TEST(HoldDetectorTest, disarmUntilMovement) {
     EXPECT_TRUE(detector.update({10.0, 0.0}, 1.0));
     EXPECT_TRUE(detector.isArmed());
 }
+
+TEST(HoldDetectorTest, defaultToleranceAcceptsSevenPixelJitter) {
+    HoldDetector detector;
+    detector.start({100.0, 100.0});
+    EXPECT_FALSE(detector.update({107.0, 100.0}, 1.0));
+    EXPECT_EQ(detector.getAnchor(), Point(100.0, 100.0));
+    EXPECT_TRUE(detector.update({109.0, 100.0}, 1.0));
+    EXPECT_EQ(detector.getAnchor(), Point(109.0, 100.0));
+}

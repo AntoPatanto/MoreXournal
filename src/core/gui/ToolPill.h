@@ -49,14 +49,18 @@ public:
     /// Updates the pill when a selection appears or disappears
     void onSelectionChanged();
 
+    /// Allows or hides the pill (follows toolbars and presentation mode); an empty pill stays hidden either way
+    void setVisible(bool visible);
+
 private:
     /// Coalesces tool and selection updates onto the next high-priority idle turn
     void scheduleUpdate();
     /// Rebuilds the content if the active tool needs other options than the shown ones
     void onToolChanged();
     void updateThickness();
+    void updateVisibility();
+    void queueRedraw();
 
-    void addToolName(GtkBox* box, ToolType tool);
     void addShapeTypes(GtkBox* box);
     void addSelectionModes(GtkBox* box);
     void addSelectionActions(GtkBox* box);
@@ -65,8 +69,6 @@ private:
     void addColors(GtkBox* box);
     void addThickness(GtkBox* box, uint32_t sections, xoj::topbar::ToolGroup group);
     void addTextAlignment(GtkBox* box);
-    void addHoldToShape(GtkBox* box);
-    void addHint(GtkBox* box, const char* text);
 
 private:
     Control* control;
@@ -79,6 +81,7 @@ private:
     ToolType shownTool = TOOL_NONE;
     uint32_t shownSections = 0;
     bool built = false;
+    bool allowedVisible = true;
 
     /// Parts of the thickness button, children of content (nullptr if the tool has no thickness)
     GtkWidget* thicknessSample = nullptr;
