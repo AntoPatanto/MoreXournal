@@ -113,7 +113,6 @@ void BaseShapeHandler::onButtonReleaseEvent(const PositionInputData& pos, double
     this->viewPool->dispatchAndClear(xoj::view::ShapeToolView::FINALIZATION_REQUEST, repaintRange);
 
     undo->addUndoAction(std::make_unique<InsertUndoAction>(page, layer, stroke.get()));
-    control->recordUsedColor(*stroke);
 
     auto ptr = stroke.get();
     Document* doc = control->getDocument();
@@ -138,6 +137,7 @@ void BaseShapeHandler::onButtonPressEvent(const PositionInputData& pos, double z
     this->currPoint = this->startPoint;
 
     this->stroke = createStroke(this->control);
+    this->control->recordUsedColor(*this->stroke);
 }
 
 void BaseShapeHandler::onButtonDoublePressEvent(const PositionInputData&, double) {

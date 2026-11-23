@@ -139,6 +139,8 @@ private:
     void resetImContext();
 
     static void bufferPasteDoneCallback(GtkTextBuffer* buffer, GtkClipboard* clipboard, TextEditor* te);
+    static void bufferInsertTextCallback(GtkTextBuffer* buffer, GtkTextIter* location, const gchar* text, gint len,
+                                         TextEditor* te);
 
     static void iMCommitCallback(GtkIMContext* context, const gchar* str, TextEditor* te);
     static void iMPreeditChangedCallback(GtkIMContext* context, TextEditor* te);
@@ -227,6 +229,7 @@ private:
     bool mouseDown = false;
     bool cursorOverwrite = false;
     bool cursorVisible = false;
+    bool colorRecorded = false;
 
     // In a blinking period, how much time is the cursor visible vs not visible
     static constexpr unsigned int CURSOR_ON_MULTIPLIER = 2;

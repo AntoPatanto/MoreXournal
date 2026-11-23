@@ -213,6 +213,7 @@ void SplineHandler::onButtonPressEvent(const PositionInputData& pos, double zoom
         xoj_assert(this->viewPool->empty());
 
         stroke = createStroke(this->control);
+        control->recordUsedColor(*stroke);
         xoj_assert(this->knots.empty() && this->tangents.empty());
         this->buttonDownPoint = Point(pos.x / zoom, pos.y / zoom);
         this->currPoint = snappingHandler.snapToGrid(this->buttonDownPoint, pos.isAltDown());
@@ -274,7 +275,6 @@ void SplineHandler::finalizeSpline() {
 
     UndoRedoHandler* undo = control->getUndoRedoHandler();
     undo->addUndoAction(std::make_unique<InsertUndoAction>(page, layer, stroke.get()));
-    control->recordUsedColor(*stroke);
 
     auto ptr = stroke.get();
     Document* doc = control->getDocument();

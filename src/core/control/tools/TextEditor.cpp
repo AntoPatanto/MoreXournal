@@ -140,6 +140,7 @@ TextEditor::TextEditor(Control* control, const PageRef& page, GtkWidget* xournal
 
     this->initializeEditionAt(x, y);
     g_signal_connect(this->buffer.get(), "paste-done", G_CALLBACK(bufferPasteDoneCallback), this);
+    g_signal_connect_after(this->buffer.get(), "insert-text", G_CALLBACK(bufferInsertTextCallback), this);
 
     {  // Get cursor blinking settings
         GtkSettings* settings = gtk_widget_get_settings(this->xournalWidget);
@@ -1026,6 +1027,13 @@ void TextEditor::bufferPasteDoneCallback(GtkTextBuffer* buffer, GtkClipboard* cl
     }
 }
 
+void TextEditor::bufferInsertTextCallback(GtkTextBuffer*, GtkTextIter*, const gchar*, gint len, TextEditor* te) {
+    if (len > 0 && !te->colorRecorded && te->textElement) {
+        te->colorRecorded = true;
+        te->control->recordUsedColor(*te->textElement);
+    }
+}
+
 void TextEditor::resetImContext() {
     if (this->needImReset) {
         this->needImReset = false;
@@ -1221,7 +1229,6 @@ void TextEditor::finalizeEdition() {
         this->viewPool->dispatchAndClear(xoj::view::TextEditionView::FINALIZATION_REQUEST, this->previousBoundingBox);
         this->page->fireElementChanged(ptr);
         undo->addUndoAction(std::make_unique<InsertUndoAction>(page, layer, ptr));
-        this->control->recordUsedColor(*ptr);
     }
 }
 

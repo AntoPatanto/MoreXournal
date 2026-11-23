@@ -331,7 +331,7 @@ public:
     const Palette& getPalette() const;
 
     /**
-     * Records the color of a stroke or text the user just finished drawing or writing, so the tool pill shows it
+     * Records the color of a stroke or text when the user starts drawing or typing with it, so the tool pill shows it
      * among the recent colors. Eraser strokes are ignored. Not for pasted, loaded or undone elements.
      */
     void recordUsedColor(const Element& e);

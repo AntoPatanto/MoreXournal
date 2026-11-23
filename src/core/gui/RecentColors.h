@@ -23,7 +23,7 @@ constexpr Color PINNED_COLOR = Colors::black;
 constexpr size_t RECENT_COLOR_COUNT = 5;
 
 /**
- * The colors the user finished a stroke or an element with, most recent first, without duplicates and without
+ * The colors the user started a stroke or typed a text with, most recent first, without duplicates and without
  * PINNED_COLOR. The alpha is ignored: every color is stored opaque, like the TOOL_COLOR action state.
  */
 class RecentColors {
