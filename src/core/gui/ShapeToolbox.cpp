@@ -1,59 +1,254 @@
 #include "ShapeToolbox.h"
 
 #include <algorithm>  // for clamp, max
-#include <cmath>      // for lround
-#include <string>     // for string
+#include <cmath>      // for abs, lround
+#include <cstdio>     // for snprintf
+#include <string>     // for string, to_string
 
-#include "control/Control.h"                     // for Control
-#include "control/ToolEnums.h"                   // for TOOL_PEN, TOOL_SIZE_...
-#include "control/ToolHandler.h"                 // for ToolHandler
-#include "control/settings/Settings.h"           // for Settings
-#include "control/shapes/ShapeEditController.h"  // for duplicate, convertToStroke
-#include "control/tools/EditSelection.h"         // for EditSelection
-#include "gui/IconNameHelper.h"                  // for IconNameHelper
-#include "gui/XournalView.h"                     // for XournalView
-#include "gui/scroll/ScrollHandling.h"           // for ScrollHandling
-#include "model/LineStyle.h"                     // for LineStyle
-#include "model/Stroke.h"                        // for Stroke
-#include "model/StrokeStyle.h"                   // for parseStyle, formatStyle
-#include "undo/UndoRedoHandler.h"                // for UndoRedoHandler
-#include "util/Color.h"                          // for Color, GdkRGBA_to_rgb
-#include "util/i18n.h"                           // for _
+#include "control/Control.h"                        // for Control
+#include "control/ToolEnums.h"                      // for TOOL_PEN, TOOL_SIZE_...
+#include "control/ToolHandler.h"                    // for ToolHandler
+#include "control/settings/Settings.h"              // for Settings
+#include "control/shapes/ShapeEditController.h"     // for duplicate, convertToStroke
+#include "control/tools/EditSelection.h"            // for EditSelection
+#include "gui/XournalView.h"                        // for XournalView
+#include "gui/scroll/ScrollHandling.h"              // for ScrollHandling
+#include "gui/toolbarMenubar/icon/ColorIcon.h"      // for ColorIcon
+#include "gui/toolbarMenubar/model/ColorPalette.h"  // for Palette
+#include "model/LineStyle.h"                        // for LineStyle
+#include "model/Stroke.h"                           // for Stroke
+#include "model/StrokeStyle.h"                      // for parseStyle, formatStyle
+#include "undo/UndoRedoHandler.h"                   // for UndoRedoHandler
+#include "util/Color.h"                             // for Color, GdkRGBA_to_rgb
+#include "util/i18n.h"                              // for _, N_
 
 #include "MainWindow.h"  // for MainWindow
 
 namespace {
-/// Gap between the shape and the menu, and between the menu and the edges of the view, in pixels
-constexpr int GAP = 8;
+/// Extra gap added to the 6 px CSS shadow margin of #shapeToolbox
+constexpr int GAP = 4;
 
 /// Fill opacity offered when a stroke has none yet
 constexpr int DEFAULT_FILL_ALPHA = 128;
 
+constexpr int ICON_SIZE = 18;
+constexpr int SWATCH_SIZE = 16;
+constexpr int PALETTE_DOT_SIZE = 20;
+constexpr int PALETTE_COLUMNS = 6;
+
 constexpr const char* LINE_STYLES[3] = {"plain", "dash", "dot"};
 
-/// Data key of the index of a width or line style button
+/// GObject data keys
 constexpr const char* INDEX_KEY = "shape-toolbox-index";
+constexpr const char* COLOR_KEY = "shape-toolbox-color";
+constexpr const char* EMPTY_KEY = "shape-toolbox-empty";
+constexpr const char* WIDTH_KEY = "shape-toolbox-width";
 
 struct WidthChoice {
     ToolSize size;
-    const char* icon;
-    const char* tooltip;
+    const char* name;
 };
-const WidthChoice WIDTHS[] = {{TOOL_SIZE_VERY_FINE, "thickness-finer", N_("Very fine")},
-                              {TOOL_SIZE_FINE, "thickness-fine", N_("Fine")},
-                              {TOOL_SIZE_MEDIUM, "thickness-medium", N_("Medium")},
-                              {TOOL_SIZE_THICK, "thickness-thick", N_("Thick")},
-                              {TOOL_SIZE_VERY_THICK, "thickness-thicker", N_("Very thick")}};
+const WidthChoice WIDTHS[5] = {{TOOL_SIZE_VERY_FINE, N_("Very Fine")},
+                               {TOOL_SIZE_FINE, N_("Fine")},
+                               {TOOL_SIZE_MEDIUM, N_("Medium")},
+                               {TOOL_SIZE_THICK, N_("Thick")},
+                               {TOOL_SIZE_VERY_THICK, N_("Very Thick")}};
 
 int getIndex(gpointer widget) { return GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), INDEX_KEY)); }
+
+void addClass(GtkWidget* w, const char* cssClass) {
+    gtk_style_context_add_class(gtk_widget_get_style_context(w), cssClass);
+}
+
+GtkWidget* newIcon(const char* iconName, int size = ICON_SIZE) {
+    GtkWidget* img = gtk_image_new_from_icon_name(iconName, GTK_ICON_SIZE_SMALL_TOOLBAR);
+    gtk_image_set_pixel_size(GTK_IMAGE(img), size);
+    return img;
+}
+
+GtkWidget* newSeparator() {
+    GtkWidget* sep = gtk_separator_new(GTK_ORIENTATION_VERTICAL);
+    addClass(sep, "mx-separator");
+    return sep;
+}
+
+GtkWidget* prepareFlatButton(GtkWidget* btn, const char* tooltip) {
+    gtk_widget_set_can_focus(btn, false);
+    gtk_widget_set_focus_on_click(btn, false);
+    addClass(btn, "flat");
+    if (tooltip) {
+        gtk_widget_set_tooltip_text(btn, tooltip);
+    }
+    return btn;
+}
+
+GtkBox* newPopover(GtkWidget* menuButton, GtkWidget** outPopover) {
+    GtkWidget* popover = gtk_popover_new(menuButton);
+    addClass(popover, "mx-popover");
+    GtkWidget* popBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+    gtk_container_add(GTK_CONTAINER(popover), popBox);
+    gtk_menu_button_set_popover(GTK_MENU_BUTTON(menuButton), popover);
+    *outPopover = popover;
+    return GTK_BOX(popBox);
+}
+
+void addPopoverTitle(GtkBox* box, const char* title) {
+    GtkWidget* lbl = gtk_label_new(title);
+    gtk_label_set_xalign(GTK_LABEL(lbl), 0.0);
+    addClass(lbl, "mx-popover-title");
+    gtk_box_pack_start(box, lbl, false, false, 0);
+}
+
+GtkWidget* newPopoverRowChild(const char* label, const char* iconName) {
+    GtkWidget* rowBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+    if (iconName) {
+        gtk_box_pack_start(GTK_BOX(rowBox), newIcon(iconName), false, false, 0);
+    }
+    GtkWidget* lbl = gtk_label_new(label);
+    gtk_label_set_xalign(GTK_LABEL(lbl), 0.0);
+    gtk_box_pack_start(GTK_BOX(rowBox), lbl, true, true, 0);
+    return rowBox;
+}
+
+double sampleWidth(double thickness) { return std::clamp(thickness * 1.5, 1.0, 12.0); }
+
+void setSampleWidth(GtkWidget* sample, double px) {
+    g_object_set_data(G_OBJECT(sample), WIDTH_KEY, GINT_TO_POINTER(static_cast<int>(px * 100)));
+    gtk_widget_queue_draw(sample);
+}
+
+/// A horizontal thickness line in the text color of the button
+GtkWidget* newSample(double px, int width, int height) {
+    GtkWidget* area = gtk_drawing_area_new();
+    gtk_widget_set_size_request(area, width, height);
+    gtk_widget_set_valign(area, GTK_ALIGN_CENTER);
+    setSampleWidth(area, px);
+    g_signal_connect(area, "draw", G_CALLBACK(+[](GtkWidget* w, cairo_t* cr, gpointer) -> gboolean {
+                         const double lineWidth = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), WIDTH_KEY)) / 100.0;
+                         GtkStyleContext* ctx = gtk_widget_get_style_context(w);
+                         GdkRGBA color;
+                         gtk_style_context_get_color(ctx, gtk_style_context_get_state(ctx), &color);
+                         gdk_cairo_set_source_rgba(cr, &color);
+                         const double h = gtk_widget_get_allocated_height(w);
+                         const double inset = 2.0 + lineWidth / 2.0;
+                         cairo_set_line_width(cr, lineWidth);
+                         cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+                         cairo_move_to(cr, inset, h / 2.0);
+                         cairo_line_to(cr, gtk_widget_get_allocated_width(w) - inset, h / 2.0);
+                         cairo_stroke(cr);
+                         return true;
+                     }),
+                     nullptr);
+    return area;
+}
+
+/// A circular color swatch (or a checkered disk when empty)
+GtkWidget* newColorSwatch(int size) {
+    GtkWidget* area = gtk_drawing_area_new();
+    gtk_widget_set_size_request(area, size, size);
+    gtk_widget_set_valign(area, GTK_ALIGN_CENTER);
+    g_signal_connect(
+            area, "draw", G_CALLBACK(+[](GtkWidget* w, cairo_t* cr, gpointer) -> gboolean {
+                const double aw = gtk_widget_get_allocated_width(w);
+                const double ah = gtk_widget_get_allocated_height(w);
+                const double r = std::min(aw, ah) / 2.0 - 0.75;
+                const double cx = aw / 2.0;
+                const double cy = ah / 2.0;
+                const bool empty = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), EMPTY_KEY)) != 0;
+
+                cairo_save(cr);
+                cairo_arc(cr, cx, cy, r, 0, 2.0 * M_PI);
+                cairo_clip(cr);
+                if (empty) {
+                    constexpr double cell = 4.0;
+                    for (int gy = 0; gy * cell < ah; gy++) {
+                        for (int gx = 0; gx * cell < aw; gx++) {
+                            const double v = ((gx + gy) % 2 == 0) ? 0.82 : 1.0;
+                            cairo_set_source_rgb(cr, v, v, v);
+                            cairo_rectangle(cr, gx * cell, gy * cell, cell, cell);
+                            cairo_fill(cr);
+                        }
+                    }
+                } else {
+                    const Color c(static_cast<uint32_t>(GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(w), COLOR_KEY))));
+                    Util::cairo_set_source_rgbi(cr, c, 1.0);
+                    cairo_paint(cr);
+                }
+                cairo_restore(cr);
+
+                cairo_arc(cr, cx, cy, r, 0, 2.0 * M_PI);
+                cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.22);
+                cairo_set_line_width(cr, 1.0);
+                cairo_stroke(cr);
+                return true;
+            }),
+            nullptr);
+    return area;
+}
+
+void setColorSwatch(GtkWidget* swatch, Color color, bool empty = false) {
+    g_object_set_data(G_OBJECT(swatch), COLOR_KEY, GUINT_TO_POINTER(static_cast<uint32_t>(color)));
+    g_object_set_data(G_OBJECT(swatch), EMPTY_KEY, GINT_TO_POINTER(empty ? 1 : 0));
+    gtk_widget_queue_draw(swatch);
+}
+
+gboolean drawLineStyleSample(GtkWidget* w, cairo_t* cr, gpointer) {
+    const int k = getIndex(w);
+    GtkStyleContext* ctx = gtk_widget_get_style_context(w);
+    GdkRGBA color;
+    gtk_style_context_get_color(ctx, gtk_style_context_get_state(ctx), &color);
+    gdk_cairo_set_source_rgba(cr, &color);
+    const double h = gtk_widget_get_allocated_height(w);
+    const double width = gtk_widget_get_allocated_width(w);
+    cairo_set_line_width(cr, 2.2);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+    if (k == 1) {
+        const double dashes[] = {5.0, 4.0};
+        cairo_set_dash(cr, dashes, 2, 0);
+    } else if (k == 2) {
+        const double dashes[] = {0.1, 4.5};
+        cairo_set_dash(cr, dashes, 2, 0);
+    }
+    cairo_move_to(cr, 3.0, h / 2.0);
+    cairo_line_to(cr, width - 3.0, h / 2.0);
+    cairo_stroke(cr);
+    return true;
+}
+
+/// Solid (0), dashed (1) or dotted (2) horizontal line in the button's text color
+GtkWidget* newLineStyleSample(int kind) {
+    GtkWidget* area = gtk_drawing_area_new();
+    gtk_widget_set_size_request(area, 24, 12);
+    gtk_widget_set_valign(area, GTK_ALIGN_CENTER);
+    g_object_set_data(G_OBJECT(area), INDEX_KEY, GINT_TO_POINTER(kind));
+    g_signal_connect(area, "draw", G_CALLBACK(drawLineStyleSample), nullptr);
+    return area;
+}
+
+std::string formatThickness(double thickness) {
+    char buf[32];
+    std::snprintf(buf, sizeof(buf), "%.2f", thickness);
+    std::string s = buf;
+    while (!s.empty() && s.back() == '0') {
+        s.pop_back();
+    }
+    if (!s.empty() && s.back() == '.') {
+        s.pop_back();
+    }
+    return s + " pt";
+}
+
+bool sameRgb(Color a, Color b) { return a.red == b.red && a.green == b.green && a.blue == b.blue; }
+
+int alphaToPercent(int alpha) { return static_cast<int>(std::lround(std::clamp(alpha, 0, 255) * 100.0 / 255.0)); }
 }  // namespace
 
 ShapeToolbox::ShapeToolbox(MainWindow* win, GtkOverlay* overlay): win(win), overlay(overlay, xoj::util::ref) {
     build();
 
-    gtk_overlay_add_overlay(overlay, this->box);
+    gtk_overlay_add_overlay(overlay, this->box.get());
     // The menu takes the clicks in its area, so that missing a button does not draw on the page below
-    gtk_overlay_set_overlay_pass_through(overlay, this->box, false);
+    gtk_overlay_set_overlay_pass_through(overlay, this->box.get(), false);
     this->positionHandler =
             g_signal_connect(overlay, "get-child-position", G_CALLBACK(ShapeToolbox::getOverlayPosition), this);
 
@@ -68,10 +263,12 @@ ShapeToolbox::ShapeToolbox(MainWindow* win, GtkOverlay* overlay): win(win), over
         }
     }
 
-    gtk_widget_hide(this->box);
+    gtk_widget_hide(this->box.get());
 }
 
 ShapeToolbox::~ShapeToolbox() {
+    this->updating = true;
+    this->opacityDragStart.reset();
     size_t n = 0;
     for (auto& adj: this->adjustments) {
         for (int i = 0; i < 2; i++) {
@@ -79,110 +276,239 @@ ShapeToolbox::~ShapeToolbox() {
         }
     }
     g_signal_handler_disconnect(this->overlay.get(), this->positionHandler);
+    // Destroy the overlay box and its popovers while `this` is alive, so no widget signal can fire after destruction
+    gtk_widget_destroy(this->box.get());
 }
 
-GtkWidget* ShapeToolbox::makeButton(const char* iconName, const char* tooltip, GCallback callback) {
-    GtkWidget* button = gtk_button_new_from_icon_name(iconName, GTK_ICON_SIZE_SMALL_TOOLBAR);
-    gtk_widget_set_tooltip_text(button, tooltip);
-    gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
-    gtk_widget_set_focus_on_click(button, false);
+GtkWidget* ShapeToolbox::makeIconButton(const char* iconName, const char* tooltip, GCallback callback) {
+    GtkWidget* button = prepareFlatButton(gtk_button_new(), tooltip);
+    gtk_button_set_image(GTK_BUTTON(button), newIcon(iconName));
     g_signal_connect(button, "clicked", callback, this);
     return button;
 }
 
-void ShapeToolbox::build() {
-    IconNameHelper icons(this->win->getControl()->getSettings());
+void ShapeToolbox::populatePaletteGrid(GtkWidget* grid, std::vector<std::pair<Color, GtkWidget*>>& dots,
+                                       GCallback callback) {
+    dots.clear();
+    gtk_container_foreach(GTK_CONTAINER(grid), +[](GtkWidget* w, gpointer) { gtk_widget_destroy(w); }, nullptr);
 
-    this->box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-    gtk_widget_set_name(this->box, "shapeToolbox");
-    gtk_style_context_add_class(gtk_widget_get_style_context(this->box), "osd");
-    gtk_container_set_border_width(GTK_CONTAINER(this->box), 4);
-    gtk_widget_set_halign(this->box, GTK_ALIGN_START);
-    gtk_widget_set_valign(this->box, GTK_ALIGN_START);
+    const Palette& palette = this->win->getControl()->getPalette();
+    const auto& recolorParams = this->win->getControl()->getSettings()->getRecolorParameters();
+    gtk_flow_box_set_max_children_per_line(GTK_FLOW_BOX(grid), PALETTE_COLUMNS);
+    gtk_flow_box_set_min_children_per_line(GTK_FLOW_BOX(grid),
+                                           static_cast<guint>(std::min<size_t>(PALETTE_COLUMNS, palette.size())));
+
+    for (size_t i = 0; i < palette.size(); i++) {
+        const NamedColor& nc = palette.getColorAt(i);
+        std::optional<Color> secondary = recolorParams.recolorizeMainView ?
+                                                 std::make_optional(recolorParams.recolor.convertColor(nc.getColor())) :
+                                                 std::nullopt;
+        GtkWidget* btn = prepareFlatButton(gtk_toggle_button_new(), nc.getName().c_str());
+        addClass(btn, "mx-swatch");
+        gtk_container_add(GTK_CONTAINER(btn), ColorIcon::newGtkImage(nc.getColor(), PALETTE_DOT_SIZE, true, secondary));
+        g_object_set_data(G_OBJECT(btn), COLOR_KEY, GUINT_TO_POINTER(static_cast<uint32_t>(nc.getColor())));
+        g_signal_connect(btn, "toggled", callback, this);
+        gtk_container_add(GTK_CONTAINER(grid), btn);
+        gtk_widget_set_can_focus(gtk_widget_get_parent(btn), false);
+        dots.emplace_back(nc.getColor(), btn);
+    }
+    gtk_widget_show_all(grid);
+}
+
+void ShapeToolbox::rebuildPalettes() {
+    if (this->strokePaletteGrid) {
+        populatePaletteGrid(this->strokePaletteGrid, this->strokeDots, G_CALLBACK(ShapeToolbox::strokeDotClickedCb));
+    }
+    if (this->fillPaletteGrid) {
+        populatePaletteGrid(this->fillPaletteGrid, this->fillDots, G_CALLBACK(ShapeToolbox::fillDotClickedCb));
+    }
+    if (EditSelection* sel = getShapeSelection()) {
+        refresh(sel->getShapeStroke());
+    }
+}
+
+void ShapeToolbox::build() {
+    GtkWidget* root = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+    this->box.reset(root, xoj::util::refsink);
+    gtk_widget_set_name(root, "shapeToolbox");
+    addClass(root, "mx-pill");
+    addClass(root, "mx-float");
+    gtk_widget_set_halign(root, GTK_ALIGN_START);
+    gtk_widget_set_valign(root, GTK_ALIGN_START);
 
     // Stroke color
-    this->colorButton = gtk_color_button_new();
-    gtk_widget_set_tooltip_text(this->colorButton, _("Stroke color"));
-    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(this->colorButton), false);
-    g_signal_connect(this->colorButton, "color-set", G_CALLBACK(ShapeToolbox::colorSetCb), this);
-    gtk_box_pack_start(GTK_BOX(this->box), this->colorButton, false, false, 0);
+    this->strokeColorButton = prepareFlatButton(gtk_menu_button_new(), _("Stroke color"));
+    GtkWidget* strokeBtnInner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+    this->strokeSwatch = newColorSwatch(SWATCH_SIZE);
+    gtk_box_pack_start(GTK_BOX(strokeBtnInner), this->strokeSwatch, false, false, 0);
+    gtk_box_pack_start(GTK_BOX(strokeBtnInner), gtk_label_new(_("Stroke color")), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(strokeBtnInner), newIcon("mx-down-symbolic", 16), false, false, 0);
+    gtk_container_add(GTK_CONTAINER(this->strokeColorButton), strokeBtnInner);
 
-    // Width
-    this->widthButton = gtk_menu_button_new();
-    gtk_widget_set_tooltip_text(this->widthButton, _("Stroke width"));
-    gtk_button_set_relief(GTK_BUTTON(this->widthButton), GTK_RELIEF_NONE);
-    gtk_button_set_image(
-            GTK_BUTTON(this->widthButton),
-            gtk_image_new_from_icon_name(icons.iconName("thickness-medium").c_str(), GTK_ICON_SIZE_SMALL_TOOLBAR));
-    this->widthPopover = gtk_popover_new(this->widthButton);
-    GtkWidget* widthBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-    gtk_container_set_border_width(GTK_CONTAINER(widthBox), 4);
+    GtkBox* strokePop = newPopover(this->strokeColorButton, &this->strokeColorPopover);
+    addPopoverTitle(strokePop, _("Stroke color"));
+    this->strokePaletteGrid = gtk_flow_box_new();
+    gtk_flow_box_set_selection_mode(GTK_FLOW_BOX(this->strokePaletteGrid), GTK_SELECTION_NONE);
+    gtk_box_pack_start(strokePop, this->strokePaletteGrid, false, false, 0);
+    GtkWidget* customStroke = prepareFlatButton(gtk_button_new(), nullptr);
+    addClass(customStroke, "mx-prow");
+    gtk_container_add(GTK_CONTAINER(customStroke), newPopoverRowChild(_("Custom…"), "mx-plus-symbolic"));
+    g_signal_connect(customStroke, "clicked", G_CALLBACK(ShapeToolbox::strokeCustomColorCb), this);
+    gtk_box_pack_start(strokePop, customStroke, false, false, 0);
+    gtk_widget_show_all(GTK_WIDGET(strokePop));
+    gtk_box_pack_start(GTK_BOX(root), this->strokeColorButton, false, false, 0);
+
+    // Thickness
+    this->widthButton = prepareFlatButton(gtk_menu_button_new(), _("Stroke width"));
+    GtkWidget* widthBtnInner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+    this->widthSample = newSample(2.0, 24, 14);
+    gtk_box_pack_start(GTK_BOX(widthBtnInner), this->widthSample, false, false, 0);
+    gtk_box_pack_start(GTK_BOX(widthBtnInner), gtk_label_new(_("Thickness")), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(widthBtnInner), newIcon("mx-down-symbolic", 16), false, false, 0);
+    gtk_container_add(GTK_CONTAINER(this->widthButton), widthBtnInner);
+
+    GtkBox* widthPop = newPopover(this->widthButton, &this->widthPopover);
+    addPopoverTitle(widthPop, _("Thickness"));
+    const double* penWidths = this->win->getControl()->getToolHandler()->getToolThickness(TOOL_PEN);
     for (size_t i = 0; i < std::size(WIDTHS); i++) {
-        GtkWidget* b = makeButton(icons.iconName(WIDTHS[i].icon).c_str(), _(WIDTHS[i].tooltip),
-                                  G_CALLBACK(ShapeToolbox::widthCb));
-        g_object_set_data(G_OBJECT(b), INDEX_KEY, GINT_TO_POINTER(static_cast<int>(i)));
-        gtk_box_pack_start(GTK_BOX(widthBox), b, false, false, 0);
+        const double thickness = penWidths[WIDTHS[i].size];
+        GtkWidget* row = prepareFlatButton(gtk_toggle_button_new(), nullptr);
+        addClass(row, "mx-prow");
+        g_object_set_data(G_OBJECT(row), INDEX_KEY, GINT_TO_POINTER(static_cast<int>(i)));
+        g_signal_connect(row, "clicked", G_CALLBACK(ShapeToolbox::widthCb), this);
+
+        GtkWidget* rowBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
+        GtkWidget* name = gtk_label_new(_(WIDTHS[i].name));
+        gtk_label_set_xalign(GTK_LABEL(name), 0.0);
+        gtk_label_set_width_chars(GTK_LABEL(name), 9);
+        GtkWidget* sample = newSample(sampleWidth(thickness), 120, 16);
+        gtk_widget_set_hexpand(sample, true);
+        GtkWidget* val = gtk_label_new(formatThickness(thickness).c_str());
+        gtk_label_set_xalign(GTK_LABEL(val), 1.0);
+        gtk_label_set_width_chars(GTK_LABEL(val), 7);
+        addClass(val, "mx-numeric");
+        gtk_box_pack_start(GTK_BOX(rowBox), name, false, false, 0);
+        gtk_box_pack_start(GTK_BOX(rowBox), sample, true, true, 0);
+        gtk_box_pack_start(GTK_BOX(rowBox), val, false, false, 0);
+        gtk_container_add(GTK_CONTAINER(row), rowBox);
+        gtk_box_pack_start(widthPop, row, false, false, 0);
+        this->widthRows[i] = {row, sample, GTK_LABEL(val)};
     }
-    gtk_widget_show_all(widthBox);
-    gtk_container_add(GTK_CONTAINER(this->widthPopover), widthBox);
-    gtk_menu_button_set_popover(GTK_MENU_BUTTON(this->widthButton), this->widthPopover);
-    gtk_box_pack_start(GTK_BOX(this->box), this->widthButton, false, false, 0);
+    gtk_widget_show_all(GTK_WIDGET(widthPop));
+    gtk_box_pack_start(GTK_BOX(root), this->widthButton, false, false, 0);
 
-    // Filling
-    this->fillToggle = gtk_toggle_button_new();
-    gtk_button_set_image(GTK_BUTTON(this->fillToggle),
-                         gtk_image_new_from_icon_name(icons.iconName("fill").c_str(), GTK_ICON_SIZE_SMALL_TOOLBAR));
-    gtk_widget_set_tooltip_text(this->fillToggle, _("Fill"));
-    gtk_button_set_relief(GTK_BUTTON(this->fillToggle), GTK_RELIEF_NONE);
-    g_signal_connect(this->fillToggle, "toggled", G_CALLBACK(ShapeToolbox::fillToggledCb), this);
-    gtk_box_pack_start(GTK_BOX(this->box), this->fillToggle, false, false, 0);
+    gtk_box_pack_start(GTK_BOX(root), newSeparator(), false, false, 0);
 
-    this->fillColorButton = gtk_color_button_new();
-    gtk_widget_set_tooltip_text(this->fillColorButton, _("Fill color and opacity"));
-    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(this->fillColorButton), true);
-    g_signal_connect(this->fillColorButton, "color-set", G_CALLBACK(ShapeToolbox::fillColorSetCb), this);
-    gtk_box_pack_start(GTK_BOX(this->box), this->fillColorButton, false, false, 0);
+    // Fill switch + fill color/opacity popover
+    GtkWidget* fillSwitchRow = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+    addClass(fillSwitchRow, "mx-switch-row");
+    this->fillSwitch = gtk_switch_new();
+    gtk_widget_set_can_focus(this->fillSwitch, false);
+    gtk_widget_set_valign(this->fillSwitch, GTK_ALIGN_CENTER);
+    g_signal_connect(this->fillSwitch, "notify::active", G_CALLBACK(ShapeToolbox::fillSwitchChangedCb), this);
+    gtk_box_pack_start(GTK_BOX(fillSwitchRow), this->fillSwitch, false, false, 0);
 
-    // Line style
-    this->lineStyleBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-    const char* lineStyleIcons[3] = {"line-style-plain", "line-style-dash", "line-style-dot"};
+    GtkWidget* fillLabelBox = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(fillLabelBox), gtk_label_new(_("Fill")));
+    g_signal_connect_object(fillLabelBox, "button-release-event",
+                            G_CALLBACK(+[](GtkWidget*, GdkEventButton* e, gpointer sw) -> gboolean {
+                                if (e->button == 1) {
+                                    gtk_switch_set_active(GTK_SWITCH(sw), !gtk_switch_get_active(GTK_SWITCH(sw)));
+                                }
+                                return true;
+                            }),
+                            this->fillSwitch, GConnectFlags(0));
+    gtk_box_pack_start(GTK_BOX(fillSwitchRow), fillLabelBox, false, false, 0);
+    gtk_widget_set_tooltip_text(fillSwitchRow, _("Fill"));
+    gtk_box_pack_start(GTK_BOX(root), fillSwitchRow, false, false, 0);
+
+    this->fillButton = prepareFlatButton(gtk_menu_button_new(), _("Fill color and opacity"));
+    GtkWidget* fillBtnInner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+    this->fillSwatch = newColorSwatch(SWATCH_SIZE);
+    this->fillPercentLabel = GTK_LABEL(gtk_label_new("50%"));
+    addClass(GTK_WIDGET(this->fillPercentLabel), "mx-numeric");
+    gtk_label_set_width_chars(this->fillPercentLabel, 4);
+    gtk_box_pack_start(GTK_BOX(fillBtnInner), this->fillSwatch, false, false, 0);
+    gtk_box_pack_start(GTK_BOX(fillBtnInner), GTK_WIDGET(this->fillPercentLabel), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(fillBtnInner), newIcon("mx-down-symbolic", 16), false, false, 0);
+    gtk_container_add(GTK_CONTAINER(this->fillButton), fillBtnInner);
+
+    GtkBox* fillPop = newPopover(this->fillButton, &this->fillPopover);
+    g_signal_connect(this->fillPopover, "hide", G_CALLBACK(+[](GtkWidget*, gpointer self) {
+                         static_cast<ShapeToolbox*>(self)->commitOpacityDrag();
+                     }),
+                     this);
+    addPopoverTitle(fillPop, _("Fill color"));
+    this->fillPaletteGrid = gtk_flow_box_new();
+    gtk_flow_box_set_selection_mode(GTK_FLOW_BOX(this->fillPaletteGrid), GTK_SELECTION_NONE);
+    gtk_box_pack_start(fillPop, this->fillPaletteGrid, false, false, 0);
+    GtkWidget* customFill = prepareFlatButton(gtk_button_new(), nullptr);
+    addClass(customFill, "mx-prow");
+    gtk_container_add(GTK_CONTAINER(customFill), newPopoverRowChild(_("Custom…"), "mx-plus-symbolic"));
+    g_signal_connect(customFill, "clicked", G_CALLBACK(ShapeToolbox::fillCustomColorCb), this);
+    gtk_box_pack_start(fillPop, customFill, false, false, 0);
+
+    addPopoverTitle(fillPop, _("Opacity"));
+    GtkWidget* opacityRow = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+    gtk_widget_set_margin_start(opacityRow, 6);
+    gtk_widget_set_margin_end(opacityRow, 6);
+    gtk_widget_set_margin_bottom(opacityRow, 4);
+    this->opacityScale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 5.0, 100.0, 5.0);
+    gtk_scale_set_draw_value(GTK_SCALE(this->opacityScale), false);
+    gtk_widget_set_can_focus(this->opacityScale, false);
+    gtk_widget_set_size_request(this->opacityScale, 140, -1);
+    g_signal_connect(this->opacityScale, "button-press-event", G_CALLBACK(ShapeToolbox::opacityPressCb), this);
+    g_signal_connect(this->opacityScale, "button-release-event", G_CALLBACK(ShapeToolbox::opacityReleaseCb), this);
+    g_signal_connect(this->opacityScale, "value-changed", G_CALLBACK(ShapeToolbox::opacityValueChangedCb), this);
+    this->opacityValueLabel = GTK_LABEL(gtk_label_new("50%"));
+    addClass(GTK_WIDGET(this->opacityValueLabel), "mx-numeric");
+    gtk_label_set_width_chars(this->opacityValueLabel, 4);
+    gtk_label_set_xalign(this->opacityValueLabel, 1.0);
+    gtk_box_pack_start(GTK_BOX(opacityRow), this->opacityScale, true, true, 0);
+    gtk_box_pack_start(GTK_BOX(opacityRow), GTK_WIDGET(this->opacityValueLabel), false, false, 0);
+    gtk_box_pack_start(fillPop, opacityRow, false, false, 0);
+    gtk_widget_show_all(GTK_WIDGET(fillPop));
+    gtk_box_pack_start(GTK_BOX(root), this->fillButton, false, false, 0);
+
+    // Line style segment
+    this->lineStyleSeparator = newSeparator();
+    gtk_box_pack_start(GTK_BOX(root), this->lineStyleSeparator, false, false, 0);
+
+    this->lineStyleBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+    addClass(this->lineStyleBox, "mx-seg");
+    gtk_widget_set_valign(this->lineStyleBox, GTK_ALIGN_CENTER);
     const char* lineStyleTooltips[3] = {_("Solid line"), _("Dashed line"), _("Dotted line")};
     for (size_t i = 0; i < this->lineStyleButtons.size(); i++) {
-        GtkWidget* b = gtk_toggle_button_new();
-        gtk_button_set_image(GTK_BUTTON(b), gtk_image_new_from_icon_name(icons.iconName(lineStyleIcons[i]).c_str(),
-                                                                         GTK_ICON_SIZE_SMALL_TOOLBAR));
-        gtk_widget_set_tooltip_text(b, lineStyleTooltips[i]);
-        gtk_button_set_relief(GTK_BUTTON(b), GTK_RELIEF_NONE);
+        GtkWidget* b = prepareFlatButton(gtk_toggle_button_new(), lineStyleTooltips[i]);
+        gtk_container_add(GTK_CONTAINER(b), newLineStyleSample(static_cast<int>(i)));
         g_object_set_data(G_OBJECT(b), INDEX_KEY, GINT_TO_POINTER(static_cast<int>(i)));
         g_signal_connect(b, "toggled", G_CALLBACK(ShapeToolbox::lineStyleToggledCb), this);
         gtk_box_pack_start(GTK_BOX(this->lineStyleBox), b, false, false, 0);
         this->lineStyleButtons[i] = b;
     }
-    gtk_box_pack_start(GTK_BOX(this->box), this->lineStyleBox, false, false, 0);
+    gtk_box_pack_start(GTK_BOX(root), this->lineStyleBox, false, false, 0);
 
-    gtk_box_pack_start(GTK_BOX(this->box), gtk_separator_new(GTK_ORIENTATION_VERTICAL), false, false, 2);
+    gtk_box_pack_start(GTK_BOX(root), newSeparator(), false, false, 0);
 
-    // Actions
-    gtk_box_pack_start(GTK_BOX(this->box),
-                       makeButton("edit-copy-symbolic", _("Duplicate"), G_CALLBACK(ShapeToolbox::duplicateCb)), false,
-                       false, 0);
-    gtk_box_pack_start(GTK_BOX(this->box),
-                       makeButton(icons.iconName("tool-pencil").c_str(), _("Convert to stroke"),
-                                  G_CALLBACK(ShapeToolbox::convertCb)),
-                       false, false, 0);
-    gtk_box_pack_start(GTK_BOX(this->box),
-                       makeButton("edit-delete-symbolic", _("Delete"), G_CALLBACK(ShapeToolbox::deleteCb)), false,
+    // Actions: Duplicate, Delete (destructive), Convert to stroke
+    gtk_box_pack_start(GTK_BOX(root),
+                       makeIconButton("mx-copy-symbolic", _("Duplicate"), G_CALLBACK(ShapeToolbox::duplicateCb)), false,
                        false, 0);
 
-    // Keep the keyboard focus on the page, for the shortcuts and the arrow keys
-    gtk_container_foreach(
-            GTK_CONTAINER(this->box), +[](GtkWidget* w, gpointer) { gtk_widget_set_focus_on_click(w, false); },
-            nullptr);
-    gtk_container_foreach(
-            GTK_CONTAINER(this->lineStyleBox), +[](GtkWidget* w, gpointer) { gtk_widget_set_focus_on_click(w, false); },
-            nullptr);
+    GtkWidget* delBtn = makeIconButton("mx-trash-symbolic", _("Delete"), G_CALLBACK(ShapeToolbox::deleteCb));
+    addClass(delBtn, "destructive");
+    gtk_box_pack_start(GTK_BOX(root), delBtn, false, false, 0);
 
-    gtk_widget_show_all(this->box);
+    GtkWidget* convBtn = prepareFlatButton(gtk_button_new(), _("Convert to stroke"));
+    GtkWidget* convInner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+    gtk_box_pack_start(GTK_BOX(convInner), newIcon("mx-spline-symbolic"), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(convInner), gtk_label_new(_("Convert to stroke")), false, false, 0);
+    gtk_container_add(GTK_CONTAINER(convBtn), convInner);
+    g_signal_connect(convBtn, "clicked", G_CALLBACK(ShapeToolbox::convertCb), this);
+    gtk_box_pack_start(GTK_BOX(root), convBtn, false, false, 0);
+
+    rebuildPalettes();
+    gtk_widget_show_all(root);
 }
 
 auto ShapeToolbox::getShapeSelection() const -> EditSelection* {
@@ -194,26 +520,49 @@ auto ShapeToolbox::getShapeSelection() const -> EditSelection* {
 void ShapeToolbox::update() {
     EditSelection* sel = getShapeSelection();
     if (!sel) {
+        commitOpacityDrag();
         this->lastStroke = nullptr;
-        gtk_widget_hide(this->box);
+        if (gtk_widget_get_visible(this->box.get())) {
+            gtk_widget_hide(this->box.get());
+            gtk_widget_queue_draw(this->win->getXournal()->getWidget());
+        }
         return;
     }
     if (sel->isMoving()) {
-        gtk_widget_hide(this->box);
+        if (gtk_widget_get_visible(this->box.get())) {
+            gtk_widget_hide(this->box.get());
+            gtk_widget_queue_draw(this->win->getXournal()->getWidget());
+        }
         return;
     }
     refresh(sel->getShapeStroke());
-    gtk_widget_show(this->box);
+    gtk_widget_show(this->box.get());
     // Recompute the position
-    gtk_widget_queue_resize(this->box);
+    gtk_widget_queue_resize(this->box.get());
 }
 
 void ShapeToolbox::refresh(const Stroke* s) {
     this->updating = true;
 
-    GdkRGBA color = Util::rgb_to_GdkRGBA(s->getColor());
-    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(this->colorButton), &color);
+    // Stroke color
+    const Color strokeCol = s->getColor();
+    setColorSwatch(this->strokeSwatch, strokeCol);
+    for (const auto& [col, btn]: this->strokeDots) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(btn), sameRgb(col, strokeCol));
+    }
 
+    // Width
+    setSampleWidth(this->widthSample, sampleWidth(s->getWidth()));
+    const ToolType thicknessTool = s->getToolType() == StrokeTool::HIGHLIGHTER ? TOOL_HIGHLIGHTER : TOOL_PEN;
+    const double* widths = this->win->getControl()->getToolHandler()->getToolThickness(thicknessTool);
+    for (size_t i = 0; i < this->widthRows.size(); i++) {
+        const double w = widths[WIDTHS[i].size];
+        setSampleWidth(this->widthRows[i].sample, sampleWidth(w));
+        gtk_label_set_text(this->widthRows[i].valueLabel, formatThickness(w).c_str());
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(this->widthRows[i].button), std::abs(s->getWidth() - w) < 0.05);
+    }
+
+    // Filling
     const bool filled = s->getFill() != -1;
     if (filled) {
         this->fillAlpha = s->getFill();
@@ -222,13 +571,25 @@ void ShapeToolbox::refresh(const Stroke* s) {
     }
     this->lastStroke = s;
 
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(this->fillToggle), filled);
-    GdkRGBA fill = Util::argb_to_GdkRGBA(s->getFillColor().value_or(s->getColor()), this->fillAlpha / 255.0);
-    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(this->fillColorButton), &fill);
+    gtk_switch_set_active(GTK_SWITCH(this->fillSwitch), filled);
+    const Color fillCol = s->getFillColor().value_or(strokeCol);
+    setColorSwatch(this->fillSwatch, fillCol, !filled);
+    const int pct = alphaToPercent(this->fillAlpha);
+    const std::string pctStr = std::to_string(pct) + "%";
+    gtk_label_set_text(this->fillPercentLabel, pctStr.c_str());
+    gtk_label_set_text(this->opacityValueLabel, pctStr.c_str());
+    gtk_range_set_value(GTK_RANGE(this->opacityScale), pct);
+    for (const auto& [col, btn]: this->fillDots) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(btn), sameRgb(col, fillCol));
+    }
     // Filled highlighters are drawn through a colorless mask: only the opacity matters
-    gtk_widget_set_visible(this->fillColorButton, s->getToolType() != StrokeTool::HIGHLIGHTER);
+    const bool showFillBtn = s->getToolType() != StrokeTool::HIGHLIGHTER;
+    gtk_widget_set_visible(this->fillButton, showFillBtn);
+    gtk_widget_set_sensitive(this->fillButton, filled);
 
+    // Line style
     const bool hasLineStyle = s->getToolType().hasLineStyle();
+    gtk_widget_set_visible(this->lineStyleSeparator, hasLineStyle);
     gtk_widget_set_visible(this->lineStyleBox, hasLineStyle);
     const std::string style = StrokeStyle::formatStyle(s->getLineStyle());
     for (size_t i = 0; i < this->lineStyleButtons.size(); i++) {
@@ -239,18 +600,64 @@ void ShapeToolbox::refresh(const Stroke* s) {
 }
 
 void ShapeToolbox::addUndoAction(UndoActionPtr action) {
-    this->win->getControl()->getUndoRedoHandler()->addUndoAction(std::move(action));
+    if (action) {
+        this->win->getControl()->getUndoRedoHandler()->addUndoAction(std::move(action));
+    }
 }
 
-auto ShapeToolbox::getFillAlpha() const -> int {
-    GdkRGBA rgba;
-    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(this->fillColorButton), &rgba);
-    return std::clamp(static_cast<int>(std::lround(rgba.alpha * 255)), 0, 255);
+void ShapeToolbox::applyStrokeColor(Color color) {
+    EditSelection* sel = getShapeSelection();
+    if (!sel) {
+        return;
+    }
+    // Keep the alpha the stroke had: it is not the opacity of the stroke, but part of the tool color
+    const Color current = sel->getShapeStroke()->getColor();
+    color.alpha = current.alpha;
+    if (color != current) {
+        addUndoAction(sel->setColor(color));
+    }
+    update();
+}
+
+void ShapeToolbox::applyFill(Color color, int alpha) {
+    EditSelection* sel = getShapeSelection();
+    if (!sel) {
+        return;
+    }
+    const Stroke* s = sel->getShapeStroke();
+    this->fillAlpha = std::clamp(alpha, 0, 255);
+    // Keep fill disabled until the user enables it; when enabled, update RGB in fillColor and alpha in fill
+    const int fill = s->getFill() != -1 ? this->fillAlpha : -1;
+    addUndoAction(sel->setFillStyle(fill, color));
+    update();
+}
+
+void ShapeToolbox::commitOpacityDrag() {
+    if (!this->opacityDragStart.has_value()) {
+        return;
+    }
+    const int startFill = *this->opacityDragStart;
+    this->opacityDragStart.reset();
+
+    EditSelection* sel = getShapeSelection();
+    if (!sel) {
+        return;
+    }
+    const Stroke* s = sel->getShapeStroke();
+    const int endFill = this->fillAlpha;
+    if (s->getFill() != -1 && startFill != endFill) {
+        // Restore the pre-drag fill and re-apply the final opacity so the whole drag is one undo step.
+        // Keep endFill in a local: setFillStyle() repaints the selection, which refreshes this->fillAlpha.
+        const auto fillColor = s->getFillColor();
+        sel->setFillStyle(startFill, fillColor);
+        addUndoAction(sel->setFillStyle(endFill, fillColor));
+        update();
+    }
 }
 
 auto ShapeToolbox::getOverlayPosition(GtkOverlay* overlay, GtkWidget* widget, GdkRectangle* allocation,
                                       ShapeToolbox* self) -> gboolean {
-    if (widget != self->box) {
+    if (widget != self->box.get()) {
         return false;
     }
     EditSelection* sel = self->getShapeSelection();
@@ -291,28 +698,45 @@ auto ShapeToolbox::getOverlayPosition(GtkOverlay* overlay, GtkWidget* widget, Gd
 }
 
 void ShapeToolbox::scrolledCb(GtkAdjustment*, ShapeToolbox* self) {
-    if (gtk_widget_get_visible(self->box)) {
-        gtk_widget_queue_resize(self->box);
+    if (gtk_widget_get_visible(self->box.get())) {
+        gtk_widget_queue_resize(self->box.get());
     }
 }
 
-void ShapeToolbox::colorSetCb(GtkColorButton* button, ShapeToolbox* self) {
-    EditSelection* sel = self->getShapeSelection();
-    if (self->updating || !sel) {
+void ShapeToolbox::strokeDotClickedCb(GtkToggleButton* button, ShapeToolbox* self) {
+    if (self->updating) {
         return;
     }
-    GdkRGBA rgba;
-    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(button), &rgba);
-    Color color = Util::GdkRGBA_to_rgb(rgba);
-    // Keep the alpha the stroke had: it is not the opacity of the stroke, but part of the tool color
-    color.alpha = sel->getShapeStroke()->getColor().alpha;
-    self->addUndoAction(sel->setColor(color));
+    gtk_popover_popdown(GTK_POPOVER(self->strokeColorPopover));
+    const Color c(static_cast<uint32_t>(GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(button), COLOR_KEY))));
+    self->applyStrokeColor(c);
+}
+
+void ShapeToolbox::strokeCustomColorCb(GtkButton*, ShapeToolbox* self) {
+    gtk_popover_popdown(GTK_POPOVER(self->strokeColorPopover));
+    EditSelection* sel = self->getShapeSelection();
+    if (!sel) {
+        return;
+    }
+    GtkWidget* dlg = gtk_color_chooser_dialog_new(_("Stroke color"), GTK_WINDOW(self->win->getWindow()));
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(dlg), false);
+    GdkRGBA initial = Util::rgb_to_GdkRGBA(sel->getShapeStroke()->getColor());
+    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(dlg), &initial);
+    if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_OK) {
+        GdkRGBA chosen;
+        gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(dlg), &chosen);
+        self->applyStrokeColor(Util::GdkRGBA_to_rgb(chosen));
+    }
+    gtk_widget_destroy(dlg);
 }
 
 void ShapeToolbox::widthCb(GtkButton* button, ShapeToolbox* self) {
+    if (self->updating) {
+        return;
+    }
     gtk_popover_popdown(GTK_POPOVER(self->widthPopover));
     EditSelection* sel = self->getShapeSelection();
-    if (self->updating || !sel) {
+    if (!sel) {
         return;
     }
     const ToolSize size = WIDTHS[getIndex(button)].size;
@@ -320,38 +744,96 @@ void ShapeToolbox::widthCb(GtkButton* button, ShapeToolbox* self) {
     const double pen = toolHandler->getToolThickness(TOOL_PEN)[size];
     const double highlighter = toolHandler->getToolThickness(TOOL_HIGHLIGHTER)[size];
     const double eraser = toolHandler->getToolThickness(TOOL_ERASER)[size];
-    self->addUndoAction(sel->setSize(pen, highlighter, eraser));
+    const Stroke* s = sel->getShapeStroke();
+    const double targetWidth = s->getToolType() == StrokeTool::HIGHLIGHTER ? highlighter : pen;
+    if (std::abs(s->getWidth() - targetWidth) >= 1e-6) {
+        self->addUndoAction(sel->setSize(pen, highlighter, eraser));
+    }
+    self->update();
 }
 
-void ShapeToolbox::fillToggledCb(GtkToggleButton* button, ShapeToolbox* self) {
+void ShapeToolbox::fillSwitchChangedCb(GObject* sw, GParamSpec*, ShapeToolbox* self) {
     EditSelection* sel = self->getShapeSelection();
     if (self->updating || !sel) {
         return;
     }
     const Stroke* s = sel->getShapeStroke();
+    const bool active = gtk_switch_get_active(GTK_SWITCH(sw));
     int fill = -1;
-    if (gtk_toggle_button_get_active(button)) {
+    if (active) {
         fill = s->getToolType() == StrokeTool::HIGHLIGHTER ?
                        self->win->getControl()->getToolHandler()->getHighlighterFill() :
-                       self->getFillAlpha();
+                       self->fillAlpha;
+    } else {
+        gtk_popover_popdown(GTK_POPOVER(self->fillPopover));
     }
     self->addUndoAction(sel->setFillStyle(fill, s->getFillColor()));
     self->update();
 }
 
-void ShapeToolbox::fillColorSetCb(GtkColorButton* button, ShapeToolbox* self) {
+void ShapeToolbox::fillDotClickedCb(GtkToggleButton* button, ShapeToolbox* self) {
+    if (self->updating) {
+        return;
+    }
+    const Color c(static_cast<uint32_t>(GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(button), COLOR_KEY))));
+    self->applyFill(c, self->fillAlpha);
+}
+
+void ShapeToolbox::fillCustomColorCb(GtkButton*, ShapeToolbox* self) {
+    gtk_popover_popdown(GTK_POPOVER(self->fillPopover));
+    EditSelection* sel = self->getShapeSelection();
+    if (!sel) {
+        return;
+    }
+    const Stroke* s = sel->getShapeStroke();
+    GtkWidget* dlg = gtk_color_chooser_dialog_new(_("Fill color"), GTK_WINDOW(self->win->getWindow()));
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(dlg), false);
+    GdkRGBA initial = Util::rgb_to_GdkRGBA(s->getFillColor().value_or(s->getColor()));
+    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(dlg), &initial);
+    if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_OK) {
+        GdkRGBA chosen;
+        gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(dlg), &chosen);
+        self->applyFill(Util::GdkRGBA_to_rgb(chosen), self->fillAlpha);
+    }
+    gtk_widget_destroy(dlg);
+}
+
+auto ShapeToolbox::opacityPressCb(GtkWidget*, GdkEventButton*, ShapeToolbox* self) -> gboolean {
+    if (EditSelection* sel = self->getShapeSelection()) {
+        const Stroke* s = sel->getShapeStroke();
+        if (s->getFill() != -1) {
+            self->opacityDragStart = s->getFill();
+        }
+    }
+    return false;
+}
+
+auto ShapeToolbox::opacityReleaseCb(GtkWidget*, GdkEventButton*, ShapeToolbox* self) -> gboolean {
+    self->commitOpacityDrag();
+    return false;
+}
+
+void ShapeToolbox::opacityValueChangedCb(GtkRange* range, ShapeToolbox* self) {
     EditSelection* sel = self->getShapeSelection();
     if (self->updating || !sel) {
         return;
     }
-    GdkRGBA rgba;
-    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(button), &rgba);
+    const int pct = static_cast<int>(std::lround(gtk_range_get_value(range)));
+    const int alpha = std::clamp(static_cast<int>(std::lround(pct * 255.0 / 100.0)), 0, 255);
+    const std::string pctStr = std::to_string(pct) + "%";
+    gtk_label_set_text(self->fillPercentLabel, pctStr.c_str());
+    gtk_label_set_text(self->opacityValueLabel, pctStr.c_str());
+
     const Stroke* s = sel->getShapeStroke();
-    self->fillAlpha = self->getFillAlpha();
-    // Keep fill disabled until the user enables it; when enabled, update RGB in fillColor and alpha in fill
-    const int fill = s->getFill() != -1 ? self->fillAlpha : -1;
-    self->addUndoAction(sel->setFillStyle(fill, Util::GdkRGBA_to_rgb(rgba)));
-    self->update();
+    if (self->opacityDragStart.has_value()) {
+        // Preview during the drag; commitOpacityDrag() pushes a single undo step on release
+        self->fillAlpha = alpha;
+        if (s->getFill() != -1) {
+            sel->setFillStyle(alpha, s->getFillColor());
+        }
+    } else {
+        self->applyFill(s->getFillColor().value_or(s->getColor()), alpha);
+    }
 }
 
 void ShapeToolbox::lineStyleToggledCb(GtkToggleButton* button, ShapeToolbox* self) {

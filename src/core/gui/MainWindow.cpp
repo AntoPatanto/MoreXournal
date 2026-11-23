@@ -925,6 +925,9 @@ void MainWindow::reloadToolbars() {
     if (floatingTools) {
         floatingTools->rebuildToolOptions();
     }
+    if (shapeToolbox) {
+        shapeToolbox->rebuildPalettes();
+    }
 }
 
 auto MainWindow::getSelectedToolbar() const -> ToolbarData* { return this->selectedToolbar; }
