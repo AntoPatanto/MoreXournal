@@ -534,6 +534,9 @@ void ToolPill::addSelectionActions(GtkBox* box) {
     g_signal_connect(dup, "clicked",
                      G_CALLBACK(+[](GtkButton*, gpointer ctrl) { static_cast<Control*>(ctrl)->duplicateSelection(); }),
                      control);
+    // Disabled with Delete while Control::block() runs (saving, exporting), so the document is not changed meanwhile
+    xoj::util::gtk::setWidgetFollowActionEnabled(
+            dup, G_ACTION(control->getActionDatabase()->getAction(Action::DELETE).get()));
     gtk_box_pack_start(box, dup, false, false, 0);
 
     GtkWidget* del = newActionButton(gtk_button_new(), Action::DELETE, nullptr, "mx-trash-symbolic", _("Delete"));
