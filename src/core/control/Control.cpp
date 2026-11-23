@@ -2104,11 +2104,20 @@ void Control::updateWindowTitle() {
         }
         title += char_cast(refPath.filename().u8string());
     }
+    std::string name = _("Unsaved Document");
+    if (!refPath.empty()) {
+        name = char_cast(refPath.filename().u8string());
+    }
+    // Autosave writes a backup file, not the document: only a real save counts as saved
+    std::string status = doc->getFilepath().empty() ? _("Not saved yet") :
+                         undoRedo->isChanged()      ? _("Unsaved changes") :
+                                                      _("Saved");
     this->doc->unlock_shared();
 
     title += " - MoreXournal";
 
     gtk_window_set_title(getGtkWindow(), title.c_str());
+    win->setDocumentTitle(name, status);
 }
 
 static fs::path createExportFilePath(Document* doc, const Settings* settings) {
@@ -2369,7 +2378,7 @@ auto Control::loadViewMode(ViewModeId mode) -> bool {
     if (!settings->loadViewMode(mode)) {
         return false;
     }
-    this->win->setMenubarVisible(settings->isMenubarVisible());
+    setShowMenubar(settings->isMenubarVisible());
     this->win->setToolbarVisible(settings->isToolbarVisible());
     this->win->setSidebarVisible(settings->isSidebarVisible());
     setFullscreen(settings->isFullscreen());

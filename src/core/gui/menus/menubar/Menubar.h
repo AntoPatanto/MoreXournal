@@ -38,6 +38,8 @@ public:
 
 public:
     inline GMenuModel* getModel() const { return menu; }
+    /// The same menus as getModel(), as one labelled section per menu, for the main menu button of the top bar
+    inline GMenuModel* getSectionedModel() const { return G_MENU_MODEL(sectionedMenu.get()); }
     inline ToolbarSelectionSubmenu& getToolbarSelectionSubmenu() const { return *toolbarSelectionSubmenu; }
     inline PageTypeSubmenu& getPageTypeSubmenu() const { return *pageTypeSubmenu; }
 
@@ -58,6 +60,9 @@ public:
 private:
     xoj::util::GObjectSPtr<GtkBuilder> builder;
     GMenuModel* menu;  // owned by `builder`
+    xoj::util::GObjectSPtr<GMenu> sectionedMenu;
+
+    void createSectionedMenu();
 
     // Dynamically created submenus -- also add to forEachSubmenu() below
     std::unique_ptr<RecentDocumentsSubmenu> recentDocumentsSubmenu;

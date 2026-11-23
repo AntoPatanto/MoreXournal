@@ -12,6 +12,7 @@
 #include "control/Control.h"                            // for Control
 #include "control/DeviceListHelper.h"                   // for InputDevice
 #include "control/settings/Settings.h"                  // for Settings
+#include "gui/MainWindow.h"                             // for MainWindow
 #include "gui/XournalView.h"                            // for XournalView
 #include "gui/dialog/DeviceTestingArea.h"               // for DeviceTestingArea
 #include "gui/inputdevices/GeometryToolInputHandler.h"  // for GeometryToolInputHandler
@@ -147,6 +148,12 @@ auto InputContext::handle(GdkEvent* sourceEvent) -> bool {
     if (inputSource == GDK_SOURCE_KEYBOARD) {
         // Keyboard events are handled via the GtkEventControllerKey instance
         return false;
+    }
+
+    if (this->view && (gdk_event_get_event_type(sourceEvent) == GDK_BUTTON_PRESS ||
+                       gdk_event_get_event_type(sourceEvent) == GDK_TOUCH_BEGIN)) {
+        // Alt held while drawing is a modifier, and a press on the page closes the menu bar shown with Alt
+        this->view->getControl()->getWindow()->onPagePressed();
     }
 
     InputEvent event = InputEvents::translateEvent(

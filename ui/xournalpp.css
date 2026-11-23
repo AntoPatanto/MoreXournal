@@ -225,3 +225,52 @@ image.flying-icon.TL {
 image.flying-icon.TR {
     border-radius: 50% 50% 50% 0%;
 }
+
+/*
+ * MoreXournal top bar: menu and document name, tools, history and pages.
+ * It is a GtkHeaderBar, in the window title bar or inline at the top of the window.
+ */
+headerbar.mx-topbar {
+	min-height: 48px;
+	padding: 0 6px;
+}
+
+.mx-topbar .mx-title {
+	font-weight: bold;
+}
+
+.mx-topbar .mx-status {
+	font-size: smaller;
+}
+
+.mx-topbar button.flat {
+	min-width: 32px;
+	min-height: 32px;
+	padding: 2px;
+	border-radius: 8px;
+}
+
+.mx-topbar .mx-tools button.mx-tool {
+	min-width: 40px;
+	min-height: 36px;
+	padding: 0;
+	border-radius: 10px;
+}
+
+/* The active tool gets a tinted background */
+.mx-topbar .mx-tools button.mx-tool:checked {
+	background-image: none;
+	background-color: alpha(@theme_selected_bg_color, 0.18);
+	border-color: transparent;
+	box-shadow: none;
+	color: @theme_selected_bg_color;
+}
+
+.mx-topbar separator.mx-separator {
+	margin: 10px 4px;
+}
+
+.mx-topbar .mx-page-label {
+	min-width: 48px;
+	font-feature-settings: "tnum";
+}

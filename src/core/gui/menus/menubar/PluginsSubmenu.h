@@ -29,6 +29,8 @@ public:
     void setDisabled(bool disabled) override;
     void addToMenubar(Menubar& menubar) override;
 
+    GMenuModel* getModel() const { return G_MENU_MODEL(submenu.get()); }
+
 private:
     xoj::util::GObjectSPtr<GMenu> submenu;
 };

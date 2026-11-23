@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
  <menu id="menubar">
-  <submenu>
+  <submenu id="menuFile">
    <attribute name="label" translatable="yes">_File</attribute>
    <section id="menu1">
     <item>
@@ -57,7 +57,7 @@
     </item>
    </section>
   </submenu>
-  <submenu>
+  <submenu id="menuEdit">
    <attribute name="label" translatable="yes">_Edit</attribute>
    <section id="sectionUndoRedo">
     <item>
@@ -177,7 +177,7 @@
     </submenu>
    </section>
   </submenu>
-  <submenu>
+  <submenu id="menuView">
    <attribute name="label" translatable="yes">_View</attribute>
    <section id="menu4">
     <item>
@@ -371,7 +371,7 @@
     </item>
    </section>
   </submenu>
-  <submenu>
+  <submenu id="menuNavigation">
    <attribute name="label" translatable="yes">_Navigation</attribute>
    <section id="menu6">
     <item>
@@ -437,7 +437,7 @@
     </item>
    </section>
   </submenu>
-  <submenu>
+  <submenu id="menuJournal">
    <attribute name="label" translatable="yes">_Journal</attribute>
    <section id="menu7">
     <item>
@@ -519,7 +519,7 @@
     </submenu>
    </section>
   </submenu>
-  <submenu>
+  <submenu id="menuTools">
    <attribute name="label" translatable="yes">_Tools</attribute>
    <section id="menu10">
     <item>
@@ -874,7 +874,7 @@
     </item>
    </section>
   </submenu>
-  <submenu>
+  <submenu id="menuHelp">
    <attribute name="label" translatable="yes">_Help</attribute>
    <attribute name="accel">&lt;Ctrl&gt;h</attribute>
    <section id="menu3">

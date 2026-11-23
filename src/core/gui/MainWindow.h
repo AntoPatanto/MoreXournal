@@ -42,6 +42,7 @@ class FloatingToolbox;
 class GladeSearchpath;
 
 class Menubar;
+class TopBar;
 
 typedef std::array<xoj::util::WidgetSPtr, TOOLBAR_DEFINITIONS_LEN> ToolbarWidgetArray;
 
@@ -75,6 +76,9 @@ public:
 
     void updatePageNumbers(size_t page, size_t pagecount, size_t pdfpage);
 
+    /// Shows the document name and its save state in the top bar
+    void setDocumentTitle(const std::string& name, const std::string& status);
+
     void setMaximized(bool maximized);
     bool isMaximized() const;
 
@@ -84,7 +88,10 @@ public:
 
     XournalView* getXournal() const;
 
+    /// Always show the menu bar (true), or only after a lone Alt press (false)
     void setMenubarVisible(bool visible);
+    /// A pen, mouse or touch press on the page: Alt is now a drawing modifier, and the menu bar shown with Alt hides
+    void onPagePressed();
     void setSidebarVisible(bool visible);
     void setToolbarVisible(bool visible);
 
@@ -129,6 +136,9 @@ private:
     void initXournalWidget();
 
     void createToolbar();
+    /// Once after an update from settings older than UI_LAYOUT_VERSION 1, see
+    /// Settings::consumePendingToolbarMigration()
+    void migrateSelectedToolbar();
 
     /**
      * Update the position of the separator in the paned container, adjusting it to the saved sidebar width.
@@ -158,6 +168,19 @@ private:
      */
     static void loadMainCSS(GladeSearchpath* gladeSearchPath, const gchar* cssFilename);
 
+    /// Wraps the window content in a box that also holds the inline top bar and the menu bar
+    void createWindowBox();
+    void createTopBar();
+    /// The top bar goes inline while fullscreen or without client-side decorations, otherwise in the title bar
+    void placeTopBar(bool fullscreen);
+
+    static gboolean onKeyEvent(GtkWidget* window, GdkEventKey* event, MainWindow* self);
+    /// @return true if the event was used to hide the menu bar and must not go further
+    bool handleMenubarKey(GdkEventKey* event);
+    /// Shows the menu bar until the next menu action, Escape, click, focus loss or Alt press
+    void setMenubarTemporarilyVisible(bool visible);
+    void updateMenubarReveal();
+
 private:
     Control* control;
 
@@ -176,6 +199,19 @@ private:
     ToolbarData* selectedToolbar = nullptr;
 
     std::unique_ptr<Menubar> menubar;
+    std::unique_ptr<TopBar> topBar;
+
+    GtkWidget* titlebar = nullptr;         ///< Header bar used as window title bar, owned by the window
+    GtkWidget* inlineBar = nullptr;        ///< Header bar at the top of the content, owned by the window
+    GtkWidget* menubarRevealer = nullptr;  ///< Owned by the window
+    GtkWidget* menubarWidget = nullptr;    ///< Owned by menubarRevealer
+
+    bool menubarPinned = false;     ///< The menu bar is always shown
+    bool menubarTemporary = false;  ///< Shown by a lone Alt press
+    bool altArmed = false;          ///< Alt is down and nothing else happened since it was pressed
+
+    size_t pageNumber = 0;
+    size_t pageCount = 0;
 
     bool maximized = false;
     bool darkMode = false;
