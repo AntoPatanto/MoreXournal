@@ -4839,3 +4839,50 @@ msgstr "File di note Xournal++"
 msgid "Xournal++ page template file"
 msgstr "File modello pagina Xournal++"
 
+msgid "Document"
+msgstr "Documento"
+
+msgid "Edit"
+msgstr "Modifica"
+
+msgid "Main menu"
+msgstr "Menu principale"
+
+msgid "Navigation"
+msgstr "Navigazione"
+
+msgid "New page"
+msgstr "Nuova pagina"
+
+msgid "Next page"
+msgstr "Pagina successiva"
+
+msgid "Not saved yet"
+msgstr "Non ancora salvato"
+
+msgid "Page sidebar"
+msgstr "Pannello pagine"
+
+msgid "Previous page"
+msgstr "Pagina precedente"
+
+msgid "Saved"
+msgstr "Salvato"
+
+msgid "Select"
+msgstr "Selezione"
+
+msgid "Shapes"
+msgstr "Forme"
+
+msgid "Unsaved changes"
+msgstr "Modifiche non salvate"
+
+msgid "Always show the menu bar"
+msgstr "Mostra sempre la barra dei menu"
+
+msgid "<i>Otherwise press Alt to show it. F10 toggles it.</i>"
+msgstr "<i>Altrimenti premi Alt per mostrarla. F10 la mostra o la nasconde.</i>"
+
+msgid "Show the tools in the window title bar (restart required)"
+msgstr "Mostra gli strumenti nella barra del titolo (richiede il riavvio)"
