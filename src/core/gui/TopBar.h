@@ -53,6 +53,7 @@ private:
     void createEnd();
 
     void onToolClicked(xoj::topbar::ToolGroup group);
+    void onActionStateChanged(GAction* action);
     /// Shows the button of the active tool as pressed
     void syncTools();
 

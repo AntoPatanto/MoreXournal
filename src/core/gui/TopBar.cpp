@@ -1,5 +1,6 @@
 #include "TopBar.h"
 
+#include <cstring>  // for strcmp
 #include <utility>  // for pair
 
 #include "control/Control.h"                 // for Control
@@ -10,7 +11,7 @@
 #include "gui/IconNameHelper.h"              // for IconNameHelper
 #include "undo/UndoRedoHandler.h"            // for UndoRedoHandler
 #include "util/GVariantTemplate.h"           // for getGVariantValue
-#include "util/GtkUtil.h"                    // for fixActionableInitialSensitivity
+#include "util/GtkUtil.h"                    // for fixActionableInitialSensitivity, setWidgetFollowActionEnabled
 #include "util/i18n.h"                       // for _
 #include "util/raii/GVariantSPtr.h"          // for GVariantSPtr
 
@@ -80,7 +81,9 @@ TopBar::TopBar(Control* control, GMenuModel* mainMenu): control(control) {
 
     // Follow tool changes from shortcuts, menus, toolbars and stylus buttons
     ActionDatabase* db = control->getActionDatabase();
-    auto onStateChanged = +[](GObject*, GParamSpec*, gpointer self) { static_cast<TopBar*>(self)->syncTools(); };
+    auto onStateChanged = +[](GObject* action, GParamSpec*, gpointer self) {
+        static_cast<TopBar*>(self)->onActionStateChanged(G_ACTION(action));
+    };
     auto watch = [&](Action a) {
         ActionRef action = db->getAction(a);
         gulong id = g_signal_connect(action.get(), "notify::state", G_CALLBACK(onStateChanged), this);
@@ -94,6 +97,9 @@ TopBar::TopBar(Control* control, GMenuModel* mainMenu): control(control) {
 }
 
 TopBar::~TopBar() {
+    for (size_t i = 0; i < TOOL_BUTTON_COUNT; i++) {
+        g_signal_handler_disconnect(toolButtons[i], toolClickedIds[i]);
+    }
     for (auto& [action, id]: watchedActions) {
         g_signal_handler_disconnect(action.get(), id);
     }
@@ -173,6 +179,9 @@ void TopBar::createCenter() {
                                              }),
                                              &toolButtonData[i]);
         toolButtons[i] = GTK_TOGGLE_BUTTON(btn);
+        // Control::block() disables the tool action: the buttons follow
+        xoj::util::gtk::setWidgetFollowActionEnabled(
+                btn, G_ACTION(control->getActionDatabase()->getAction(Action::SELECT_TOOL).get()));
 
         gtk_container_add(GTK_CONTAINER(box), btn);
         if (def.group == ToolGroup::ERASER || def.group == ToolGroup::SHAPES) {
@@ -262,6 +271,10 @@ void TopBar::setToolsVisible(bool visible) {
 
 void TopBar::onToolClicked(ToolGroup group) {
     ActionDatabase* db = control->getActionDatabase();
+    if (!g_action_get_enabled(G_ACTION(db->getAction(Action::SELECT_TOOL).get()))) {
+        syncTools();
+        return;
+    }
     switch (group) {
         case ToolGroup::PEN:
             db->fireActivateAction(Action::SELECT_TOOL, TOOL_PEN);
@@ -299,6 +312,23 @@ void TopBar::onToolClicked(ToolGroup group) {
     syncTools();
 }
 
+void TopBar::onActionStateChanged(GAction* action) {
+    // Remember the shape only when a shape action is switched on while the pen is the tool. Reading the drawing
+    // type while the tool changes would see the previous tool's type: SELECT_TOOL is updated before the others.
+    const char* name = g_action_get_name(action);
+    for (const auto& [shapeAction, type]: DRAWING_TYPE_ACTIONS) {
+        if (std::strcmp(name, Action_toString(shapeAction)) == 0) {
+            xoj::util::GVariantSPtr state(g_action_get_state(action), xoj::util::adopt);
+            if (getGVariantValue<bool>(state.get()) &&
+                getActionState<ToolType>(control->getActionDatabase(), Action::SELECT_TOOL) == TOOL_PEN) {
+                control->getSettings()->setLastShapeType(type);
+            }
+            break;
+        }
+    }
+    syncTools();
+}
+
 void TopBar::syncTools() {
     ActionDatabase* db = control->getActionDatabase();
     const auto tool = getActionState<ToolType>(db, Action::SELECT_TOOL);
@@ -312,8 +342,6 @@ void TopBar::syncTools() {
     const ToolGroup active = xoj::topbar::toolGroupFor(tool, dt);
     if (active == ToolGroup::SELECTION) {
         lastSelectionTool = tool;
-    } else if (active == ToolGroup::SHAPES && tool == TOOL_PEN) {
-        control->getSettings()->setLastShapeType(dt);
     }
 
     for (size_t i = 0; i < TOOL_BUTTON_COUNT; i++) {
