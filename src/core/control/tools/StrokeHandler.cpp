@@ -359,7 +359,9 @@ void StrokeHandler::onButtonPressEvent(const PositionInputData& pos, double zoom
     this->buttonDownPoint.y = pos.y / zoom;
 
     stroke = createStroke(this->control);
-    control->recordUsedColor(*stroke);
+    if (recordsUsedColor) {
+        control->recordUsedColor(*stroke);
+    }
 
     this->hasPressure = this->stroke->getToolType().isPressureSensitive() && pos.pressure != Point::NO_PRESSURE;
 
