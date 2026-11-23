@@ -1,0 +1,22 @@
+/*
+ * MoreXournal colours for the dark theme. ui/xournalpp.css uses them by name;
+ * ui/morexournal-light.css defines the same names for the light theme.
+ */
+@define-color mx_chrome #1d1f25;
+@define-color mx_canvas #121418;
+@define-color mx_surface #2a2d35;
+@define-color mx_surface2 #23262d;
+@define-color mx_text #eceef4;
+@define-color mx_text2 #a4aabb;
+@define-color mx_line #3b3f4a;
+@define-color mx_hover rgba(255, 255, 255, 0.08);
+@define-color mx_press rgba(255, 255, 255, 0.14);
+@define-color mx_accent #86a2ff;
+@define-color mx_accent_tint rgba(134, 162, 255, 0.2);
+@define-color mx_accent_text #a9bcff;
+@define-color mx_on_accent #10152b;
+@define-color mx_danger #ff8a8a;
+@define-color mx_shadow rgba(0, 0, 0, 0.5);
+@define-color mx_ring rgba(255, 255, 255, 0.07);
+/* Background of the selected button of a segmented control */
+@define-color mx_seg_checked rgba(134, 162, 255, 0.2);

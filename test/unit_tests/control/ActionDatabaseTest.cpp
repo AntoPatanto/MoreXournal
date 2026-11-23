@@ -9,7 +9,9 @@
  * @license GNU GPLv2 or later
  */
 
+#include <iterator>  // for size
 #include <string>
+#include <type_traits>  // for is_same_v
 
 #include <config-test.h>
 #include <gtest/gtest.h>
@@ -116,4 +118,13 @@ TEST(ActionDatabaseTest, testActionTargetMatch) {
     ASSERT_TRUE(menu);
 
     exploreMenu(menu);
+}
+
+TEST(ActionDatabaseTest, testHoldToShapeActionName) {
+    // Every action needs a name: the name map is edited by hand and must stay in step with the enum
+    EXPECT_EQ(std::size(ACTION_NAMES), xoj::to_underlying(Action::ENUMERATOR_COUNT));
+    EXPECT_STREQ(Action_toString(Action::HOLD_TO_SHAPE), "hold-to-shape");
+    EXPECT_EQ(Action_fromString("hold-to-shape"), Action::HOLD_TO_SHAPE);
+    EXPECT_EQ(Action_fromString("position-highlighting"), Action::POSITION_HIGHLIGHTING);
+    EXPECT_TRUE((std::is_same_v<ActionProperties<Action::HOLD_TO_SHAPE>::state_type, bool>));
 }

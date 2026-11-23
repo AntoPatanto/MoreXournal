@@ -32,6 +32,13 @@ public:
 
     xoj::util::WidgetSPtr createItem(bool horizontal) override;
 
+    /**
+     * A button opening the font dialog (win.select-font) that shows the current font
+     * @param fontAction The GAction of Action::FONT
+     * @return The button, a floating ref
+     */
+    static GtkWidget* makeButton(GAction* fontAction);
+
 private:
     ActionRef gAction;  ///< Points to the GAction corresponding to Action::FONT
 };

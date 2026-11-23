@@ -37,27 +37,37 @@ static GtkWidget* makeChild(const char* desc) {
     return box;
 }
 
-auto FontButton::createItem(bool horizontal) -> xoj::util::WidgetSPtr {
+static GtkWidget* newSelectFontButton() {
     GtkWidget* btn = gtk_button_new();
     gtk_widget_set_can_focus(btn, false);  // todo(gtk4) not necessary anymore
-    gtk_widget_set_tooltip_text(btn, getToolDisplayName().c_str());
+    gtk_widget_set_tooltip_text(btn, _("Font"));
     gtk_actionable_set_action_name(GTK_ACTIONABLE(btn),
                                    (std::string("win.") + Action_toString(Action::SELECT_FONT)).c_str());
+    return btn;
+}
 
+auto FontButton::makeButton(GAction* fontAction) -> GtkWidget* {
+    GtkWidget* btn = newSelectFontButton();
+    xoj::util::GVariantSPtr font(g_action_get_state(fontAction), xoj::util::adopt);
+    const char* desc = g_variant_get_string(font.get(), nullptr);
+    gtk_button_set_child(GTK_BUTTON(btn), makeChild(desc));
+
+    g_signal_connect_object(fontAction, "notify::state", G_CALLBACK(+[](GObject* action, GParamSpec*, gpointer btn) {
+                                xoj::util::GVariantSPtr font(g_action_get_state(G_ACTION(action)), xoj::util::adopt);
+                                const char* desc = g_variant_get_string(font.get(), nullptr);
+                                gtk_button_set_child(GTK_BUTTON(btn), makeChild(desc));
+                            }),
+                            btn, GConnectFlags(0));
+    return btn;
+}
+
+auto FontButton::createItem(bool horizontal) -> xoj::util::WidgetSPtr {
+    GtkWidget* btn = nullptr;
     if (horizontal) {
-        xoj::util::GVariantSPtr font(g_action_get_state(G_ACTION(gAction.get())), xoj::util::adopt);
-        const char* desc = g_variant_get_string(font.get(), nullptr);
-        gtk_button_set_child(GTK_BUTTON(btn), makeChild(desc));
-
-        g_signal_connect_object(
-                gAction.get(), "notify::state", G_CALLBACK(+[](GObject* action, GParamSpec*, gpointer btn) {
-                    xoj::util::GVariantSPtr font(g_action_get_state(G_ACTION(action)), xoj::util::adopt);
-                    const char* desc = g_variant_get_string(font.get(), nullptr);
-                    gtk_button_set_child(GTK_BUTTON(btn), makeChild(desc));
-                }),
-                btn, GConnectFlags(0));
+        btn = makeButton(G_ACTION(gAction.get()));
     } else {
         // In a vertical toolbar, we do not have the space to describe the font in the button
+        btn = newSelectFontButton();
         gtk_button_set_icon_name(GTK_BUTTON(btn), ICON_NAME);
     }
 

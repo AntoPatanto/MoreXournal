@@ -22,16 +22,25 @@ ColorToolItem::~ColorToolItem() = default;
 
 auto ColorToolItem::getColor() const -> Color { return this->namedColor.getColor(); }
 
-auto ColorToolItem::createItem(bool) -> xoj::util::WidgetSPtr {
+auto ColorToolItem::makeButton(const NamedColor& namedColor, std::optional<Color> secondaryColor, int iconSize)
+        -> GtkWidget* {
     auto* btn = gtk_toggle_button_new();
     gtk_widget_set_can_focus(btn, false);  // todo(gtk4) not necessary anymore
     auto actionName = std::string("win.") + Action_toString(Action::TOOL_COLOR);
     gtk_actionable_set_action_name(GTK_ACTIONABLE(btn), actionName.data());
+    xoj::util::GVariantSPtr target = xoj::util::makeGVariantSPtr(namedColor.getColor());
     gtk_actionable_set_action_target_value(GTK_ACTIONABLE(btn), target.get());
     xoj::util::gtk::setToggleButtonUnreleasable(GTK_TOGGLE_BUTTON(btn));
+    xoj::util::gtk::fixActionableInitialSensitivity(GTK_ACTIONABLE(btn));
 
-    gtk_widget_set_tooltip_text(btn, this->namedColor.getName().c_str());
-    gtk_button_set_child(GTK_BUTTON(btn), getNewToolIcon());
+    gtk_widget_set_tooltip_text(btn, namedColor.getName().c_str());
+    gtk_button_set_child(GTK_BUTTON(btn),
+                         ColorIcon::newGtkImage(namedColor.getColor(), iconSize, true, secondaryColor));
+    return btn;
+}
+
+auto ColorToolItem::createItem(bool) -> xoj::util::WidgetSPtr {
+    auto* btn = makeButton(this->namedColor, this->secondaryColor, 16);
 
 
     // For the sake of deprecated GtkToolbar, wrap the button in a GtkToolItem

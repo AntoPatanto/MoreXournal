@@ -1660,7 +1660,7 @@ msgstr "cancella tratto"
 
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:398
 msgid "Add/Edit Link"
-msgstr ""
+msgstr "Aggiungi/Modifica collegamento"
 
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:400
 msgid "Add/Edit TeX"
@@ -1727,19 +1727,19 @@ msgstr "Riproduci Oggetto"
 
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:446
 msgid "Justify text"
-msgstr ""
+msgstr "Giustifica testo"
 
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:448
 msgid "Align text to the left"
-msgstr ""
+msgstr "Allinea testo a sinistra"
 
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:450
 msgid "Center text"
-msgstr ""
+msgstr "Centra testo"
 
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:452
 msgid "Align text to the right"
-msgstr ""
+msgstr "Allinea testo a destra"
 
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:455
 msgid "Record Audio / Stop Recording"
@@ -1759,7 +1759,7 @@ msgstr "Avanti"
 
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:496
 msgid "Laser pointer"
-msgstr ""
+msgstr "Puntatore laser"
 
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:502
 msgid "Fill"
@@ -4886,3 +4886,93 @@ msgstr "<i>Altrimenti premi Alt per mostrarla. F10 la mostra o la nasconde.</i>"
 
 msgid "Show the tools in the window title bar (restart required)"
 msgstr "Mostra gli strumenti nella barra del titolo (richiede il riavvio)"
+
+msgid "Automatic shapes"
+msgstr "Forme automatiche"
+
+msgid "Change fill"
+msgstr "Cambia riempimento"
+
+msgid "Click on the page to insert an image"
+msgstr "Fai clic sulla pagina per inserire un'immagine"
+
+msgid "Convert shape to stroke"
+msgstr "Converti forma in tratto"
+
+msgid "Convert to shape when holding the pen still"
+msgstr "Converti in forma tenendo ferma la penna"
+
+msgid "Convert to stroke"
+msgstr "Converti in tratto"
+
+msgid "Custom color…"
+msgstr "Colore personalizzato…"
+
+msgid "Custom…"
+msgstr "Personalizzato…"
+
+msgid "Dashed line"
+msgstr "Linea tratteggiata"
+
+msgid "Dotted line"
+msgstr "Linea puntinata"
+
+msgid "Drag the page to move it"
+msgstr "Trascina la pagina per spostarla"
+
+msgid "Duplicate"
+msgstr "Duplica"
+
+msgid "Edit shape"
+msgstr "Modifica forma"
+
+msgid "Fill color and opacity"
+msgstr "Colore e opacità del riempimento"
+
+msgid "Hold duration (ms)"
+msgstr "Durata della pausa (ms)"
+
+msgid "Keep the pen still at the end of a stroke to turn it into a line, rectangle or circle"
+msgstr "Tieni ferma la penna alla fine di un tratto per trasformarlo in linea, rettangolo o cerchio"
+
+msgid "Lasso"
+msgstr "Lazo"
+
+msgid "Line style"
+msgstr "Stile linea"
+
+msgid "More colors"
+msgstr "Altri colori"
+
+msgid "More selection tools"
+msgstr "Altri strumenti di selezione"
+
+msgid "Object"
+msgstr "Oggetto"
+
+msgid "Opacity"
+msgstr "Opacità"
+
+msgid "Rectangle"
+msgstr "Rettangolo"
+
+msgid "Solid line"
+msgstr "Linea continua"
+
+msgid "Stroke color"
+msgstr "Colore tratto"
+
+msgid "Stroke width"
+msgstr "Spessore tratto"
+
+msgid "Thickness"
+msgstr "Spessore"
+
+msgid "Thickness and line style, shared with the pen"
+msgstr "Spessore e stile linea, condivisi con la penna"
+
+msgid "While drawing with the pen or the highlighter, keep the pen still to replace the stroke with a line, triangle, rectangle or circle."
+msgstr "Mentre disegni con la penna o l'evidenziatore, tieni ferma la penna per sostituire il tratto con una linea, un triangolo, un rettangolo o un cerchio."
+
+msgid "Whole stroke"
+msgstr "Tratto intero"

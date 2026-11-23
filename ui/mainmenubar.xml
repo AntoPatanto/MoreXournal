@@ -745,6 +745,12 @@
        <attribute name="action">win.tool-pen-fill-opacity</attribute>
       </item>
      </section>
+     <section>
+      <item>
+       <attribute name="label" translatable="yes">Automatic shapes</attribute>
+       <attribute name="action">win.hold-to-shape</attribute>
+      </item>
+     </section>
     </submenu>
     <submenu>
      <attribute name="label" translatable="yes">Eraser Optio_ns</attribute>

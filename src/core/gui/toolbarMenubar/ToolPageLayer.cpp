@@ -197,24 +197,42 @@ public:
             grid(nullptr) {}
     ~InstanceData() = default;
 
-    xoj::util::WidgetSPtr makeWidget(bool horizontal) {
+    xoj::util::WidgetSPtr makeWidget(bool horizontal, bool chip) {
         xoj::util::WidgetSPtr item(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1), xoj::util::adopt);
         GtkBox* hbox = GTK_BOX(item.get());
-        GtkWidget* lbl = gtk_label_new(_("Layer"));
-        gtk_widget_set_margin_start(lbl, 7);
-        gtk_widget_set_margin_end(lbl, 7);
-        gtk_box_append(hbox, lbl);
         GtkWidget* menuButton = gtk_menu_button_new();
+        if (chip) {
+            // The whole chip opens the menu
+            GtkWidget* content = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+            gtk_box_append(GTK_BOX(content), GTK_WIDGET(this->label));
+            GtkWidget* chevron = gtk_image_new_from_icon_name("mx-down-symbolic", GTK_ICON_SIZE_BUTTON);
+            gtk_image_set_pixel_size(GTK_IMAGE(chevron), 16);
+            gtk_box_append(GTK_BOX(content), chevron);
+            gtk_widget_show_all(content);
+            gtk_container_add(GTK_CONTAINER(menuButton), content);
+            gtk_widget_set_can_focus(menuButton, false);
+            gtk_widget_set_focus_on_click(menuButton, false);
+            gtk_style_context_add_class(gtk_widget_get_style_context(menuButton), "flat");
+            gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(this->popover)), "mx-popover");
+            gtk_widget_set_tooltip_text(menuButton, _("Layer"));
+            gtk_box_append(hbox, menuButton);
+            gtk_menu_button_set_direction(GTK_MENU_BUTTON(menuButton), GTK_ARROW_UP);
+        } else {
+            GtkWidget* lbl = gtk_label_new(_("Layer"));
+            gtk_widget_set_margin_start(lbl, 7);
+            gtk_widget_set_margin_end(lbl, 7);
+            gtk_box_append(hbox, lbl);
 #if GTK_MAJOR_VERSION == 3
-        gtk_widget_set_can_focus(menuButton, false);
-        gtk_box_append(hbox, GTK_WIDGET(this->label));
+            gtk_widget_set_can_focus(menuButton, false);
+            gtk_box_append(hbox, GTK_WIDGET(this->label));
 #else
-        gtk_menu_button_set_child(GTK_MENU_BUTTON(menuButton), GTK_WIDGET(this->label));
-        gtk_menu_button_set_always_show_arrow(GTK_MENU_BUTTON(menuButton), true);
+            gtk_menu_button_set_child(GTK_MENU_BUTTON(menuButton), GTK_WIDGET(this->label));
+            gtk_menu_button_set_always_show_arrow(GTK_MENU_BUTTON(menuButton), true);
 #endif
-        gtk_box_append(hbox, menuButton);
-        // TODO: fix orientation
-        gtk_menu_button_set_direction(GTK_MENU_BUTTON(menuButton), horizontal ? GTK_ARROW_DOWN : GTK_ARROW_RIGHT);
+            gtk_box_append(hbox, menuButton);
+            // TODO: fix orientation
+            gtk_menu_button_set_direction(GTK_MENU_BUTTON(menuButton), horizontal ? GTK_ARROW_DOWN : GTK_ARROW_RIGHT);
+        }
         gtk_menu_button_set_popover(GTK_MENU_BUTTON(menuButton), GTK_WIDGET(this->popover));
 
         LayerCtrlListener::registerListener(lc);
@@ -290,10 +308,11 @@ private:
 };
 
 
-ToolPageLayer::ToolPageLayer(std::string id, LayerController* lc, IconNameHelper iconNameHelper):
+ToolPageLayer::ToolPageLayer(std::string id, LayerController* lc, IconNameHelper iconNameHelper, bool chip):
         AbstractToolItem(std::move(id), Category::NAVIGATION),
         lc(lc),
-        iconName(iconNameHelper.iconName("combo-layer")) {}
+        iconName(iconNameHelper.iconName("combo-layer")),
+        chip(chip) {}
 
 ToolPageLayer::~ToolPageLayer() = default;
 
@@ -305,7 +324,7 @@ auto ToolPageLayer::getNewToolIcon() const -> GtkWidget* {
 
 auto ToolPageLayer::createItem(bool horizontal) -> xoj::util::WidgetSPtr {
     auto data = std::make_unique<InstanceData>(lc);
-    auto item = data->makeWidget(horizontal);
+    auto item = data->makeWidget(horizontal, chip);
 
     // Destroy *data if the widget is destroyed
     g_object_weak_ref(

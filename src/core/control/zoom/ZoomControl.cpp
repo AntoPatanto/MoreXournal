@@ -274,6 +274,11 @@ void ZoomControl::setZoom100Value(double zoom100Val) {
     setWithRelZoom(this->zoomMax);
     setWithRelZoom(this->zoomMin);
     this->zoom100Value = zoom100Val;
+    if (this->control) {
+        if (auto* db = this->control->getActionDatabase()) {
+            db->setActionState(Action::ZOOM, getZoomReal());
+        }
+    }
     fireZoomRangeValueChanged();
 }
 

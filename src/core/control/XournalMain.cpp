@@ -434,6 +434,8 @@ void on_startup(GApplication* application, XMPtr app_data) {
     app_data->gladePath = std::make_unique<GladeSearchpath>();
     initResourcePath(app_data->gladePath.get(), "ui/about.glade");
     initResourcePath(app_data->gladePath.get(), "ui/xournalpp.css", false);
+    initResourcePath(app_data->gladePath.get(), "ui/morexournal-light.css");
+    initResourcePath(app_data->gladePath.get(), "ui/morexournal-dark.css");
     initResourcePath(app_data->gladePath.get(), "ui/toolbar.ini", false);
 
     app_data->control = std::make_unique<Control>(application, app_data->gladePath.get());
