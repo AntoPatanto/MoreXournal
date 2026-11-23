@@ -1,335 +1,95 @@
-# <img src="ui/pixmaps/com.github.xournalpp.xournalpp.svg" align="left" width="100" height="100">  <br> Xournal++
+<p align="center">
+  <img src="ui/pixmaps/io.github.antopatanto.morexournal.svg" width="80" height="80" alt="">
+</p>
 
+<h1 align="center">MoreXournal</h1>
 
-[![Build Status](https://dev.azure.com/xournalpp/xournalpp/_apis/build/status/CI?branchName=master)](https://dev.azure.com/xournalpp/xournalpp/_build/latest?definitionId=1&branchName=master)
+<p align="center">
+  A fork of <a href="https://github.com/xournalpp/xournalpp">Xournal++</a> for handwritten notes and PDF annotation, with editable shapes and a single top bar.<br>
+  Runs locally on your computer with no account, server or telemetry, and installs side by side with Xournal++.
+</p>
 
-<img src="readme/main.png" width=550px% title="Xournal++ on GNU/Linux"/>
+<p align="center">
+  <a href="LICENSE"><img alt="GPL-2.0 license" src="https://img.shields.io/badge/license-GPL--2.0-3563e9"></a>
+</p>
 
-## Translations
+<p align="center">
+  <a href="#build-from-source">Build from source</a> ·
+  <a href="#documentation">Documentation</a> ·
+  <a href="CONTRIBUTING.md">Contributing</a>
+</p>
 
-Would you like to see Xournal++ in your own language? Translators are welcome to contribute to Xournal++.
+> [!NOTE]
+> TODO: Add light and dark screenshots of MoreXournal's current UI (top bar, floating tool pill and editable shape handles) in `docs/screenshots/`. The screenshots under `readme/` are from upstream Xournal++ and do not reflect MoreXournal's interface.
 
-You can contribute translations on [Crowdin](https://crowdin.com/project/xournalpp/).
+## Why MoreXournal
 
-Interested in translating a new language? Discuss on [Matrix](https://matrix.to/#/#xournalpp_xournalpp:gitter.im) or create a [new issue](https://github.com/xournalpp/xournalpp/issues) to unlock the language on Crowdin.
+MoreXournal is a public fork of [Xournal++](https://github.com/xournalpp/xournalpp) that adds hold-to-shape drawing, editable shape objects, and a single-bar GTK3 interface while keeping compatibility with `.xopp` files.
 
-**Thanks in advance!**
+It is free software under GPL-2.0 and runs locally on your machine with no account, server or telemetry. Because it uses its own application ID (`io.github.antopatanto.morexournal`), binaries (`morexournal`), and configuration folder, you can install it alongside Xournal++ without sharing settings.
 
-## Features
+## What you can do
 
-Xournal++ (/ˌzɚnl̟ˌplʌsˈplʌs/) is a hand note-taking software written in C++ with the target of flexibility, functionality and speed.
-Stroke recognizer and other parts are based on Xournal Code, which you can find at [SourceForge](http://sourceforge.net/projects/xournal/).
+**Convert strokes into shapes by holding the pen still.** While drawing with the pen or highlighter, hold the tip still (500 ms by default, configurable from 100 to 3000 ms in Preferences, or toggleable as Automatic shapes in the tool pill) to replace the stroke with a recognized line, triangle, rectangle or circle before lifting the pen. Recognized lines snap to 15-degree steps when rotation snapping is enabled, and one undo removes the shape.
 
-Xournal++ features:
+**Edit shapes after you draw them.** Shapes created with hold-to-shape or with the line, rectangle and ellipse tools store their type and control points. Selecting a shape displays geometry handles (endpoints for lines, free vertices for polygons, corners and rotation for rectangles, side stretch and rotation for ellipses) and a floating shape menu to change stroke colour, thickness, fill colour and opacity, solid, dashed or dotted line style, duplicate, delete, or convert the shape back to a plain stroke.
 
-- Supports pressure-sensitive styluses and digital pen tables (e.g. Wacom, Huion, XP Pen, etc. tablets)
-- Paper backgrounds for note-taking, scratch paper, or whiteboarding
-- Annotate on top of PDFs
-- Select text from the background PDF, copy, highlight or underline it or strike it through
-- Follow links from the background PDF
-- Export to a variety of formats including SVG, PNG and PDF, both from the GUI and command line
-- Different drawing tools (e.g. pen, highlighter) and stroke styles (e.g. solid, dotted)
-- Shape drawing (line, arrow, circle, rectangle, spline)
-- Use the set-square and compass tools for measurements or as a guide for drawing straight lines, circular arcs and radii
-- Fill shape functionality
-- Shape resizing and rotation
-- Rotation and grid snapping for precise alignment of objects
-- Input stabilization for smoother writing/drawing
-- Text tool for adding text in different fonts, colors, and sizes
-- Enhanced support for image insertion
-- Eraser with multiple configurations
-- LaTeX support (requires a working LaTeX installation) with customizable template and a resizable editor with syntax highlighting
-- Sidebar containing page previews with advanced page sorting, PDF bookmarks and layers (can be individually hidden/edited)
-- Allows mapping different tools/colors etc. to stylus/mouse buttons
-- Customizable toolbar with multiple configurations, e.g. to optimize toolbar for portrait/landscape
-- Custom color palette support using the .gpl format
-- Page template definitions
-- Bug reporting, auto-save, and auto backup tools
-- Audio recording and playback alongside with handwritten notes
-- Multi language support (over 20 languages supported)
-- Plugins using Lua scripting
+**Work in a single top bar.** One header bar replaces the classic menu bar and toolbar rows: the main menu and document title with save status sit on the left, the eight main tools in the centre, and undo/redo, page sidebar toggle, page navigation and new page on the right. Tap <kbd>Alt</kbd> (or press <kbd>F10</kbd>) to show the menu bar temporarily, or enable "Always show the menu bar" in Preferences.
 
+**Adjust tools from floating controls.** A rounded floating pill under the top bar shows options for the active tool, including black plus up to five recently used colours (shared across pen, highlighter, shapes and text), thickness, line style and fill. Zoom controls and the layer selector float in the bottom corners and follow the page area when the sidebar or search bar opens.
 
-<table>
-<tr>
-<td>
+**Switch between indigo light and dark themes.** Built-in themes (`ui/morexournal-light.css` and `ui/morexournal-dark.css`) follow your system or application theme setting while keeping the page paper light in dark mode.
 
-## GNU/Linux
+**Keep upstream Xournal++ features.** Pressure-sensitive styluses, PDF annotation with text selection and link following, paper backgrounds, LaTeX formulas, audio recording, Lua plugins, and export to PDF, PNG and SVG remain available.
 
-<img src="readme/main.png" width=100% title="Xournal++ on GNU/Linux"/>
+## Build from source
 
-</td><td>
+Prebuilt releases are not published yet, so build MoreXournal from source with CMake and Ninja.
 
-## Windows 10
+You need a C++20 compiler (GCC 11+ or Clang 15+), CMake 3.18+, Ninja, GTK 3.18.9+, `poppler-glib` 0.41.0+, libxml2, libzip, librsvg and zlib. Optional features use PortAudio and libsndfile for audio, qpdf for PDF export, Lua for plugins, GtkSourceView 4 for LaTeX syntax highlighting, and GoogleTest for tests. Dependency install commands for Arch, Fedora, Ubuntu/Debian, openSUSE and Solus are in [readme/LinuxBuild.md](readme/LinuxBuild.md).
 
-<img src="readme/main-win.png" width=100% title="Xournal++ on Windows 10"/>
+Clone the repository, configure, build, install to a local prefix, and run:
 
-</td></tr><tr><td>
-
-## macOS Catalina
-
-<img src="readme/main-mac.png" width=100% title="Xournal++ on macOS Catalina"/>
-
-</td><td>
-
-## Xournal++ Mobile on Chromium OS
-
-<img src="https://gitlab.com/TheOneWithTheBraid/xournalpp_mobile/-/raw/master/fastlane/metadata/android/en_US/images/tenInchScreenshots/03.png" width=100% title="Xournal++ Mobile on Chromium OS"/>
-
-</td></tr><tr><td>
-
-## Toolbar / Page Background / Layer
-
-Multiple page background, easy selectable on the toolbar
-<img src="readme/background.png" width=100% title="Changing the page background in Xournal++"/>
-
-</td><td>
-
-## Layer sidebar and advanced layer selection
-
-<img src="readme/layer.png" width=100% title="Layers in Xournal++"/>
-
-</td></tr><tr><td>
-
-## Multiple predefined and fully customizable toolbars
-
-<img src="readme/toolbar.png" width=100% title="Custom toolbars in Xournal++"/>
-
-</td></tr></table>
-
-## User Guide
-
-Check out the [website](https://xournalpp.github.io/guide/overview/) for a detailed user guide.
-
-## Installing
-
-The official releases of Xournal++ can be found on the
-[Releases](https://github.com/xournalpp/xournalpp/releases) page. We provide
-binaries for Debian, Ubuntu, macOS and Windows.
-For other GNU/Linux distributions (or older/newer ones), we also provide an
-AppImage that is binary compatible with any distribution released around or
-after Ubuntu 22.04. For installing Xournal++ Mobile on handheld devices, please check out the [Mobile & web app section](#mobile--web-app)
-
-**A note for Ubuntu/Debian users**: The official binaries that we provide are
-only compatible with the _specific version of Debian or Ubuntu_ indicated by the
-file name. For example, if you are on Ubuntu 20.04, the binary whose name
-contains `Ubuntu-bionic` is _only_ compatible with Ubuntu 18.04. If your system
-is not one of the specific Debian or Ubuntu versions that are supported by the
-official binaries, we recommend you use either the PPA (Ubuntu only), the Flatpak, or the
-AppImage.
-
-There is also an _unstable_, [automated nightly
-release](https://github.com/xournalpp/xournalpp/releases/tag/nightly) that
-includes the very latest features and bug fixes.
-
-With the help of the community, Xournal++ is also available on official repositories
-of some popular GNU/Linux distros and platforms.
-
-[![Packaging status](https://repology.org/badge/vertical-allrepos/xournalpp.svg?columns=5)](https://repology.org/project/xournalpp/versions)
-
-
-### Debian
-
-On Debian bookworm and Debian sid the `xournalpp` package (stable version) is contained in the official repositories. Simply install via
-
-```sh
-sudo apt install xournalpp
+```bash
+git clone https://github.com/AntoPatanto/MoreXournal.git
+cd MoreXournal
+cmake -S . -B build -G Ninja -DCMAKE_INSTALL_PREFIX=build/install
+cmake --build build
+cmake --build build --target install
+./build/install/bin/morexournal
 ```
 
-There are also the official [Stable releases](https://github.com/xournalpp/xournalpp/releases) and
-_unstable_ [automated nightly releases](https://github.com/xournalpp/xournalpp/releases/tag/nightly).
+Running the `install` target is required because MoreXournal loads its UI, icons and themes from `share/morexournal` in the install prefix. To install into `~/.local` instead, pass `-DCMAKE_INSTALL_PREFIX="$HOME/.local"` and run `./build/cmake/postinst configure` after installing so desktop, MIME and icon caches update.
 
-### Ubuntu and derivatives
+To build and run the unit and GTK integration tests:
 
-On distros based on Ubuntu 22.04 Jammy Jellyfish (and later) the `xournalpp` package (stable version) is contained in the official repositories.
-Simply install via
-
-```sh
-sudo apt install xournalpp
+```bash
+cmake -S . -B build -G Ninja -DENABLE_GTEST=ON
+cmake --build build --target test-units test-gtk-integration
+ctest --test-dir build --output-on-failure
 ```
 
-#### Stable PPA
-The latest stable version is available via the following [_unofficial_ PPA](https://github.com/xournalpp/xournalpp/issues/1013#issuecomment-692656810):
+If GoogleTest is not installed on your system, add `-DDOWNLOAD_GTEST=ON` to the configure command.
 
-```sh
-sudo add-apt-repository ppa:apandada1/xournalpp-stable
-sudo apt update
-sudo apt install xournalpp
-```
+## Your data
 
-#### Unstable PPA
-An _unstable_, nightly release is available for Ubuntu-based distributions via the following PPA:
+MoreXournal stores all notes and settings locally and makes no network requests of its own, with no account, cloud sync or telemetry.
 
-```sh
-sudo add-apt-repository ppa:andreasbutti/xournalpp-master
-sudo apt update
-sudo apt install xournalpp
-```
+On Linux, configuration, cache, data and state live under `morexournal`: `~/.config/morexournal`, `~/.cache/morexournal`, `~/.local/share/morexournal` and `~/.local/state/morexournal`. On first launch, if `~/.config/xournalpp` exists and `~/.config/morexournal` does not, MoreXournal copies your Xournal++ settings and leaves the original folder untouched.
 
-This PPA is provided by the Xournal++ team. While it has the latest features and
-bug fixes, it has also not been tested thoroughly and may break periodically (we
-try our best not to break things, though).
+Notes are saved in the gzipped XML `.xopp` format shared with Xournal++. Attached PDFs are linked by path rather than embedded. Editable shapes are saved as extra attributes (`mxShape`, `mxShapeParams`, `mxFillColor`) on `<stroke>` elements, which upstream Xournal++ ignores so the same file opens there as regular strokes. Exporting to legacy `.xoj` drops Xournal++ and MoreXournal extensions.
 
-### Fedora
+## Documentation
 
-The [released version of
-xournalpp](https://src.fedoraproject.org/rpms/xournalpp) is available in the
-[main repository](https://bodhi.fedoraproject.org/updates/?packages=xournalpp)
-via _Software_ application or the following command:
+| Read this                                                           | To learn                                           |
+| ------------------------------------------------------------------- | -------------------------------------------------- |
+| [Compilation and testing](readme/Compile.md)                        | Platform-independent CMake build and test options  |
+| [Linux build guide](readme/LinuxBuild.md)                           | Distro dependency packages and Linux packaging     |
+| [macOS build guide](readme/MacBuild.md)                             | Building on macOS (from upstream Xournal++)        |
+| [Windows build guide](readme/WindowsBuild.md)                       | Building on Windows (from upstream Xournal++)      |
+| [Contributing](CONTRIBUTING.md)                                     | Coding conventions and pull request guidelines     |
+| [Xournal++ user guide](https://xournalpp.github.io/guide/overview/) | Upstream documentation for core Xournal++ features |
 
-```sh
-sudo dnf install xournalpp
-```
+## License
 
-or
-
-```sh
-pkcon install xournalpp
-```
-
-The bleeding edge packages synced to xournalpp git master on a daily basis are available from [COPR luya/xournalpp](https://copr.fedorainfracloud.org/coprs/luya/xournalpp/).
-[![Copr build status](https://copr.fedorainfracloud.org/coprs/luya/xournalpp/package/xournalpp/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/luya/xournalpp/package/xournalpp/)
-
-### openSUSE
-
-On openSUSE Tumbleweed, the released version of Xournal++ is available from the
-main repository:
-
-```sh
-sudo zypper in xournalpp
-```
-
-For openSUSE Leap 15.0 and earlier, use the install link from
-[X11:Utilities](https://software.opensuse.org//download.html?project=X11%3AUtilities&package=xournalpp).
-
-For all versions of openSUSE, bleeding edge packages synced to xournalpp git
-master on a weekly basis are available from
-[home:badshah400:Staging](https://software.opensuse.org//download.html?project=home%3Abadshah400%3AStaging&package=xournalpp).
-
-### Arch Linux
-
-The latest stable release is available [in the [extra]
-repository](https://www.archlinux.org/packages/extra/x86_64/xournalpp/).
-
-To build the latest state of the master branch yourself, use [this AUR
-package](https://aur.archlinux.org/packages/xournalpp-git/).
-
-### Solus
-
-The latest stable release is available in the main repository:
-
-```sh
-sudo eopkg it xournalpp
-```
-
-
-### Chrome OS
-
-You can [enable the linux container](https://support.google.com/chromebook/answer/9145439?hl=en), and install the [Debian package](https://github.com/xournalpp/xournalpp?tab=readme-ov-file#debian) from the official Debian repositories.
-```sh
-sudo apt install xournalpp
-```
-
-### Flatpak
-
-The Xournal++ team officially supports a [FlatHub
-release](https://flathub.org/apps/details/com.github.xournalpp.xournalpp), which
-can be installed with
-
-```sh
-flatpak install flathub com.github.xournalpp.xournalpp
-```
-
-Note that for Xournal++ to work properly, you must have at least one GTK theme
-and one icon theme installed on Flatpak. To enable LaTeX support, you will also
-need to install the TeX Live extension:
-
-```sh
-flatpak install flathub org.freedesktop.Sdk.Extension.texlive
-```
-
-The Flatpak manifest can be found at the [Xournal++ Flatpak packaging
-repository](https://github.com/flathub/com.github.xournalpp.xournalpp), and all
-Flatpak-related packaging issues should be reported there.
-
-### Android
-
-Android is supported by Xournal++ Mobile. It can be downloaded [from F-Droid](https://f-droid.org/en/packages/online.xournal.mobile/) or you can [build](#building-the-mobile-app) it.
-
-
-### iOS
-
-Unfortunately, the iOS app is not published yet in the Apple App Store. Read [this](#mobile--web-app) to learn, why. Anyway, in the [Building section](#building-the-mobile-app) you can learn how to build an early preview.
-
-### Windows
-
-Official Windows releases are provided on the [Releases
-page](https://github.com/xournalpp/xournalpp/releases).
-
-You can also download it from the Microsoft Store (supports automated updates):
-
-<a href="https://apps.microsoft.com/detail/9nn1hhct0p1x?referrer=appbadge&mode=full" target="_blank"  rel="noopener noreferrer">
-	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
-</a>
-
-Our official GitHub release is also available via [winget](https://github.com/microsoft/winget-pkgs/tree/master/manifests/x/Xournal%2B%2B/Xournal%2B%2B). Open PowerShell and run:
-
-```sh
-winget install -e --id Xournal++.Xournal++
-```
-
-You can also install it via [Scoop](https://scoop.sh/):
-
-```sh
-scoop bucket add extras
-scoop install extras/xournalpp
-```
-You can easily update Xournal++ with winget or scoop.
-
-
-### macOS
-
-Releases for macOS are provided on the [Releases
-page](https://github.com/xournalpp/xournalpp/releases).
-However, the app will refuse to run due to Apple policies (see https://github.com/xournalpp/xournalpp/issues/6185). Run the following commands one by one to make it work:
-```
-xattr -c /Applications/Xournal++.app
-codesign --force --deep --sign - /Applications/Xournal++.app
-```
-And for those who type it out, don't forget to type the hyphen (`-`) between `--sign` and `/Applications/Xournal++.app`
-
-## Building
-
-We support building on three operating systems:
-
-- [Linux](readme/LinuxBuild.md)
-- [macOS](readme/MacBuild.md)
-- [Windows](readme/WindowsBuild.md)
-- [Windows on ARM (not officially supported)](readme/WindowsBuildArm.md)
-
-
-## File format
-
-The file extension `.xopp` is a gzipped XML file. PDFs are not embedded into the file, so if the PDF is deleted, the background is lost. `.xopp` is basically the same file format as `.xoj`, which is used by Xournal. Therefore, Xournal++ is able to read `.xoj` files, and can also export to `.xoj`. As soon as notes are exported to a `.xoj` file, all Xournal++ specific extensions like additional background types, are lost.
-
-`.xopp` files can theoretically be read by Xournal, as long as you do not use any new features. Xournal does not open files that contain new attributes or unknown values, so Xournal++ will add the extension `.xopp` to all saved files to indicate the potential presence of Xournal++-only features.
-
-All new files will be saved as `.xopp`. If an `.xoj` file that was created by Xournal is opened, the Save-As dialog will be displayed on save. If the `.xoj` file was created by Xournal++, the file will be overwritten on save and the file extension will not change.
-
-**We are currently introducing a new file format that can efficiently store attached PDF files and other attachments internally. We will still allow for attachments that are linked to external files. Please refer to [#937](https://github.com/xournalpp/xournalpp/issues/937) for further details.**
-
-## Mobile & web app
-
-From mid 2020 to May 2021, a Flutter-written mobile app for **Android** and **iOS** (unreleased) and the **web**
-has been developed, which supports the file format and most of the basic features of Xournal++.
-Unfortunately development has stalled and we have lost contact to the (single) developer. The web app is no longer available.
-You can still check out the [separate repository on GitLab](https://gitlab.com/TheOneWithTheBraid/xournalpp_mobile) or install it from [F-Droid](https://f-droid.org/en/packages/online.xournal.mobile/).
-
-### Building the mobile app
-
-- [Android Build](https://gitlab.com/TheOneWithTheBraid/xournalpp_mobile#getting-started)
-- [iOS Build](https://gitlab.com/TheOneWithTheBraid/xournalpp_mobile#getting-started)
-
-## Contributing
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md). If your pull request does not need Xournal++ to be built to test it (e.g. for a README update), you can prepend [skip ci] to the title of the commit to disable CI running.
+MoreXournal is a fork of [Xournal++](https://github.com/xournalpp/xournalpp), which builds on [Xournal](http://sourceforge.net/projects/xournal/). It is licensed under the [GNU General Public License v2.0](LICENSE). Upstream contributors are listed in [AUTHORS](AUTHORS), and packaging copyright notices are in [debian/copyright](debian/copyright). Upstream translations are managed on [Crowdin](https://crowdin.com/project/xournalpp/).
