@@ -8,6 +8,7 @@
 #include "control/Control.h"
 #include "gui/MainWindow.h"
 #include "util/GVariantTemplate.h"
+#include "util/raii/GVariantSPtr.h"
 #include "util/safe_casts.h"  // for to_underlying Todo(cpp20) remove
 
 #include "ActionProperties.h"
@@ -73,6 +74,28 @@ class ActionDatabase::Populator {
         }
     };
 
+    template <Action a, class U = void>
+    struct TargetedAccelerators {
+        static inline void setup(Control*) {}
+    };
+    template <Action a>
+    struct TargetedAccelerators<a, std::void_t<decltype(&ActionProperties<a>::targetedAccelerators)>> {
+        static_assert(has_param<a>(), "targetedAccelerators requires a parameterized action");
+
+        static inline void setup(Control* ctrl) {
+            std::string fullActionName = ActionNamespace<a>::ACTION_NAMESPACE;
+            fullActionName += Action_toString(a);
+            auto* app = GTK_APPLICATION(gtk_window_get_application(ctrl->getGtkWindow()));
+            for (const auto& [target, accel]: ActionProperties<a>::targetedAccelerators) {
+                auto targetVariant = xoj::util::makeGVariantSPtr<typename ActionProperties<a>::parameter_type>(target);
+                gchar* detailed = g_action_print_detailed_name(fullActionName.c_str(), targetVariant.get());
+                const char* accels[] = {accel, nullptr};
+                gtk_application_set_accels_for_action(app, detailed, accels);
+                g_free(detailed);
+            }
+        }
+    };
+
     template <Action a>
     static inline void finishSetup(ActionDatabase* db, const char* signal) {
         db->signalIds[a] = g_signal_connect(G_OBJECT(db->gActions[a].get()), signal,
@@ -80,6 +103,7 @@ class ActionDatabase::Populator {
         ActionNamespace<a>::addToActionMap(db);
         // g_action_map_add_action(G_ACTION_MAP(db->win), G_ACTION(db->gActions[a].get()));
         Accelerators<a>::setup(db->control);
+        TargetedAccelerators<a>::setup(db->control);
         InitiallyEnabled<a>::setup(db, db->control);
     }
 

@@ -1152,9 +1152,6 @@ void Control::undoRedoChanged() {
     this->actionDB->enableAction(Action::UNDO, undoRedo->canUndo());
     this->actionDB->enableAction(Action::REDO, undoRedo->canRedo());
 
-    win->setUndoDescription(undoRedo->undoDescription());
-    win->setRedoDescription(undoRedo->redoDescription());
-
     updateWindowTitle();
 }
 

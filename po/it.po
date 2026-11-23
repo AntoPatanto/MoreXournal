@@ -4380,7 +4380,7 @@ msgstr "Pagina p_recedente"
 
 #: ../ui/mainmenubar.xml:388
 msgid "Jump _Back"
-msgstr ""
+msgstr "Torna _indietro"
 
 #: ../ui/mainmenubar.xml:392
 msgid "_Goto Page"
@@ -4388,7 +4388,7 @@ msgstr "_Vai alla pagina"
 
 #: ../ui/mainmenubar.xml:397
 msgid "Jump _Forward"
-msgstr ""
+msgstr "Vai _avanti"
 
 #: ../ui/mainmenubar.xml:401
 msgid "_Next Page"
@@ -4436,11 +4436,11 @@ msgstr "Duplica pagina"
 
 #: ../ui/mainmenubar.xml:461
 msgid "Move Page _Up"
-msgstr ""
+msgstr "Sposta pagina _su"
 
 #: ../ui/mainmenubar.xml:465
 msgid "Move Page _Down"
-msgstr ""
+msgstr "Sposta pagina _giù"
 
 #: ../ui/mainmenubar.xml:469
 msgid "Append New PDF Pages"
@@ -4976,3 +4976,21 @@ msgstr "Mentre disegni con la penna o l'evidenziatore, tieni ferma la penna per 
 
 msgid "Whole stroke"
 msgstr "Tratto intero"
+
+msgid "_Page"
+msgstr "_Pagina"
+
+msgid "_Layers"
+msgstr "_Livelli"
+
+msgid "Layers"
+msgstr "Livelli"
+
+msgid "Go to"
+msgstr "Vai a"
+
+msgid "Select PDF Text"
+msgstr "Seleziona testo PDF"
+
+msgid "Audio"
+msgstr "Audio"

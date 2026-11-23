@@ -16,6 +16,7 @@
 #include <string_view>
 
 #include <gio/gio.h>  // for GMenu, GMenuItem...
+#include <gtk/gtk.h>  // for GtkBuilder
 
 #include "util/raii/GObjectSPtr.h"
 
@@ -38,15 +39,15 @@ public:
 
 public:
     inline GMenuModel* getModel() const { return menu; }
-    /// The same menus as getModel(), as one labelled section per menu, for the main menu button of the top bar
+    /// Main menu model for the top bar button: inline document items, category submenus, preferences, toolbars, help, quit
     inline GMenuModel* getSectionedModel() const { return G_MENU_MODEL(sectionedMenu.get()); }
     inline ToolbarSelectionSubmenu& getToolbarSelectionSubmenu() const { return *toolbarSelectionSubmenu; }
     inline PageTypeSubmenu& getPageTypeSubmenu() const { return *pageTypeSubmenu; }
 
     void setDisabled(bool disabled);
 
-    void setUndoDescription(const std::string& description);
-    void setRedoDescription(const std::string& description);
+    /// Build the top bar main menu model by linking shared sections and submenus from `builder`
+    static xoj::util::GObjectSPtr<GMenu> buildMainMenu(GtkBuilder* builder, GMenuModel* pluginsModel = nullptr);
 
     template <typename gobj, typename Fun>
     gobj* get(const std::string_view& name, Fun&& converter) const {
@@ -81,6 +82,4 @@ private:
         fun(*pluginsSubmenu);
 #endif
     }
-
-    GMenu* undoRedoSection;  // owned by `builder`
 };
