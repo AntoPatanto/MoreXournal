@@ -186,11 +186,8 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
     gtk_window_set_default_size(GTK_WINDOW(this->window), control->getSettings()->getMainWndWidth(),
                                 control->getSettings()->getMainWndHeight());
 
-    if (control->getSettings()->isMainWndMaximized()) {
-        gtk_window_maximize(GTK_WINDOW(this->window));
-    } else {
-        gtk_window_unmaximize(GTK_WINDOW(this->window));
-    }
+    // Always start maximized; the default size above still applies when un-maximizing
+    gtk_window_maximize(GTK_WINDOW(this->window));
 
     Util::execInUiThread([=]() {
         // Execute after the window is visible, else the check won't work
