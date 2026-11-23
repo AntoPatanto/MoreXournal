@@ -275,32 +275,6 @@ std::string formatThickness(double thickness) {
     return s + " pt";
 }
 
-GtkWidget* newHintLabel(const char* text) {
-    GtkWidget* lbl = gtk_label_new(text);
-    addClass(lbl, "mx-hint");
-    addClass(lbl, "dim-label");
-    gtk_label_set_ellipsize(GTK_LABEL(lbl), PANGO_ELLIPSIZE_END);
-    return lbl;
-}
-
-const char* toolDisplayName(ToolType tool) {
-    switch (tool) {
-        case TOOL_LASER_POINTER_PEN:
-        case TOOL_LASER_POINTER_HIGHLIGHTER:
-            return _("Laser pointer");
-        case TOOL_SELECT_PDF_TEXT_LINEAR:
-            return _("Select Linear PDF Text");
-        case TOOL_SELECT_PDF_TEXT_RECT:
-            return _("Select PDF Text in Rectangle");
-        case TOOL_LINK:
-            return _("Add/Edit Link");
-        case TOOL_LATEX:
-            return _("Add/Edit TeX");
-        default:
-            return "";
-    }
-}
-
 struct ShapeChoice {
     Action action;
     const char* icon;
@@ -340,6 +314,7 @@ ToolPill::ToolPill(Control* control): control(control) {
     addClass(box, "mx-float");
     gtk_widget_set_halign(box, GTK_ALIGN_START);
     gtk_widget_set_valign(box, GTK_ALIGN_START);
+    gtk_widget_set_no_show_all(box, true);
 
     // The action callbacks change the tool after the state: coalesce multiple action updates at high idle priority
     // so the pill rebuilds before the next frame is drawn (avoiding starvation by button transition animations)
@@ -371,6 +346,30 @@ ToolPill::~ToolPill() {
 GtkWidget* ToolPill::getWidget() const { return pill.get(); }
 
 void ToolPill::onSelectionChanged() { scheduleUpdate(); }
+
+void ToolPill::setVisible(bool visible) {
+    allowedVisible = visible;
+    updateVisibility();
+}
+
+void ToolPill::updateVisibility() {
+    const bool show = allowedVisible && shownSections != 0;
+    const bool wasVisible = gtk_widget_get_visible(pill.get());
+    gtk_widget_set_visible(pill.get(), show);
+    if (wasVisible && !show) {
+        queueRedraw();
+    }
+}
+
+void ToolPill::queueRedraw() {
+    // Redraw the overlay and canvas below when the pill changes width or hides, so no drop shadow stays behind
+    if (GtkWidget* parent = gtk_widget_get_parent(pill.get())) {
+        gtk_widget_queue_draw(parent);
+    }
+    if (MainWindow* win = control->getWindow(); win && win->getXournal()) {
+        gtk_widget_queue_draw(win->getXournal()->getWidget());
+    }
+}
 
 void ToolPill::scheduleUpdate() {
     if (pendingUpdate != 0) {
@@ -421,62 +420,50 @@ void ToolPill::rebuild() {
     built = true;
     if (content) {
         gtk_widget_destroy(content);
+        content = nullptr;
     }
     thicknessSample = nullptr;
     thicknessLabel = nullptr;
     swatchBox = nullptr;
     shownColors.clear();
 
-    content = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-    GtkBox* box = GTK_BOX(content);
     const uint32_t s = shownSections;
+    if (s != 0) {
+        content = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+        GtkBox* box = GTK_BOX(content);
 
-    // Each section gets a separator before it, except the first one
-    bool first = true;
-    auto section = [&](uint32_t bit, auto&& add) {
-        if (!(s & bit)) {
-            return;
-        }
-        if (!first) {
-            gtk_box_pack_start(box, newSeparator(), false, false, 0);
-        }
-        first = false;
-        add();
-    };
-    section(pill::TOOL_NAME, [&] { addToolName(box, shownTool); });
-    section(pill::SHAPE_TYPES, [&] { addShapeTypes(box); });
-    section(pill::SELECTION_MODES, [&] { addSelectionModes(box); });
-    section(pill::ERASER_OPTIONS, [&] { addEraserOptions(box); });
-    section(pill::FONT, [&] { addFont(box); });
-    section(pill::COLORS, [&] { addColors(box); });
-    section(pill::THICKNESS, [&] { addThickness(box, s, shownGroup); });
-    section(pill::TEXT_ALIGNMENT, [&] { addTextAlignment(box); });
-    section(pill::HOLD_TO_SHAPE, [&] { addHoldToShape(box); });
-    section(pill::IMAGE_HINT, [&] {
-        addHint(box, _("Click on the page to insert an image"));
-        gtk_box_pack_start(box,
-                           newActionButton(gtk_button_new(), Action::PASTE, _("Paste"), "mx-copy-symbolic", nullptr),
-                           false, false, 0);
-    });
-    section(pill::HAND_HINT, [&] { addHint(box, _("Drag the page to move it")); });
-    section(pill::SELECTION_ACTIONS, [&] { addSelectionActions(box); });
+        // Each section gets a separator before it, except the first one
+        bool first = true;
+        auto section = [&](uint32_t bit, auto&& add) {
+            if (!(s & bit)) {
+                return;
+            }
+            if (!first) {
+                gtk_box_pack_start(box, newSeparator(), false, false, 0);
+            }
+            first = false;
+            add();
+        };
+        section(pill::SHAPE_TYPES, [&] { addShapeTypes(box); });
+        section(pill::SELECTION_MODES, [&] { addSelectionModes(box); });
+        section(pill::ERASER_OPTIONS, [&] { addEraserOptions(box); });
+        section(pill::FONT, [&] { addFont(box); });
+        section(pill::COLORS, [&] { addColors(box); });
+        section(pill::THICKNESS, [&] { addThickness(box, s, shownGroup); });
+        section(pill::TEXT_ALIGNMENT, [&] { addTextAlignment(box); });
+        section(pill::IMAGE_PASTE, [&] {
+            gtk_box_pack_start(
+                    box, newActionButton(gtk_button_new(), Action::PASTE, _("Paste"), "mx-copy-symbolic", nullptr),
+                    false, false, 0);
+        });
+        section(pill::SELECTION_ACTIONS, [&] { addSelectionActions(box); });
 
-    gtk_container_add(GTK_CONTAINER(pill.get()), content);
-    gtk_widget_show_all(content);
-    updateThickness();
-    // Redraw the overlay and canvas below when the pill changes width, so no drop shadow stays behind
-    if (GtkWidget* parent = gtk_widget_get_parent(pill.get())) {
-        gtk_widget_queue_draw(parent);
+        gtk_container_add(GTK_CONTAINER(pill.get()), content);
+        gtk_widget_show_all(content);
+        updateThickness();
     }
-    if (MainWindow* win = control->getWindow(); win && win->getXournal()) {
-        gtk_widget_queue_draw(win->getXournal()->getWidget());
-    }
-}
-
-void ToolPill::addToolName(GtkBox* box, ToolType tool) {
-    GtkWidget* lbl = gtk_label_new(toolDisplayName(tool));
-    addClass(lbl, "mx-tool-name");
-    gtk_box_pack_start(box, lbl, false, false, 0);
+    gtk_widget_set_visible(pill.get(), allowedVisible && s != 0);
+    queueRedraw();
 }
 
 void ToolPill::addShapeTypes(GtkBox* box) {
@@ -780,35 +767,6 @@ void ToolPill::addTextAlignment(GtkBox* box) {
     xoj::util::gtk::fixActionableInitialSensitivity(GTK_ACTIONABLE(justify));
     gtk_box_pack_start(box, justify, false, false, 0);
 }
-
-void ToolPill::addHoldToShape(GtkBox* box) {
-    GtkWidget* row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
-    addClass(row, "mx-switch-row");
-    GtkWidget* sw = gtk_switch_new();
-    gtk_widget_set_can_focus(sw, false);
-    gtk_widget_set_valign(sw, GTK_ALIGN_CENTER);
-    gtk_actionable_set_action_name(GTK_ACTIONABLE(sw), winAction(Action::HOLD_TO_SHAPE).c_str());
-    xoj::util::gtk::fixActionableInitialSensitivity(GTK_ACTIONABLE(sw));
-    gtk_box_pack_start(GTK_BOX(row), sw, false, false, 0);
-
-    // A click on the label flips the switch too
-    GtkWidget* labelBox = gtk_event_box_new();
-    gtk_container_add(GTK_CONTAINER(labelBox), gtk_label_new(_("Automatic shapes")));
-    g_signal_connect_object(labelBox, "button-release-event",
-                            G_CALLBACK(+[](GtkWidget*, GdkEventButton* e, gpointer sw) -> gboolean {
-                                if (e->button == 1 && gtk_widget_is_sensitive(GTK_WIDGET(sw))) {
-                                    gtk_switch_set_active(GTK_SWITCH(sw), !gtk_switch_get_active(GTK_SWITCH(sw)));
-                                }
-                                return true;
-                            }),
-                            sw, GConnectFlags(0));
-    gtk_box_pack_start(GTK_BOX(row), labelBox, false, false, 0);
-    gtk_widget_set_tooltip_text(row, _("Keep the pen still at the end of a stroke to turn it into a line, rectangle "
-                                       "or circle"));
-    gtk_box_pack_start(box, row, false, false, 0);
-}
-
-void ToolPill::addHint(GtkBox* box, const char* text) { gtk_box_pack_start(box, newHintLabel(text), false, false, 0); }
 
 void ToolPill::updateThickness() {
     if (!thicknessLabel) {

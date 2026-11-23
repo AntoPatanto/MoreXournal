@@ -378,17 +378,6 @@ window.compact .mx-topbar .mx-page-label {
 	font-feature-settings: "tnum";
 }
 
-.mx-hint {
-	color: @mx_text2;
-	padding: 0 6px;
-}
-
-.mx-tool-name {
-	font-weight: 600;
-	color: @mx_text;
-	padding: 0 6px;
-}
-
 /* Flat buttons inside floating surfaces and popovers */
 .mx-float button.flat,
 #shapeToolbox button.flat,
