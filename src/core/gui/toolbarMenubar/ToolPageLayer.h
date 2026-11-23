@@ -27,7 +27,8 @@ class IconNameHelper;
 
 class ToolPageLayer: public AbstractToolItem {
 public:
-    ToolPageLayer(std::string id, LayerController* lc, IconNameHelper iconNameHelper);
+    /// @param chip Only the name of the layer, in a button opening the layer menu, without the "Layer" title
+    ToolPageLayer(std::string id, LayerController* lc, IconNameHelper iconNameHelper, bool chip = false);
     ~ToolPageLayer() override;
 
 public:
@@ -39,4 +40,5 @@ public:
 private:
     LayerController* lc = nullptr;
     std::string iconName;
+    bool chip;
 };

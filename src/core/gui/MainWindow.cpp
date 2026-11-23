@@ -19,6 +19,7 @@
 #include "control/settings/SettingsEnums.h"             // for SCROLLBAR_HIDE_HO...
 #include "control/zoom/ZoomControl.h"                   // for ZoomControl
 #include "gui/FloatingToolbox.h"                        // for FloatingToolbox
+#include "gui/FloatingTools.h"                          // for FloatingTools
 #include "gui/GladeGui.h"                               // for GladeGui
 #include "gui/PdfFloatingToolbox.h"                     // for PdfFloatingToolbox
 #include "gui/SearchBar.h"                              // for SearchBar
@@ -223,6 +224,7 @@ void MainWindow::populate(GladeSearchpath* gladeSearchPath) {
     if (compactMode && topBar) {
         topBar->setCompact(true);
     }
+    floatingTools = std::make_unique<FloatingTools>(control, GTK_OVERLAY(get("mainOverlay")), mainContentWidget.get());
 
     // need to create tool buttons registered in plugins, so they can be added to toolbars
     control->registerPluginToolButtons(this->toolbar.get());
@@ -241,6 +243,7 @@ MainWindow::~MainWindow() {
     }
 
     // First, so that the selection deleted with the view does not update it, and floating listeners detach cleanly
+    this->floatingTools.reset();
     this->shapeToolbox.reset();
 
     if (this->themeCssProvider) {
@@ -839,6 +842,9 @@ void MainWindow::setToolbarVisible(bool visible) {
     if (topBar) {
         topBar->setToolsVisible(visible);
     }
+    if (floatingTools) {
+        floatingTools->setToolbarVisible(visible);
+    }
     for (auto& w: this->toolbarWidgets) {
         if (!visible || (gtk_toolbar_get_n_items(GTK_TOOLBAR(w.get())) != 0)) {
             gtk_widget_set_visible(w.get(), visible);
@@ -916,6 +922,9 @@ void MainWindow::reloadToolbars() {
     ToolbarData* d = getSelectedToolbar();
     this->clearToolbar();
     this->toolbarSelected(d);
+    if (floatingTools) {
+        floatingTools->rebuildToolOptions();
+    }
 }
 
 auto MainWindow::getSelectedToolbar() const -> ToolbarData* { return this->selectedToolbar; }

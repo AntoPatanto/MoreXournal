@@ -39,6 +39,7 @@ class XournalView;
 class PdfFloatingToolbox;
 class ShapeToolbox;
 class FloatingToolbox;
+class FloatingTools;
 class GladeSearchpath;
 
 class Menubar;
@@ -193,6 +194,7 @@ private:
     std::unique_ptr<PdfFloatingToolbox> pdfFloatingToolBox;
     std::unique_ptr<FloatingToolbox> floatingToolbox;
     std::unique_ptr<ShapeToolbox> shapeToolbox;
+    std::unique_ptr<FloatingTools> floatingTools;
 
     // Toolbars
     std::unique_ptr<ToolMenuHandler> toolbar;
