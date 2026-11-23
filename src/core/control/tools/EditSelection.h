@@ -203,8 +203,9 @@ public:
     Stroke* getShapeStroke() const;
 
     /**
-     * A transient selection is opened on a shape right after it is drawn. A press outside of it dismisses it and starts
-     * drawing in the same gesture, and the toolbar settings apply to the tool instead of the shape.
+     * A transient selection is opened on a drawn shape or automatically recognized stroke right after release. A press
+     * outside of it dismisses it and starts drawing in the same gesture, and toolbar changes apply to the tool instead
+     * of the selection.
      */
     void setTransient(bool transient);
     bool isTransient() const;

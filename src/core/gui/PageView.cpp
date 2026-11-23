@@ -691,8 +691,8 @@ auto XojPageView::onButtonReleaseEvent(const PositionInputData& pos) -> bool {
     if (this->inputHandler) {
         double zoom = xournal->getZoom();
         this->inputHandler->onButtonReleaseEvent(pos, zoom);
-        // A shape just drawn: show its handles until the next stroke
-        Stroke* createdShape = this->inputHandler->getCreatedShape();
+        // A drawn shape or recognized stroke: keep it selected transiently until the next stroke
+        Stroke* strokeToSelect = this->inputHandler->getStrokeToSelect();
 
         ToolHandler* h = control->getToolHandler();
         bool isDrawingTypeSpline = h->getDrawingType() == DRAWING_TYPE_SPLINE;
@@ -701,8 +701,8 @@ auto XojPageView::onButtonReleaseEvent(const PositionInputData& pos) -> bool {
             this->inputHandler.reset();
         }
 
-        if (createdShape) {
-            auto sel = SelectionFactory::createFromElementOnActiveLayer(control, this->page, this, createdShape);
+        if (strokeToSelect) {
+            auto sel = SelectionFactory::createFromElementOnActiveLayer(control, this->page, this, strokeToSelect);
             sel->setTransient(true);
             this->xournal->setSelection(sel.release());
         }

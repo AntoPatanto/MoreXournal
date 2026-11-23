@@ -123,7 +123,7 @@ void BaseShapeHandler::onButtonReleaseEvent(const PositionInputData& pos, double
     page->fireElementChanged(ptr);
 
     if (ptr->getShape()) {
-        createdShape = ptr;
+        strokeToSelect = ptr;
     }
 
     control->getCursor()->updateCursor();
