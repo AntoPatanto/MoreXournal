@@ -639,6 +639,7 @@ void SettingsDialog::load() {
     loadCheckbox("cbShowPresentationSidebar", showPresentationSidebar);
     loadCheckbox("cbPresentationGoFullscreen", goPresentationFullscreen);
     loadCheckbox("cbHideMenubarStartup", settings->isMenubarVisible());
+    loadCheckbox("cbUseCSD", settings->isUseClientSideDecorations());
     loadCheckbox("cbShowFilepathInTitlebar", settings->isFilepathInTitlebarShown());
     loadCheckbox("cbShowPageNumberInTitlebar", settings->isPageNumberInTitlebarShown());
 
@@ -927,7 +928,16 @@ void SettingsDialog::save() {
     viewModePresentation.goFullscreen = getCheckbox("cbPresentationGoFullscreen");
     settings->setViewMode(PresetViewModeIds::VIEW_MODE_PRESENTATION, viewModePresentation);
 
-    settings->setMenubarVisible(getCheckbox("cbHideMenubarStartup"));
+    const bool alwaysShowMenubar = getCheckbox("cbHideMenubarStartup");
+    const bool menubarPreferenceChanged = alwaysShowMenubar != settings->isMenubarVisible();
+    settings->setMenubarVisible(alwaysShowMenubar);
+    {
+        // Leaving fullscreen restores the default view mode: keep it in line with the preference
+        ViewMode viewModeDefault = settings->getViewModes()[PresetViewModeIds::VIEW_MODE_DEFAULT];
+        viewModeDefault.showMenubar = alwaysShowMenubar;
+        settings->setViewMode(PresetViewModeIds::VIEW_MODE_DEFAULT, viewModeDefault);
+    }
+    settings->setUseClientSideDecorations(getCheckbox("cbUseCSD"));
     settings->setFilepathInTitlebarShown(getCheckbox("cbShowFilepathInTitlebar"));
     settings->setPageNumberInTitlebarShown(getCheckbox("cbShowPageNumberInTitlebar"));
 
@@ -1121,6 +1131,10 @@ void SettingsDialog::save() {
     this->latexPanel.save(settings->latexSettings);
 
     settings->transactionEnd();
+
+    if (menubarPreferenceChanged && settings->getActiveViewMode() == PresetViewModeIds::VIEW_MODE_DEFAULT) {
+        this->control->setShowMenubar(alwaysShowMenubar);
+    }
 
     this->control->getWindow()->setGtkTouchscreenScrollingForDeviceMapping();
 
