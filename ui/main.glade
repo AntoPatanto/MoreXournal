@@ -261,11 +261,11 @@
                                       <object class="GtkImage" id="image8">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
-                                        <property name="icon-name">window-close</property>
+                                        <property name="icon-name">mx-sidebar-symbolic</property>
                                       </object>
                                     </child>
                                     <style>
-                                      <class name="raised"/>
+                                      <class name="flat"/>
                                     </style>
                                   </object>
                                   <packing>

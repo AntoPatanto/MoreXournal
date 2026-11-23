@@ -1,0 +1,12 @@
+[Icon Theme]
+Name=Hicolor
+Comment=MoreXournal symbolic icons
+Hidden=true
+Directories=scalable/actions
+
+[scalable/actions]
+MinSize=1
+Size=24
+MaxSize=256
+Context=Actions
+Type=Scalable

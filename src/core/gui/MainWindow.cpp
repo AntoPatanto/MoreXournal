@@ -145,6 +145,40 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
                 return false;
             }),
             this);
+    g_signal_connect(this->window, "size-allocate", G_CALLBACK(+[](GtkWidget*, GtkAllocation* alloc, gpointer self) {
+                         if (alloc->width <= 1) {
+                             return;
+                         }
+                         auto* win = static_cast<MainWindow*>(self);
+                         const bool compact = alloc->width < 900;
+                         win->pendingCompactMode = compact;
+                         if (compact == win->compactMode || win->compactIdleId != 0) {
+                             return;
+                         }
+                         // Apply outside size-allocate so GTK does not mutate classes or visibility mid-layout
+                         win->compactIdleId = g_idle_add_full(
+                                 G_PRIORITY_HIGH_IDLE,
+                                 +[](gpointer self) -> gboolean {
+                                     auto* win = static_cast<MainWindow*>(self);
+                                     win->compactIdleId = 0;
+                                     if (win->pendingCompactMode == win->compactMode) {
+                                         return G_SOURCE_REMOVE;
+                                     }
+                                     win->compactMode = win->pendingCompactMode;
+                                     GtkStyleContext* ctx = gtk_widget_get_style_context(win->window);
+                                     if (win->compactMode) {
+                                         gtk_style_context_add_class(ctx, "compact");
+                                     } else {
+                                         gtk_style_context_remove_class(ctx, "compact");
+                                     }
+                                     if (win->topBar) {
+                                         win->topBar->setCompact(win->compactMode);
+                                     }
+                                     return G_SOURCE_REMOVE;
+                                 },
+                                 win, nullptr);
+                     }),
+                     this);
 
     updateScrollbarSidebarPosition();
 
@@ -186,6 +220,9 @@ void MainWindow::populate(GladeSearchpath* gladeSearchPath) {
     migrateSelectedToolbar();
     menubar->populate(gladeSearchPath, this);
     createTopBar();
+    if (compactMode && topBar) {
+        topBar->setCompact(true);
+    }
 
     // need to create tool buttons registered in plugins, so they can be added to toolbars
     control->registerPluginToolButtons(this->toolbar.get());
@@ -198,11 +235,23 @@ void MainWindow::populate(GladeSearchpath* gladeSearchPath) {
 GMenuModel* MainWindow::getMenuModel() const { return menubar->getModel(); }
 
 MainWindow::~MainWindow() {
-    // First, so that the selection deleted with the view does not update it
+    if (this->compactIdleId != 0) {
+        g_source_remove(this->compactIdleId);
+        this->compactIdleId = 0;
+    }
+
+    // First, so that the selection deleted with the view does not update it, and floating listeners detach cleanly
     this->shapeToolbox.reset();
+
+    if (this->themeCssProvider) {
+        gtk_style_context_remove_provider_for_screen(gdk_screen_get_default(),
+                                                     GTK_STYLE_PROVIDER(this->themeCssProvider.get()));
+        this->themeCssProvider.reset();
+    }
 
     // The window is destroyed after this object (see GladeGui::~GladeGui()): drop the handlers that use `this`
     g_signal_handlers_disconnect_by_data(this->window, this);
+    g_signal_handlers_disconnect_by_data(gtk_widget_get_settings(this->window), this);
     if (menubarWidget) {
         g_signal_handlers_disconnect_by_data(menubarWidget, this);
     }
@@ -434,6 +483,8 @@ void MainWindow::updateColorscheme() {
         for (auto& p: iconLoadOrder) {
             gtk_icon_theme_prepend_search_path(gtk_icon_theme_get_default(), char_cast(p.u8string().c_str()));
         }
+        const auto moreIcons = (uiPath / "iconsMore");
+        gtk_icon_theme_prepend_search_path(gtk_icon_theme_get_default(), char_cast(moreIcons.u8string().c_str()));
     }
 
     GtkStyleContext* context = gtk_widget_get_style_context(GTK_WIDGET(this->window));
@@ -447,6 +498,26 @@ void MainWindow::updateColorscheme() {
         if (props.darkSuffix) {  // The active theme is all dark. Remove the trailing "-dark"
             g_object_set(gtk_widget_get_settings(this->window), "gtk-theme-name", props.rootname.c_str(), nullptr);
             modifiedGtkSettingsTheme = true;
+        }
+    }
+
+    // Swap the named MoreXournal theme colours between light and dark
+    {
+        const char* themeCss = this->darkMode ? "morexournal-dark.css" : "morexournal-light.css";
+        auto filepath = this->getGladeSearchPath()->findFile("", themeCss);
+        if (!filepath.empty()) {
+            if (!this->themeCssProvider) {
+                this->themeCssProvider.reset(gtk_css_provider_new(), xoj::util::adopt);
+                gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
+                                                          GTK_STYLE_PROVIDER(this->themeCssProvider.get()),
+                                                          GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+            }
+            GError* err = nullptr;
+            if (!gtk_css_provider_load_from_path(this->themeCssProvider.get(), char_cast(filepath.u8string().c_str()),
+                                                 &err)) {
+                g_warning("Could not load %s: %s", themeCss, err ? err->message : "unknown error");
+                g_clear_error(&err);
+            }
         }
     }
 

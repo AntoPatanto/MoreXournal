@@ -52,6 +52,7 @@ Comment: See https://github.com/xournalpp/xournalpp/pull/3326
 
 Files: ui/iconsLucide-light/*
        ui/iconsLucide-dark/*
+       ui/iconsMore/*
 Copyright: 2020, Lucide Contributors
 License: ISC
 Comment: See https://github.com/xournalpp/xournalpp/pull/4039

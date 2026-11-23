@@ -303,7 +303,14 @@ static auto gtk_xournal_draw(GtkWidget* widget, cairo_t* cr) -> gboolean {
 
     // Draw background
     Settings* settings = xournal->view->getControl()->getSettings();
-    Util::cairo_set_source_rgbi(cr, settings->getBackgroundColor());
+    Color bg = settings->getBackgroundColor();
+    GdkRGBA themeCanvas;
+    if (bg == Colors::xopp_gainsboro02 &&
+        gtk_style_context_lookup_color(gtk_widget_get_style_context(widget), "mx_canvas", &themeCanvas)) {
+        gdk_cairo_set_source_rgba(cr, &themeCanvas);
+    } else {
+        Util::cairo_set_source_rgbi(cr, bg);
+    }
     cairo_paint(cr);
 
     // Add a padding for the shadow of the pages

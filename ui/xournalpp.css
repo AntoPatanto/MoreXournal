@@ -11,82 +11,52 @@
     padding: 7px;
 }
 
-/*Style the Floating Toolbox!*/
+/* Style the Floating Toolbox and PDF Floating Toolbox using the MoreXournal theme colours */
 #floatingToolbox > box,
 #pdfFloatingToolGrid {
-	background-color: white;
+	background-color: @mx_surface;
+	color: @mx_text;
+	border: 1px solid @mx_line;
 	border-radius: 12px;
-
-	box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.4);
-
-	/* Add a margin. If we don't have this, Gtk clips the shadow!  */
+	box-shadow: 0 4px 16px @mx_shadow, 0 0 0 1px @mx_ring;
+	/* Add a margin. If we don't have this, Gtk clips the shadow! */
 	margin: 7px;
 }
 
 #floatingToolbox box toolbar {
-	background-color: rgba(255, 255, 255, 0);
+	background-color: transparent;
 }
 
-#floatingToolbox button {
-	background-color: rgba(255, 255, 255, 0.8);
-	border-radius: 12px;
-}
-
+#floatingToolbox button,
 #pdfFloatingToolGrid button {
-	background: rgba(255, 255, 255, 0.8);
-	border: 12px;
+	background-color: transparent;
+	background-image: none;
+	border: 1px solid transparent;
+	border-radius: 8px;
+	box-shadow: none;
+	color: @mx_text;
 }
 
+#floatingToolbox button:hover,
 #pdfFloatingToolGrid button:hover {
-	border-radius: 12px;
-	background: rgba(245, 245, 245, 0.8);
-	box-shadow: inset 0px 0px 2px gray;
+	background-color: @mx_hover;
 }
 
-/*
-	Use :checked for a selected ToggleButton.
-	See https://stackoverflow.com/questions/39824345/use-css-to-style-gtktogglebutton-depending-on-the-state
-*/
-#floatingToolbox button:checked {
-	/*background-color: lightblue;*/
-	border-color: lightblue;
-	box-shadow: inset 0px 0px 3px lightblue;
-
-	transition: background-color 0.5s ease, border-color 0.5s ease, margin 0.3s ease;
+#floatingToolbox button:checked,
+#pdfFloatingToolGrid button:checked {
+	background-color: @mx_accent_tint;
+	border-color: transparent;
+	color: @mx_accent_text;
+	box-shadow: none;
 }
 
-#floatingToolbox toolbar,
-#pdfFloatingToolGrid button {
+#floatingToolbox toolbar {
     /*
-      The Adaptia GTK theme adds box-shadows to toolbars.
+      The Adwaita GTK theme adds box-shadows to toolbars.
       Remove them to avoid horizontal lines that extend outside
       the edge of the floating toolbox.
      */
-
     box-shadow: none;
-}
-
-window.darkMode #floatingToolbox button,
-window.darkMode #pdfFloatingToolGrid button {
-	background: rgba(55, 53, 53, 0.5);
-	border: none;
-}
-
-window.darkMode #floatingToolbox button:checked {
-	background: rgba(85, 85, 95, 0.1);
-	border-color: lightblue;
-	box-shadow: 0px 0px 3px lightblue;
-}
-
-window.darkMode #floatingToolbox > box,
-window.darkMode #pdfFloatingToolGrid  {
-	background-color: black;
-
-	/*
-	  Lighter gray shadow for better contrast on dark
-	  backgrounds.
-	*/
-	box-shadow: 0px 0px 5px rgba(90, 90, 90, 0.7);
 }
 
 /* Add additional padding and a border to make editing toolbars easier. */
@@ -231,46 +201,454 @@ image.flying-icon.TR {
  * It is a GtkHeaderBar, in the window title bar or inline at the top of the window.
  */
 headerbar.mx-topbar {
-	min-height: 48px;
+	min-height: 52px;
 	padding: 0 6px;
+	background-color: @mx_chrome;
+	background-image: none;
+	color: @mx_text;
+	border-bottom: 1px solid @mx_line;
+	box-shadow: none;
 }
 
 .mx-topbar .mx-title {
-	font-weight: bold;
+	font-weight: 600;
+	color: @mx_text;
 }
 
 .mx-topbar .mx-status {
-	font-size: smaller;
+	font-size: 11px;
+	color: @mx_text2;
+	opacity: 1;
 }
 
 .mx-topbar button.flat {
-	min-width: 32px;
+	min-width: 28px;
 	min-height: 32px;
+	margin: 0;
 	padding: 2px;
 	border-radius: 8px;
+	border: 1px solid transparent;
+	background-color: transparent;
+	background-image: none;
+	box-shadow: none;
+	color: @mx_text;
+}
+
+.mx-topbar button.flat:hover {
+	background-color: @mx_hover;
+	border-color: transparent;
+}
+
+.mx-topbar button.flat:active {
+	background-color: @mx_press;
+}
+
+.mx-topbar button.flat:checked {
+	background-color: @mx_accent_tint;
+	border-color: transparent;
+	color: @mx_accent_text;
 }
 
 .mx-topbar .mx-tools button.mx-tool {
-	min-width: 40px;
+	min-width: 36px;
 	min-height: 36px;
+	margin: 0;
 	padding: 0;
 	border-radius: 10px;
+	color: @mx_text2;
 }
 
-/* The active tool gets a tinted background */
+.mx-topbar .mx-tools button.mx-tool:hover {
+	background-color: @mx_hover;
+	color: @mx_text;
+}
+
+/* The active tool gets an indigo tint and recoloured symbolic glyph */
 .mx-topbar .mx-tools button.mx-tool:checked {
 	background-image: none;
-	background-color: alpha(@theme_selected_bg_color, 0.18);
+	background-color: @mx_accent_tint;
 	border-color: transparent;
 	box-shadow: none;
-	color: @theme_selected_bg_color;
+	color: @mx_accent_text;
 }
 
-.mx-topbar separator.mx-separator {
-	margin: 10px 4px;
+.mx-topbar .mx-pagenav {
+	background-color: @mx_surface;
+	border-radius: 10px;
+	border: 1px solid @mx_line;
+	box-shadow: 0 1px 2px @mx_shadow;
+	padding: 2px;
+	margin: 0 2px;
+}
+
+.mx-topbar .mx-pagenav button.flat {
+	min-width: 24px;
+	min-height: 26px;
+	margin: 0;
+	padding: 1px 3px;
 }
 
 .mx-topbar .mx-page-label {
-	min-width: 48px;
+	min-width: 36px;
 	font-feature-settings: "tnum";
+	color: @mx_text;
+}
+
+separator.mx-separator {
+	background-color: @mx_line;
+	min-width: 1px;
+	min-height: 20px;
+	margin: 6px 4px;
+}
+
+.mx-topbar separator.mx-separator {
+	margin: 10px 2px;
+}
+
+/* Compact window layout below 900 px */
+window.compact headerbar.mx-topbar {
+	padding: 0 4px;
+}
+
+window.compact .mx-topbar button.flat {
+	min-width: 26px;
+	min-height: 28px;
+	padding: 1px;
+}
+
+window.compact .mx-topbar .mx-tools button.mx-tool {
+	min-width: 30px;
+	min-height: 32px;
+}
+
+window.compact .mx-topbar .mx-pagenav {
+	padding: 0;
+	margin: 0;
+	background-color: transparent;
+	border-color: transparent;
+	box-shadow: none;
+}
+
+window.compact .mx-topbar .mx-page-label {
+	min-width: 34px;
+}
+
+/*
+ * Floating surfaces over the page: tool pill, zoom control, layer chip and shape menu.
+ * The 10 px margin keeps the drop shadow inside the overlay child's allocation so no shadow stays behind on resize.
+ */
+.mx-float,
+#shapeToolbox {
+	background-color: @mx_surface;
+	color: @mx_text;
+	border: 1px solid @mx_line;
+	box-shadow: 0 3px 10px @mx_shadow, 0 0 0 1px @mx_ring;
+	margin: 10px;
+}
+
+.mx-pill {
+	border-radius: 22px;
+	padding: 4px 10px;
+	min-height: 36px;
+}
+
+#shapeToolbox.mx-pill {
+	border-radius: 14px;
+	padding: 4px 6px;
+}
+
+.mx-zoom {
+	border-radius: 12px;
+	padding: 3px 4px;
+}
+
+.mx-chip {
+	border-radius: 16px;
+	padding: 1px 4px;
+}
+
+.mx-chip button.flat {
+	min-height: 28px;
+	padding: 0 8px;
+	border-radius: 14px;
+}
+
+.mx-numeric {
+	font-feature-settings: "tnum";
+}
+
+.mx-hint {
+	color: @mx_text2;
+	padding: 0 6px;
+}
+
+.mx-tool-name {
+	font-weight: 600;
+	color: @mx_text;
+	padding: 0 6px;
+}
+
+/* Flat buttons inside floating surfaces and popovers */
+.mx-float button.flat,
+#shapeToolbox button.flat,
+popover.background.mx-popover button.flat {
+	min-height: 30px;
+	min-width: 30px;
+	padding: 2px 8px;
+	border-radius: 8px;
+	border: 1px solid transparent;
+	background-color: transparent;
+	background-image: none;
+	box-shadow: none;
+	color: @mx_text;
+}
+
+.mx-float button.flat:hover,
+#shapeToolbox button.flat:hover,
+popover.background.mx-popover button.flat:hover {
+	background-color: @mx_hover;
+	border-color: transparent;
+}
+
+.mx-float button.flat:active,
+#shapeToolbox button.flat:active,
+popover.background.mx-popover button.flat:active {
+	background-color: @mx_press;
+}
+
+.mx-float button.flat:checked,
+#shapeToolbox button.flat:checked,
+popover.background.mx-popover button.flat:checked {
+	background-color: @mx_accent_tint;
+	border-color: transparent;
+	color: @mx_accent_text;
+	box-shadow: none;
+}
+
+.mx-float button.flat:disabled,
+#shapeToolbox button.flat:disabled {
+	opacity: 0.42;
+}
+
+.mx-float button.destructive,
+#shapeToolbox button.destructive {
+	color: @mx_danger;
+}
+
+/* Linked segmented controls */
+.mx-seg {
+	background-color: @mx_hover;
+	border-radius: 9px;
+	padding: 2px;
+}
+
+.mx-seg button.flat,
+#shapeToolbox .mx-seg button.flat,
+popover.background.mx-popover .mx-seg button.flat {
+	min-height: 26px;
+	min-width: 28px;
+	padding: 0 10px;
+	border-radius: 7px;
+	color: @mx_text2;
+}
+
+.mx-seg button.flat:hover,
+#shapeToolbox .mx-seg button.flat:hover,
+popover.background.mx-popover .mx-seg button.flat:hover {
+	color: @mx_text;
+	background-color: transparent;
+}
+
+.mx-seg button.flat:checked,
+#shapeToolbox .mx-seg button.flat:checked,
+popover.background.mx-popover .mx-seg button.flat:checked {
+	background-color: @mx_seg_checked;
+	color: @mx_accent_text;
+	box-shadow: 0 1px 2px @mx_shadow;
+}
+
+/* Colour swatches: circular dots with an indigo selection ring */
+.mx-float button.mx-swatch,
+popover.background.mx-popover button.mx-swatch {
+	min-width: 28px;
+	min-height: 28px;
+	padding: 2px;
+	border-radius: 9999px;
+	border: 2px solid transparent;
+	background-color: transparent;
+	background-image: none;
+	box-shadow: none;
+}
+
+.mx-float button.mx-swatch:hover,
+popover.background.mx-popover button.mx-swatch:hover {
+	background-color: @mx_hover;
+	border-color: transparent;
+}
+
+.mx-float button.mx-swatch:checked,
+popover.background.mx-popover button.mx-swatch:checked {
+	background-color: @mx_surface;
+	border-color: @mx_accent;
+	box-shadow: none;
+}
+
+/* Switches in the tool pill and shape menu */
+.mx-switch-row {
+	padding: 0 4px;
+}
+
+.mx-switch-row switch {
+	min-width: 34px;
+	min-height: 18px;
+	margin: 0;
+	padding: 0;
+	border-radius: 9999px;
+	border: none;
+	background-color: @mx_line;
+	background-image: none;
+	box-shadow: none;
+	color: transparent;
+	text-shadow: none;
+	font-size: 0;
+}
+
+.mx-switch-row switch:checked {
+	background-color: @mx_accent;
+	color: transparent;
+}
+
+.mx-switch-row switch image {
+	color: transparent;
+	opacity: 0;
+	min-width: 0;
+	min-height: 0;
+	-gtk-icon-transform: scale(0);
+}
+
+.mx-switch-row switch slider,
+.mx-switch-row switch:hover slider,
+.mx-switch-row switch:dir(ltr):checked slider,
+.mx-switch-row switch:dir(ltr):not(:checked) slider {
+	min-width: 14px;
+	min-height: 14px;
+	margin: 2px;
+	padding: 0;
+	border-radius: 9999px;
+	background-color: #ffffff;
+	background-image: none;
+	border: none;
+	box-shadow: 0 1px 2px @mx_shadow;
+}
+
+.mx-switch-row switch:checked > slider,
+.mx-switch-row switch:checked:hover > slider {
+	background-color: @mx_on_accent;
+	border: none;
+}
+
+/* Popovers opened from the tool pill, zoom, layer chip and shape menu */
+popover.background.mx-popover {
+	background-color: @mx_surface;
+	color: @mx_text;
+	border: 1px solid @mx_line;
+	border-radius: 12px;
+	padding: 8px;
+	box-shadow: 0 6px 20px @mx_shadow, 0 0 0 1px @mx_ring;
+}
+
+popover.background.mx-popover .mx-popover-title {
+	font-size: 12px;
+	font-weight: 600;
+	color: @mx_text2;
+	margin: 4px 8px 6px 8px;
+}
+
+popover.background.mx-popover button.mx-prow {
+	min-height: 36px;
+	padding: 2px 10px;
+	border-radius: 8px;
+}
+
+popover.background.mx-popover flowbox flowboxchild {
+	padding: 1px;
+	background-color: transparent;
+	border: none;
+	outline: none;
+}
+
+popover.background.mx-popover flowbox flowboxchild:hover,
+popover.background.mx-popover flowbox flowboxchild:selected {
+	background-color: transparent;
+}
+
+popover.background.mx-popover scale trough {
+	background-color: @mx_line;
+	border: none;
+	border-radius: 9999px;
+	min-height: 4px;
+}
+
+popover.background.mx-popover scale highlight {
+	background-color: @mx_accent;
+	border: none;
+	border-radius: 9999px;
+}
+
+popover.background.mx-popover scale slider {
+	background-color: @mx_surface;
+	border: 2px solid @mx_accent;
+	border-radius: 9999px;
+	min-width: 14px;
+	min-height: 14px;
+	margin: -6px 0;
+	box-shadow: 0 1px 2px @mx_shadow;
+}
+
+/* Page and layer sidebar */
+#sidebar {
+	background-color: @mx_chrome;
+	color: @mx_text;
+	border-right: 1px solid @mx_line;
+	min-width: 184px;
+}
+
+#sidebar .inline-toolbar {
+	background-color: @mx_chrome;
+	background-image: none;
+	border: none;
+	border-bottom: 1px solid @mx_line;
+	padding: 4px 6px;
+}
+
+#sidebar .inline-toolbar button,
+#sidebar #PreviewPagesToolbar button,
+#sidebar #PreviewLayersToolbar button {
+	min-width: 30px;
+	min-height: 30px;
+	padding: 2px 6px;
+	border-radius: 8px;
+	border: 1px solid transparent;
+	background-color: transparent;
+	background-image: none;
+	box-shadow: none;
+	color: @mx_text;
+}
+
+#sidebar .inline-toolbar button:hover,
+#sidebar #PreviewPagesToolbar button:hover,
+#sidebar #PreviewLayersToolbar button:hover {
+	background-color: @mx_hover;
+}
+
+#sidebar .inline-toolbar button:checked {
+	background-color: @mx_accent_tint;
+	color: @mx_accent_text;
+}
+
+#sidebar #PreviewPagesToolbar,
+#sidebar #PreviewLayersToolbar {
+	background-color: @mx_chrome;
+	border-top: 1px solid @mx_line;
+	padding: 4px 6px;
 }

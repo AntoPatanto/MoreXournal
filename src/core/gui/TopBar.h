@@ -47,6 +47,9 @@ public:
     /// View > Toolbars hides the tools, the history and the page buttons. The menu and the title stay.
     void setToolsVisible(bool visible);
 
+    /// Below 900 px the status line and separators hide so the bar fits without overflowing
+    void setCompact(bool compact);
+
 private:
     void createStart(GMenuModel* mainMenu);
     void createCenter();
@@ -68,6 +71,8 @@ private:
     GtkLabel* titleLabel = nullptr;
     GtkLabel* statusLabel = nullptr;
     GtkLabel* pageLabel = nullptr;
+    std::vector<GtkWidget*> separators;
+    bool compact = false;
 
     struct ToolButtonData {
         TopBar* self;

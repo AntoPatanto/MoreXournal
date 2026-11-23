@@ -7,7 +7,6 @@
 #include "control/actions/ActionDatabase.h"  // for ActionDatabase
 #include "control/settings/Settings.h"       // for Settings
 #include "enums/Action.enum.h"               // for Action
-#include "gui/IconNameHelper.h"              // for IconNameHelper
 #include "undo/UndoRedoHandler.h"            // for UndoRedoHandler
 #include "util/GVariantTemplate.h"           // for getGVariantValue
 #include "util/GtkUtil.h"                    // for fixActionableInitialSensitivity, setWidgetFollowActionEnabled
@@ -112,7 +111,7 @@ void TopBar::createStart(GMenuModel* mainMenu) {
     gtk_widget_set_can_focus(menuButton, false);
     gtk_style_context_add_class(gtk_widget_get_style_context(menuButton), "flat");
     gtk_style_context_add_class(gtk_widget_get_style_context(menuButton), "mx-menu-button");
-    gtk_button_set_image(GTK_BUTTON(menuButton), newIcon("open-menu-symbolic"));
+    gtk_button_set_image(GTK_BUTTON(menuButton), newIcon("mx-menu-symbolic"));
     gtk_widget_set_tooltip_text(menuButton, _("Main menu"));
     // A real menu, not a popover: it scrolls, shows the shortcuts and opens the submenus to the side
     gtk_menu_button_set_use_popover(GTK_MENU_BUTTON(menuButton), false);
@@ -132,8 +131,8 @@ void TopBar::createStart(GMenuModel* mainMenu) {
         gtk_label_set_single_line_mode(l, true);
         gtk_container_add(GTK_CONTAINER(titleBox), GTK_WIDGET(l));
     }
-    // Keep a few characters of the name when the window is narrow
-    gtk_label_set_width_chars(titleLabel, 12);
+    // Let the title ellipsize cleanly on narrow windows so the window can shrink below 900 px into compact mode
+    gtk_label_set_width_chars(titleLabel, 1);
     gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(titleLabel)), "mx-title");
     gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(statusLabel)), "mx-status");
     gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(statusLabel)), "dim-label");
@@ -147,20 +146,19 @@ void TopBar::createCenter() {
     centerBox.reset(box, xoj::util::refsink);
     gtk_style_context_add_class(gtk_widget_get_style_context(box), "mx-tools");
 
-    IconNameHelper icons(control->getSettings());
     struct ToolDef {
         ToolGroup group;
         const char* icon;
         std::string tooltip;
     };
-    const ToolDef tools[] = {{ToolGroup::PEN, "tool-pencil", _("Pen")},
-                             {ToolGroup::HIGHLIGHTER, "tool-highlighter", _("Highlighter")},
-                             {ToolGroup::ERASER, "tool-eraser", _("Eraser")},
-                             {ToolGroup::SELECTION, "select-lasso", _("Select")},
-                             {ToolGroup::SHAPES, "draw-rect", _("Shapes")},
-                             {ToolGroup::TEXT, "tool-text", _("Text")},
-                             {ToolGroup::IMAGE, "tool-image", _("Image")},
-                             {ToolGroup::HAND, "hand", _("Hand")}};
+    const ToolDef tools[] = {{ToolGroup::PEN, "mx-pen-symbolic", _("Pen")},
+                             {ToolGroup::HIGHLIGHTER, "mx-highlighter-symbolic", _("Highlighter")},
+                             {ToolGroup::ERASER, "mx-eraser-symbolic", _("Eraser")},
+                             {ToolGroup::SELECTION, "mx-lasso-symbolic", _("Select")},
+                             {ToolGroup::SHAPES, "mx-shapes-symbolic", _("Shapes")},
+                             {ToolGroup::TEXT, "mx-text-symbolic", _("Text")},
+                             {ToolGroup::IMAGE, "mx-image-symbolic", _("Image")},
+                             {ToolGroup::HAND, "mx-hand-symbolic", _("Hand")}};
 
     for (const auto& def: tools) {
         const auto i = static_cast<size_t>(def.group);
@@ -168,7 +166,7 @@ void TopBar::createCenter() {
         gtk_widget_set_can_focus(btn, false);
         gtk_style_context_add_class(gtk_widget_get_style_context(btn), "flat");
         gtk_style_context_add_class(gtk_widget_get_style_context(btn), "mx-tool");
-        gtk_button_set_image(GTK_BUTTON(btn), newIcon(icons.iconName(def.icon)));
+        gtk_button_set_image(GTK_BUTTON(btn), newIcon(def.icon));
         gtk_widget_set_tooltip_text(btn, def.tooltip.c_str());
 
         toolButtonData[i] = {this, def.group};
@@ -184,7 +182,9 @@ void TopBar::createCenter() {
 
         gtk_container_add(GTK_CONTAINER(box), btn);
         if (def.group == ToolGroup::ERASER || def.group == ToolGroup::SHAPES) {
-            gtk_container_add(GTK_CONTAINER(box), newSeparator());
+            GtkWidget* sep = newSeparator();
+            separators.push_back(sep);
+            gtk_container_add(GTK_CONTAINER(box), sep);
         }
     }
     gtk_widget_show_all(box);
@@ -193,7 +193,6 @@ void TopBar::createCenter() {
 void TopBar::createEnd() {
     GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
     endBox.reset(box, xoj::util::refsink);
-    IconNameHelper icons(control->getSettings());
 
     // Undo and redo name the action they revert or repeat in the tooltip
     auto queryTooltip = [](GtkWidget*, gint, gint, gboolean, GtkTooltip* tooltip, gpointer d) -> gboolean {
@@ -206,32 +205,35 @@ void TopBar::createEnd() {
         gtk_tooltip_set_text(tooltip, undoRedo->redoDescription().c_str());
         return true;
     };
-    GtkWidget* undo = newActionButton(gtk_button_new(), Action::UNDO, icons.iconName("edit-undo"), _("Undo"));
+    GtkWidget* undo = newActionButton(gtk_button_new(), Action::UNDO, "mx-undo-symbolic", _("Undo"));
     g_signal_connect(undo, "query-tooltip", G_CALLBACK(+queryTooltip), control->getUndoRedoHandler());
-    GtkWidget* redo = newActionButton(gtk_button_new(), Action::REDO, icons.iconName("edit-redo"), _("Redo"));
+    GtkWidget* redo = newActionButton(gtk_button_new(), Action::REDO, "mx-redo-symbolic", _("Redo"));
     g_signal_connect(redo, "query-tooltip", G_CALLBACK(+queryRedoTooltip), control->getUndoRedoHandler());
     gtk_container_add(GTK_CONTAINER(box), undo);
     gtk_container_add(GTK_CONTAINER(box), redo);
-    gtk_container_add(GTK_CONTAINER(box), newSeparator());
+    GtkWidget* sep = newSeparator();
+    separators.push_back(sep);
+    gtk_container_add(GTK_CONTAINER(box), sep);
 
     gtk_container_add(GTK_CONTAINER(box), newActionButton(gtk_toggle_button_new(), Action::SHOW_SIDEBAR,
-                                                          icons.iconName("sidebar-show"), _("Page sidebar")));
+                                                          "mx-sidebar-symbolic", _("Page sidebar")));
 
     GtkWidget* pageNav = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_widget_set_valign(pageNav, GTK_ALIGN_CENTER);
     gtk_style_context_add_class(gtk_widget_get_style_context(pageNav), "mx-pagenav");
-    gtk_container_add(GTK_CONTAINER(pageNav), newActionButton(gtk_button_new(), Action::GOTO_PREVIOUS,
-                                                              "go-previous-symbolic", _("Previous page")));
+    gtk_container_add(GTK_CONTAINER(pageNav),
+                      newActionButton(gtk_button_new(), Action::GOTO_PREVIOUS, "mx-prev-symbolic", _("Previous page")));
     GtkWidget* pageButton = newActionButton(gtk_button_new(), Action::GOTO_PAGE, "", _("Go to page"));
     pageLabel = GTK_LABEL(gtk_label_new(nullptr));
     gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(pageLabel)), "mx-page-label");
     gtk_container_add(GTK_CONTAINER(pageButton), GTK_WIDGET(pageLabel));
     gtk_container_add(GTK_CONTAINER(pageNav), pageButton);
     gtk_container_add(GTK_CONTAINER(pageNav),
-                      newActionButton(gtk_button_new(), Action::GOTO_NEXT, "go-next-symbolic", _("Next page")));
+                      newActionButton(gtk_button_new(), Action::GOTO_NEXT, "mx-next-symbolic", _("Next page")));
     gtk_container_add(GTK_CONTAINER(box), pageNav);
 
-    gtk_container_add(GTK_CONTAINER(box), newActionButton(gtk_button_new(), Action::NEW_PAGE_AFTER,
-                                                          icons.iconName("page-add"), _("New page")));
+    gtk_container_add(GTK_CONTAINER(box),
+                      newActionButton(gtk_button_new(), Action::NEW_PAGE_AFTER, "mx-page-add-symbolic", _("New page")));
     gtk_widget_show_all(box);
 }
 
@@ -266,6 +268,17 @@ void TopBar::setPageInfo(size_t page, size_t pageCount) {
 void TopBar::setToolsVisible(bool visible) {
     gtk_widget_set_visible(centerBox.get(), visible);
     gtk_widget_set_visible(endBox.get(), visible);
+}
+
+void TopBar::setCompact(bool c) {
+    if (compact == c) {
+        return;
+    }
+    compact = c;
+    gtk_widget_set_visible(GTK_WIDGET(statusLabel), !compact);
+    for (GtkWidget* sep: separators) {
+        gtk_widget_set_visible(sep, !compact);
+    }
 }
 
 void TopBar::onToolClicked(ToolGroup group) {
