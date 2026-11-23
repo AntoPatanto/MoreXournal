@@ -229,7 +229,6 @@ private:
     bool mouseDown = false;
     bool cursorOverwrite = false;
     bool cursorVisible = false;
-    bool colorRecorded = false;
 
     // In a blinking period, how much time is the cursor visible vs not visible
     static constexpr unsigned int CURSOR_ON_MULTIPLIER = 2;

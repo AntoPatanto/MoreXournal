@@ -342,7 +342,6 @@ void TextEditor::setColor(Color color) {
     this->textElement->setColor(color);
     // A box with text in it is drawn in the new colour, so move it to the front. An empty box may be discarded.
     if (!this->bufferEmpty()) {
-        this->colorRecorded = true;
         this->control->recordUsedColor(*this->textElement);
     }
     repaintEditor(false);
@@ -1036,8 +1035,8 @@ void TextEditor::bufferPasteDoneCallback(GtkTextBuffer* buffer, GtkClipboard* cl
 }
 
 void TextEditor::bufferInsertTextCallback(GtkTextBuffer*, GtkTextIter*, const gchar*, gint len, TextEditor* te) {
-    if (len > 0 && !te->colorRecorded && te->textElement) {
-        te->colorRecorded = true;
+    // Cheap when the colour is already the most recent one: the list and the pill stay unchanged
+    if (len > 0 && te->textElement) {
         te->control->recordUsedColor(*te->textElement);
     }
 }
