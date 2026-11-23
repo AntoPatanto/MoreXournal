@@ -196,6 +196,12 @@ GMenuModel* MainWindow::getMenuModel() const { return menubar->getModel(); }
 MainWindow::~MainWindow() {
     // First, so that the selection deleted with the view does not update it
     this->shapeToolbox.reset();
+
+    // The window is destroyed after this object (see GladeGui::~GladeGui()): drop the handlers that use `this`
+    g_signal_handlers_disconnect_by_data(this->window, this);
+    if (menubarWidget) {
+        g_signal_handlers_disconnect_by_data(menubarWidget, this);
+    }
 }
 
 void MainWindow::createWindowBox() {
