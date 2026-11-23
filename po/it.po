@@ -4994,3 +4994,137 @@ msgstr "Seleziona testo PDF"
 
 msgid "Audio"
 msgstr "Audio"
+
+msgid "Delay"
+msgstr "Attesa"
+
+msgid "How long to hold the pen still"
+msgstr "Quanto tenere ferma la penna"
+
+msgid "Jitter allowed"
+msgstr "Tremolio ammesso"
+
+msgid "Movement that does not reset the delay"
+msgstr "Movimento che non azzera l'attesa"
+
+msgid "Sensitivity"
+msgstr "Sensibilità"
+
+msgid "All shapes together"
+msgstr "Tutte le forme insieme"
+
+msgid "Strict"
+msgstr "Severa"
+
+msgid "Tolerant"
+msgstr "Tollerante"
+
+msgctxt "shape sensitivity"
+msgid "Custom"
+msgstr "Personalizzata"
+
+msgctxt "shape sensitivity"
+msgid "Default"
+msgstr "Predefinita"
+
+msgid "Minimum size"
+msgstr "Dimensione minima"
+
+msgid "Smaller strokes stay freehand"
+msgstr "Tratti più piccoli restano tratti"
+
+msgid "Advanced"
+msgstr "Avanzate"
+
+msgid "Line: straightness"
+msgstr "Linea: quanto dritta"
+
+msgid "Polygon sides: straightness"
+msgstr "Lati: quanto dritti"
+
+msgid "Circle: roundness"
+msgstr "Cerchio: quanto tondo"
+
+msgid "Circle: radius error"
+msgstr "Cerchio: scarto dal raggio"
+
+msgid "Rectangle: corner angle"
+msgstr "Rettangolo: angoli"
+
+msgid "Rectangle: open corners"
+msgstr "Rettangolo: vertici aperti"
+
+msgid "Triangle: open corners"
+msgstr "Triangolo: vertici aperti"
+
+msgid "Straighten near-axis angle"
+msgstr "Raddrizza se storto di"
+
+msgid "Restore defaults"
+msgstr "Ripristina predefiniti"
+
+msgid "Try it here"
+msgstr "Prova qui"
+
+msgid "recognized shape"
+msgstr "forma riconosciuta"
+
+msgid "tolerance and delay"
+msgstr "tolleranza e attesa"
+
+msgid "Clear"
+msgstr "Pulisci"
+
+msgid "Draw a line, triangle, rectangle or circle and hold still at the end without lifting."
+msgstr "Disegna una linea, un triangolo, un rettangolo o un cerchio e fermati alla fine senza sollevare."
+
+msgid "Pad cleared."
+msgstr "Area pulita."
+
+msgid "Recognized: {1}"
+msgstr "Riconosciuto: {1}"
+
+msgid "No shape"
+msgstr "Nessuna forma"
+
+msgid "Line"
+msgstr "Linea"
+
+msgid "Triangle"
+msgstr "Triangolo"
+
+msgid "Circle"
+msgstr "Cerchio"
+
+msgid "Stroke too small: {1} pt (minimum {2} pt)"
+msgstr "Tratto troppo piccolo: {1} pt (minimo {2} pt)"
+
+msgid "Stroke has too few points"
+msgstr "Tratto con troppo pochi punti"
+
+msgid "Found 1 straight side (det {1}, limit {2})"
+msgstr "Trovato 1 lato dritto (det {1}, limite {2})"
+
+msgid "Found {1} straight sides (det {2}, limit {3})"
+msgstr "Trovati {1} lati dritti (det {2}, limite {3})"
+
+msgid "Not a triangle: a corner is open by {1} pt (limit {2} pt)"
+msgstr "Triangolo no: un vertice è aperto di {1} pt (limite {2} pt)"
+
+msgid "Not a rectangle: a corner is off 90° by {1}° (limit {2}°)"
+msgstr "Rettangolo no: un angolo si scosta di {1}° dal retto (limite {2}°)"
+
+msgid "Not a rectangle: a corner is open by {1} pt (limit {2} pt)"
+msgstr "Rettangolo no: un vertice è aperto di {1} pt (limite {2} pt)"
+
+msgid "Not a line: curvature {1} (limit {2})"
+msgstr "Linea no: curvatura {1} (limite {2})"
+
+msgid "No group of straight sides found (maximum 4)"
+msgstr "Nessun gruppo di lati dritti (al massimo 4)"
+
+msgid "Not a circle: radius error {1} (limit {2})"
+msgstr "Cerchio no: scarto dal raggio {1} (limite {2})"
+
+msgid "Not a circle: roundness {1} (minimum {2})"
+msgstr "Cerchio no: rotondità {1} (minimo {2})"
