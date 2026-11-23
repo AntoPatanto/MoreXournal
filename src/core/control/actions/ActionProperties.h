@@ -5,6 +5,7 @@
 #pragma once
 
 #include <type_traits>
+#include <utility>
 
 #include <control/tools/TextEditor.h>
 
@@ -45,6 +46,8 @@
  *      * (optional) a member type parameter_type. If both are provided, parameter_type and state_type must agree.
  *      * (optional) a member static constexpr const char* accelerators[] = {"accel1", "accel2", nullptr} for
  *          accelerators that need to be set in the code rather than in the .xml files
+ *      * (optional) a member static constexpr std::pair<parameter_type, const char*> targetedAccelerators[] for
+ *          accelerators bound to specific target values of a parameterized action
  *      * (optional) a static member function
  *              static bool initiallyEnabled(Control*);
  *          Defaults to [](Control*){return true;}
@@ -197,6 +200,7 @@ struct ActionProperties<Action::SELECT_ALL> {
 };
 template <>
 struct ActionProperties<Action::DELETE> {
+    static constexpr const char* accelerators[] = {"Delete", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         if (!ctrl->getWindow()->getXournal()->actionDelete()) {
             ctrl->deleteSelection();
@@ -300,6 +304,7 @@ struct ActionProperties<Action::PRESENTATION_MODE> {
 template <>
 struct ActionProperties<Action::FULLSCREEN> {
     using state_type = bool;
+    static constexpr const char* accelerators[] = {"F11", nullptr};
     static constexpr state_type initialState(Control*) { return false; }
     static void callback(GSimpleAction* ga, GVariant* p, Control* ctrl) {
         g_simple_action_set_state(ga, p);
@@ -311,6 +316,7 @@ struct ActionProperties<Action::FULLSCREEN> {
 template <>
 struct ActionProperties<Action::SHOW_SIDEBAR> {
     using state_type = bool;
+    static constexpr const char* accelerators[] = {"F12", nullptr};
     static state_type initialState(Control* ctrl) {
         Settings* settings = ctrl->getSettings();
         return settings->getViewModes().at(settings->getActiveViewMode()).showSidebar;
@@ -477,15 +483,18 @@ struct ActionProperties<Action::GOTO_FIRST> {
 };
 template <>
 struct ActionProperties<Action::GOTO_PREVIOUS> {
+    static constexpr const char* accelerators[] = {"<Ctrl>Page_Up", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->getScrollHandler()->goToPreviousPage(); }
 };
 
 template <>
 struct ActionProperties<Action::GOTO_PAGE> {
+    static constexpr const char* accelerators[] = {"<Ctrl>g", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->gotoPage(); }
 };
 template <>
 struct ActionProperties<Action::GOTO_NEXT> {
+    static constexpr const char* accelerators[] = {"<Ctrl>Page_Down", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->getScrollHandler()->goToNextPage(); }
 };
 template <>
@@ -530,6 +539,7 @@ struct ActionProperties<Action::NEW_PAGE_BEFORE> {
 
 template <>
 struct ActionProperties<Action::NEW_PAGE_AFTER> {
+    static constexpr const char* accelerators[] = {"<Ctrl>d", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         ctrl->insertNewPage(ctrl->getCurrentPageNo() + 1);
     }
@@ -583,6 +593,17 @@ template <>
 struct ActionProperties<Action::SELECT_TOOL> {
     using state_type = ToolType;
     using parameter_type = state_type;
+    static constexpr std::pair<ToolType, const char*> targetedAccelerators[] = {
+            {TOOL_PEN, "<Ctrl><Shift>p"},
+            {TOOL_ERASER, "<Ctrl><Shift>e"},
+            {TOOL_HIGHLIGHTER, "<Ctrl><Shift>h"},
+            {TOOL_TEXT, "<Ctrl><Shift>t"},
+            {TOOL_IMAGE, "<Ctrl><Shift>i"},
+            {TOOL_SELECT_RECT, "<Ctrl><Shift>r"},
+            {TOOL_SELECT_REGION, "<Ctrl><Shift>g"},
+            {TOOL_SELECT_OBJECT, "<Ctrl><Shift>o"},
+            {TOOL_HAND, "<Ctrl><Shift>a"},
+    };
     static state_type initialState(Control* ctrl) { return ctrl->getToolHandler()->getActiveTool()->getToolType(); }
     static void callback(GSimpleAction* ga, GVariant* p, Control* ctrl) {
         g_simple_action_set_state(ga, p);
@@ -632,19 +653,33 @@ struct ActionPropDrawingTypes {
 template <>
 struct ActionProperties<Action::TOOL_DRAW_SHAPE_RECOGNIZER>: ActionPropDrawingTypes<DRAWING_TYPE_SHAPE_RECOGNIZER> {};
 template <>
-struct ActionProperties<Action::TOOL_DRAW_RECTANGLE>: ActionPropDrawingTypes<DRAWING_TYPE_RECTANGLE> {};
+struct ActionProperties<Action::TOOL_DRAW_RECTANGLE>: ActionPropDrawingTypes<DRAWING_TYPE_RECTANGLE> {
+    static constexpr const char* accelerators[] = {"<Ctrl>2", nullptr};
+};
 template <>
-struct ActionProperties<Action::TOOL_DRAW_ELLIPSE>: ActionPropDrawingTypes<DRAWING_TYPE_ELLIPSE> {};
+struct ActionProperties<Action::TOOL_DRAW_ELLIPSE>: ActionPropDrawingTypes<DRAWING_TYPE_ELLIPSE> {
+    static constexpr const char* accelerators[] = {"<Ctrl>3", nullptr};
+};
 template <>
-struct ActionProperties<Action::TOOL_DRAW_ARROW>: ActionPropDrawingTypes<DRAWING_TYPE_ARROW> {};
+struct ActionProperties<Action::TOOL_DRAW_ARROW>: ActionPropDrawingTypes<DRAWING_TYPE_ARROW> {
+    static constexpr const char* accelerators[] = {"<Ctrl>4", nullptr};
+};
 template <>
-struct ActionProperties<Action::TOOL_DRAW_DOUBLE_ARROW>: ActionPropDrawingTypes<DRAWING_TYPE_DOUBLE_ARROW> {};
+struct ActionProperties<Action::TOOL_DRAW_DOUBLE_ARROW>: ActionPropDrawingTypes<DRAWING_TYPE_DOUBLE_ARROW> {
+    static constexpr const char* accelerators[] = {"<Ctrl>5", nullptr};
+};
 template <>
-struct ActionProperties<Action::TOOL_DRAW_COORDINATE_SYSTEM>: ActionPropDrawingTypes<DRAWING_TYPE_COORDINATE_SYSTEM> {};
+struct ActionProperties<Action::TOOL_DRAW_COORDINATE_SYSTEM>: ActionPropDrawingTypes<DRAWING_TYPE_COORDINATE_SYSTEM> {
+    static constexpr const char* accelerators[] = {"<Ctrl>6", nullptr};
+};
 template <>
-struct ActionProperties<Action::TOOL_DRAW_LINE>: ActionPropDrawingTypes<DRAWING_TYPE_LINE> {};
+struct ActionProperties<Action::TOOL_DRAW_LINE>: ActionPropDrawingTypes<DRAWING_TYPE_LINE> {
+    static constexpr const char* accelerators[] = {"<Ctrl>7", nullptr};
+};
 template <>
-struct ActionProperties<Action::TOOL_DRAW_SPLINE>: ActionPropDrawingTypes<DRAWING_TYPE_SPLINE> {};
+struct ActionProperties<Action::TOOL_DRAW_SPLINE>: ActionPropDrawingTypes<DRAWING_TYPE_SPLINE> {
+    static constexpr const char* accelerators[] = {"<Ctrl>8", nullptr};
+};
 
 template <>
 struct ActionProperties<Action::SETSQUARE> {
@@ -790,6 +825,7 @@ struct ActionProperties<Action::TOGGLE_TOUCH_DRAWING> {
 
 template <>
 struct ActionProperties<Action::SELECT_FONT> {
+    static constexpr const char* accelerators[] = {"<Ctrl><Shift>f", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->showFontDialog(); }
 };
 
@@ -1042,6 +1078,7 @@ struct ActionProperties<Action::LAYER_HIDE_ALL> {
 
 template <>
 struct ActionProperties<Action::LAYER_NEW_ABOVE_CURRENT> {
+    static constexpr const char* accelerators[] = {"<Ctrl>l", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->getLayerController()->addNewLayer(false); }
 };
 
