@@ -1,6 +1,7 @@
 #include "ToolZoomSlider.h"
 
-#include <cmath>    // for exp, log
+#include <algorithm>  // for max
+#include <cmath>      // for exp, log
 #include <sstream>  // for stringstream, bas...
 #include <utility>  // for move
 
@@ -73,6 +74,8 @@ auto ToolZoomSlider::getNewToolIcon() const -> GtkWidget* {
     return gtk_image_new_from_icon_name(iconName.c_str(), GTK_ICON_SIZE_SMALL_TOOLBAR);
 }
 
-auto ToolZoomSlider::scaleFunction(double x) -> double { return std::log(x - SCALE_LOG_OFFSET); }
+auto ToolZoomSlider::scaleFunction(double x) -> double {
+    return std::log(std::max(x, DEFAULT_ZOOM_MIN) - SCALE_LOG_OFFSET);
+}
 
 auto ToolZoomSlider::scaleInverseFunction(double x) -> double { return std::exp(x) + SCALE_LOG_OFFSET; }

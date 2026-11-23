@@ -455,7 +455,7 @@ struct ActionProperties<Action::ZOOM_FIT> {
 template <>
 struct ActionProperties<Action::ZOOM> {
     using state_type = double;
-    static state_type initialState(Control* ctrl) { return ctrl->getZoomControl()->getZoom(); }
+    static state_type initialState(Control* ctrl) { return ctrl->getZoomControl()->getZoomReal(); }
     static void callback(GSimpleAction* ga, GVariant* p, Control* ctrl) {
         g_simple_action_set_state(ga, p);
         double scale = g_variant_get_double(p);
