@@ -13,6 +13,7 @@
 
 #include <gtest/gtest.h>
 
+#include "control/settings/ButtonConfig.h"
 #include "control/settings/Settings.h"
 
 TEST(SettingsTest, testLoadDoesNotThrowForNonExistingFilePath) {
@@ -182,6 +183,17 @@ TEST(SettingsTest, testLegacySettingsAreMigratedOnce) {
   <property name="selectedToolbar" value="Portrait"/>
   <property name="defaultViewModeAttributes" value="showMenubar,showToolbar,showSidebar"/>
   <property name="sidebarWidth" value="222"/>
+  <data name="buttonConfig">
+    <data name="right">
+      <attribute name="tool" type="string" value="hand"/>
+    </data>
+  </data>
+  <data name="deviceClasses">
+    <data name="Test Tablet">
+      <attribute name="deviceClass" type="int" value="2"/>
+      <attribute name="deviceSource" type="int" value="2"/>
+    </data>
+  </data>
 </settings>
 )";
     }
@@ -203,6 +215,9 @@ TEST(SettingsTest, testLegacySettingsAreMigratedOnce) {
     EXPECT_EQ(settings.getSelectedToolbar(), "Portrait");
     EXPECT_TRUE(settings.consumePendingToolbarMigration());
     EXPECT_FALSE(settings.consumePendingToolbarMigration());
+    // The migration saves the file: user data loaded from it must not be replaced by defaults
+    EXPECT_EQ(settings.getButtonConfig(BUTTON_MOUSE_RIGHT)->getAction(), TOOL_HAND);
+    EXPECT_EQ(settings.getDeviceClassForDevice("Test Tablet", GDK_SOURCE_PEN), static_cast<InputDeviceTypeOption>(2));
 
     // The migration was saved: loading again does not migrate a second time
     Settings reloaded(outPath);
@@ -210,6 +225,8 @@ TEST(SettingsTest, testLegacySettingsAreMigratedOnce) {
     EXPECT_EQ(reloaded.getUiLayoutVersion(), UI_LAYOUT_VERSION);
     EXPECT_FALSE(reloaded.isMenubarVisible());
     EXPECT_FALSE(reloaded.consumePendingToolbarMigration());
+    EXPECT_EQ(reloaded.getButtonConfig(BUTTON_MOUSE_RIGHT)->getAction(), TOOL_HAND);
+    EXPECT_EQ(reloaded.getDeviceClassForDevice("Test Tablet", GDK_SOURCE_PEN), static_cast<InputDeviceTypeOption>(2));
 
     fs::remove(outPath);
 }

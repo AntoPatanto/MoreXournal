@@ -915,10 +915,12 @@ auto Settings::load() -> bool {
 
     xmlFreeDoc(doc);
 
-    migrateUiLayout();
-
     loadButtonConfig();
     loadDeviceClasses();
+
+    // Must come after the loads above: migrating saves the file, and saving writes the current button
+    // configuration and device classes
+    migrateUiLayout();
 
     // This must be done before the color palette to ensure the color names are translated properly
 #ifdef _WIN32
