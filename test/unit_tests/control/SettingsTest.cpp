@@ -230,3 +230,22 @@ TEST(SettingsTest, testLegacySettingsAreMigratedOnce) {
 
     fs::remove(outPath);
 }
+
+TEST(SettingsTest, testRecentColorsReadWrite) {
+    const fs::path outPath = fs::temp_directory_path() / "xournalpp-test-units_Settings_testRecentColors.xml";
+    fs::remove(outPath);
+
+    Settings settings(outPath);
+    settings.transactionStart();
+    EXPECT_TRUE(settings.getRecentColors().get().empty());
+    EXPECT_TRUE(settings.pushRecentColor(Color(0xffff0000U)));
+    EXPECT_TRUE(settings.pushRecentColor(Color(0xffffff00U)));
+    EXPECT_FALSE(settings.pushRecentColor(Colors::black));
+    settings.transactionEnd();  // calls save()
+
+    Settings loaded(outPath);
+    ASSERT_TRUE(loaded.load());
+    EXPECT_EQ(loaded.getRecentColors().get(), (std::vector<Color>{Color(0xffffff00U), Color(0xffff0000U)}));
+
+    fs::remove(outPath);
+}

@@ -170,6 +170,8 @@ void FloatingTools::setToolbarVisible(bool visible) {
 
 void FloatingTools::rebuildToolOptions() { pill->rebuild(); }
 
+void FloatingTools::updateRecentColors() { pill->updateColors(); }
+
 void FloatingTools::updateVisibility() {
     xoj::util::GVariantSPtr state(g_action_get_state(G_ACTION(presentationAction.get())), xoj::util::adopt);
     const bool visible = toolbarVisible && !g_variant_get_boolean(state.get());

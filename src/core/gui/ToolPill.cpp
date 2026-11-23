@@ -2,6 +2,7 @@
 
 #include <algorithm>  // for clamp, min
 #include <cstdio>     // for snprintf
+#include <optional>   // for optional
 #include <string>     // for string
 
 #include "control/Control.h"                        // for Control
@@ -19,17 +20,19 @@
 #include "gui/toolbarMenubar/model/ColorPalette.h"  // for Palette
 #include "model/TextAlignment.h"                    // for TextAlignment
 #include "util/GtkUtil.h"                           // for setToggleButtonUnreleasable
+#include "util/NamedColor.h"                        // for NamedColor
 #include "util/i18n.h"                              // for _
 #include "util/raii/GVariantSPtr.h"                 // for makeGVariantSPtr
 
+#include "RecentColors.h"   // for pillColors
 #include "ToolPillLogic.h"  // for sectionsFor
 
 using xoj::topbar::ToolGroup;
 namespace pill = xoj::toolpill;
 
 namespace {
-/// How many palette colors the pill shows; the others are in the "more colors" popover
-constexpr size_t PILL_COLOR_COUNT = 6;
+/// How many colors the pill shows (black and the recent colors); the palette is in the "more colors" popover
+constexpr size_t PILL_COLOR_COUNT = 1 + xoj::toolpill::RECENT_COLOR_COUNT;
 constexpr int SWATCH_SIZE = 20;
 constexpr int ICON_SIZE = 18;
 /// Data key of the line width (in 1/100 px) drawn by a thickness sample
@@ -414,6 +417,8 @@ void ToolPill::rebuild() {
     }
     thicknessSample = nullptr;
     thicknessLabel = nullptr;
+    swatchBox = nullptr;
+    shownColors.clear();
 
     content = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
     GtkBox* box = GTK_BOX(content);
@@ -549,28 +554,63 @@ void ToolPill::addFont(GtkBox* box) {
     gtk_box_pack_start(box, btn, false, false, 0);
 }
 
+namespace {
+/// A color button of the pill, drawn with the recolor parameters like the toolbar colors
+GtkWidget* newSwatch(const NamedColor& c, const RecolorParameters& recolorParams) {
+    std::optional<Color> secondary;
+    if (recolorParams.recolorizeMainView) {
+        secondary = recolorParams.recolor.convertColor(c.getColor());
+    }
+    GtkWidget* btn = ColorToolItem::makeButton(c, secondary, SWATCH_SIZE);
+    prepareButton(btn, nullptr);
+    addClass(btn, "mx-swatch");
+    return btn;
+}
+}  // namespace
+
+void ToolPill::updateColors() {
+    if (!swatchBox) {
+        return;
+    }
+    const Palette& palette = control->getPalette();
+    std::vector<Color> paletteColors;
+    paletteColors.reserve(palette.size());
+    for (size_t i = 0; i < palette.size(); i++) {
+        paletteColors.push_back(palette.getColorAt(i).getColor());
+    }
+    std::vector<Color> colors =
+            pill::pillColors(control->getSettings()->getRecentColors(), paletteColors, PILL_COLOR_COUNT);
+    if (colors == shownColors) {
+        return;
+    }
+
+    gtk_container_foreach(GTK_CONTAINER(swatchBox), +[](GtkWidget* w, gpointer) { gtk_widget_destroy(w); }, nullptr);
+    const auto& recolorParams = control->getSettings()->getRecolorParameters();
+    for (Color color: colors) {
+        // The palette entry gives the tooltip its name; other colors are custom
+        NamedColor named(color);
+        for (size_t i = 0; i < palette.size(); i++) {
+            Color c = palette.getColorAt(i).getColor();
+            c.alpha = 0xff;
+            if (c == color) {
+                named = palette.getColorAt(i);
+                break;
+            }
+        }
+        gtk_box_pack_start(GTK_BOX(swatchBox), newSwatch(named, recolorParams), false, false, 0);
+    }
+    gtk_widget_show_all(swatchBox);
+    shownColors = std::move(colors);
+}
+
 void ToolPill::addColors(GtkBox* box) {
     const Palette& palette = control->getPalette();
     const auto& recolorParams = control->getSettings()->getRecolorParameters();
-    auto secondary = [&](const NamedColor& c) -> std::optional<Color> {
-        if (recolorParams.recolorizeMainView) {
-            return recolorParams.recolor.convertColor(c.getColor());
-        }
-        return std::nullopt;
-    };
-    auto newSwatch = [&](size_t i) {
-        const NamedColor& c = palette.getColorAt(i);
-        GtkWidget* btn = ColorToolItem::makeButton(c, secondary(c), SWATCH_SIZE);
-        prepareButton(btn, nullptr);
-        addClass(btn, "mx-swatch");
-        return btn;
-    };
 
     GtkWidget* dots = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-    const size_t shown = std::min(PILL_COLOR_COUNT, palette.size());
-    for (size_t i = 0; i < shown; i++) {
-        gtk_box_pack_start(GTK_BOX(dots), newSwatch(i), false, false, 0);
-    }
+    swatchBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+    gtk_box_pack_start(GTK_BOX(dots), swatchBox, false, false, 0);
+    updateColors();
 
     // The whole palette and the color chooser
     GtkWidget* more = prepareButton(gtk_menu_button_new(), _("More colors"));
@@ -584,7 +624,7 @@ void ToolPill::addColors(GtkBox* box) {
     gtk_flow_box_set_min_children_per_line(GTK_FLOW_BOX(grid),
                                            static_cast<guint>(std::min(PILL_COLOR_COUNT, palette.size())));
     for (size_t i = 0; i < palette.size(); i++) {
-        GtkWidget* swatch = newSwatch(i);
+        GtkWidget* swatch = newSwatch(palette.getColorAt(i), recolorParams);
         popdownOnClick(swatch, popover);
         gtk_container_add(GTK_CONTAINER(grid), swatch);
         // Flow box children take the focus and draw a hover box: keep only the button's look

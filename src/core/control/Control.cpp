@@ -2752,6 +2752,15 @@ auto Control::getPluginController() const -> PluginController* { return this->pl
 
 auto Control::getPalette() const -> const Palette& { return *(this->palette); }
 
+void Control::recordUsedColor(const Element& e) {
+    if (const auto* s = dynamic_cast<const Stroke*>(&e); s && s->getToolType() == StrokeTool::ERASER) {
+        return;
+    }
+    if (this->settings->pushRecentColor(e.getColor()) && this->win) {
+        this->win->updateRecentColors();
+    }
+}
+
 auto Control::loadPaletteFromSettings() -> void {
     const auto palettePath = this->settings->getColorPaletteSetting();
     if (palettePath.empty()) {

@@ -40,6 +40,9 @@ public:
     /// Builds the tool options again, e.g. after the palette changed
     void rebuildToolOptions();
 
+    /// Shows the new recent colors in the tool options
+    void updateRecentColors();
+
 private:
     GtkWidget* createZoom();
     GtkWidget* createLayer();

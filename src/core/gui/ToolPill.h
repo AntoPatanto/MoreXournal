@@ -17,6 +17,7 @@
 
 #include "control/ToolEnums.h"          // for ToolType
 #include "control/actions/ActionRef.h"  // for ActionRef
+#include "util/Color.h"                 // for Color
 #include "util/raii/GObjectSPtr.h"      // for WidgetSPtr
 
 #include "TopBarLogic.h"  // for ToolGroup
@@ -41,6 +42,9 @@ public:
 
     /// Builds the content again, e.g. after the palette changed
     void rebuild();
+
+    /// Shows the current recent colors, if the content has colors
+    void updateColors();
 
 private:
     /// Rebuilds the content if the active tool needs other options than the shown ones
@@ -73,6 +77,10 @@ private:
     /// Parts of the thickness button, children of content (nullptr if the tool has no thickness)
     GtkWidget* thicknessSample = nullptr;
     GtkLabel* thicknessLabel = nullptr;
+
+    /// Box of the color swatches, child of content (nullptr if the tool has no colors), and the colors it shows
+    GtkWidget* swatchBox = nullptr;
+    std::vector<Color> shownColors;
 
     /// notify::state handlers on the tool actions, disconnected in the destructor
     std::vector<std::pair<ActionRef, gulong>> watchedActions;

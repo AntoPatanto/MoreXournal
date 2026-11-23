@@ -274,6 +274,7 @@ void SplineHandler::finalizeSpline() {
 
     UndoRedoHandler* undo = control->getUndoRedoHandler();
     undo->addUndoAction(std::make_unique<InsertUndoAction>(page, layer, stroke.get()));
+    control->recordUsedColor(*stroke);
 
     auto ptr = stroke.get();
     Document* doc = control->getDocument();
