@@ -619,7 +619,7 @@ void ShapeToolbox::applyStrokeColor(Color color) {
     update();
 }
 
-void ShapeToolbox::applyFill(Color color, int alpha) {
+void ShapeToolbox::applyFill(std::optional<Color> color, int alpha) {
     EditSelection* sel = getShapeSelection();
     if (!sel) {
         return;
@@ -628,7 +628,11 @@ void ShapeToolbox::applyFill(Color color, int alpha) {
     this->fillAlpha = std::clamp(alpha, 0, 255);
     // Keep fill disabled until the user enables it; when enabled, update RGB in fillColor and alpha in fill
     const int fill = s->getFill() != -1 ? this->fillAlpha : -1;
-    addUndoAction(sel->setFillStyle(fill, color));
+    const Color currentColor = s->getFillColor().value_or(s->getColor());
+    const Color targetColor = color.value_or(s->getColor());
+    if (fill != s->getFill() || !sameRgb(targetColor, currentColor)) {
+        addUndoAction(sel->setFillStyle(fill, color));
+    }
     update();
 }
 
@@ -832,7 +836,7 @@ void ShapeToolbox::opacityValueChangedCb(GtkRange* range, ShapeToolbox* self) {
             sel->setFillStyle(alpha, s->getFillColor());
         }
     } else {
-        self->applyFill(s->getFillColor().value_or(s->getColor()), alpha);
+        self->applyFill(s->getFillColor(), alpha);
     }
 }
 

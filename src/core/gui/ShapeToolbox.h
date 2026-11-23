@@ -56,7 +56,7 @@ private:
 
     void addUndoAction(UndoActionPtr action);
     void applyStrokeColor(Color color);
-    void applyFill(Color color, int alpha);
+    void applyFill(std::optional<Color> color, int alpha);
     void commitOpacityDrag();
 
     static gboolean getOverlayPosition(GtkOverlay* overlay, GtkWidget* widget, GdkRectangle* allocation,
