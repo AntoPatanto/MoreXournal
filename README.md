@@ -26,15 +26,15 @@
 
 MoreXournal is a public fork of [Xournal++](https://github.com/xournalpp/xournalpp) that adds hold-to-shape drawing, editable shape objects, and a single-bar GTK3 interface while keeping compatibility with `.xopp` files.
 
-It is free software under GPL-2.0 and runs locally on your machine with no account, server or telemetry. Because it uses its own application ID (`io.github.antopatanto.morexournal`), binaries (`morexournal`), and configuration folder, you can install it alongside Xournal++ without sharing settings.
+It is free software under GPL-2.0 and runs locally on your machine with no account, server or telemetry. Because it uses its own application ID (`io.github.antopatanto.morexournal`), binary (`morexournal`) and configuration folder, you can install it alongside Xournal++ without sharing settings.
 
 ## What you can do
 
-**Convert strokes into shapes by holding the pen still.** While drawing with the pen or highlighter, hold the tip still (500 ms by default, configurable from 100 to 3000 ms in Preferences, or toggleable as Automatic shapes in the tool pill) to replace the stroke with a recognized line, triangle, rectangle or circle before lifting the pen. Recognized lines snap to 15-degree steps when rotation snapping is enabled, and one undo removes the shape.
+**Convert strokes into shapes by holding the pen still.** While drawing with the pen or highlighter, hold the tip still (500 ms by default, configurable from 100 to 3000 ms in Preferences, or switched on and off with Automatic shapes in the pen tool pill) to replace the stroke with a recognized line, triangle, rectangle or circle before lifting the pen. Recognized lines snap to 15-degree steps when rotation snapping is enabled, and one undo removes the shape.
 
 **Edit shapes after you draw them.** Shapes created with hold-to-shape or with the line, rectangle and ellipse tools store their type and control points. Selecting a shape displays geometry handles (endpoints for lines, free vertices for polygons, corners and rotation for rectangles, side stretch and rotation for ellipses) and a floating shape menu to change stroke colour, thickness, fill colour and opacity, solid, dashed or dotted line style, duplicate, delete, or convert the shape back to a plain stroke.
 
-**Work in a single top bar.** One header bar replaces the classic menu bar and toolbar rows: the main menu and document title with save status sit on the left, the eight main tools in the centre, and undo/redo, page sidebar toggle, page navigation and new page on the right. Tap <kbd>Alt</kbd> (or press <kbd>F10</kbd>) to show the menu bar temporarily, or enable "Always show the menu bar" in Preferences.
+**Work in a single top bar.** One header bar replaces the classic menu bar and toolbar rows: the main menu and document title with save status sit on the left, the eight main tools in the centre, and undo/redo, page sidebar toggle, page navigation and new page on the right. Tap <kbd>Alt</kbd> to show the menu bar temporarily, press <kbd>F10</kbd> to keep it shown or hidden, or enable "Always show the menu bar" in Preferences.
 
 **Adjust tools from floating controls.** A rounded floating pill under the top bar shows options for the active tool, including black plus up to five recently used colours (shared across pen, highlighter, shapes and text), thickness, line style and fill. Zoom controls and the layer selector float in the bottom corners and follow the page area when the sidebar or search bar opens.
 
@@ -46,7 +46,7 @@ It is free software under GPL-2.0 and runs locally on your machine with no accou
 
 Prebuilt releases are not published yet, so build MoreXournal from source with CMake and Ninja.
 
-You need a C++20 compiler (GCC 11+ or Clang 15+), CMake 3.18+, Ninja, GTK 3.18.9+, `poppler-glib` 0.41.0+, libxml2, libzip, librsvg and zlib. Optional features use PortAudio and libsndfile for audio, qpdf for PDF export, Lua for plugins, GtkSourceView 4 for LaTeX syntax highlighting, and GoogleTest for tests. Dependency install commands for Arch, Fedora, Ubuntu/Debian, openSUSE and Solus are in [readme/LinuxBuild.md](readme/LinuxBuild.md).
+You need a C++20 compiler (GCC 11+ or Clang 15+), CMake 3.18+, Ninja, GTK 3.18.9+, `poppler-glib` 0.41.0+, libxml2, libzip, librsvg, zlib and gettext. These features are on by default and need their libraries unless you turn them off: audio (PortAudio and libsndfile, `-DENABLE_AUDIO=OFF`), PDF export with qpdf (`-DENABLE_QPDF=OFF`), Lua plugins (`-DENABLE_PLUGINS=OFF`) and LaTeX syntax highlighting with GtkSourceView 4 (`-DENABLE_GTK_SOURCEVIEW=OFF`). Except in `Release` builds, configure also downloads the cpptrace library from GitHub, which needs zstd; pass `-DENABLE_CPPTRACE=OFF` to skip it. GoogleTest is only needed for the tests. Dependency install commands for Arch, Fedora, Ubuntu/Debian, openSUSE and Solus are in [readme/LinuxBuild.md](readme/LinuxBuild.md).
 
 Clone the repository, configure, build, install to a local prefix, and run:
 
@@ -77,7 +77,7 @@ MoreXournal stores all notes and settings locally and makes no network requests 
 
 On Linux, configuration, cache, data and state live under `morexournal`: `~/.config/morexournal`, `~/.cache/morexournal`, `~/.local/share/morexournal` and `~/.local/state/morexournal`. On first launch, if `~/.config/xournalpp` exists and `~/.config/morexournal` does not, MoreXournal copies your Xournal++ settings and leaves the original folder untouched.
 
-Notes are saved in the gzipped XML `.xopp` format shared with Xournal++. Attached PDFs are linked by path rather than embedded. Editable shapes are saved as extra attributes (`mxShape`, `mxShapeParams`, `mxFillColor`) on `<stroke>` elements, which upstream Xournal++ ignores so the same file opens there as regular strokes. Exporting to legacy `.xoj` drops Xournal++ and MoreXournal extensions.
+Notes are saved in the gzipped XML `.xopp` format shared with Xournal++. A PDF you annotate is linked by its path, or, if you choose to attach it, copied next to the note as `<name>.xopp.bg.pdf`; it is never embedded in the `.xopp` file. Editable shapes are saved as extra attributes (`mxShape`, `mxShapeParams`, `mxFillColor`) on `<stroke>` elements, which upstream Xournal++ ignores so the same file opens there as regular strokes. Exporting to legacy `.xoj` drops Xournal++ and MoreXournal extensions.
 
 ## Documentation
 
