@@ -91,7 +91,6 @@ void GeometryToolController::addStrokeToLayer() {
 
     const auto undo = control->getUndoRedoHandler();
     undo->addUndoAction(std::make_unique<InsertUndoAction>(page, layer, ptr));
-    control->recordUsedColor(*ptr);
     const Rectangle<double>& rect = ptr->getBoundingBox();
     view->rerenderRect(rect.x, rect.y, rect.width, rect.height);
     geometryTool->setStroke(nullptr);
@@ -99,7 +98,8 @@ void GeometryToolController::addStrokeToLayer() {
 }
 
 void GeometryToolController::initializeStroke() {
-    const auto h = view->getXournal()->getControl()->getToolHandler();
+    const auto control = view->getXournal()->getControl();
+    const auto h = control->getToolHandler();
     stroke = std::make_unique<Stroke>();
     geometryTool->setStroke(stroke.get());
     stroke->setWidth(h->getThickness());
@@ -120,6 +120,7 @@ void GeometryToolController::initializeStroke() {
             g_warning("Unhandled tool when initializing stroke in geometry tool controller");
             break;
     }
+    control->recordUsedColor(*stroke);
 }
 
 auto GeometryToolController::getPage() const -> const PageRef { return view->getPage(); }

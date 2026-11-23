@@ -140,6 +140,7 @@ TextEditor::TextEditor(Control* control, const PageRef& page, GtkWidget* xournal
 
     this->initializeEditionAt(x, y);
     g_signal_connect(this->buffer.get(), "paste-done", G_CALLBACK(bufferPasteDoneCallback), this);
+    g_signal_connect_after(this->buffer.get(), "insert-text", G_CALLBACK(bufferInsertTextCallback), this);
 
     {  // Get cursor blinking settings
         GtkSettings* settings = gtk_widget_get_settings(this->xournalWidget);
@@ -302,7 +303,10 @@ TextEditor::TextEditor(Control* control, const PageRef& page, GtkWidget* xournal
 }
 
 TextEditor::~TextEditor() {
+    // Focusing out can commit pending input method text, which still records the colour
     gtk_im_context_focus_out(this->imContext.get());
+    // An asynchronous paste keeps the buffer alive and can emit its signals after the editor is gone
+    g_signal_handlers_disconnect_by_data(this->buffer.get(), this);
 
     this->xournalWidget = nullptr;
     control->setCopyCutEnabled(false);
@@ -336,6 +340,10 @@ void TextEditor::replaceBufferContent(const std::string& text) {
 
 void TextEditor::setColor(Color color) {
     this->textElement->setColor(color);
+    // A box with text in it is drawn in the new colour, so move it to the front. An empty box may be discarded.
+    if (!this->bufferEmpty()) {
+        this->control->recordUsedColor(*this->textElement);
+    }
     repaintEditor(false);
 }
 
@@ -1026,6 +1034,13 @@ void TextEditor::bufferPasteDoneCallback(GtkTextBuffer* buffer, GtkClipboard* cl
     }
 }
 
+void TextEditor::bufferInsertTextCallback(GtkTextBuffer*, GtkTextIter*, const gchar*, gint len, TextEditor* te) {
+    // Cheap when the colour is already the most recent one: the list and the pill stay unchanged
+    if (len > 0 && te->textElement) {
+        te->control->recordUsedColor(*te->textElement);
+    }
+}
+
 void TextEditor::resetImContext() {
     if (this->needImReset) {
         this->needImReset = false;
@@ -1221,7 +1236,6 @@ void TextEditor::finalizeEdition() {
         this->viewPool->dispatchAndClear(xoj::view::TextEditionView::FINALIZATION_REQUEST, this->previousBoundingBox);
         this->page->fireElementChanged(ptr);
         undo->addUndoAction(std::make_unique<InsertUndoAction>(page, layer, ptr));
-        this->control->recordUsedColor(*ptr);
     }
 }
 

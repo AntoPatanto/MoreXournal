@@ -189,7 +189,6 @@ void StrokeHandler::onButtonReleaseEvent(const PositionInputData& pos, double zo
 
     UndoRedoHandler* undo = control->getUndoRedoHandler();
     undo->addUndoAction(std::make_unique<InsertUndoAction>(page, layer, stroke.get()));
-    control->recordUsedColor(*stroke);
 
     Settings* settings = control->getSettings();
     if (settings->getEmptyLastPageAppend() == EmptyLastPageAppendType::OnDrawOfLastPage) {
@@ -360,6 +359,9 @@ void StrokeHandler::onButtonPressEvent(const PositionInputData& pos, double zoom
     this->buttonDownPoint.y = pos.y / zoom;
 
     stroke = createStroke(this->control);
+    if (recordsUsedColor) {
+        control->recordUsedColor(*stroke);
+    }
 
     this->hasPressure = this->stroke->getToolType().isPressureSensitive() && pos.pressure != Point::NO_PRESSURE;
 

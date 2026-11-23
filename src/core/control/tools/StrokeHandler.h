@@ -119,6 +119,9 @@ protected:
 
     bool hasPressure;
 
+    /// Whether a stroke started by this handler moves its colour to the front of the recent colours
+    bool recordsUsedColor = true;
+
 private:
     /**
      * @brief Pointer to the Stabilizer instance

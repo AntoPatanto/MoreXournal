@@ -21,7 +21,11 @@ static constexpr uint8_t FADEOUT_ALPHA_STEP = 25;
 class TemporaryStrokeHandler: public StrokeHandler {
 public:
     using StrokeHandler::finalizeStroke;
-    using StrokeHandler::StrokeHandler;
+
+    TemporaryStrokeHandler(Control* control, const PageRef& page): StrokeHandler(control, page) {
+        // Laser pointer strokes fade out and are not drawn on the page
+        recordsUsedColor = false;
+    }
 };
 
 LaserPointerHandler::LaserPointerHandler(XojPageView* pageView, Control* control, const PageRef& page):
