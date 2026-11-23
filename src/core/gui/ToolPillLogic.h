@@ -10,6 +10,8 @@
 
 #include <cstdint>  // for uint32_t
 
+#include "control/ToolEnums.h"  // for ToolType
+
 #include "TopBarLogic.h"  // for ToolGroup
 
 namespace xoj::toolpill {
@@ -31,12 +33,36 @@ enum Section : uint32_t {
     HAND_HINT = 1U << 12,       ///< How to move the page
 };
 
-/// What the active tool supports, from ToolHandler::hasCapability(). Only used for tools without a top bar button.
+/// What the active tool (or the current selection) supports, from ToolHandler::hasCapability().
+/// Used for tools without a top bar button and for an editable selection.
 struct Capabilities {
     bool color = false;
     bool size = false;
     bool fill = false;
+    bool lineStyle = false;
 };
+
+/// Whether the tool has its own thickness table in ToolHandler
+constexpr bool hasOwnThicknessTable(ToolType tool) {
+    switch (tool) {
+        case TOOL_PEN:
+        case TOOL_HIGHLIGHTER:
+        case TOOL_ERASER:
+        case TOOL_LASER_POINTER_PEN:
+        case TOOL_LASER_POINTER_HIGHLIGHTER:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/// The tool whose thickness table the thickness control reads. Always returns a tool with a thickness table.
+constexpr ToolType thicknessTableTool(ToolType tool, xoj::topbar::ToolGroup group) {
+    if (group == xoj::topbar::ToolGroup::SHAPES || group == xoj::topbar::ToolGroup::SELECTION) {
+        return TOOL_PEN;
+    }
+    return hasOwnThicknessTable(tool) ? tool : TOOL_PEN;
+}
 
 /// The sections of the pill for a tool group
 constexpr uint32_t sectionsFor(xoj::topbar::ToolGroup group, Capabilities caps = {}) {
@@ -49,7 +75,8 @@ constexpr uint32_t sectionsFor(xoj::topbar::ToolGroup group, Capabilities caps =
         case ToolGroup::ERASER:
             return ERASER_OPTIONS;
         case ToolGroup::SELECTION:
-            return SELECTION_MODES;
+            return SELECTION_MODES | (caps.color ? COLORS : 0U) | (caps.size ? THICKNESS : 0U) |
+                   (caps.size && caps.lineStyle ? LINE_STYLE : 0U) | (caps.size && caps.fill ? FILL : 0U);
         case ToolGroup::SHAPES:
             // Shapes are drawn with the pen tool: same color, thickness and line style as the pen
             return SHAPE_TYPES | COLORS | THICKNESS | LINE_STYLE | FILL;

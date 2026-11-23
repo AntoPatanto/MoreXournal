@@ -9,6 +9,7 @@
 #include "control/ToolHandler.h"                    // for ToolHandler
 #include "control/actions/ActionDatabase.h"         // for ActionDatabase
 #include "control/settings/Settings.h"              // for Settings
+#include "control/tools/EditSelection.h"            // for EditSelection
 #include "enums/Action.enum.h"                      // for Action
 #include "gui/IconNameHelper.h"                     // for IconNameHelper
 #include "gui/MainWindow.h"                         // for MainWindow
@@ -320,7 +321,12 @@ constexpr Action TOOL_ACTIONS[] = {Action::SELECT_TOOL,
                                    Action::TOOL_DRAW_COORDINATE_SYSTEM,
                                    Action::TOOL_DRAW_LINE,
                                    Action::TOOL_DRAW_SPLINE,
-                                   Action::TOOL_SIZE};
+                                   Action::TOOL_SIZE,
+                                   Action::TOOL_PEN_LINE_STYLE};
+
+/// Actions whose enabled flag changes when a selection enables or disables style editing
+constexpr Action SELECTION_CAP_ACTIONS[] = {Action::TOOL_COLOR, Action::TOOL_SIZE, Action::TOOL_FILL,
+                                            Action::TOOL_PEN_LINE_STYLE};
 }  // namespace
 
 ToolPill::ToolPill(Control* control): control(control) {
@@ -354,6 +360,11 @@ ToolPill::ToolPill(Control* control): control(control) {
         gulong id = g_signal_connect(action.get(), "notify::state", G_CALLBACK(onStateChanged), this);
         watchedActions.emplace_back(std::move(action), id);
     }
+    for (Action a: SELECTION_CAP_ACTIONS) {
+        ActionRef action = db->getAction(a);
+        gulong id = g_signal_connect(action.get(), "notify::enabled", G_CALLBACK(onStateChanged), this);
+        watchedActions.emplace_back(std::move(action), id);
+    }
     onToolChanged();
 }
 
@@ -373,9 +384,17 @@ void ToolPill::onToolChanged() {
     ToolHandler* th = control->getToolHandler();
     const ToolType tool = th->getToolType();
     const ToolGroup group = xoj::topbar::toolGroupFor(tool, th->getDrawingType());
-    const uint32_t sections = pill::sectionsFor(
-            group,
-            {th->hasCapability(TOOL_CAP_COLOR), th->hasCapability(TOOL_CAP_SIZE), th->hasCapability(TOOL_CAP_FILL)});
+    MainWindow* win = control->getWindow();
+    EditSelection* sel = (win && win->getXournal()) ? win->getXournal()->getSelection() : nullptr;
+    // A single selected shape already shows the dedicated ShapeToolbox right below it: keep the selection pill free of
+    // duplicate style controls
+    const bool handledByShapeToolbox = group == ToolGroup::SELECTION && sel && sel->getShapeStroke() != nullptr;
+    const pill::Capabilities caps =
+            handledByShapeToolbox ?
+                    pill::Capabilities{} :
+                    pill::Capabilities{th->hasCapability(TOOL_CAP_COLOR), th->hasCapability(TOOL_CAP_SIZE),
+                                       th->hasCapability(TOOL_CAP_FILL), th->hasCapability(TOOL_CAP_LINE_STYLE)};
+    const uint32_t sections = pill::sectionsFor(group, caps);
 
     // The thickness values differ between tools without a button, so their content is rebuilt on any tool change
     if (built && group == shownGroup && sections == shownSections && (group != ToolGroup::NONE || tool == shownTool)) {
@@ -587,6 +606,8 @@ void ToolPill::addColors(GtkBox* box) {
 void ToolPill::addThickness(GtkBox* box, uint32_t sections, ToolGroup group) {
     ToolHandler* th = control->getToolHandler();
     const Tool* tool = th->getActiveTool();
+    const double* widths =
+            th->getToolThickness(pill::thicknessTableTool(tool ? tool->getToolType() : TOOL_NONE, group));
 
     GtkWidget* btn = prepareButton(gtk_menu_button_new(), group == ToolGroup::SHAPES ?
                                                                   _("Thickness and line style, shared with the pen") :
@@ -613,7 +634,7 @@ void ToolPill::addThickness(GtkBox* box, uint32_t sections, ToolGroup group) {
                                 {TOOL_SIZE_THICK, _("Thick")},
                                 {TOOL_SIZE_VERY_THICK, _("Very Thick")}};
     for (const auto& c: sizes) {
-        const double thickness = tool ? tool->getThickness(c.size) : 1.0;
+        const double thickness = widths[c.size - TOOL_SIZE_VERY_FINE];
         GtkWidget* row = newTargetToggle(Action::TOOL_SIZE, c.size, nullptr);
         addClass(row, "mx-prow");
         GtkWidget* rowBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
@@ -666,10 +687,12 @@ void ToolPill::addThickness(GtkBox* box, uint32_t sections, ToolGroup group) {
         xoj::util::gtk::fixActionableInitialSensitivity(GTK_ACTIONABLE(sw));
         gtk_widget_set_tooltip_text(sw, _("Fill"));
         gtk_box_pack_start(GTK_BOX(row), sw, false, false, 0);
-        GtkWidget* opacity = newActionButton(gtk_button_new(), Action::TOOL_FILL_OPACITY, _("Fill opacity"),
-                                             "mx-droplet-symbolic", nullptr);
-        popdownOnClick(opacity, popover);
-        gtk_box_pack_start(GTK_BOX(row), opacity, false, false, 0);
+        if (group != ToolGroup::SELECTION) {
+            GtkWidget* opacity = newActionButton(gtk_button_new(), Action::TOOL_FILL_OPACITY, _("Fill opacity"),
+                                                 "mx-droplet-symbolic", nullptr);
+            popdownOnClick(opacity, popover);
+            gtk_box_pack_start(GTK_BOX(row), opacity, false, false, 0);
+        }
         gtk_box_pack_start(pop, row, false, false, 0);
     }
     gtk_widget_show_all(GTK_WIDGET(pop));
@@ -715,7 +738,7 @@ void ToolPill::addHoldToShape(GtkBox* box) {
     gtk_container_add(GTK_CONTAINER(labelBox), gtk_label_new(_("Automatic shapes")));
     g_signal_connect_object(labelBox, "button-release-event",
                             G_CALLBACK(+[](GtkWidget*, GdkEventButton* e, gpointer sw) -> gboolean {
-                                if (e->button == 1) {
+                                if (e->button == 1 && gtk_widget_is_sensitive(GTK_WIDGET(sw))) {
                                     gtk_switch_set_active(GTK_SWITCH(sw), !gtk_switch_get_active(GTK_SWITCH(sw)));
                                 }
                                 return true;
@@ -733,12 +756,22 @@ void ToolPill::updateThickness() {
     if (!thicknessLabel) {
         return;
     }
-    const Tool* tool = control->getToolHandler()->getActiveTool();
-    if (!tool || tool->getSize() == TOOL_SIZE_NONE) {
+    ToolHandler* th = control->getToolHandler();
+    const Tool* tool = th->getActiveTool();
+    // Legacy shape tools (TOOL_DRAW_RECT..TOOL_DRAW_SPLINE) map to SHAPES without TOOL_CAP_SIZE or a thickness table
+    const Tool* sizeTool = (shownGroup == ToolGroup::SHAPES && (!tool || !tool->hasCapability(TOOL_CAP_SIZE))) ?
+                                   &th->getTool(TOOL_PEN) :
+                                   tool;
+    const ToolSize size = (sizeTool && sizeTool->hasCapability(TOOL_CAP_SIZE)) ? sizeTool->getSize() : TOOL_SIZE_NONE;
+    if (size < TOOL_SIZE_VERY_FINE || size >= TOOL_SIZE_NONE) {
         gtk_label_set_text(thicknessLabel, "");
+        gtk_widget_set_visible(GTK_WIDGET(thicknessLabel), false);
+        setSampleWidth(thicknessSample, 1.5);
         return;
     }
-    const double thickness = tool->getThickness(tool->getSize());
+    const ToolType tableTool = pill::thicknessTableTool(sizeTool->getToolType(), shownGroup);
+    const double thickness = th->getToolThickness(tableTool)[size - TOOL_SIZE_VERY_FINE];
     gtk_label_set_text(thicknessLabel, formatThickness(thickness).c_str());
+    gtk_widget_set_visible(GTK_WIDGET(thicknessLabel), true);
     setSampleWidth(thicknessSample, sampleWidth(thickness));
 }
