@@ -35,6 +35,7 @@
 #include "DeviceTestingArea.h"     // for DeviceTestingArea
 #include "LanguageConfigGui.h"     // for LanguageConfigGui
 #include "LatexSettingsPanel.h"    // for LatexSettingsPanel
+#include "ShapeSettingsPanel.h"    // for ShapeSettingsPanel
 #include "XojOpenDlg.h"            // for showSelectFolderDialog
 #include "filesystem.h"            // for is_directory
 
@@ -69,6 +70,16 @@ SettingsDialog::SettingsDialog(GladeSearchpath* gladeSearchPath, Settings* setti
 
     GtkBox* container = GTK_BOX(builder.get("hboxInputDeviceClasses"));
     deviceTestingArea = std::make_unique<DeviceTestingArea>(gladeSearchPath, container, this->settings);
+
+    shapeSettingsPanel = std::make_unique<ShapeSettingsPanel>([this]() {
+        double effectiveDpi = static_cast<double>(this->dpi);
+        if (gtk_check_button_get_active(GTK_CHECK_BUTTON(builder.get("zoomCallibAutomaticCb")))) {
+            effectiveDpi = xoj::util::gtk::getWidgetDPI(GTK_WIDGET(this->window.get()))
+                                   .value_or(Util::DPI_NORMALIZATION_FACTOR);
+        }
+        return std::clamp(effectiveDpi / Util::DPI_NORMALIZATION_FACTOR, 0.5, 10.0);
+    });
+    gtk_box_append(GTK_BOX(builder.get("boxShapeSettingsPanel")), shapeSettingsPanel->getPanel());
 
     gtk_box_append(GTK_BOX(builder.get("latexTabBox")), this->latexPanel.getPanel());
     gtk_box_append(GTK_BOX(builder.get("paletteTabBox")), this->paletteTab.getPanel());
@@ -135,7 +146,8 @@ SettingsDialog::SettingsDialog(GladeSearchpath* gladeSearchPath, Settings* setti
                              this);
 
     g_signal_connect_swapped(builder.get("cbHoldToShapeEnabled"), "toggled", G_CALLBACK(+[](SettingsDialog* self) {
-                                 self->enableWithCheckbox("cbHoldToShapeEnabled", "boxHoldToShapeDelay");
+                                 self->shapeSettingsPanel->setHoldControlsSensitive(
+                                         self->getCheckbox("cbHoldToShapeEnabled"));
                              }),
                              this);
 
@@ -456,9 +468,7 @@ void SettingsDialog::load() {
     GtkWidget* spSnapGridSize = builder.get("spSnapGridSize");
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(spSnapGridSize), settings->getSnapGridSize() / DEFAULT_GRID_SIZE);
 
-    GtkWidget* spStrokeRecognizerMinSize = builder.get("spStrokeRecognizerMinSize");
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spStrokeRecognizerMinSize), settings->getStrokeRecognizerMinSize());
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(builder.get("spHoldToShapeDelay")), settings->getHoldToShapeDelay());
+    shapeSettingsPanel->load(*settings);
 
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(builder.get("edgePanSpeed")), settings->getEdgePanSpeed());
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(builder.get("edgePanMaxMult")), settings->getEdgePanMaxMult());
@@ -660,7 +670,7 @@ void SettingsDialog::load() {
     enableWithEnabledCheckbox("cbAddVerticalSpace", "spAddVerticalSpaceBelow");
     enableWithEnabledCheckbox("cbAddHorizontalSpace", "spAddHorizontalSpaceLeft");
     enableWithCheckbox("cbDrawDirModsEnabled", "spDrawDirModsRadius");
-    enableWithCheckbox("cbHoldToShapeEnabled", "boxHoldToShapeDelay");
+    shapeSettingsPanel->setHoldControlsSensitive(getCheckbox("cbHoldToShapeEnabled"));
     enableWithCheckbox("cbStrokeFilterEnabled", "spStrokeIgnoreTime");
     enableWithCheckbox("cbStrokeFilterEnabled", "spStrokeIgnoreLength");
     enableWithCheckbox("cbStrokeFilterEnabled", "spStrokeSuccessiveTime");
@@ -1082,9 +1092,7 @@ void SettingsDialog::save() {
     settings->setSnapGridSize(static_cast<double>(
             gtk_spin_button_get_value(GTK_SPIN_BUTTON(builder.get("spSnapGridSize"))) * DEFAULT_GRID_SIZE));
 
-    settings->setStrokeRecognizerMinSize(
-            static_cast<double>(gtk_spin_button_get_value(GTK_SPIN_BUTTON(builder.get("spStrokeRecognizerMinSize")))));
-    settings->setHoldToShapeDelay(gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(builder.get("spHoldToShapeDelay"))));
+    shapeSettingsPanel->save(*settings);
 
 #ifdef ENABLE_AUDIO
     settings->setAudioFolder(audioRecordingsFolder);

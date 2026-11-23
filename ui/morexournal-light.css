@@ -16,6 +16,7 @@
 @define-color mx_accent_text #2447b8;
 @define-color mx_on_accent #ffffff;
 @define-color mx_danger #c62f2f;
+@define-color mx_success #15803d;
 @define-color mx_shadow rgba(20, 24, 40, 0.14);
 @define-color mx_ring rgba(20, 24, 40, 0.06);
 /* Background of the selected button of a segmented control */

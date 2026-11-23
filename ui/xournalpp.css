@@ -667,3 +667,68 @@ popover.background.mx-popover scale slider {
 	border-top: 1px solid @mx_line;
 	padding: 4px 6px;
 }
+
+/* Automatic shapes settings panel and test pad */
+.mx-shape-hint,
+.mx-shape-end-label {
+	font-size: 11px;
+	color: @mx_text2;
+}
+
+.mx-shape-custom {
+	font-size: 11px;
+	font-weight: 600;
+	padding: 1px 6px;
+	border-radius: 9999px;
+	background-color: @mx_accent_tint;
+	color: @mx_accent_text;
+}
+
+.mx-shape-pad-wrap {
+	border: 1px solid @mx_line;
+	border-radius: 8px;
+	background-color: @mx_surface;
+}
+
+.mx-shape-pad-bar {
+	padding: 6px 10px;
+	border-bottom: 1px solid @mx_line;
+}
+
+.mx-shape-diag {
+	padding: 8px 10px;
+	border-top: 1px solid @mx_line;
+}
+
+.mx-diag-ok {
+	font-weight: 700;
+	color: @mx_success;
+}
+
+.mx-diag-no {
+	font-weight: 700;
+	color: @mx_danger;
+}
+
+.mx-diag-reasons {
+	font-size: 12px;
+	color: @mx_text2;
+}
+
+.mx-legend-dot {
+	min-width: 8px;
+	min-height: 8px;
+	border-radius: 9999px;
+}
+
+.mx-dot-raw {
+	background-color: #3563e9;
+}
+
+.mx-dot-shape {
+	background-color: #16a34a;
+}
+
+.mx-dot-hold {
+	background-color: #f59e0b;
+}
