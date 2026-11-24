@@ -643,6 +643,11 @@ auto XournalView::getZoom() const -> double { return control->getZoomControl()->
 auto XournalView::getDpiScaleFactor() const -> int { return gtk_widget_get_scale_factor(widget); }
 
 void XournalView::clearSelection() {
+    if (MainWindow* win = control->getWindow()) {
+        if (ShapeToolbox* toolbox = win->getShapeToolbox()) {
+            toolbox->commitPendingEdits();
+        }
+    }
     EditSelection* sel = GTK_XOURNAL(widget)->selection;
     GTK_XOURNAL(widget)->selection = nullptr;
     delete sel;
@@ -671,6 +676,11 @@ void XournalView::deleteSelection(EditSelection* sel) {
     }
 
     if (sel) {
+        if (MainWindow* win = control->getWindow()) {
+            if (ShapeToolbox* toolbox = win->getShapeToolbox()) {
+                toolbox->commitPendingEdits();
+            }
+        }
         auto undo = std::make_unique<DeleteUndoAction>(sel->getSourcePage(), false);
         sel->fillUndoItem(undo.get());
         control->getUndoRedoHandler()->addUndoAction(std::move(undo));

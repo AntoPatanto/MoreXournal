@@ -15,6 +15,7 @@
 
 #include <gtk/gtk.h>  // for GtkWidget, GtkOverlay, GtkLabel
 
+#include "model/PageRef.h"          // for PageRef
 #include "undo/UndoAction.h"        // for UndoActionPtr
 #include "util/Color.h"             // for Color
 #include "util/raii/GObjectSPtr.h"  // for GObjectSPtr, WidgetSPtr
@@ -45,6 +46,22 @@ public:
 
     /// Switches icon sizes between compact (18 px) and touch (20 px)
     void setTouchLayout(bool touch);
+
+    /// Commits any in-progress fill opacity slider drag before the selection is cleared or deleted
+    void commitPendingEdits();
+
+    /// Tracks an in-progress fill opacity drag so it always commits as a single undo step
+    struct OpacityDrag {
+        PageRef page;
+        Stroke* stroke = nullptr;
+        int startFill = -1;
+        std::optional<Color> startFillColor;
+
+        bool active() const { return stroke != nullptr; }
+        void begin(PageRef p, Stroke* s);
+        void reset();
+        UndoActionPtr commit();
+    };
 
 private:
     void build();
@@ -130,7 +147,7 @@ private:
     bool touchLayout = false;
     /// Opacity remembered for the current stroke while fill is off (0..255)
     int fillAlpha = 128;
-    /// Fill alpha recorded when an opacity slider drag begins, committed as one undo step on release
-    std::optional<int> opacityDragStart;
+    /// In-progress opacity slider drag, committed as one undo step on release or selection clear
+    OpacityDrag opacityDrag;
     const Stroke* lastStroke = nullptr;
 };
