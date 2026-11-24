@@ -63,7 +63,7 @@ auto findWidgetEventWindow(GtkWidget* widget, std::initializer_list<GdkWindow*> 
             }
         }
     }
-    return gtk_widget_get_window(widget);
+    return nullptr;
 }
 
 }  // namespace
