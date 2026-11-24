@@ -53,12 +53,6 @@ using xoj::util::Rectangle;
 /// Smallest can scale down to, in pixels.
 constexpr size_t MINPIXSIZE = 5;
 
-/// Padding for the rotation handle
-constexpr int ROTATE_PADDING = 8;
-
-/// Distance between a shape and its rotation knob, in pixels
-constexpr double SHAPE_ROTATE_DISTANCE = 24;
-
 /// Number of times to trigger edge pan timer per second
 constexpr unsigned int PAN_TIMER_RATE = 30;
 
@@ -215,14 +209,9 @@ auto addElementsFromActiveLayer(Control* ctrl, EditSelection* base, const Insert
 }
 };  // namespace SelectionFactory
 
-static int getBtnWidth(Control* c) {
-    return std::max(10, round_cast<int>(c->getZoomControl()->getZoom100Value() * Util::DPI_NORMALIZATION_FACTOR / 8));
-}
-
 EditSelection::EditSelection(Control* ctrl, InsertionOrder elts, const PageRef& page, Layer* layer, XojPageView* view,
                              const Range& bounds, const Range& snappingBounds):
         snappedBounds(snappingBounds),
-        btnWidth(getBtnWidth(ctrl)),
         sourcePage(page),
         sourceLayer(layer),
         view(view),
@@ -248,7 +237,6 @@ EditSelection::EditSelection(Control* ctrl, InsertionOrder elts, const PageRef& 
 
 EditSelection::EditSelection(Control* ctrl, const PageRef& page, Layer* layer, XojPageView* view):
         snappedBounds(Rectangle<double>{}),
-        btnWidth(getBtnWidth(ctrl)),
         sourcePage(page),
         sourceLayer(layer),
         view(view),
@@ -532,6 +520,11 @@ auto EditSelection::rearrangeInsertionOrder(const OrderChange change) -> UndoAct
  * (should be called in the mouse-button-released event handler)
  */
 void EditSelection::mouseUp() {
+    this->hoveredHandle = CURSOR_SELECTION_NONE;
+    this->hoveredShapeHandle.reset();
+    this->scaleGrabOffsetX = 0.0;
+    this->scaleGrabOffsetY = 0.0;
+
     if (this->mouseDownType == CURSOR_SELECTION_SHAPE_HANDLE) {
         this->mouseDownType = CURSOR_SELECTION_NONE;
         const std::unique_ptr<Stroke> preview = std::move(this->shapePreview);
@@ -564,12 +557,18 @@ void EditSelection::mouseUp() {
     if (wasEdgePanning) {
         this->ensureWithinVisibleArea();
     }
+    this->view->getXournal()->repaintSelection();
 }
 
-void EditSelection::mouseDown(CursorSelectionType type, double x, double y) {
+void EditSelection::mouseDown(CursorSelectionType type, double x, double y, xoj::handles::DeviceKind device) {
     double zoom = this->view->getXournal()->getZoom();
 
     this->mouseDownType = type;
+    this->activeGestureDevice = device;
+    this->hoveredHandle = CURSOR_SELECTION_NONE;
+    this->hoveredShapeHandle.reset();
+    this->scaleGrabOffsetX = 0.0;
+    this->scaleGrabOffsetY = 0.0;
 
     // coordinates relative to top left corner of snapped bounds in coordinate system which is not modified
     this->relMousePosX = x / zoom - this->snappedBounds.x;
@@ -585,7 +584,7 @@ void EditSelection::mouseDown(CursorSelectionType type, double x, double y) {
 
     if (type == CURSOR_SELECTION_SHAPE_HANDLE) {
         const Stroke* s = getShapeStroke();
-        auto handle = s ? shapeHandleAt(s, viewX, viewY, zoom) : std::nullopt;
+        auto handle = s ? shapeHandleAt(s, viewX, viewY, zoom, device) : std::nullopt;
         if (!handle) {
             this->mouseDownType = CURSOR_SELECTION_NONE;
             return;
@@ -594,6 +593,45 @@ void EditSelection::mouseDown(CursorSelectionType type, double x, double y) {
         this->shapeDownPos = xoj::util::Point<double>(viewX / zoom, viewY / zoom) - getShapeOffset();
         this->shapeMousePos = this->shapeDownPos;
         this->shapePreview.reset();
+        this->view->getXournal()->repaintSelection();
+        return;
+    }
+
+    // Record grab offset from the logical scaled edge so off-center hits and pushed-out tiny corners scale smoothly
+    int xSide = 0;
+    int ySide = 0;
+    if (type == CURSOR_SELECTION_TOP_LEFT) {
+        xSide = -1;
+        ySide = -1;
+    } else if (type == CURSOR_SELECTION_TOP_RIGHT) {
+        xSide = 1;
+        ySide = -1;
+    } else if (type == CURSOR_SELECTION_BOTTOM_LEFT) {
+        xSide = -1;
+        ySide = 1;
+    } else if (type == CURSOR_SELECTION_BOTTOM_RIGHT) {
+        xSide = 1;
+        ySide = 1;
+    } else if (type == CURSOR_SELECTION_TOP) {
+        ySide = -1;
+    } else if (type == CURSOR_SELECTION_BOTTOM) {
+        ySide = 1;
+    } else if (type == CURSOR_SELECTION_LEFT) {
+        xSide = -1;
+    } else if (type == CURSOR_SELECTION_RIGHT) {
+        xSide = 1;
+    }
+    if (xSide != 0) {
+        const int xMul = (xSide + 1) / 2;
+        this->scaleGrabOffsetX = (x / zoom) - (this->x + this->width * xMul);
+    }
+    if (ySide != 0) {
+        const int yMul = (ySide + 1) / 2;
+        this->scaleGrabOffsetY = (y / zoom) - (this->y + this->height * yMul);
+    }
+
+    if (type != CURSOR_SELECTION_NONE && type != CURSOR_SELECTION_MOVE) {
+        this->view->getXournal()->repaintSelection();
     }
 }
 
@@ -695,10 +733,10 @@ void EditSelection::mouseMove(double mouseX, double mouseY, bool alt) {
 
             int xMul = (xSide + 1) / 2;
             int yMul = (ySide + 1) / 2;
-            double xOffset =
-                    (rx - this->x) - this->width * xMul;  // x-offset from corner/side that is used for resizing
-            double yOffset =
-                    (ry - this->y) - this->height * yMul;  // y-offset from corner/side that is used for resizing
+            double xOffset = ((rx - this->scaleGrabOffsetX) - this->x) -
+                             this->width * xMul;  // x-offset from corner/side that is used for resizing
+            double yOffset = ((ry - this->scaleGrabOffsetY) - this->y) -
+                             this->height * yMul;  // y-offset from corner/side that is used for resizing
 
             // calculate scale factor using dot product. Could be negative if mirroring
             double f = (xOffset * nx + yOffset * ny + diag) / diag;
@@ -1020,74 +1058,97 @@ void EditSelection::ensureWithinVisibleArea() {
                                                   static_cast<int>(viewRect.width), static_cast<int>(viewRect.height));
 }
 
+auto EditSelection::isPaperDark() const -> bool {
+    const PageRef page = this->view->getPage();
+    const Settings* settings = this->view->getXournal()->getControl()->getSettings();
+    Color paper = page->getPdfPageNr() != npos ? Colors::white : page->getBackgroundColor();
+    const auto& recolorParams = settings->getRecolorParameters();
+    if (recolorParams.recolorizeMainView) {
+        paper = recolorParams.recolor.convertColor(paper);
+    }
+    return !paper.isLight();
+}
+
+auto EditSelection::computeLayout(double zoom) const -> xoj::handles::SelectionLayout {
+    const double x1 = getXOnView() * zoom;
+    const double x2 = x1 + this->width * zoom;
+    const double y1 = getYOnView() * zoom;
+    const double y2 = y1 + this->height * zoom;
+    return xoj::handles::computeSelectionLayout(x1, y1, x2, y2, this->view->getXournal()->getLastPressDeviceKind());
+}
+
+auto EditSelection::isNearSelectedStroke(double rxView, double ryView, double zoom,
+                                         xoj::handles::DeviceKind device) const -> bool {
+    const double docX = rxView / zoom;
+    const double docY = ryView / zoom;
+    const auto orig = this->contents->getOriginalBounds();
+    const double scaleX = (std::abs(orig.width) > 1e-6 && std::abs(this->width) > 1e-6) ? (this->width / orig.width) :
+                                                                                          1.0;
+    const double scaleY =
+            (std::abs(orig.height) > 1e-6 && std::abs(this->height) > 1e-6) ? (this->height / orig.height) : 1.0;
+    const double origX = orig.x + (docX - this->x) / scaleX;
+    const double origY = orig.y + (docY - this->y) / scaleY;
+    const double minScale = std::max(std::min(std::abs(scaleX), std::abs(scaleY)), 1e-3);
+    const double tol = xoj::handles::objectSelectRadiusPx(device) / (zoom * minScale);
+
+    for (const Element* elem: this->getElementsView()) {
+        if (elem->intersectsArea(origX - tol, origY - tol, 2.0 * tol, 2.0 * tol) &&
+            elem->distanceTo(origX, origY) <= tol) {
+            return true;
+        }
+    }
+    return false;
+}
+
 /**
  * Get the cursor type for the current position (if 0 then the default cursor should be used)
  */
-auto EditSelection::getSelectionTypeForPos(double x, double y, double zoom) -> CursorSelectionType {
+auto EditSelection::getSelectionTypeForPos(double x, double y, double zoom, xoj::handles::DeviceKind device)
+        -> CursorSelectionType {
     if (const Stroke* s = getShapeStroke()) {
-        return getShapeSelectionTypeForPos(s, x, y, zoom);
+        return getShapeSelectionTypeForPos(s, x, y, zoom, device);
     }
-
-    double x1 = getXOnView() * zoom;
-    double x2 = x1 + this->width * zoom;
-    double y1 = getYOnView() * zoom;
-    double y2 = y1 + this->height * zoom;
-    auto [xmin, xmax] = std::minmax(x1, x2);
-    auto [ymin, ymax] = std::minmax(y1, y2);
 
     cairo_matrix_transform_point(&this->cmatrix, &x, &y);
+    const auto layout = computeLayout(zoom);
+    const bool nearStroke = this->transient && isNearSelectedStroke(x, y, zoom, device);
+    return xoj::handles::hitTestSelection(layout, x, y, device, this->transient, nearStroke).type;
+}
 
+auto EditSelection::updateHover(double x, double y, double zoom, xoj::handles::DeviceKind device)
+        -> CursorSelectionType {
+    const bool allowHover = xoj::handles::showsHoverFeedback(device);
 
-    const int EDGE_PADDING = (this->btnWidth / 2) + 2;
-    const int BORDER_PADDING = (this->btnWidth / 2);
-
-    if (x1 - EDGE_PADDING <= x && x <= x1 + EDGE_PADDING && y1 - EDGE_PADDING <= y && y <= y1 + EDGE_PADDING) {
-        return CURSOR_SELECTION_TOP_LEFT;
-    }
-
-    if (x2 - EDGE_PADDING <= x && x <= x2 + EDGE_PADDING && y1 - EDGE_PADDING <= y && y <= y1 + EDGE_PADDING) {
-        return CURSOR_SELECTION_TOP_RIGHT;
-    }
-
-    if (x1 - EDGE_PADDING <= x && x <= x1 + EDGE_PADDING && y2 - EDGE_PADDING <= y && y <= y2 + EDGE_PADDING) {
-        return CURSOR_SELECTION_BOTTOM_LEFT;
-    }
-
-    if (x2 - EDGE_PADDING <= x && x <= x2 + EDGE_PADDING && y2 - EDGE_PADDING <= y && y <= y2 + EDGE_PADDING) {
-        return CURSOR_SELECTION_BOTTOM_RIGHT;
-    }
-
-    if (xmax - BORDER_PADDING + ROTATE_PADDING + this->btnWidth <= x &&
-        x <= xmax + BORDER_PADDING + ROTATE_PADDING + this->btnWidth && (y2 + y1) / 2 - 4 - BORDER_PADDING <= y &&
-        (y2 + y1) / 2 + 4 + BORDER_PADDING >= y) {
-        return CURSOR_SELECTION_ROTATE;
-    }
-
-    if (xmin <= x && x <= xmax) {
-        if (y1 - BORDER_PADDING <= y && y <= y1 + BORDER_PADDING) {
-            return CURSOR_SELECTION_TOP;
+    if (const Stroke* s = getShapeStroke()) {
+        auto handle = shapeHandleAt(s, x, y, zoom, device);
+        std::optional<size_t> newHover = allowHover ? handle : std::nullopt;
+        if (this->hoveredShapeHandle != newHover || this->hoveredHandle != CURSOR_SELECTION_NONE) {
+            this->hoveredShapeHandle = newHover;
+            this->hoveredHandle = CURSOR_SELECTION_NONE;
+            this->view->getXournal()->repaintSelection();
         }
-
-        if (y2 - BORDER_PADDING <= y && y <= y2 + BORDER_PADDING) {
-            return CURSOR_SELECTION_BOTTOM;
-        }
+        return getShapeSelectionTypeForPos(s, x, y, zoom, device);
     }
 
-    if (ymin <= y && y <= ymax) {
-        if (x1 - BORDER_PADDING <= x && x <= x1 + BORDER_PADDING) {
-            return CURSOR_SELECTION_LEFT;
-        }
-
-        if (x2 - BORDER_PADDING <= x && x <= x2 + BORDER_PADDING) {
-            return CURSOR_SELECTION_RIGHT;
-        }
+    cairo_matrix_transform_point(&this->cmatrix, &x, &y);
+    const auto layout = computeLayout(zoom);
+    const bool nearStroke = this->transient && isNearSelectedStroke(x, y, zoom, device);
+    const auto hit = xoj::handles::hitTestSelection(layout, x, y, device, this->transient, nearStroke);
+    const CursorSelectionType newHover = allowHover ? hit.handle : CURSOR_SELECTION_NONE;
+    if (this->hoveredHandle != newHover || this->hoveredShapeHandle.has_value()) {
+        this->hoveredHandle = newHover;
+        this->hoveredShapeHandle.reset();
+        this->view->getXournal()->repaintSelection();
     }
+    return hit.type;
+}
 
-    if (xmin <= x && x <= xmax && ymin <= y && y <= ymax) {
-        return CURSOR_SELECTION_MOVE;
+void EditSelection::clearHover() {
+    if (this->hoveredHandle != CURSOR_SELECTION_NONE || this->hoveredShapeHandle.has_value()) {
+        this->hoveredHandle = CURSOR_SELECTION_NONE;
+        this->hoveredShapeHandle.reset();
+        this->view->getXournal()->repaintSelection();
     }
-
-    return CURSOR_SELECTION_NONE;
 }
 
 /**
@@ -1095,104 +1156,146 @@ auto EditSelection::getSelectionTypeForPos(double x, double y, double zoom) -> C
  * should be relative to the provided view by getView() (use translateEvent())
  */
 void EditSelection::paint(cairo_t* cr, double zoom) {
+    paintContents(cr, zoom);
+    paintOverlay(cr, zoom);
+}
+
+void EditSelection::paintContents(cairo_t* cr, double zoom) {
     if (const Stroke* s = getShapeStroke()) {
-        paintShape(cr, s, zoom);
+        paintShapeContents(cr, s, zoom);
         return;
     }
 
-    double x = this->x;
-    double y = this->y;
-
-
+    cairo_save(cr);
     if (std::abs(this->rotation) > std::numeric_limits<double>::epsilon()) {
         this->rotation = snappingHandler.snapAngle(this->rotation, false);
-
 
         double rx = (snappedBounds.x + snappedBounds.width / 2) * zoom;
         double ry = (snappedBounds.y + snappedBounds.height / 2) * zoom;
 
         cairo_translate(cr, rx, ry);
         cairo_rotate(cr, this->rotation);
-
-        // Draw the rotation point for debugging
-        // cairo_set_source_rgb(cr, 0, 1, 0);
-        // cairo_rectangle(cr, 0, 0, 10, 10);
-        // cairo_stroke(cr);
-
         cairo_translate(cr, -rx, -ry);
     }
-    this->contents->paint(cr, x, y, this->rotation, this->width, this->height, zoom);
+    this->contents->paint(cr, this->x, this->y, this->rotation, this->width, this->height, zoom);
+    cairo_restore(cr);
+}
+
+void EditSelection::paintOverlay(cairo_t* cr, double zoom) {
+    if (const Stroke* s = getShapeStroke()) {
+        paintShapeOverlay(cr, s, zoom);
+        return;
+    }
+
+    cairo_save(cr);
+    if (std::abs(this->rotation) > std::numeric_limits<double>::epsilon()) {
+        this->rotation = snappingHandler.snapAngle(this->rotation, false);
+
+        double rx = (snappedBounds.x + snappedBounds.width / 2) * zoom;
+        double ry = (snappedBounds.y + snappedBounds.height / 2) * zoom;
+
+        cairo_translate(cr, rx, ry);
+        cairo_rotate(cr, this->rotation);
+        cairo_translate(cr, -rx, -ry);
+    }
 
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+    cairo_set_dash(cr, nullptr, 0, 0);
 
-    GdkRGBA selectionColor = view->getSelectionColor();
+    const auto lastPress = this->view->getXournal()->getLastPressDeviceKind();
+    const auto layout = computeLayout(zoom);
+    const Color selColor = this->view->getXournal()->getControl()->getSettings()->getSelectionColor();
+    const auto palette = xoj::handles::handlePaletteFor(selColor, isPaperDark());
 
-    // set the line always the same size on display
-    cairo_set_line_width(cr, 1);
+    // Selection border: 1 px solid selection colour with a 1 px white outer contrast line (omitted for transient)
+    if (!this->transient) {
+        const double rx1 = std::round(layout.boxMinX);
+        const double ry1 = std::round(layout.boxMinY);
+        const double rx2 = std::round(layout.boxMaxX);
+        const double ry2 = std::round(layout.boxMaxY);
+        const double rw = rx2 - rx1;
+        const double rh = ry2 - ry1;
 
-    const std::vector<double> dashes = {10.0, 10.0};
-    Util::cairo_set_dash_from_vector(cr, dashes, 0);
-    gdk_cairo_set_source_rgba(cr, &selectionColor);
+        cairo_set_line_width(cr, 1.0);
+        cairo_set_source_rgba(cr, palette.outerBorder.r, palette.outerBorder.g, palette.outerBorder.b,
+                              palette.outerBorder.a);
+        cairo_rectangle(cr, rx1 - 0.5, ry1 - 0.5, rw + 1.0, rh + 1.0);
+        cairo_stroke(cr);
 
-    cairo_rectangle(cr, std::min(x, x + width) * zoom, std::min(y, y + height) * zoom, std::abs(width) * zoom,
-                    std::abs(height) * zoom);
-
-    // for debugging
-    // cairo_rectangle(cr, snappedBounds.x * zoom, snappedBounds.y * zoom, snappedBounds.width * zoom,
-    // snappedBounds.height * zoom);
-
-    cairo_stroke_preserve(cr);
-    auto applied = GdkRGBA{selectionColor.red, selectionColor.green, selectionColor.blue, 0.3};
-    gdk_cairo_set_source_rgba(cr, &applied);
-    cairo_fill(cr);
+        cairo_set_source_rgba(cr, palette.accent.r, palette.accent.g, palette.accent.b, palette.accent.a);
+        cairo_rectangle(cr, rx1 + 0.5, ry1 + 0.5, rw - 1.0, rh - 1.0);
+        cairo_stroke(cr);
+    }
 
     ToolHandler* toolHandler = view->getXournal()->getControl()->getToolHandler();
     if (toolHandler->getToolType() != TOOL_HAND) {
-        cairo_set_dash(cr, nullptr, 0, 0);
+        const bool draggingHandle =
+                this->mouseDownType != CURSOR_SELECTION_NONE && this->mouseDownType != CURSOR_SELECTION_MOVE;
+        const double baseDiam = xoj::handles::handleVisualDiameterPx(lastPress);
 
-        // rotation handle (drawn before the scale dots so the right-middle dot covers the start of the stem)
-        const double rightEdge = std::min(x, x + width) + std::abs(width);
-        drawAnchorRotation(cr, rightEdge, rightEdge + (ROTATE_PADDING + this->btnWidth) / zoom, y + height / 2, zoom);
+        if (layout.showRotate && (!draggingHandle || this->mouseDownType == CURSOR_SELECTION_ROTATE)) {
+            const double stemY = std::floor(layout.rotateAnchorY) + 0.5;
+            cairo_set_line_width(cr, 1.0);
+            cairo_set_source_rgba(cr, palette.accent.r, palette.accent.g, palette.accent.b, palette.accent.a);
+            cairo_move_to(cr, std::round(layout.rotateAnchorX), stemY);
+            cairo_line_to(cr, std::round(layout.rotateX), stemY);
+            cairo_stroke(cr);
+        }
 
-        // top
-        drawAnchorDot(cr, x + width / 2, y, zoom);
-        // bottom
-        drawAnchorDot(cr, x + width / 2, y + height, zoom);
-        // left
-        drawAnchorDot(cr, x, y + height / 2, zoom);
-        // right
-        drawAnchorDot(cr, x + width, y + height / 2, zoom);
-        // top left
-        drawAnchorDot(cr, x, y, zoom);
-        // top right
-        drawAnchorDot(cr, x + width, y, zoom);
-        // bottom left
-        drawAnchorDot(cr, x, y + height, zoom);
-        // bottom right
-        drawAnchorDot(cr, x + width, y + height, zoom);
+        for (size_t i = 0; i < layout.handleCount; i++) {
+            const auto& h = layout.handles[i];
+            if (draggingHandle && h.type != this->mouseDownType) {
+                continue;
+            }
+            const bool isActive = draggingHandle && h.type == this->mouseDownType;
+            const bool isRotate = h.type == CURSOR_SELECTION_ROTATE;
+            const bool isHovered = !draggingHandle && this->hoveredHandle == h.type;
+            drawHandle(cr, h.x, h.y, baseDiam, isHovered, isActive || isRotate, palette);
+        }
     }
+
+    cairo_restore(cr);
 }
 
-void EditSelection::drawAnchorRotation(cairo_t* cr, double anchorX, double x, double y, double zoom) {
-    GdkRGBA selectionColor = view->getSelectionColor();
-    gdk_cairo_set_source_rgba(cr, &selectionColor);
-    cairo_move_to(cr, anchorX * zoom, y * zoom);
-    cairo_line_to(cr, x * zoom, y * zoom);
+void EditSelection::drawHandle(cairo_t* cr, double rawX, double rawY, double baseDiameter, bool hovered,
+                               bool filledAccent, const xoj::handles::HandlePalette& palette) {
+    const double cx = std::round(rawX);
+    const double cy = std::round(rawY);
+    const double diameter = baseDiameter + (hovered ? xoj::handles::hoverDiameterBonusPx() : 0.0);
+    const double outerR = diameter * 0.5;
+    const double strokeR = outerR - 1.0;  // 2 px ring sits on [outerR - 2, outerR], exact integer pixels
+
+    // Soft drop shadow (0 1px 2px)
+    cairo_pattern_t* shadowPat =
+            cairo_pattern_create_radial(cx, cy + 1.0, std::max(0.0, outerR - 1.0), cx, cy + 1.0, outerR + 2.5);
+    cairo_pattern_add_color_stop_rgba(shadowPat, 0.0, palette.shadow.r, palette.shadow.g, palette.shadow.b,
+                                      palette.shadow.a);
+    cairo_pattern_add_color_stop_rgba(shadowPat, 0.55, palette.shadow.r, palette.shadow.g, palette.shadow.b,
+                                      palette.shadow.a * 0.45);
+    cairo_pattern_add_color_stop_rgba(shadowPat, 1.0, palette.shadow.r, palette.shadow.g, palette.shadow.b, 0.0);
+    cairo_set_source(cr, shadowPat);
+    cairo_arc(cr, cx, cy + 1.0, outerR + 2.5, 0, 2 * M_PI);
+    cairo_fill(cr);
+    cairo_pattern_destroy(shadowPat);
+
+    // 1 px outer halo
+    cairo_set_line_width(cr, 1.0);
+    cairo_set_source_rgba(cr, palette.halo.r, palette.halo.g, palette.halo.b, palette.halo.a);
+    cairo_arc(cr, cx, cy, outerR + 0.5, 0, 2 * M_PI);
     cairo_stroke(cr);
-    cairo_arc(cr, x * zoom, y * zoom, this->btnWidth / 2.0, 0, 2 * M_PI);
-    cairo_fill(cr);
-}
 
-/**
- * Draws a circular handle where you can scale the selection
- */
-void EditSelection::drawAnchorDot(cairo_t* cr, double x, double y, double zoom) {
-    GdkRGBA selectionColor = view->getSelectionColor();
-    gdk_cairo_set_source_rgba(cr, &selectionColor);
-    cairo_arc(cr, x * zoom, y * zoom, this->btnWidth / 2.0, 0, 2 * M_PI);
-    cairo_stroke_preserve(cr);
-    cairo_set_source_rgb(cr, 1, 1, 1);
+    // Interior fill
+    const auto& fillCol = filledAccent ? palette.accent : (hovered ? palette.hoverFill : palette.fill);
+    cairo_set_source_rgba(cr, fillCol.r, fillCol.g, fillCol.b, fillCol.a);
+    cairo_arc(cr, cx, cy, strokeR, 0, 2 * M_PI);
     cairo_fill(cr);
+
+    // 2 px ring on whole pixels
+    const auto& ringCol = filledAccent ? palette.fill : palette.accent;
+    cairo_set_line_width(cr, 2.0);
+    cairo_set_source_rgba(cr, ringCol.r, ringCol.g, ringCol.b, ringCol.a);
+    cairo_arc(cr, cx, cy, strokeR, 0, 2 * M_PI);
+    cairo_stroke(cr);
 }
 
 
@@ -1200,19 +1303,35 @@ auto EditSelection::getShapeOffset() const -> xoj::util::Point<double> {
     return {this->x - this->contents->getOriginalX(), this->y - this->contents->getOriginalY()};
 }
 
-auto EditSelection::shapeHandleAt(const Stroke* s, double x, double y, double zoom) const -> std::optional<size_t> {
-    const auto p = xoj::util::Point<double>(x / zoom, y / zoom) - getShapeOffset();
-    const auto handles = ShapeHandles::handlesFor(*s->getShape(), SHAPE_ROTATE_DISTANCE / zoom);
-    return ShapeHandles::handleAt(handles, p, (this->btnWidth / 2.0 + 2) / zoom);
+auto EditSelection::shapeHandleAt(const Stroke* s, double x, double y, double zoom,
+                                  xoj::handles::DeviceKind device) const -> std::optional<size_t> {
+    const auto offset = getShapeOffset();
+    const auto handles = ShapeHandles::handlesFor(*s->getShape(), xoj::handles::SHAPE_ROTATE_DISTANCE_PX / zoom);
+    std::vector<xoj::handles::ShapeHandleTarget> targets;
+    targets.reserve(handles.size());
+    for (const auto& h: handles) {
+        const auto pos = (h.pos + offset) * zoom;
+        const auto anchor = (h.anchor + offset) * zoom;
+        targets.push_back({pos.x, pos.y, anchor.x, anchor.y, h.kind == ShapeHandles::HandleKind::ROTATE});
+    }
+    return xoj::handles::hitTestShapeHandles(targets.data(), targets.size(), x, y, device);
 }
 
-auto EditSelection::getShapeSelectionTypeForPos(const Stroke* s, double x, double y, double zoom) const
-        -> CursorSelectionType {
-    if (shapeHandleAt(s, x, y, zoom)) {
+auto EditSelection::getShapeSelectionTypeForPos(const Stroke* s, double x, double y, double zoom,
+                                                xoj::handles::DeviceKind device) const -> CursorSelectionType {
+    if (shapeHandleAt(s, x, y, zoom, device)) {
         return CURSOR_SELECTION_SHAPE_HANDLE;
     }
     const auto p = xoj::util::Point<double>(x / zoom, y / zoom) - getShapeOffset();
-    const double tolerance = std::max(s->getWidth() / 2, this->btnWidth / zoom);
+    const double strokeTol = xoj::handles::objectSelectRadiusPx(device) / zoom;
+    if (this->transient) {
+        if (s->intersectsArea(p.x - strokeTol, p.y - strokeTol, 2.0 * strokeTol, 2.0 * strokeTol) &&
+            s->distanceTo(p.x, p.y) <= strokeTol) {
+            return CURSOR_SELECTION_MOVE;
+        }
+        return CURSOR_SELECTION_NONE;
+    }
+    const double tolerance = std::max(s->getWidth() / 2.0, strokeTol);
     if (ShapeHandles::contains(*s->getShape(), p, tolerance)) {
         return CURSOR_SELECTION_MOVE;
     }
@@ -1225,7 +1344,7 @@ void EditSelection::shapeMouseMove(double mouseX, double mouseY, bool alt, doubl
         return;
     }
     const ShapeInfo& base = *s->getShape();
-    const auto handles = ShapeHandles::handlesFor(base, SHAPE_ROTATE_DISTANCE / zoom);
+    const auto handles = ShapeHandles::handlesFor(base, xoj::handles::SHAPE_ROTATE_DISTANCE_PX / zoom);
     if (this->shapeHandle >= handles.size()) {
         return;
     }
@@ -1267,11 +1386,9 @@ void EditSelection::shapeMouseMove(double mouseX, double mouseY, bool alt, doubl
     this->shapePreview->setShape(std::move(pending));
 }
 
-void EditSelection::paintShape(cairo_t* cr, const Stroke* s, double zoom) {
+void EditSelection::paintShapeContents(cairo_t* cr, const Stroke* s, double zoom) {
     const auto offset = getShapeOffset();
-    const bool dragging = this->shapePreview != nullptr;
-
-    if (dragging) {
+    if (this->shapePreview != nullptr) {
         // The stroke with the new geometry, at the position of the selection
         cairo_save(cr);
         cairo_scale(cr, zoom, zoom);
@@ -1281,72 +1398,91 @@ void EditSelection::paintShape(cairo_t* cr, const Stroke* s, double zoom) {
     } else {
         this->contents->paint(cr, this->x, this->y, this->rotation, this->width, this->height, zoom);
     }
+}
 
+void EditSelection::paintShapeOverlay(cairo_t* cr, const Stroke* s, double zoom) {
     if (view->getXournal()->getControl()->getToolHandler()->getToolType() == TOOL_HAND) {
         return;
     }
 
-    const ShapeInfo& info = dragging ? *this->shapePreview->getShape() : *s->getShape();
+    const auto offset = getShapeOffset();
+    const bool draggingPreview = this->shapePreview != nullptr;
+    const bool draggingHandle = this->mouseDownType == CURSOR_SELECTION_SHAPE_HANDLE;
+    const ShapeInfo& info = draggingPreview ? *this->shapePreview->getShape() : *s->getShape();
     auto toView = [&](const xoj::util::Point<double>& p) { return (p + offset) * zoom; };
 
     cairo_save(cr);
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
     cairo_set_dash(cr, nullptr, 0, 0);
-    cairo_set_line_width(cr, 1);
-    GdkRGBA selectionColor = view->getSelectionColor();
-    gdk_cairo_set_source_rgba(cr, &selectionColor);
 
-    // A thin frame: the outline of polygons and rectangles, the bounding parallelogram of ellipses
-    std::vector<xoj::util::Point<double>> frame;
-    if (info.type == ShapeType::ELLIPSE) {
+    const auto lastPress = this->view->getXournal()->getLastPressDeviceKind();
+    const Color selColor = this->view->getXournal()->getControl()->getSettings()->getSelectionColor();
+    const auto palette = xoj::handles::handlePaletteFor(selColor, isPaperDark());
+    const double baseDiam = xoj::handles::handleVisualDiameterPx(lastPress);
+
+    // Rectangles and polygons draw no frame (it would sit on top of the outline); ellipses draw a 1 px 50% bbox
+    if (info.type == ShapeType::ELLIPSE && !this->transient) {
         const auto& c = info.pts[0];
         const auto a = info.pts[1] - c;
         const auto b = info.pts[2] - c;
-        frame = {c + a + b, c - a + b, c - a - b, c + a - b};
-    } else if (info.type != ShapeType::LINE) {
-        for (const auto& h: ShapeHandles::handlesFor(info, 0)) {
-            if (h.kind == ShapeHandles::HandleKind::VERTEX) {
-                frame.push_back(h.pos);
+        const std::array<xoj::util::Point<double>, 4> frame = {c + a + b, c - a + b, c - a - b, c + a - b};
+        cairo_set_line_width(cr, 1.0);
+        cairo_set_source_rgba(cr, palette.accent.r, palette.accent.g, palette.accent.b, 0.5);
+        for (size_t i = 0; i < frame.size(); i++) {
+            const auto p = toView(frame[i]);
+            if (i == 0) {
+                cairo_move_to(cr, p.x, p.y);
+            } else {
+                cairo_line_to(cr, p.x, p.y);
             }
         }
-    }
-    for (size_t i = 0; i < frame.size(); i++) {
-        const auto p = toView(frame[i]);
-        if (i == 0) {
-            cairo_move_to(cr, p.x, p.y);
-        } else {
-            cairo_line_to(cr, p.x, p.y);
-        }
-    }
-    if (!frame.empty()) {
         cairo_close_path(cr);
         cairo_stroke(cr);
     }
 
-    const double radius = this->btnWidth / 2.0;
-    const auto handles = ShapeHandles::handlesFor(info, SHAPE_ROTATE_DISTANCE / zoom);
+    const auto handles = ShapeHandles::handlesFor(info, xoj::handles::SHAPE_ROTATE_DISTANCE_PX / zoom);
+
+    // Draw rotation stem first so the handle dot covers its end
     for (size_t i = 0; i < handles.size(); i++) {
         const auto& h = handles[i];
+        if (h.kind != ShapeHandles::HandleKind::ROTATE) {
+            continue;
+        }
+        if (draggingHandle && i != this->shapeHandle) {
+            continue;
+        }
         auto pos = toView(h.pos);
         auto anchor = toView(h.anchor);
-        if (h.kind == ShapeHandles::HandleKind::ROTATE && dragging && i == this->shapeHandle) {
-            // Follow the pointer, attached to the centre
+        if (draggingPreview && i == this->shapeHandle) {
             pos = toView(this->shapeMousePos);
             anchor = toView(ShapeHandles::center(info));
         }
-        gdk_cairo_set_source_rgba(cr, &selectionColor);
-        if (h.kind == ShapeHandles::HandleKind::ROTATE) {
+        cairo_set_line_width(cr, 1.0);
+        cairo_set_source_rgba(cr, palette.accent.r, palette.accent.g, palette.accent.b, palette.accent.a);
+        if (std::abs(pos.x - anchor.x) < 0.5) {
+            const double sx = std::floor(anchor.x) + 0.5;
+            cairo_move_to(cr, sx, std::round(anchor.y));
+            cairo_line_to(cr, sx, std::round(pos.y));
+        } else {
             cairo_move_to(cr, anchor.x, anchor.y);
             cairo_line_to(cr, pos.x, pos.y);
-            cairo_stroke(cr);
-            cairo_arc(cr, pos.x, pos.y, radius, 0, 2 * M_PI);
-            cairo_fill(cr);
+        }
+        cairo_stroke(cr);
+    }
+
+    for (size_t i = 0; i < handles.size(); i++) {
+        if (draggingHandle && i != this->shapeHandle) {
             continue;
         }
-        cairo_arc(cr, pos.x, pos.y, radius, 0, 2 * M_PI);
-        cairo_stroke_preserve(cr);
-        cairo_set_source_rgb(cr, 1, 1, 1);
-        cairo_fill(cr);
+        const auto& h = handles[i];
+        auto pos = toView(h.pos);
+        if (h.kind == ShapeHandles::HandleKind::ROTATE && draggingPreview && i == this->shapeHandle) {
+            pos = toView(this->shapeMousePos);
+        }
+        const bool isActive = draggingHandle && i == this->shapeHandle;
+        const bool isRotate = h.kind == ShapeHandles::HandleKind::ROTATE;
+        const bool isHovered = !draggingHandle && this->hoveredShapeHandle && *this->hoveredShapeHandle == i;
+        drawHandle(cr, pos.x, pos.y, baseDiam, isHovered, isActive || isRotate, palette);
     }
     cairo_restore(cr);
 }

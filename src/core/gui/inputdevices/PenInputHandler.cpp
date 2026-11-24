@@ -132,15 +132,15 @@ auto PenInputHandler::actionStart(InputEvent const& event) -> bool {
         PositionInputData selectionPos = this->getInputDataRelativeToCurrentPage(view, event);
 
         // Check if event modifies selection instead of page
-        CursorSelectionType selType =
-                selection->getSelectionTypeForPos(selectionPos.x, selectionPos.y, xournal->view->getZoom());
+        CursorSelectionType selType = selection->getSelectionTypeForPos(
+                selectionPos.x, selectionPos.y, xournal->view->getZoom(), selectionPos.deviceKind);
         if (selType) {
 
             if (selType == CURSOR_SELECTION_MOVE && modifier3) {
                 selection->copySelection();
             }
 
-            xournal->selection->mouseDown(selType, selectionPos.x, selectionPos.y);
+            xournal->selection->mouseDown(selType, selectionPos.x, selectionPos.y, selectionPos.deviceKind);
             return true;
         }
         if (currentPage) {
@@ -320,6 +320,7 @@ auto PenInputHandler::actionMotion(InputEvent const& event) -> bool {
         !xournal->selection->isMoving()) {
         if (isShiftDown || this->deviceClassPressed) {
             handleSelectionMove = false;
+            xournal->selection->clearHover();
             // Cursor mode to match the multiple-selection mode
             xournal->view->getCursor()->setMouseSelectionType(CURSOR_SELECTION_NONE);
         }
@@ -334,8 +335,11 @@ auto PenInputHandler::actionMotion(InputEvent const& event) -> bool {
         if (xournal->selection->isMoving()) {
             selection->mouseMove(pos.x, pos.y, pos.isAltDown());
         } else if (!isShiftDown) {
-            CursorSelectionType selType = selection->getSelectionTypeForPos(pos.x, pos.y, xournal->view->getZoom());
+            CursorSelectionType selType =
+                    selection->updateHover(pos.x, pos.y, xournal->view->getZoom(), pos.deviceKind);
             xournal->view->getCursor()->setMouseSelectionType(selType);
+        } else {
+            selection->clearHover();
         }
         return true;
     }
@@ -519,6 +523,11 @@ void PenInputHandler::actionPerform(InputEvent const& event) {
 }
 
 void PenInputHandler::actionLeaveWindow(InputEvent const& event) {
+    if (GtkXournal* xournal = this->inputContext->getXournal();
+        xournal && xournal->selection && !xournal->selection->isMoving()) {
+        xournal->selection->clearHover();
+    }
+
     if (!this->penInWidget) {
         return;
     }
