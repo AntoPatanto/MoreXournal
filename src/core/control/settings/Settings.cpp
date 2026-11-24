@@ -220,9 +220,9 @@ void Settings::loadDefault() {
     this->preloadPagesAfter = 5U;
     this->eagerPageCleanup = true;
 
-    this->selectionBorderColor = Colors::red;
+    this->selectionBorderColor = Colors::mx_accent;
     this->selectionMarkerColor = Colors::xopp_cornflowerblue;
-    this->activeSelectionColor = Colors::lawngreen;
+    this->activeSelectionColor = Colors::mx_search_current;
 
     this->recolorParameters = {false, false, Recolor(ColorU8{198, 208, 245}, ColorU8{48, 52, 70})};
 
@@ -1757,17 +1757,29 @@ void Settings::setStrokeRecognizerMinSize(double value) {
 auto Settings::isHoldToShapeEnabled() const -> bool { return this->holdToShapeEnabled; }
 
 void Settings::migrateUiLayout() {
-    if (this->uiLayoutVersion >= 1) {
+    if (this->uiLayoutVersion >= UI_LAYOUT_VERSION) {
         return;
     }
-    // Version 1 introduced the top bar: the menu bar and the page sidebar start hidden
-    this->menubarVisible = false;
-    this->showSidebar = false;
-    ViewMode& defaultMode = this->viewModes.at(PresetViewModeIds::VIEW_MODE_DEFAULT);
-    defaultMode.showMenubar = false;
-    defaultMode.showSidebar = false;
-    this->pendingToolbarMigration = true;
-    this->uiLayoutVersion = 1;
+    if (this->uiLayoutVersion < 1) {
+        // Version 1 introduced the top bar: the menu bar and the page sidebar start hidden
+        this->menubarVisible = false;
+        this->showSidebar = false;
+        ViewMode& defaultMode = this->viewModes.at(PresetViewModeIds::VIEW_MODE_DEFAULT);
+        defaultMode.showMenubar = false;
+        defaultMode.showSidebar = false;
+        this->pendingToolbarMigration = true;
+    }
+    if (this->uiLayoutVersion < 2) {
+        // Version 2 replaced the red page border and lawngreen search highlight defaults
+        auto sameRgb = [](Color a, Color b) { return (uint32_t(a) & 0x00ffffffU) == (uint32_t(b) & 0x00ffffffU); };
+        if (sameRgb(this->selectionBorderColor, Colors::red)) {
+            this->selectionBorderColor = Colors::mx_accent;
+        }
+        if (sameRgb(this->activeSelectionColor, Colors::lawngreen)) {
+            this->activeSelectionColor = Colors::mx_search_current;
+        }
+    }
+    this->uiLayoutVersion = UI_LAYOUT_VERSION;
     save();
 }
 
