@@ -33,7 +33,6 @@ constexpr int DEFAULT_FILL_ALPHA = 128;
 
 constexpr int ICON_SIZE = 18;
 constexpr int SWATCH_SIZE = 16;
-constexpr int PALETTE_DOT_SIZE = 20;
 constexpr int PALETTE_COLUMNS = 6;
 
 constexpr const char* LINE_STYLES[4] = {"plain", "dash", "dashdot", "dot"};
@@ -227,8 +226,10 @@ void ShapeToolbox::populatePaletteGrid(GtkWidget* grid, std::vector<std::pair<Co
                                                  std::nullopt;
         GtkWidget* btn = prepareFlatButton(gtk_toggle_button_new(), nc.getName().c_str());
         addClass(btn, "mx-swatch");
-        gtk_container_add(GTK_CONTAINER(btn),
-                          xoj::chrome::newContrastSwatch(nc.getColor(), PALETTE_DOT_SIZE, secondary));
+        gtk_container_add(
+                GTK_CONTAINER(btn),
+                xoj::chrome::newContrastSwatch(nc.getColor(), xoj::chrome::chromeSwatchDotSize(this->touchLayout),
+                                               secondary));
         g_object_set_data(G_OBJECT(btn), COLOR_KEY, GUINT_TO_POINTER(static_cast<uint32_t>(nc.getColor())));
         g_signal_connect(btn, "toggled", callback, this);
         gtk_container_add(GTK_CONTAINER(grid), btn);
@@ -251,7 +252,16 @@ void ShapeToolbox::rebuildPalettes() {
 }
 
 void ShapeToolbox::setTouchLayout(bool touch) {
+    this->touchLayout = touch;
     xoj::chrome::updateScalableIcons(this->box.get(), xoj::chrome::chromeIconSize(touch));
+    const int dotSize = xoj::chrome::chromeSwatchDotSize(touch);
+    for (const auto* list: {&this->strokeDots, &this->fillDots}) {
+        for (const auto& [col, btn]: *list) {
+            if (GtkWidget* dot = gtk_bin_get_child(GTK_BIN(btn))) {
+                gtk_widget_set_size_request(dot, dotSize, dotSize);
+            }
+        }
+    }
 }
 
 void ShapeToolbox::build() {
