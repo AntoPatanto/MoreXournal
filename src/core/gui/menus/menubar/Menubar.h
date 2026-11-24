@@ -39,7 +39,7 @@ public:
 
 public:
     inline GMenuModel* getModel() const { return menu; }
-    /// Main menu model for the top bar button: inline document items, category submenus, preferences, toolbars, help, quit
+    /// Main menu model for the top bar button: inline document items, category submenus, preferences, help, quit
     inline GMenuModel* getSectionedModel() const { return G_MENU_MODEL(sectionedMenu.get()); }
     inline ToolbarSelectionSubmenu& getToolbarSelectionSubmenu() const { return *toolbarSelectionSubmenu; }
     inline PageTypeSubmenu& getPageTypeSubmenu() const { return *pageTypeSubmenu; }

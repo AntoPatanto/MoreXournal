@@ -230,7 +230,7 @@ TEST(ActionDatabaseTest, testMenubarCategoriesAndRemovedItems) {
 
     // Dynamic submenu IDs expected by *Submenu classes
     EXPECT_TRUE(G_IS_MENU(gtk_builder_get_object(builder.get(), "menuFileRecent")));
-    EXPECT_TRUE(G_IS_MENU(gtk_builder_get_object(builder.get(), "menuViewToolbar")));
+    EXPECT_EQ(gtk_builder_get_object(builder.get(), "menuViewToolbar"), nullptr);
     EXPECT_TRUE(G_IS_MENU(gtk_builder_get_object(builder.get(), "menuJournalPaperBackground")));
     EXPECT_EQ(gtk_builder_get_object(builder.get(), "sectionUndoRedo"), nullptr);
 
@@ -270,6 +270,8 @@ TEST(ActionDatabaseTest, testMenubarCategoriesAndRemovedItems) {
                                "win.tool-highlighter-fill",
                                "win.tool-highlighter-fill-opacity",
                                "win.select-font",
+                               "win.manage-toolbar",
+                               "win.customize-toolbar",
                                "win.demo"}) {
         EXPECT_EQ(actions.count(removed), 0U) << "Removed action still present in menu: " << removed;
     }
@@ -333,10 +335,10 @@ TEST(ActionDatabaseTest, testMainMenuStructureAndLiveLinks) {
     EXPECT_EQ(g_menu_model_get_n_items(exportSec.get()), 2);
     EXPECT_EQ(g_menu_model_get_n_items(printSec.get()), 1);
     EXPECT_EQ(g_menu_model_get_n_items(catSec.get()), 5);
-    EXPECT_EQ(g_menu_model_get_n_items(appSec.get()), 3);
+    EXPECT_EQ(g_menu_model_get_n_items(appSec.get()), 2);
     EXPECT_EQ(g_menu_model_get_n_items(quitSec.get()), 1);
 
-    // Edit submenu in main menu must not duplicate Preferences or Toolbars
+    // Edit submenu in main menu must not duplicate Preferences or include Toolbars
     xoj::util::GObjectSPtr<GMenuModel> editSub(g_menu_model_get_item_link(catSec.get(), 0, G_MENU_LINK_SUBMENU),
                                                xoj::util::adopt);
     ASSERT_TRUE(editSub);
@@ -347,14 +349,15 @@ TEST(ActionDatabaseTest, testMainMenuStructureAndLiveLinks) {
     EXPECT_EQ(editActions.count("win.grid-snapping"), 1U);
     EXPECT_EQ(editActions.count("app.preferences"), 0U);
     EXPECT_EQ(editActions.count("win.manage-toolbar"), 0U);
+    EXPECT_EQ(editActions.count("win.customize-toolbar"), 0U);
 
-    // Preferences, Toolbars, Help live in appSec
+    // Preferences and Help live in appSec (Toolbars submenu is removed)
     std::set<std::string> appActions;
     std::set<std::pair<std::string, uint64_t>> appTargets;
     collectMenuActions(appSec.get(), appActions, appTargets);
     EXPECT_EQ(appActions.count("app.preferences"), 1U);
-    EXPECT_EQ(appActions.count("win.manage-toolbar"), 1U);
-    EXPECT_EQ(appActions.count("win.customize-toolbar"), 1U);
+    EXPECT_EQ(appActions.count("win.manage-toolbar"), 0U);
+    EXPECT_EQ(appActions.count("win.customize-toolbar"), 0U);
     EXPECT_EQ(appActions.count("win.help"), 1U);
     EXPECT_EQ(appActions.count("app.about"), 1U);
 
@@ -368,7 +371,6 @@ TEST(ActionDatabaseTest, testMainMenuStructureAndLiveLinks) {
 
     // Mutate dynamic submenus AFTER building the main menu and verify changes show through live links
     g_menu_append(G_MENU(gtk_builder_get_object(builder.get(), "menuFileRecent")), "test.xopp", "win.open-file-at");
-    g_menu_append(G_MENU(gtk_builder_get_object(builder.get(), "menuViewToolbar")), "Custom", "win.select-toolbar");
     g_menu_append(G_MENU(gtk_builder_get_object(builder.get(), "menuJournalPaperBackground")), "Plain",
                   "win.menu.pick-page-type");
     g_menu_append(dummyPlugins.get(), "Plugin Manager", "win.plugin-manager");
@@ -377,7 +379,6 @@ TEST(ActionDatabaseTest, testMainMenuStructureAndLiveLinks) {
     std::set<std::pair<std::string, uint64_t>> liveTargets;
     collectMenuActions(G_MENU_MODEL(mainMenuWithPlugins.get()), liveActions, liveTargets);
     EXPECT_EQ(liveActions.count("win.open-file-at"), 1U);
-    EXPECT_EQ(liveActions.count("win.select-toolbar"), 1U);
     EXPECT_EQ(liveActions.count("win.menu.pick-page-type"), 1U);
     EXPECT_EQ(liveActions.count("win.plugin-manager"), 1U);
 }
