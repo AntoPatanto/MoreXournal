@@ -36,7 +36,7 @@ constexpr int SWATCH_SIZE = 16;
 constexpr int PALETTE_DOT_SIZE = 20;
 constexpr int PALETTE_COLUMNS = 6;
 
-constexpr const char* LINE_STYLES[3] = {"plain", "dash", "dot"};
+constexpr const char* LINE_STYLES[4] = {"plain", "dash", "dashdot", "dot"};
 
 /// GObject data keys
 constexpr const char* INDEX_KEY = "shape-toolbox-index";
@@ -145,39 +145,6 @@ GtkWidget* newColorSwatch(int size) { return xoj::chrome::newContrastSwatch(Colo
 
 void setColorSwatch(GtkWidget* swatch, Color color, bool empty = false) {
     xoj::chrome::setContrastSwatch(swatch, color, std::nullopt, empty);
-}
-
-gboolean drawLineStyleSample(GtkWidget* w, cairo_t* cr, gpointer) {
-    const int k = getIndex(w);
-    GtkStyleContext* ctx = gtk_widget_get_style_context(w);
-    GdkRGBA color;
-    gtk_style_context_get_color(ctx, gtk_style_context_get_state(ctx), &color);
-    gdk_cairo_set_source_rgba(cr, &color);
-    const double h = gtk_widget_get_allocated_height(w);
-    const double width = gtk_widget_get_allocated_width(w);
-    cairo_set_line_width(cr, 2.2);
-    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
-    if (k == 1) {
-        const double dashes[] = {5.0, 4.0};
-        cairo_set_dash(cr, dashes, 2, 0);
-    } else if (k == 2) {
-        const double dashes[] = {0.1, 4.5};
-        cairo_set_dash(cr, dashes, 2, 0);
-    }
-    cairo_move_to(cr, 3.0, h / 2.0);
-    cairo_line_to(cr, width - 3.0, h / 2.0);
-    cairo_stroke(cr);
-    return true;
-}
-
-/// Solid (0), dashed (1) or dotted (2) horizontal line in the button's text color
-GtkWidget* newLineStyleSample(int kind) {
-    GtkWidget* area = gtk_drawing_area_new();
-    gtk_widget_set_size_request(area, 24, 12);
-    gtk_widget_set_valign(area, GTK_ALIGN_CENTER);
-    g_object_set_data(G_OBJECT(area), INDEX_KEY, GINT_TO_POINTER(kind));
-    g_signal_connect(area, "draw", G_CALLBACK(drawLineStyleSample), nullptr);
-    return area;
 }
 
 std::string formatThickness(double thickness) {
@@ -441,10 +408,11 @@ void ShapeToolbox::build() {
     this->lineStyleBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     addClass(this->lineStyleBox, "mx-seg");
     gtk_widget_set_valign(this->lineStyleBox, GTK_ALIGN_CENTER);
-    const char* lineStyleTooltips[3] = {_("Solid line"), _("Dashed line"), _("Dotted line")};
+    const char* lineStyleTooltips[4] = {C_("line style", "Solid"), C_("line style", "Dashed"),
+                                        C_("line style", "Dash-dot"), C_("line style", "Dotted")};
     for (size_t i = 0; i < this->lineStyleButtons.size(); i++) {
         GtkWidget* b = prepareFlatButton(gtk_toggle_button_new(), lineStyleTooltips[i]);
-        gtk_container_add(GTK_CONTAINER(b), newLineStyleSample(static_cast<int>(i)));
+        gtk_container_add(GTK_CONTAINER(b), xoj::chrome::newLineStyleSample(static_cast<int>(i)));
         g_object_set_data(G_OBJECT(b), INDEX_KEY, GINT_TO_POINTER(static_cast<int>(i)));
         g_signal_connect(b, "toggled", G_CALLBACK(ShapeToolbox::lineStyleToggledCb), this);
         gtk_box_pack_start(GTK_BOX(this->lineStyleBox), b, false, false, 0);

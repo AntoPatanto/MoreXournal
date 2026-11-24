@@ -119,10 +119,10 @@ private:
     GtkWidget* opacityScale = nullptr;
     GtkLabel* opacityValueLabel = nullptr;
 
-    // Line style (plain, dash, dot)
+    // Line style (plain, dash, dashdot, dot)
     GtkWidget* lineStyleSeparator = nullptr;
     GtkWidget* lineStyleBox = nullptr;
-    std::array<GtkWidget*, 3> lineStyleButtons{};
+    std::array<GtkWidget*, 4> lineStyleButtons{};
 
     /// Set while the widgets are updated from the stroke, to ignore their signals
     bool updating = false;

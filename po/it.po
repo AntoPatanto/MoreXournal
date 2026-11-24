@@ -4939,7 +4939,7 @@ msgid "Lasso"
 msgstr "Lazo"
 
 msgid "Line style"
-msgstr "Stile linea"
+msgstr "Stile della linea"
 
 msgid "More colors"
 msgstr "Altri colori"
@@ -5226,3 +5226,19 @@ msgstr "Accesa"
 
 msgid "<i>Switches on finger touch and mouse; pen keeps the current layout.</i>"
 msgstr "<i>Si accende con un dito e si spegne con il mouse; la penna mantiene il layout attuale.</i>"
+
+msgctxt "line style"
+msgid "Solid"
+msgstr "Continua"
+
+msgctxt "line style"
+msgid "Dashed"
+msgstr "Tratteggiata"
+
+msgctxt "line style"
+msgid "Dash-dot"
+msgstr "Tratto e punto"
+
+msgctxt "line style"
+msgid "Dotted"
+msgstr "Punteggiata"

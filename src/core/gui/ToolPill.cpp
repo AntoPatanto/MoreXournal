@@ -224,42 +224,6 @@ GtkWidget* newSample(double px, int width, int height) {
     return area;
 }
 
-gboolean drawLineStyleSample(GtkWidget* w, cairo_t* cr, gpointer) {
-    const int k = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), SAMPLE_WIDTH_KEY));
-    GtkStyleContext* ctx = gtk_widget_get_style_context(w);
-    GdkRGBA color;
-    gtk_style_context_get_color(ctx, gtk_style_context_get_state(ctx), &color);
-    gdk_cairo_set_source_rgba(cr, &color);
-    const double h = gtk_widget_get_allocated_height(w);
-    const double width = gtk_widget_get_allocated_width(w);
-    cairo_set_line_width(cr, 2.2);
-    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
-    if (k == 1) {
-        const double dashes[] = {5.0, 4.0};
-        cairo_set_dash(cr, dashes, 2, 0);
-    } else if (k == 2) {
-        const double dashes[] = {5.0, 3.5, 0.1, 3.5};
-        cairo_set_dash(cr, dashes, 4, 0);
-    } else if (k == 3) {
-        const double dashes[] = {0.1, 4.5};
-        cairo_set_dash(cr, dashes, 2, 0);
-    }
-    cairo_move_to(cr, 3.0, h / 2.0);
-    cairo_line_to(cr, width - 3.0, h / 2.0);
-    cairo_stroke(cr);
-    return true;
-}
-
-/// A horizontal line style preview (0=plain, 1=dash, 2=dashdot, 3=dot) in the color of the text
-GtkWidget* newLineStyleSample(int kind) {
-    GtkWidget* area = gtk_drawing_area_new();
-    gtk_widget_set_size_request(area, 26, 12);
-    gtk_widget_set_valign(area, GTK_ALIGN_CENTER);
-    g_object_set_data(G_OBJECT(area), SAMPLE_WIDTH_KEY, GINT_TO_POINTER(kind));
-    g_signal_connect(area, "draw", G_CALLBACK(drawLineStyleSample), nullptr);
-    return area;
-}
-
 /// "1.41 pt", without trailing zeros
 std::string formatThickness(double thickness) {
     char buf[32];
@@ -730,13 +694,13 @@ void ToolPill::addThickness(GtkBox* box, uint32_t sections, ToolGroup group) {
             int kind;
             const char* tooltip;
         };
-        const StyleChoice styles[] = {{"plain", 0, _("standard")},
-                                      {"dash", 1, _("dashed")},
-                                      {"dashdot", 2, _("dash-/ dotted")},
-                                      {"dot", 3, _("dotted")}};
+        const StyleChoice styles[] = {{"plain", 0, C_("line style", "Solid")},
+                                      {"dash", 1, C_("line style", "Dashed")},
+                                      {"dashdot", 2, C_("line style", "Dash-dot")},
+                                      {"dot", 3, C_("line style", "Dotted")}};
         for (const auto& st: styles) {
             GtkWidget* b = newTargetToggle(Action::TOOL_PEN_LINE_STYLE, st.style, nullptr, {}, st.tooltip);
-            gtk_container_add(GTK_CONTAINER(b), newLineStyleSample(st.kind));
+            gtk_container_add(GTK_CONTAINER(b), xoj::chrome::newLineStyleSample(st.kind));
             gtk_box_pack_start(GTK_BOX(seg), b, false, false, 0);
         }
         gtk_box_pack_start(pop, seg, false, false, 0);
