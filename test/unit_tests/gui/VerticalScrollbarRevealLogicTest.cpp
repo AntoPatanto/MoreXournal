@@ -178,3 +178,15 @@ TEST(VerticalScrollbarRevealLogicTest, hidesImmediatelyWhenContentFitsViewport) 
     EXPECT_FALSE(a.visible);
     EXPECT_TRUE(a.cancelHideTimer);
 }
+
+TEST(VerticalScrollbarRevealLogicTest, ignoresInteractionStartWhileHidden) {
+    auto state = makeScrollOnlyState(1000);
+
+    auto a = state.setScrollbarInteracting(true);
+    EXPECT_FALSE(a.visible);
+    EXPECT_FALSE(state.isInteracting());
+
+    // Subsequent micro-movement must still stay below the 120 px threshold
+    a = state.onValueChanged(10.0, UPPER, PAGE_SIZE, false, 1500);
+    EXPECT_FALSE(a.visible);
+}

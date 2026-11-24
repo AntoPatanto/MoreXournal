@@ -26,6 +26,46 @@ void pumpMainContext(int64_t waitMs) {
     }
 }
 
+void dispatchPointerMotion(GdkWindow* window, GdkDevice* device, double x, double y, guint32 time) {
+    if (!window || !device) {
+        return;
+    }
+    GdkEvent* motion = gdk_event_new(GDK_MOTION_NOTIFY);
+    motion->motion.window = GDK_WINDOW(g_object_ref(window));
+    motion->motion.send_event = FALSE;
+    motion->motion.time = time;
+    motion->motion.x = x;
+    motion->motion.y = y;
+    motion->motion.x_root = x;
+    motion->motion.y_root = y;
+    motion->motion.device = device;
+    gdk_event_set_source_device(motion, device);
+    gtk_main_do_event(motion);
+    gdk_event_free(motion);
+}
+
+void emitScrollbarButtonEvent(GtkWidget* scrollbar, GdkEventType type, GdkDevice* device, guint32 time) {
+    GdkEvent* ev = gdk_event_new(type);
+    if (GdkWindow* win = gtk_widget_get_window(scrollbar)) {
+        ev->button.window = GDK_WINDOW(g_object_ref(win));
+    }
+    ev->button.send_event = FALSE;
+    ev->button.time = time;
+    ev->button.x = 5.0;
+    ev->button.y = 50.0;
+    ev->button.x_root = 5.0;
+    ev->button.y_root = 50.0;
+    ev->button.button = GDK_BUTTON_PRIMARY;
+    ev->button.device = device;
+    if (device) {
+        gdk_event_set_source_device(ev, device);
+    }
+    gboolean handled = FALSE;
+    const char* signalName = (type == GDK_BUTTON_PRESS) ? "button-press-event" : "button-release-event";
+    g_signal_emit_by_name(scrollbar, signalName, ev, &handled);
+    gdk_event_free(ev);
+}
+
 }  // namespace
 
 class VerticalScrollbarRevealControllerTest: public GtkTest {
@@ -80,21 +120,8 @@ class VerticalScrollbarRevealControllerTest: public GtkTest {
         // Pointer motion near the right edge must not reveal the scrollbar or its overlay indicator.
         GdkDisplay* display = gtk_widget_get_display(win);
         GdkSeat* seat = gdk_display_get_default_seat(display);
-        if (GdkDevice* device = gdk_seat_get_pointer(seat);
-            device != nullptr && gtk_widget_get_window(area) != nullptr) {
-            GdkEvent* motion = gdk_event_new(GDK_MOTION_NOTIFY);
-            motion->motion.window = GDK_WINDOW(g_object_ref(gtk_widget_get_window(area)));
-            motion->motion.send_event = FALSE;
-            motion->motion.time = 1000;
-            motion->motion.x = 395.0;
-            motion->motion.y = 200.0;
-            motion->motion.x_root = 395.0;
-            motion->motion.y_root = 200.0;
-            motion->motion.device = device;
-            gdk_event_set_source_device(motion, device);
-            gtk_main_do_event(motion);
-            gdk_event_free(motion);
-        }
+        GdkDevice* device = gdk_seat_get_pointer(seat);
+        dispatchPointerMotion(gtk_widget_get_window(area), device, 395.0, 200.0, 1000);
         EXPECT_FALSE(gtk_widget_get_visible(vscroll));
 #if GTK_MAJOR_VERSION == 3
         if (indicatorWin != nullptr && indicatorWin != swWin) {
@@ -127,7 +154,14 @@ class VerticalScrollbarRevealControllerTest: public GtkTest {
         gtk_scrolled_window_get_policy(GTK_SCROLLED_WINDOW(sw), &hpol, &vpol);
         EXPECT_EQ(vpol, GTK_POLICY_AUTOMATIC);
 
-        // After 1 second of inactivity, it must disable itself again.
+        // Holding a press on the scrollbar must pause auto-hide past the 1 s timeout.
+        emitScrollbarButtonEvent(vscroll, GDK_BUTTON_PRESS, device, 1100);
+        pumpMainContext(1150);
+        EXPECT_TRUE(gtk_widget_get_visible(vscroll));
+        EXPECT_TRUE(controller.isScrollbarVisible());
+
+        // Releasing the press re-arms the 1 s timeout and hides the scrollbar after inactivity.
+        emitScrollbarButtonEvent(vscroll, GDK_BUTTON_RELEASE, device, 2250);
         pumpMainContext(1150);
         EXPECT_FALSE(gtk_widget_get_visible(vscroll));
         EXPECT_FALSE(controller.isScrollbarVisible());
@@ -139,11 +173,19 @@ class VerticalScrollbarRevealControllerTest: public GtkTest {
         EXPECT_TRUE(gtk_widget_get_visible(vscroll));
         EXPECT_FALSE(gtk_scrolled_window_get_overlay_scrolling(GTK_SCROLLED_WINDOW(sw)));
 
-        // Hiding vertical scrollbar in Preferences keeps it hidden even after large scrolls.
+        // Hiding vertical scrollbar in Preferences keeps both the widget and overlay indicator hidden.
         controller.configure(true, false);
         EXPECT_FALSE(gtk_widget_get_visible(vscroll));
+        gtk_scrolled_window_get_policy(GTK_SCROLLED_WINDOW(sw), &hpol, &vpol);
+        EXPECT_EQ(vpol, GTK_POLICY_EXTERNAL);
         gtk_adjustment_set_value(vadj, 1200.0);
+        dispatchPointerMotion(gtk_widget_get_window(area), device, 395.0, 200.0, 3500);
         EXPECT_FALSE(gtk_widget_get_visible(vscroll));
+#if GTK_MAJOR_VERSION == 3
+        if (indicatorWin != nullptr && indicatorWin != swWin) {
+            EXPECT_FALSE(gdk_window_is_visible(indicatorWin));
+        }
+#endif
 
         gtk_widget_destroy(win);
     }

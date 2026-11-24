@@ -163,16 +163,14 @@ public:
     }
 
     auto setScrollbarInteracting(bool active) -> VerticalScrollbarRevealAction {
-        interacting = active;
         if (mode != VerticalScrollbarMode::ScrollOnly) {
+            interacting = false;
             return {mode == VerticalScrollbarMode::AlwaysVisible, false, false};
         }
 
-        if (active) {
-            if (visible) {
-                return {true, false, true};
-            }
-            return {false, false, false};
+        interacting = active && visible;
+        if (interacting) {
+            return {true, false, true};
         }
 
         if (visible) {

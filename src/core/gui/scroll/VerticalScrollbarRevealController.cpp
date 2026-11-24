@@ -57,8 +57,13 @@ VerticalScrollbarRevealController::VerticalScrollbarRevealController(GtkScrolled
     }
 }
 
-VerticalScrollbarRevealController::~VerticalScrollbarRevealController() {
+VerticalScrollbarRevealController::~VerticalScrollbarRevealController() { detach(); }
+
+void VerticalScrollbarRevealController::detach() {
     cancelHideTimer();
+    pointerPressed = false;
+    activeTouchSequences.clear();
+
     if (scrolledWindow != nullptr) {
         g_signal_handlers_disconnect_by_data(scrolledWindow, this);
         g_object_remove_weak_pointer(G_OBJECT(scrolledWindow), reinterpret_cast<gpointer*>(&scrolledWindow));
@@ -105,10 +110,7 @@ void VerticalScrollbarRevealController::applyAction(const xoj::scroll::VerticalS
     GtkPolicyType vpolicy = GTK_POLICY_AUTOMATIC;
     gtk_scrolled_window_get_policy(scrolledWindow, &hpolicy, &vpolicy);
 
-    const GtkPolicyType desiredVPolicy =
-            (state.getMode() == xoj::scroll::VerticalScrollbarMode::ScrollOnly && !action.visible) ?
-                    GTK_POLICY_EXTERNAL :
-                    GTK_POLICY_AUTOMATIC;
+    const GtkPolicyType desiredVPolicy = action.visible ? GTK_POLICY_AUTOMATIC : GTK_POLICY_EXTERNAL;
 
     if (action.visible) {
         if (vpolicy != desiredVPolicy) {
@@ -170,9 +172,7 @@ void VerticalScrollbarRevealController::armHideTimer() {
 }
 
 void VerticalScrollbarRevealController::onScrolledWindowDestroy(GtkWidget*, VerticalScrollbarRevealController* self) {
-    self->cancelHideTimer();
-    self->pointerPressed = false;
-    self->activeTouchSequences.clear();
+    self->detach();
 }
 
 void VerticalScrollbarRevealController::onAdjustmentChanged(GtkAdjustment* adjustment,

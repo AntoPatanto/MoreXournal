@@ -31,6 +31,7 @@ public:
     [[nodiscard]] auto isScrollbarVisible() const -> bool { return state.isVisible(); }
 
 private:
+    void detach();
     void applyAction(const xoj::scroll::VerticalScrollbarRevealAction& action);
     void updateInteractionState();
     void clearInteractionState();
