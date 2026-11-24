@@ -1,5 +1,5 @@
 name: Crash Report
-description: Create a report to help us improve Xournal++.
+description: Create a report to help us improve MoreXournal.
 labels: bug,crash
 body:
   - type: input
@@ -25,23 +25,23 @@ body:
   - type: input
     attributes:
       label: Installation Method
-      description: How was Xournal++ installed?
-      placeholder: e.g. Official Release, Flatpak, Snap, PPA, etc.
+      description: How was MoreXournal installed?
+      placeholder: e.g. Official Release, Built from source, Flatpak, etc.
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: Xournal++ Version
-      description: What version of Xournal++ do you use? (This can be obtained by running `xournalpp --version`, or in the "About" window).
-      placeholder: e.g. 1.0.16, specific commit, specific branch etc.
+      label: MoreXournal Version
+      description: What version of MoreXournal do you use? (This can be obtained by running `morexournal --version`, or in the "About" window).
+      placeholder: e.g. 0.1.0, specific commit, specific branch etc.
     validations:
       required: true
   - type: input
     id: gtk
     attributes:
       label: libgtk Version
-      description: What version of libgtk do you use? (This can be obtained by running `xournalpp --version`, or in the "About" window).
+      description: What version of libgtk do you use? (This can be obtained by running `morexournal --version`, or in the "About" window).
     validations:
       required: true
   - type: textarea

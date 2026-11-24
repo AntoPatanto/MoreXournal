@@ -1274,6 +1274,7 @@ function app.setFont(font) end
 ---| "layer-goto-top"
 ---| "layer-active"
 ---| "position-highlighting"
+---| "hold-to-shape"
 
 ---@enum
 app.C = {
