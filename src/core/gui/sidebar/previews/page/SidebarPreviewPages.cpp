@@ -35,7 +35,7 @@ void SidebarPreviewPages::enableSidebar() {
 
 auto SidebarPreviewPages::getName() -> std::string { return _("Page Preview"); }
 
-auto SidebarPreviewPages::getIconName() -> std::string { return this->iconNameHelper.iconName("sidebar-page-preview"); }
+auto SidebarPreviewPages::getIconName() -> std::string { return "mx-sidebar-pages-symbolic"; }
 
 void SidebarPreviewPages::updatePreviews() {
     this->previews.clear();

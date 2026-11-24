@@ -871,6 +871,12 @@ popover.background.mx-popover scale slider {
 	background-color: @mx_hover;
 }
 
+#sidebar #PreviewPagesToolbar button:disabled,
+#sidebar #PreviewLayersToolbar button:disabled {
+	color: alpha(@mx_text, 0.38);
+	background-color: transparent;
+}
+
 #sidebar .inline-toolbar button:checked {
 	background-color: @mx_accent_tint;
 	color: @mx_accent_text;

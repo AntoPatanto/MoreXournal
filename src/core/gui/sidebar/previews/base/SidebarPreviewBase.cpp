@@ -53,7 +53,9 @@ SidebarPreviewBase::SidebarPreviewBase(Control* control, const char* menuId, con
     contextMenu.reset(GTK_MENU(gtk_menu_new_from_model(menu)), xoj::util::adopt);
     gtk_menu_attach_to_widget(contextMenu.get(), mainBox.get(), nullptr);
 
-    gtk_box_append(GTK_BOX(mainBox.get()), builder.get(toolbarId));
+    GtkWidget* toolbar = builder.get(toolbarId);
+    gtk_widget_set_name(toolbar, toolbarId);
+    gtk_box_append(GTK_BOX(mainBox.get()), toolbar);
 
     gtk_widget_show_all(mainBox.get());
 }
