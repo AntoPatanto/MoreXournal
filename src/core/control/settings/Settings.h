@@ -24,8 +24,9 @@
 #include <glib.h>         // for gchar, gboolean, gint
 #include <libxml/tree.h>  // for xmlNodePtr, xmlDocPtr
 
-#include "control/ToolEnums.h"                   // for DrawingType
-#include "control/tools/StrokeStabilizerEnum.h"  // for AveragingMethod, Pre...
+#include "control/ToolEnums.h"                                // for DrawingType
+#include "control/shaperecognizer/ShapeRecognizerParams.h"    // for ShapeRecognizerParams
+#include "control/tools/StrokeStabilizerEnum.h"               // for AveragingMethod, Pre...
 #include "gui/RecentColors.h"                    // for RecentColors
 #include "model/Font.h"                          // for XojFont
 #include "util/Color.h"                          // for Color
@@ -376,6 +377,15 @@ public:
     int getHoldToShapeDelay() const;
     /// The value is clamped to [HOLD_TO_SHAPE_DELAY_MIN, HOLD_TO_SHAPE_DELAY_MAX]
     void setHoldToShapeDelay(int delay);
+    /// Allowed pointer movement (in screen pixels) that does not reset the hold timer
+    double getHoldToShapeTolerancePx() const;
+    void setHoldToShapeTolerancePx(double tolerancePx);
+    /// Global shape sensitivity slider position (0..100, 50 = default)
+    int getShapeSensitivity() const;
+    void setShapeSensitivity(int sensitivity);
+    /// Runtime thresholds for ShapeRecognizer / CircleRecognizer
+    const ShapeRecognizerParams& getShapeRecognizerParams() const;
+    void setShapeRecognizerParams(const ShapeRecognizerParams& params);
 
     StylusCursorType getStylusCursorType() const;
     void setStylusCursorType(StylusCursorType stylusCursorType);
@@ -1126,6 +1136,9 @@ private:
      */
     bool holdToShapeEnabled{};
     int holdToShapeDelay{};
+    double holdToShapeTolerancePx{};
+    int shapeSensitivity{};
+    ShapeRecognizerParams shapeRecognizerParams{};
 
     /// Touchscreens act like multi-touch-aware pens.
     bool touchDrawing{};

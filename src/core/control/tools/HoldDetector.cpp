@@ -20,3 +20,7 @@ void HoldDetector::disarm() { this->armed = false; }
 bool HoldDetector::isArmed() const { return this->armed; }
 
 const xoj::util::Point<double>& HoldDetector::getAnchor() const { return this->anchor; }
+
+double HoldDetector::getTolerancePx() const { return this->tolerancePx; }
+
+void HoldDetector::setTolerancePx(double tolerancePx) { this->tolerancePx = tolerancePx; }

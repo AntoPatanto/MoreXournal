@@ -30,7 +30,7 @@ It is free software under GPL-2.0 and runs locally on your machine with no accou
 
 ## What you can do
 
-**Convert strokes into shapes by holding the pen still.** While drawing with the pen or highlighter, hold the tip still (500 ms by default, configurable from 100 to 3000 ms in Preferences, or switched on and off with Automatic shapes in the pen tool pill) to replace the stroke with a recognized line, triangle, rectangle or circle before lifting the pen. Recognized lines snap to 15-degree steps when rotation snapping is enabled, and one undo removes the shape.
+**Convert strokes into shapes by holding the pen still.** While drawing with the pen or highlighter, hold the tip still (400 ms by default) to replace the stroke with a recognized line, triangle, rectangle or circle before lifting the pen. You can toggle Automatic shapes from the Tools menu or tune its delay, jitter tolerance, sensitivity, minimum size and per-threshold values in Preferences, with a built-in test pad. Recognized lines snap to 15-degree steps when rotation snapping is enabled, and one undo removes the shape.
 
 **Edit shapes after you draw them.** Shapes created with hold-to-shape or with the line, rectangle and ellipse tools store their type and control points. Selecting a shape displays geometry handles (endpoints for lines, free vertices for polygons, corners and rotation for rectangles, side stretch and rotation for ellipses) and a floating shape menu to change stroke colour, thickness, fill colour and opacity, solid, dashed or dotted line style, duplicate, delete, or convert the shape back to a plain stroke.
 

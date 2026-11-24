@@ -49,6 +49,9 @@ public:
 
     const xoj::util::Point<double>& getAnchor() const;
 
+    double getTolerancePx() const;
+    void setTolerancePx(double tolerancePx);
+
 private:
     double tolerancePx;
     xoj::util::Point<double> anchor;

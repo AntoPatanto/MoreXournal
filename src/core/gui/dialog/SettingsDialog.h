@@ -32,6 +32,7 @@
 class Control;
 class Settings;
 class DeviceTestingArea;
+class ShapeSettingsPanel;
 
 struct Palette;
 
@@ -99,6 +100,7 @@ private:
     xoj::util::GtkWindowUPtr window;
 
     std::unique_ptr<DeviceTestingArea> deviceTestingArea;
+    std::unique_ptr<ShapeSettingsPanel> shapeSettingsPanel;
 
     LanguageConfigGui languageConfig;
     std::vector<std::unique_ptr<ButtonConfigGui>> buttonConfigs;

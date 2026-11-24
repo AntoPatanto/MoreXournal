@@ -87,6 +87,10 @@ TEST(SettingsTest, testHoldToShapeDefaults) {
     Settings settings{"non-existing-file-path"};
     EXPECT_TRUE(settings.isHoldToShapeEnabled());
     EXPECT_EQ(settings.getHoldToShapeDelay(), 400);
+    EXPECT_DOUBLE_EQ(settings.getHoldToShapeTolerancePx(), 8.0);
+    EXPECT_DOUBLE_EQ(settings.getStrokeRecognizerMinSize(), 40.0);
+    EXPECT_EQ(settings.getShapeSensitivity(), 50);
+    EXPECT_EQ(settings.getShapeRecognizerParams(), ShapeRecognizerParams{});
 }
 
 TEST(SettingsTest, testHoldToShapeDelayIsClamped) {
@@ -98,6 +102,101 @@ TEST(SettingsTest, testHoldToShapeDelayIsClamped) {
     EXPECT_EQ(settings.getHoldToShapeDelay(), HOLD_TO_SHAPE_DELAY_MAX);
     settings.setHoldToShapeDelay(750);
     EXPECT_EQ(settings.getHoldToShapeDelay(), 750);
+}
+
+TEST(SettingsTest, testShapeSensitivityReadWriteAndClamp) {
+    const fs::path outPath = fs::temp_directory_path() / "xournalpp-test-units_Settings_testShapeSensitivity.xml";
+    fs::remove(outPath);
+
+    ShapeRecognizerParams custom;
+    custom.lineMaxDet = 0.031;
+    custom.segmentMaxDet = 0.072;
+    custom.circleMinDet = 0.89;
+    custom.circleMaxScore = 0.16;
+    custom.rectangleAngleToleranceDeg = 22.0;
+    custom.rectangleLinearTolerance = 0.31;
+    custom.triangleLinearTolerance = 0.42;
+    custom.slantToleranceDeg = 9.0;
+
+    Settings settings(outPath);
+    settings.transactionStart();
+    settings.setHoldToShapeTolerancePx(14.0);
+    settings.setStrokeRecognizerMinSize(75.0);
+    settings.setShapeSensitivity(73);
+    settings.setShapeRecognizerParams(custom);
+    settings.transactionEnd();
+
+    Settings loaded(outPath);
+    ASSERT_TRUE(loaded.load());
+    EXPECT_DOUBLE_EQ(loaded.getHoldToShapeTolerancePx(), 14.0);
+    EXPECT_DOUBLE_EQ(loaded.getStrokeRecognizerMinSize(), 75.0);
+    EXPECT_EQ(loaded.getShapeSensitivity(), 73);
+    EXPECT_NEAR(loaded.getShapeRecognizerParams().lineMaxDet, custom.lineMaxDet, 1e-6);
+    EXPECT_NEAR(loaded.getShapeRecognizerParams().segmentMaxDet, custom.segmentMaxDet, 1e-6);
+    EXPECT_NEAR(loaded.getShapeRecognizerParams().circleMinDet, custom.circleMinDet, 1e-6);
+    EXPECT_NEAR(loaded.getShapeRecognizerParams().circleMaxScore, custom.circleMaxScore, 1e-6);
+    EXPECT_NEAR(loaded.getShapeRecognizerParams().rectangleAngleToleranceDeg, custom.rectangleAngleToleranceDeg, 1e-6);
+    EXPECT_NEAR(loaded.getShapeRecognizerParams().rectangleLinearTolerance, custom.rectangleLinearTolerance, 1e-6);
+    EXPECT_NEAR(loaded.getShapeRecognizerParams().triangleLinearTolerance, custom.triangleLinearTolerance, 1e-6);
+    EXPECT_NEAR(loaded.getShapeRecognizerParams().slantToleranceDeg, custom.slantToleranceDeg, 1e-6);
+
+    // Out-of-range values in XML are clamped on load
+    {
+        std::ofstream bad(outPath);
+        bad << R"(<?xml version="1.0"?>
+<settings>
+  <property name="uiLayoutVersion" value="1"/>
+  <property name="holdToShapeDelay" value="5"/>
+  <property name="holdToShapeTolerancePx" value="99"/>
+  <property name="strokeRecognizerMinSize" value="2"/>
+  <property name="shapeSensitivity" value="250"/>
+  <property name="shapeLineMaxDet" value="0.0001"/>
+  <property name="shapeSegmentMaxDet" value="5.0"/>
+  <property name="shapeCircleMinDet" value="0.5"/>
+  <property name="shapeCircleMaxScore" value="0.9"/>
+  <property name="shapeRectangleAngleTolerance" value="1"/>
+  <property name="shapeRectangleLinearTolerance" value="2.0"/>
+  <property name="shapeTriangleLinearTolerance" value="0.01"/>
+  <property name="shapeSlantTolerance" value="45"/>
+</settings>
+)";
+    }
+
+    Settings clamped(outPath);
+    ASSERT_TRUE(clamped.load());
+    EXPECT_EQ(clamped.getHoldToShapeDelay(), 100);
+    EXPECT_DOUBLE_EQ(clamped.getHoldToShapeTolerancePx(), 20.0);
+    EXPECT_DOUBLE_EQ(clamped.getStrokeRecognizerMinSize(), 10.0);
+    EXPECT_EQ(clamped.getShapeSensitivity(), 100);
+    EXPECT_DOUBLE_EQ(clamped.getShapeRecognizerParams().lineMaxDet, 0.005);
+    EXPECT_DOUBLE_EQ(clamped.getShapeRecognizerParams().segmentMaxDet, 0.10);
+    EXPECT_DOUBLE_EQ(clamped.getShapeRecognizerParams().circleMinDet, 0.85);
+    EXPECT_DOUBLE_EQ(clamped.getShapeRecognizerParams().circleMaxScore, 0.20);
+    EXPECT_DOUBLE_EQ(clamped.getShapeRecognizerParams().rectangleAngleToleranceDeg, 6.0);
+    EXPECT_DOUBLE_EQ(clamped.getShapeRecognizerParams().rectangleLinearTolerance, 0.40);
+    EXPECT_DOUBLE_EQ(clamped.getShapeRecognizerParams().triangleLinearTolerance, 0.12);
+    EXPECT_DOUBLE_EQ(clamped.getShapeRecognizerParams().slantToleranceDeg, 15.0);
+
+    // Older settings file without the new keys gets defaults
+    {
+        std::ofstream older(outPath);
+        older << R"(<?xml version="1.0"?>
+<settings>
+  <property name="uiLayoutVersion" value="1"/>
+  <property name="holdToShapeDelay" value="600"/>
+</settings>
+)";
+    }
+
+    Settings fromOlder(outPath);
+    ASSERT_TRUE(fromOlder.load());
+    EXPECT_EQ(fromOlder.getHoldToShapeDelay(), 600);
+    EXPECT_DOUBLE_EQ(fromOlder.getHoldToShapeTolerancePx(), 8.0);
+    EXPECT_DOUBLE_EQ(fromOlder.getStrokeRecognizerMinSize(), 40.0);
+    EXPECT_EQ(fromOlder.getShapeSensitivity(), 50);
+    EXPECT_EQ(fromOlder.getShapeRecognizerParams(), ShapeRecognizerParams{});
+
+    fs::remove(outPath);
 }
 
 TEST(SettingsTest, testHoldToShapeReadWrite) {

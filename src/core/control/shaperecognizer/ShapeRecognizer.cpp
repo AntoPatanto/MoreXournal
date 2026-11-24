@@ -12,16 +12,18 @@
 
 #include "control/shaperecognizer/RecoSegment.h"            // for RecoSegment
 #include "control/shaperecognizer/ShapeRecognizerConfig.h"  // for RDEBUG
+#include "control/shaperecognizer/ShapeSensitivityLogic.h"  // for formatFixed
 #include "model/Point.h"                                    // for Point
 #include "model/ShapeInfo.h"                                // for ShapeInfo, ShapeType
 #include "model/Stroke.h"                                   // for Stroke
+#include "util/i18n.h"                                      // for _F, FS, _
 #include "util/safe_casts.h"                                // for as_unsigned
 
 #include "CircleRecognizer.h"  // for CircleRec...
 #include "Inertia.h"           // for Inertia
 #include "config-debug.h"      // for DEBUG_REC...
 
-ShapeRecognizer::ShapeRecognizer() {
+ShapeRecognizer::ShapeRecognizer(ShapeRecognizerParams params): params(params) {
     resetRecognizer();
     this->stroke = nullptr;
     this->queueLength = 0;
@@ -52,7 +54,7 @@ inline double dist2(const Point& P, const Point& Q) {
     return dx * dx + dy * dy;
 }
 
-auto ShapeRecognizer::tryTriangle() -> std::unique_ptr<Stroke> {
+auto ShapeRecognizer::tryTriangle(ShapeRecognizerDiagnostics* diagnostics) -> std::unique_ptr<Stroke> {
     // first, we need whole strokes to combine to 3 segments...
     if (this->queueLength < 3) {
         return nullptr;
@@ -99,7 +101,13 @@ auto ShapeRecognizer::tryTriangle() -> std::unique_ptr<Stroke> {
         const double y2 = r2.reversed ? r2.y2 : r2.y1;
 
         const double dist = hypot(x1 - x2, y1 - y2);
-        if (dist > TRIANGLE_LINEAR_TOLERANCE * (r1.radius + r2.radius)) {
+        const double limit = this->params.triangleLinearTolerance * (r1.radius + r2.radius);
+        if (dist > limit) {
+            if (diagnostics) {
+                diagnostics->reasons.push_back(FS(_F("Not a triangle: a corner is open by {1} pt (limit {2} pt)") %
+                                                  xoj::shapes::formatFixed(dist, 0) %
+                                                  xoj::shapes::formatFixed(limit, 0)));
+            }
             return nullptr;
         }
     }
@@ -117,13 +125,16 @@ auto ShapeRecognizer::tryTriangle() -> std::unique_ptr<Stroke> {
     // After the last addPoint(), which drops the shape
     attachShapeIfValid(*s, ShapeType::POLYGON, {0, 1, 2});
 
+    if (diagnostics) {
+        diagnostics->shape = RecognizedShapeKind::Triangle;
+    }
     return s;
 }
 
 /**
  *  Test if segments form standard shapes
  */
-auto ShapeRecognizer::tryRectangle() -> std::unique_ptr<Stroke> {
+auto ShapeRecognizer::tryRectangle(ShapeRecognizerDiagnostics* diagnostics) -> std::unique_ptr<Stroke> {
     // first, we need whole strokes to combine to 4 segments...
     if (this->queueLength < 4) {
         return nullptr;
@@ -135,11 +146,19 @@ auto ShapeRecognizer::tryRectangle() -> std::unique_ptr<Stroke> {
     }
 
     // check edges make angles ~= Pi/2 and vertices roughly match
+    const double angleToleranceRad = this->params.rectangleAngleToleranceRad();
     double avgAngle = 0.;
     for (int i = 0; i <= 3; i++) {
         RecoSegment* r1 = &rs[i];
         RecoSegment* r2 = &rs[(i + 1) % 4];
-        if (fabs(fabs(r1->angle - r2->angle) - M_PI / 2) > RECTANGLE_ANGLE_TOLERANCE) {
+        const double angleOff = fabs(fabs(r1->angle - r2->angle) - M_PI / 2);
+        if (angleOff > angleToleranceRad) {
+            if (diagnostics) {
+                diagnostics->reasons.push_back(
+                        FS(_F("Not a rectangle: a corner is off 90° by {1}° (limit {2}°)") %
+                           xoj::shapes::formatFixed(angleOff * 180.0 / M_PI, 0) %
+                           xoj::shapes::formatFixed(this->params.rectangleAngleToleranceDeg, 0)));
+            }
             return nullptr;
         }
         avgAngle += r1->angle;
@@ -158,18 +177,25 @@ auto ShapeRecognizer::tryRectangle() -> std::unique_ptr<Stroke> {
         RecoSegment* r2 = &rs[(i + 1) % 4];
         double dist = hypot((r1->reversed ? r1->x1 : r1->x2) - (r2->reversed ? r2->x2 : r2->x1),
                             (r1->reversed ? r1->y1 : r1->y2) - (r2->reversed ? r2->y2 : r2->y1));
-        if (dist > RECTANGLE_LINEAR_TOLERANCE * (r1->radius + r2->radius)) {
+        const double limit = this->params.rectangleLinearTolerance * (r1->radius + r2->radius);
+        if (dist > limit) {
+            if (diagnostics) {
+                diagnostics->reasons.push_back(FS(_F("Not a rectangle: a corner is open by {1} pt (limit {2} pt)") %
+                                                  xoj::shapes::formatFixed(dist, 0) %
+                                                  xoj::shapes::formatFixed(limit, 0)));
+            }
             return nullptr;
         }
     }
 
     // make a rectangle of the correct size and slope
+    const double slantToleranceRad = this->params.slantToleranceRad();
     avgAngle = avgAngle / 4;
-    if (fabs(avgAngle) < SLANT_TOLERANCE) {
+    if (fabs(avgAngle) < slantToleranceRad) {
         avgAngle = 0.;
     }
 
-    if (fabs(avgAngle) > M_PI / 2 - SLANT_TOLERANCE) {
+    if (fabs(avgAngle) > M_PI / 2 - slantToleranceRad) {
         avgAngle = M_PI / 2;
     }
 
@@ -190,6 +216,9 @@ auto ShapeRecognizer::tryRectangle() -> std::unique_ptr<Stroke> {
     // The edges are exactly perpendicular: the corners are c0, c1, c1 + c3 - c0, c3
     attachShapeIfValid(*s, ShapeType::RECTANGLE, {0, 1, 3});
 
+    if (diagnostics) {
+        diagnostics->shape = RecognizedShapeKind::Rectangle;
+    }
     return s;
 }
 
@@ -220,7 +249,7 @@ auto ShapeRecognizer::findPolygonal(const Point* pt, int start, int finish, int 
         i1 = start + (k * (finish - start)) / nsides;
         i2 = start + ((k + 1) * (finish - start)) / nsides;
         s.calc(std::span<const Point>(pt + i1, pt + i2 + 1));
-        if (s.det() < SEGMENT_MAX_DET) {
+        if (s.det() < this->params.segmentMaxDet) {
             break;
         }
     }
@@ -251,10 +280,10 @@ auto ShapeRecognizer::findPolygonal(const Point* pt, int start, int finish, int 
             det2 = 1.0;
         }
 
-        if (det1 < det2 && det1 < SEGMENT_MAX_DET) {
+        if (det1 < det2 && det1 < this->params.segmentMaxDet) {
             i1--;
             s = s1;
-        } else if (det2 < det1 && det2 < SEGMENT_MAX_DET) {
+        } else if (det2 < det1 && det2 < this->params.segmentMaxDet) {
             i2++;
             s = s2;
         } else {
@@ -353,10 +382,25 @@ auto ShapeRecognizer::isStrokeLargeEnough(Stroke* stroke, double strokeMinSize) 
 /**
  * The main pattern recognition function
  */
-auto ShapeRecognizer::recognizePatterns(Stroke* stroke, double strokeMinSize) -> std::unique_ptr<Stroke> {
+auto ShapeRecognizer::recognizePatterns(Stroke* stroke, double strokeMinSize, ShapeRecognizerDiagnostics* diagnostics)
+        -> std::unique_ptr<Stroke> {
     this->stroke = stroke;
+    if (diagnostics) {
+        *diagnostics = {};
+    }
 
     if (!isStrokeLargeEnough(stroke, strokeMinSize)) {
+        if (diagnostics) {
+            auto rect = stroke->getSnappedBounds();
+            const double diag = std::hypot(rect.width, rect.height);
+            if (diag < strokeMinSize) {
+                diagnostics->reasons.push_back(FS(_F("Stroke too small: {1} pt (minimum {2} pt)") %
+                                                  xoj::shapes::formatFixed(diag, 0) %
+                                                  xoj::shapes::formatFixed(strokeMinSize, 0)));
+            } else {
+                diagnostics->reasons.push_back(_("Stroke has too few points"));
+            }
+        }
         return nullptr;
     }
 
@@ -376,6 +420,23 @@ auto ShapeRecognizer::recognizePatterns(Stroke* stroke, double strokeMinSize) ->
         }
         g_message("--");
 #endif
+        if (diagnostics) {
+            std::string dets;
+            for (int i = 0; i < n; i++) {
+                if (i > 0) {
+                    dets += ", ";
+                }
+                dets += xoj::shapes::formatFixed(std::max(0.0, ss[i].det()), 3);
+            }
+            if (n == 1) {
+                diagnostics->reasons.push_back(FS(_F("Found 1 straight side (det {1}, limit {2})") % dets %
+                                                  xoj::shapes::formatFixed(this->params.segmentMaxDet, 3)));
+            } else {
+                diagnostics->reasons.push_back(FS(_F("Found {1} straight sides (det {2}, limit {3})") % n % dets %
+                                                  xoj::shapes::formatFixed(this->params.segmentMaxDet, 3)));
+            }
+        }
+
         // update recognizer segment queue (most recent at end)
         while (n + queueLength > MAX_POLYGON_SIDES) {
             // remove oldest polygonal stroke
@@ -398,69 +459,82 @@ auto ShapeRecognizer::recognizePatterns(Stroke* stroke, double strokeMinSize) ->
             rs[i].calcSegmentGeometry(stroke->getPoints(), brk[i], brk[i + 1], ss + i);
         }
 
-        if (auto result = tryTriangle(); result != nullptr) {
+        if (auto result = tryTriangle(diagnostics); result != nullptr) {
             RDEBUG("return triangle");
             return result;
         }
-        if (auto result = tryRectangle(); result != nullptr) {
+        if (auto result = tryRectangle(diagnostics); result != nullptr) {
             RDEBUG("return rectangle");
             return result;
         }
 
         // Removed complicated recognition in commit 5494bd002050182cde3af70bd1924f4062579be5
 
-        if (n == 1 && ss->det() < LINE_MAX_DET)  // current stroke is a line
-        {
-            bool aligned = true;
-            if (fabs(rs->angle) < SLANT_TOLERANCE)  // nearly horizontal
+        if (n == 1) {
+            if (ss->det() < this->params.lineMaxDet)  // current stroke is a line
             {
-                rs->angle = 0.0;
-                rs->y1 = rs->y2 = rs->ycenter;
-            } else if (fabs(rs->angle) > M_PI / 2 - SLANT_TOLERANCE) {  // nearly vertical
-                rs->angle = (rs->angle > 0) ? (M_PI / 2) : (-M_PI / 2);
-                rs->x1 = rs->x2 = rs->xcenter;
-            } else {
-                aligned = false;
-            }
-
-            auto s = std::make_unique<Stroke>();
-            s->applyStyleFrom(this->stroke);
-
-            if (aligned) {
-                s->addPoint(Point(rs->x1, rs->y1));
-                s->addPoint(Point(rs->x2, rs->y2));
-            } else {
-                const Point P(rs->x1, rs->y1);
-                const Point Q(rs->x2, rs->y2);
-
-                const auto& points = stroke->getPointVector();
-                const Point& last = points.back();
-
-                const double dx = Q.x - P.x;
-                const double dy = Q.y - P.y;
-                const double num = dy * last.x - dx * last.y + Q.x * P.y - Q.y * P.x;
-                const double num2 = num * num;
-                const double den2 = dy * dy + dx * dx;
-                const double dist2 = num2 / den2;
-
-                if (dist2 < LINE_POINT_DIST2_THRESHOLD) {
-                    s->addPoint(P);
-                    s->addPoint(Q);
+                const double slantToleranceRad = this->params.slantToleranceRad();
+                bool aligned = true;
+                if (fabs(rs->angle) < slantToleranceRad)  // nearly horizontal
+                {
+                    rs->angle = 0.0;
+                    rs->y1 = rs->y2 = rs->ycenter;
+                } else if (fabs(rs->angle) > M_PI / 2 - slantToleranceRad) {  // nearly vertical
+                    rs->angle = (rs->angle > 0) ? (M_PI / 2) : (-M_PI / 2);
+                    rs->x1 = rs->x2 = rs->xcenter;
                 } else {
-                    s->addPoint(Point(points.front().x, points.front().y));
-                    s->addPoint(Point(points.back().x, points.back().y));
+                    aligned = false;
                 }
+
+                auto s = std::make_unique<Stroke>();
+                s->applyStyleFrom(this->stroke);
+
+                if (aligned) {
+                    s->addPoint(Point(rs->x1, rs->y1));
+                    s->addPoint(Point(rs->x2, rs->y2));
+                } else {
+                    const Point P(rs->x1, rs->y1);
+                    const Point Q(rs->x2, rs->y2);
+
+                    const auto& points = stroke->getPointVector();
+                    const Point& last = points.back();
+
+                    const double dx = Q.x - P.x;
+                    const double dy = Q.y - P.y;
+                    const double num = dy * last.x - dx * last.y + Q.x * P.y - Q.y * P.x;
+                    const double num2 = num * num;
+                    const double den2 = dy * dy + dx * dx;
+                    const double dist2 = num2 / den2;
+
+                    if (dist2 < LINE_POINT_DIST2_THRESHOLD) {
+                        s->addPoint(P);
+                        s->addPoint(Q);
+                    } else {
+                        s->addPoint(Point(points.front().x, points.front().y));
+                        s->addPoint(Point(points.back().x, points.back().y));
+                    }
+                }
+
+                attachShapeIfValid(*s, ShapeType::LINE, {0, 1});
+
+                if (diagnostics) {
+                    diagnostics->shape = RecognizedShapeKind::Line;
+                }
+                RDEBUG("return line");
+                return s;
             }
-
-            attachShapeIfValid(*s, ShapeType::LINE, {0, 1});
-
-            RDEBUG("return line");
-            return s;
+            if (diagnostics) {
+                diagnostics->reasons.push_back(FS(_F("Not a line: curvature {1} (limit {2})") %
+                                                  xoj::shapes::formatFixed(std::max(0.0, ss->det()), 3) %
+                                                  xoj::shapes::formatFixed(this->params.lineMaxDet, 3)));
+            }
         }
+    } else if (diagnostics) {
+        diagnostics->reasons.push_back(_("No group of straight sides found (maximum 4)"));
     }
 
     // not a polygon: maybe a circle ?
-    auto s = CircleRecognizer::recognize(stroke);
+    auto s = CircleRecognizer::recognize(stroke, this->params, diagnostics);
     if (s) {
         RDEBUG("return circle");
         return s;

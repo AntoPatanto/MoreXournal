@@ -16,6 +16,7 @@
 
 #include "RecoSegment.h"
 #include "ShapeRecognizerConfig.h"  // for MAX_POLYGON_SIDES
+#include "ShapeRecognizerParams.h"  // for ShapeRecognizerParams, ShapeRecognizerDiagnostics
 
 class Stroke;
 class Point;
@@ -24,15 +25,16 @@ struct RecoSegment;
 
 class ShapeRecognizer {
 public:
-    ShapeRecognizer();
+    explicit ShapeRecognizer(ShapeRecognizerParams params = {});
     virtual ~ShapeRecognizer();
 
-    auto recognizePatterns(Stroke* stroke, double strokeMinSize) -> std::unique_ptr<Stroke>;
+    auto recognizePatterns(Stroke* stroke, double strokeMinSize, ShapeRecognizerDiagnostics* diagnostics = nullptr)
+            -> std::unique_ptr<Stroke>;
     void resetRecognizer();
 
 private:
-    auto tryTriangle() -> std::unique_ptr<Stroke>;
-    auto tryRectangle() -> std::unique_ptr<Stroke>;
+    auto tryTriangle(ShapeRecognizerDiagnostics* diagnostics) -> std::unique_ptr<Stroke>;
+    auto tryRectangle(ShapeRecognizerDiagnostics* diagnostics) -> std::unique_ptr<Stroke>;
 
     // function Stroke* tryArrow(); removed after commit a3f7a251282dcfea8b4de695f28ce52bf2035da2
 
@@ -43,6 +45,7 @@ private:
     static bool isStrokeLargeEnough(Stroke* stroke, double strokeMinSize);
 
 private:
+    ShapeRecognizerParams params;
     std::array<RecoSegment, MAX_POLYGON_SIDES + 1> queue{};
     int queueLength;
 

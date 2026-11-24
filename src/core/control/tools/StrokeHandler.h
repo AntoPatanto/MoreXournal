@@ -15,7 +15,8 @@
 
 #include <gdk/gdk.h>  // for GdkEventKey
 
-#include "model/PageRef.h"          // for PageRef
+#include "control/shaperecognizer/ShapeRecognizerParams.h"  // for ShapeRecognizerParams
+#include "model/PageRef.h"                                  // for PageRef
 #include "model/Point.h"            // for Point
 #include "util/raii/GSourceURef.h"  // for GSourceURef
 
@@ -135,6 +136,7 @@ private:
      */
     bool holdToShapeEnabled = false;
     unsigned int holdToShapeDelay = 0;  ///< in ms
+    ShapeRecognizerParams shapeRecognizerParams;
     HoldDetector holdDetector;
     xoj::util::GSourceURef holdTimer;
     /// Last position of the input device in page coordinates, before stabilization

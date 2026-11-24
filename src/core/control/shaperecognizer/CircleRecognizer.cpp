@@ -9,9 +9,11 @@
 #include "model/Point.h"      // for Point
 #include "model/ShapeInfo.h"  // for ShapeInfo, ShapeType
 #include "model/Stroke.h"     // for Stroke
+#include "util/i18n.h"        // for _F, FS
 
 #include "Inertia.h"                // for Inertia
-#include "ShapeRecognizerConfig.h"  // for RDEBUG, CIRCLE_MAX_SCORE, CIRCLE_...
+#include "ShapeRecognizerConfig.h"  // for RDEBUG
+#include "ShapeSensitivityLogic.h"  // for formatFixed
 
 /**
  * Create circle stroke for inertia
@@ -70,18 +72,32 @@ auto CircleRecognizer::scoreCircle(Stroke* s, Inertia& inertia) -> double {
     return sum / (divisor);
 }
 
-auto CircleRecognizer::recognize(Stroke* stroke) -> std::unique_ptr<Stroke> {
+auto CircleRecognizer::recognize(Stroke* stroke, const ShapeRecognizerParams& params,
+                                 ShapeRecognizerDiagnostics* diagnostics) -> std::unique_ptr<Stroke> {
     Inertia s;
     s.calc(stroke->getPointVector());
+    const double det = s.det();
     RDEBUG("Mass=%.0f, Center=(%.1f,%.1f), I=(%.0f,%.0f, %.0f), Rad=%.2f, Det=%.4f", s.getMass(), s.centerX(),
-           s.centerY(), s.xx(), s.yy(), s.xy(), s.rad(), s.det());
+           s.centerY(), s.xx(), s.yy(), s.xy(), s.rad(), det);
 
-    if (s.det() > CIRCLE_MIN_DET) {
+    if (det > params.circleMinDet) {
         double score = CircleRecognizer::scoreCircle(stroke, s);
         RDEBUG("Circle score: %.2f", score);
-        if (score < CIRCLE_MAX_SCORE) {
+        if (score < params.circleMaxScore) {
+            if (diagnostics) {
+                diagnostics->shape = RecognizedShapeKind::Circle;
+            }
             return CircleRecognizer::makeCircleShape(stroke, s);
         }
+        if (diagnostics) {
+            diagnostics->reasons.push_back(FS(_F("Not a circle: radius error {1} (limit {2})") %
+                                              xoj::shapes::formatFixed(score, 3) %
+                                              xoj::shapes::formatFixed(params.circleMaxScore, 3)));
+        }
+    } else if (diagnostics) {
+        diagnostics->reasons.push_back(FS(_F("Not a circle: roundness {1} (minimum {2})") %
+                                          xoj::shapes::formatFixed(det, 3) %
+                                          xoj::shapes::formatFixed(params.circleMinDet, 3)));
     }
 
     return nullptr;

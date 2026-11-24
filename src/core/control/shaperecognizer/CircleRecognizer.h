@@ -12,6 +12,9 @@
 #pragma once
 
 #include <memory>
+
+#include "ShapeRecognizerParams.h"
+
 class Stroke;
 class Inertia;
 
@@ -21,7 +24,8 @@ private:
     virtual ~CircleRecognizer();
 
 public:
-    static auto recognize(Stroke* s) -> std::unique_ptr<Stroke>;
+    static auto recognize(Stroke* s, const ShapeRecognizerParams& params = {},
+                          ShapeRecognizerDiagnostics* diagnostics = nullptr) -> std::unique_ptr<Stroke>;
 
 private:
     static auto makeCircleShape(Stroke* originalStroke, Inertia& inertia) -> std::unique_ptr<Stroke>;
