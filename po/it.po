@@ -5280,4 +5280,4 @@ msgid "Go to page…"
 msgstr "Vai alla pagina…"
 
 msgid "Main menu: {1}, {2}"
-msgstr "Menù principale: {1}, {2}"
+msgstr "Menu principale: {1}, {2}"

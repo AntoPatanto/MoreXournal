@@ -319,7 +319,7 @@ auto InputContext::isBlocked(InputContext::DeviceType deviceType) -> bool {
         case STYLUS:
             return this->stylusHandler->isBlocked();
         case TOUCHSCREEN:
-            return this->touchHandler->isBlocked() ||
+            return (this->touchHandler && this->touchHandler->isBlocked()) ||
                    (this->touchDrawingHandler && this->touchDrawingHandler->isBlocked());
     }
     return false;
