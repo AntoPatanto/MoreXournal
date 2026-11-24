@@ -44,6 +44,7 @@ private:
     Settings* settings;
 
     gulong signal_id{0};
+    gulong focusOutSignalId{0};
     std::unique_ptr<StylusInputHandler> stylusHandler;
     std::unique_ptr<MouseInputHandler> mouseHandler;
     std::unique_ptr<TouchDrawingInputHandler> touchDrawingHandler;

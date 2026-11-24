@@ -706,8 +706,10 @@ auto XournalppCursor::createHighlighterOrPenCursor(double alpha) -> GdkCursor* {
     }
     auto drgb = Util::rgb_to_GdkRGBA(irgb);
     auto cursorType = control->getSettings()->getStylusCursorType();
-    auto cursor = (cursorType == STYLUS_CURSOR_NONE) ? CRSR_BLANK_CURSOR : CRSR_PENORHIGHLIGHTER;
     bool bright = control->getSettings()->isHighlightPosition();
+    // With the highlight circle a custom cursor is set even without a stylus cursor, so its id must differ from
+    // CRSR_BLANK_CURSOR: otherwise setCursor(CRSR_BLANK_CURSOR), e.g. for the eraser overlay, would keep the circle
+    auto cursor = (cursorType == STYLUS_CURSOR_NONE && !bright) ? CRSR_BLANK_CURSOR : CRSR_PENORHIGHLIGHTER;
     const double cursorSize = xoj::cursor::computePenDotDiameterPx(control->getToolHandler()->getThickness(),
                                                                    control->getZoomControl()->getZoom());
 

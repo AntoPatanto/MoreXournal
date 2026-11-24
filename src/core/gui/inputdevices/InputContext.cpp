@@ -83,6 +83,9 @@ static gboolean keyboardCallback(GtkEventControllerKey* self, guint keyval, guin
 InputContext::~InputContext() {
     // Destructor is called in xournal_widget_dispose, so it can still accept events
     g_signal_handler_disconnect(this->widget, signal_id);
+    if (focusOutSignalId) {
+        g_signal_handler_disconnect(this->widget, focusOutSignalId);
+    }
 }
 
 void InputContext::connect(GtkWidget* pWidget, bool connectKeyboardHandler,
@@ -114,6 +117,19 @@ void InputContext::connect(GtkWidget* pWidget, bool connectKeyboardHandler,
             GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_PROXIMITY_IN_MASK | GDK_PROXIMITY_OUT_MASK;
 
     gtk_widget_add_events(pWidget, mask);
+
+    // Switching windows may send no leave event (e.g. on another monitor): hide the eraser indicator anyway
+    focusOutSignalId = g_signal_connect(pWidget, "focus-out-event",
+                                        G_CALLBACK(+[](GtkWidget*, GdkEventFocus*, gpointer self) -> gboolean {
+                                            auto* ctx = static_cast<InputContext*>(self);
+                                            if (ctx->view) {
+                                                if (XournalppCursor* cursor = ctx->view->getCursor()) {
+                                                    cursor->clearPointerPosition();
+                                                }
+                                            }
+                                            return false;
+                                        }),
+                                        this);
 
 
     if (!logfunction) {
@@ -183,9 +199,12 @@ auto InputContext::handle(GdkEvent* sourceEvent) -> bool {
         return false;
     }
 
-    if (this->view && event.deviceClass != INPUT_DEVICE_IGNORE) {
+    // While a pen is in use, hand recognition blocks the touchscreen: a resting palm must not move the indicator
+    const bool touchBlocked =
+            event.deviceClass == INPUT_DEVICE_TOUCHSCREEN && this->touchHandler && this->touchHandler->isBlocked();
+    if (this->view && event.deviceClass != INPUT_DEVICE_IGNORE && !touchBlocked) {
         if (XournalppCursor* cursor = this->view->getCursor()) {
-            if (event.type == LEAVE_EVENT || event.type == PROXIMITY_OUT_EVENT) {
+            if (event.type == LEAVE_EVENT || event.type == PROXIMITY_OUT_EVENT || event.type == GRAB_BROKEN_EVENT) {
                 cursor->clearPointerPosition();
             } else if (event.type == MOTION_EVENT || event.type == BUTTON_PRESS_EVENT ||
                        event.type == BUTTON_2_PRESS_EVENT || event.type == BUTTON_3_PRESS_EVENT ||
@@ -193,6 +212,8 @@ auto InputContext::handle(GdkEvent* sourceEvent) -> bool {
                 const bool isUnsequencedTouchMotion =
                         event.deviceClass == INPUT_DEVICE_TOUCHSCREEN && event.type == MOTION_EVENT && !event.sequence;
                 if (!isUnsequencedTouchMotion) {
+                    // The handler sets the device class only after this, so repaint with the right one already
+                    cursor->setInputDeviceClass(event.deviceClass);
                     cursor->setPointerPosition(event.absolute.x, event.absolute.y);
                 }
             }
