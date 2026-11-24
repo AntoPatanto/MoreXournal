@@ -11,13 +11,107 @@
 #include "undo/UndoRedoHandler.h"            // for UndoRedoHandler
 #include "util/GVariantTemplate.h"           // for getGVariantValue
 #include "util/GtkUtil.h"                    // for fixActionableInitialSensitivity, setWidgetFollowActionEnabled
-#include "util/i18n.h"                       // for _
+#include "util/i18n.h"                       // for _, _F, FS
 #include "util/raii/GVariantSPtr.h"          // for GVariantSPtr
 
 using xoj::topbar::ToolGroup;
 
 namespace {
 constexpr int COMPACT_ICON_PIXEL_SIZE = 18;
+
+// Minimal GtkBin wrapper whose minimum width is 0 while preserving natural width and height.
+// Packing startBox and endBox inside this wrapper lets the GtkHeaderBar shrink down to 600 px
+// even before the narrow-window breakpoints hide optional buttons.
+struct MxShrinkBox {
+    GtkBin parent;
+};
+struct MxShrinkBoxClass {
+    GtkBinClass parent_class;
+};
+
+G_DEFINE_TYPE(MxShrinkBox, mx_shrink_box, GTK_TYPE_BIN)
+
+void mx_shrink_box_get_preferred_width(GtkWidget* widget, gint* minimum, gint* natural) {
+    GtkWidget* child = gtk_bin_get_child(GTK_BIN(widget));
+    gint childMin = 0;
+    gint childNat = 0;
+    if (child && gtk_widget_get_visible(child)) {
+        gtk_widget_get_preferred_width(child, &childMin, &childNat);
+    }
+    if (minimum) {
+        *minimum = 0;
+    }
+    if (natural) {
+        *natural = childNat;
+    }
+}
+
+void mx_shrink_box_get_preferred_height(GtkWidget* widget, gint* minimum, gint* natural) {
+    GtkWidget* child = gtk_bin_get_child(GTK_BIN(widget));
+    gint childMin = 0;
+    gint childNat = 0;
+    if (child && gtk_widget_get_visible(child)) {
+        gtk_widget_get_preferred_height(child, &childMin, &childNat);
+    }
+    if (minimum) {
+        *minimum = childMin;
+    }
+    if (natural) {
+        *natural = childNat;
+    }
+}
+
+void mx_shrink_box_size_allocate(GtkWidget* widget, GtkAllocation* allocation) {
+    gtk_widget_set_allocation(widget, allocation);
+    GtkWidget* child = gtk_bin_get_child(GTK_BIN(widget));
+    if (child && gtk_widget_get_visible(child)) {
+        gtk_widget_size_allocate(child, allocation);
+    }
+}
+
+void mx_shrink_box_class_init(MxShrinkBoxClass* klass) {
+    GtkWidgetClass* wc = GTK_WIDGET_CLASS(klass);
+    wc->get_preferred_width = mx_shrink_box_get_preferred_width;
+    wc->get_preferred_height = mx_shrink_box_get_preferred_height;
+    wc->size_allocate = mx_shrink_box_size_allocate;
+}
+
+void mx_shrink_box_init(MxShrinkBox*) {}
+
+GtkWidget* wrapShrinkable(GtkWidget* child) {
+    GtkWidget* wrap = GTK_WIDGET(g_object_new(mx_shrink_box_get_type(), nullptr));
+    gtk_widget_set_valign(wrap, GTK_ALIGN_CENTER);
+    gtk_container_add(GTK_CONTAINER(wrap), child);
+    gtk_widget_show(wrap);
+    return wrap;
+}
+
+/// Draws an 8 px @mx_accent unsaved dot with a 2 px @mx_chrome halo on the top-right of the menu button
+gboolean drawUnsavedDot(GtkWidget* btn, cairo_t* cr, gpointer showFlagPtr) {
+    if (!*static_cast<const bool*>(showFlagPtr)) {
+        return false;
+    }
+    GtkStyleContext* ctx = gtk_widget_get_style_context(btn);
+    GdkRGBA accent{0.21, 0.39, 0.91, 1.0};
+    GdkRGBA chrome{0.96, 0.96, 0.97, 1.0};
+    gtk_style_context_lookup_color(ctx, "mx_accent", &accent);
+    gtk_style_context_lookup_color(ctx, "mx_chrome", &chrome);
+
+    const double w = gtk_widget_get_allocated_width(btn);
+    const double cx = w - 7.0;
+    const double cy = 7.0;
+
+    cairo_save(cr);
+    cairo_arc(cr, cx, cy, 6.0, 0.0, 2.0 * G_PI);
+    gdk_cairo_set_source_rgba(cr, &chrome);
+    cairo_fill(cr);
+
+    cairo_arc(cr, cx, cy, 4.0, 0.0, 2.0 * G_PI);
+    gdk_cairo_set_source_rgba(cr, &accent);
+    cairo_fill(cr);
+    cairo_restore(cr);
+    return false;
+}
 
 /// The actions holding the drawing type of the active tool, and the drawing type each one stands for
 constexpr std::pair<Action, DrawingType> DRAWING_TYPE_ACTIONS[] = {
@@ -107,8 +201,9 @@ TopBar::~TopBar() {
 void TopBar::createStart(GMenuModel* mainMenu) {
     GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     startBox.reset(box, xoj::util::refsink);
+    startWrap.reset(wrapShrinkable(box), xoj::util::refsink);
 
-    GtkWidget* menuButton = gtk_menu_button_new();
+    menuButton = gtk_menu_button_new();
     gtk_widget_set_can_focus(menuButton, true);
     gtk_widget_set_focus_on_click(menuButton, false);
     gtk_widget_set_valign(menuButton, GTK_ALIGN_CENTER);
@@ -119,24 +214,70 @@ void TopBar::createStart(GMenuModel* mainMenu) {
     // A real menu, not a popover: it scrolls, shows the shortcuts and opens the submenus to the side
     gtk_menu_button_set_use_popover(GTK_MENU_BUTTON(menuButton), false);
     gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(menuButton), mainMenu);
+
+    // Draw the unsaved indicator badge on the menu button when the title is hidden (< 860 px)
+    g_signal_connect_after(menuButton, "draw",
+                           G_CALLBACK(+[](GtkWidget* btn, cairo_t* cr, gpointer selfPtr) -> gboolean {
+                               auto* self = static_cast<TopBar*>(selfPtr);
+                               const bool showDot = self->layout.showTitleInMenu && self->docUnsaved;
+                               return drawUnsavedDot(btn, cr, const_cast<bool*>(&showDot));
+                           }),
+                           this);
+
     if (GtkMenu* popup = gtk_menu_button_get_popup(GTK_MENU_BUTTON(menuButton))) {
         gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(popup)), "mx-menu");
         xoj::chrome::hideTooltipWhilePopupOpen(menuButton, GTK_WIDGET(popup));
+
+        // Document title + save status header, shown at the top of the main menu below 860 px
+        menuHeaderItem = gtk_menu_item_new();
+        gtk_style_context_add_class(gtk_widget_get_style_context(menuHeaderItem), "mx-menu-header");
+        GtkWidget* hdrBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 1);
+        menuHeaderTitle = GTK_LABEL(gtk_label_new(nullptr));
+        menuHeaderStatus = GTK_LABEL(gtk_label_new(nullptr));
+        for (GtkLabel* l: {menuHeaderTitle, menuHeaderStatus}) {
+            gtk_label_set_xalign(l, 0.0);
+            gtk_label_set_ellipsize(l, PANGO_ELLIPSIZE_END);
+            gtk_label_set_max_width_chars(l, 32);
+            gtk_label_set_single_line_mode(l, true);
+            gtk_box_pack_start(GTK_BOX(hdrBox), GTK_WIDGET(l), false, false, 0);
+        }
+        gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(menuHeaderTitle)), "mx-menu-header-title");
+        gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(menuHeaderStatus)),
+                                    "mx-menu-header-status");
+        gtk_container_add(GTK_CONTAINER(menuHeaderItem), hdrBox);
+        gtk_widget_show_all(hdrBox);
+        // Non-interactive header: ignore clicks and do not close the menu
+        g_signal_connect(menuHeaderItem, "button-press-event",
+                         G_CALLBACK(+[](GtkWidget*, GdkEventButton*, gpointer) -> gboolean { return true; }), nullptr);
+        g_signal_connect(menuHeaderItem, "button-release-event",
+                         G_CALLBACK(+[](GtkWidget*, GdkEventButton*, gpointer) -> gboolean { return true; }), nullptr);
+
+        menuHeaderSep = gtk_separator_menu_item_new();
+        gtk_menu_shell_prepend(GTK_MENU_SHELL(popup), menuHeaderSep);
+        gtk_menu_shell_prepend(GTK_MENU_SHELL(popup), menuHeaderItem);
+        gtk_widget_set_no_show_all(menuHeaderItem, true);
+        gtk_widget_set_no_show_all(menuHeaderSep, true);
+        gtk_widget_hide(menuHeaderItem);
+        gtk_widget_hide(menuHeaderSep);
+
         g_signal_connect(popup, "show",
-                         G_CALLBACK(+[](GtkWidget* menu, gpointer ctrl) {
+                         G_CALLBACK(+[](GtkWidget* menu, gpointer selfPtr) {
+                             auto* self = static_cast<TopBar*>(selfPtr);
                              GdkEvent* ev = gtk_get_current_event();
                              const bool fromTouch = xoj::chrome::isTouchEvent(ev);
                              if (ev) {
                                  gdk_event_free(ev);
                              }
                              xoj::chrome::updateMenuTouchClass(
-                                     menu, static_cast<Control*>(ctrl)->getSettings()->getTouchMode(), fromTouch);
+                                     menu, self->control->getSettings()->getTouchMode(), fromTouch);
+                             gtk_widget_set_visible(self->menuHeaderItem, self->layout.showTitleInMenu);
+                             gtk_widget_set_visible(self->menuHeaderSep, self->layout.showTitleInMenu);
                          }),
-                         control);
+                         this);
     }
     gtk_container_add(GTK_CONTAINER(box), menuButton);
 
-    GtkWidget* titleBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    titleBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_widget_set_valign(titleBox, GTK_ALIGN_CENTER);
     gtk_widget_set_margin_start(titleBox, 4);
 
@@ -145,11 +286,10 @@ void TopBar::createStart(GMenuModel* mainMenu) {
     for (GtkLabel* l: {titleLabel, statusLabel}) {
         gtk_label_set_xalign(l, 0.0);
         gtk_label_set_ellipsize(l, PANGO_ELLIPSIZE_END);
-        gtk_label_set_max_width_chars(l, 36);
+        gtk_label_set_max_width_chars(l, 28);
         gtk_label_set_single_line_mode(l, true);
         gtk_container_add(GTK_CONTAINER(titleBox), GTK_WIDGET(l));
     }
-    // Let the title ellipsize cleanly on narrow windows so the window can shrink below 900 px into compact mode
     gtk_label_set_width_chars(titleLabel, 1);
     gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(titleLabel)), "mx-title");
     gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(statusLabel)), "mx-status");
@@ -213,6 +353,7 @@ void TopBar::createCenter() {
 void TopBar::createEnd() {
     GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     endBox.reset(box, xoj::util::refsink);
+    endWrap.reset(wrapShrinkable(box), xoj::util::refsink);
 
     // Undo and redo name the action they revert or repeat in the tooltip
     auto queryTooltip = [](GtkWidget*, gint, gint, gboolean, GtkTooltip* tooltip, gpointer d) -> gboolean {
@@ -235,10 +376,11 @@ void TopBar::createEnd() {
     separators.push_back(sep);
     gtk_container_add(GTK_CONTAINER(box), sep);
 
-    gtk_container_add(GTK_CONTAINER(box), newActionButton(gtk_toggle_button_new(), Action::SHOW_SIDEBAR,
-                                                          "mx-sidebar-symbolic", _("Page sidebar")));
+    sidebarButton =
+            newActionButton(gtk_toggle_button_new(), Action::SHOW_SIDEBAR, "mx-sidebar-symbolic", _("Page sidebar"));
+    gtk_container_add(GTK_CONTAINER(box), sidebarButton);
 
-    GtkWidget* pageNav = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    pageNav = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_widget_set_valign(pageNav, GTK_ALIGN_CENTER);
     gtk_style_context_add_class(gtk_widget_get_style_context(pageNav), "mx-pagenav");
     gtk_container_add(GTK_CONTAINER(pageNav),
@@ -253,11 +395,97 @@ void TopBar::createEnd() {
                       newActionButton(gtk_button_new(), Action::GOTO_NEXT, "mx-next-symbolic", _("Next page")));
     gtk_container_add(GTK_CONTAINER(box), pageNav);
 
-    gtk_container_add(GTK_CONTAINER(box),
-                      newActionButton(gtk_button_new(), Action::NEW_PAGE_AFTER, "mx-page-add-symbolic", _("New page")));
-    gtk_container_add(GTK_CONTAINER(box), newActionButton(gtk_toggle_button_new(), Action::FULLSCREEN,
-                                                          "mx-fullscreen-symbolic", _("Fullscreen")));
+    // Compact "3 / 12 v" popover button shown at 700..859 px
+    pageCompactButton = gtk_menu_button_new();
+    gtk_widget_set_can_focus(pageCompactButton, true);
+    gtk_widget_set_focus_on_click(pageCompactButton, false);
+    gtk_widget_set_valign(pageCompactButton, GTK_ALIGN_CENTER);
+    gtk_style_context_add_class(gtk_widget_get_style_context(pageCompactButton), "flat");
+    gtk_style_context_add_class(gtk_widget_get_style_context(pageCompactButton), "mx-wide");
+    gtk_widget_set_tooltip_text(pageCompactButton, _("Go to page"));
+    GtkWidget* compactInner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+    compactPageLabel = GTK_LABEL(gtk_label_new(nullptr));
+    gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(compactPageLabel)), "mx-page-label");
+    gtk_box_pack_start(GTK_BOX(compactInner), GTK_WIDGET(compactPageLabel), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(compactInner), xoj::chrome::newChromeIcon("mx-down-symbolic", 16, false), false, false,
+                       0);
+    gtk_container_add(GTK_CONTAINER(pageCompactButton), compactInner);
+
+    GtkWidget* pagePopover = gtk_popover_new(pageCompactButton);
+    gtk_style_context_add_class(gtk_widget_get_style_context(pagePopover), "mx-popover");
+    GtkWidget* pagePopBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+    auto makePopRow = [](Action action, const char* label, const char* iconName) {
+        GtkWidget* btn = gtk_button_new();
+        gtk_widget_set_can_focus(btn, true);
+        gtk_widget_set_focus_on_click(btn, false);
+        gtk_style_context_add_class(gtk_widget_get_style_context(btn), "flat");
+        gtk_style_context_add_class(gtk_widget_get_style_context(btn), "mx-prow");
+        GtkWidget* rowBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+        if (iconName) {
+            gtk_box_pack_start(GTK_BOX(rowBox), newIcon(iconName), false, false, 0);
+        }
+        GtkWidget* lbl = gtk_label_new(label);
+        gtk_label_set_xalign(GTK_LABEL(lbl), 0.0);
+        gtk_box_pack_start(GTK_BOX(rowBox), lbl, true, true, 0);
+        gtk_container_add(GTK_CONTAINER(btn), rowBox);
+        gtk_actionable_set_action_name(GTK_ACTIONABLE(btn), winAction(action).c_str());
+        xoj::util::gtk::fixActionableInitialSensitivity(GTK_ACTIONABLE(btn));
+        return btn;
+    };
+    gtk_box_pack_start(GTK_BOX(pagePopBox), makePopRow(Action::GOTO_PREVIOUS, _("Previous page"), "mx-prev-symbolic"),
+                       false, false, 0);
+    gtk_box_pack_start(GTK_BOX(pagePopBox), makePopRow(Action::GOTO_NEXT, _("Next page"), "mx-next-symbolic"), false,
+                       false, 0);
+    gtk_box_pack_start(GTK_BOX(pagePopBox), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), false, false, 0);
+    GtkWidget* gotoRow = makePopRow(Action::GOTO_PAGE, _("Go to page…"), nullptr);
+    g_signal_connect_object(gotoRow, "clicked",
+                            G_CALLBACK(+[](GtkButton*, gpointer p) { gtk_popover_popdown(GTK_POPOVER(p)); }),
+                            pagePopover, GConnectFlags(0));
+    gtk_box_pack_start(GTK_BOX(pagePopBox), gotoRow, false, false, 0);
+    gtk_widget_show_all(pagePopBox);
+    gtk_container_add(GTK_CONTAINER(pagePopover), pagePopBox);
+    gtk_menu_button_set_popover(GTK_MENU_BUTTON(pageCompactButton), pagePopover);
+    xoj::chrome::hideTooltipWhilePopupOpen(pageCompactButton, pagePopover);
+    gtk_container_add(GTK_CONTAINER(box), pageCompactButton);
+
+    newPageButton =
+            newActionButton(gtk_button_new(), Action::NEW_PAGE_AFTER, "mx-page-add-symbolic", _("New page"));
+    gtk_container_add(GTK_CONTAINER(box), newPageButton);
+
+    fullscreenButton =
+            newActionButton(gtk_toggle_button_new(), Action::FULLSCREEN, "mx-fullscreen-symbolic", _("Fullscreen"));
+    gtk_container_add(GTK_CONTAINER(box), fullscreenButton);
+
+    // Overflow "..." menu button shown below 1000 px
+    overflowButton = gtk_menu_button_new();
+    gtk_widget_set_can_focus(overflowButton, true);
+    gtk_widget_set_focus_on_click(overflowButton, false);
+    gtk_widget_set_valign(overflowButton, GTK_ALIGN_CENTER);
+    gtk_style_context_add_class(gtk_widget_get_style_context(overflowButton), "flat");
+    gtk_button_set_image(GTK_BUTTON(overflowButton), newIcon("mx-more-symbolic"));
+    gtk_widget_set_tooltip_text(overflowButton, _("More"));
+    gtk_menu_button_set_use_popover(GTK_MENU_BUTTON(overflowButton), false);
+    overflowMenu.reset(g_menu_new(), xoj::util::adopt);
+    gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(overflowButton), G_MENU_MODEL(overflowMenu.get()));
+    if (GtkMenu* popup = gtk_menu_button_get_popup(GTK_MENU_BUTTON(overflowButton))) {
+        gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(popup)), "mx-menu");
+        xoj::chrome::hideTooltipWhilePopupOpen(overflowButton, GTK_WIDGET(popup));
+        g_signal_connect(popup, "show",
+                         G_CALLBACK(+[](GtkWidget* menu, gpointer ctrl) {
+                             GdkEvent* ev = gtk_get_current_event();
+                             const bool fromTouch = xoj::chrome::isTouchEvent(ev);
+                             if (ev) {
+                                 gdk_event_free(ev);
+                             }
+                             xoj::chrome::updateMenuTouchClass(
+                                     menu, static_cast<Control*>(ctrl)->getSettings()->getTouchMode(), fromTouch);
+                         }),
+                         control);
+    }
+    gtk_container_add(GTK_CONTAINER(box), overflowButton);
+
     gtk_widget_show_all(box);
+    applyLayout();
 }
 
 void TopBar::attachTo(GtkHeaderBar* bar) {
@@ -265,43 +493,133 @@ void TopBar::attachTo(GtkHeaderBar* bar) {
         return;
     }
     if (attachedBar) {
-        gtk_container_remove(GTK_CONTAINER(attachedBar), startBox.get());
-        gtk_container_remove(GTK_CONTAINER(attachedBar), endBox.get());
+        gtk_container_remove(GTK_CONTAINER(attachedBar), startWrap.get());
+        gtk_container_remove(GTK_CONTAINER(attachedBar), endWrap.get());
         gtk_header_bar_set_custom_title(attachedBar, nullptr);
     }
-    gtk_header_bar_pack_start(bar, startBox.get());
+    gtk_header_bar_pack_start(bar, startWrap.get());
     // The custom title is centred on the whole bar, so the tools stay in the middle of the window
     gtk_header_bar_set_custom_title(bar, centerBox.get());
-    gtk_header_bar_pack_end(bar, endBox.get());
+    gtk_header_bar_pack_end(bar, endWrap.get());
     attachedBar = bar;
 }
 
-void TopBar::setDocumentTitle(const std::string& name, const std::string& status) {
+void TopBar::setDocumentTitle(const std::string& name, const std::string& status, bool unsaved) {
+    docName = name;
+    docStatus = status;
+    docUnsaved = unsaved;
     gtk_label_set_text(titleLabel, name.c_str());
     gtk_label_set_text(statusLabel, status.c_str());
     gtk_widget_set_tooltip_text(GTK_WIDGET(titleLabel), name.c_str());
+    if (menuHeaderTitle) {
+        gtk_label_set_text(menuHeaderTitle, name.c_str());
+    }
+    if (menuHeaderStatus) {
+        gtk_label_set_text(menuHeaderStatus, status.c_str());
+    }
+    updateMenuButtonTooltip();
+    if (menuButton) {
+        gtk_widget_queue_draw(menuButton);
+    }
 }
 
 void TopBar::setPageInfo(size_t page, size_t pageCount) {
     std::string text =
             pageCount == 0 ? std::string("0 / 0") : std::to_string(page + 1) + " / " + std::to_string(pageCount);
     gtk_label_set_text(pageLabel, text.c_str());
+    if (compactPageLabel) {
+        gtk_label_set_text(compactPageLabel, text.c_str());
+    }
 }
 
 void TopBar::setToolsVisible(bool visible) {
     gtk_widget_set_visible(centerBox.get(), visible);
-    gtk_widget_set_visible(endBox.get(), visible);
+    gtk_widget_set_visible(endWrap.get(), visible);
 }
 
-void TopBar::setCompact(bool c) {
-    if (compact == c) {
+void TopBar::setWidth(int width) {
+    const auto next = xoj::topbar::barLayoutForWidth(width);
+    if (next == layout) {
         return;
     }
-    compact = c;
-    gtk_widget_set_visible(GTK_WIDGET(statusLabel), !compact);
-    for (GtkWidget* sep: separators) {
-        gtk_widget_set_visible(sep, !compact);
+    layout = next;
+    applyLayout();
+}
+
+void TopBar::applyLayout() {
+    if (titleBox) {
+        gtk_widget_set_visible(titleBox, layout.showTitle);
     }
+    if (sidebarButton) {
+        gtk_widget_set_visible(sidebarButton, layout.showSidebarBtn);
+    }
+    if (pageNav) {
+        gtk_widget_set_visible(pageNav, layout.showPageArrows);
+    }
+    if (pageCompactButton) {
+        gtk_widget_set_visible(pageCompactButton, layout.showPageCompactBtn);
+    }
+    if (newPageButton) {
+        gtk_widget_set_visible(newPageButton, layout.showNewPageBtn);
+    }
+    if (fullscreenButton) {
+        gtk_widget_set_visible(fullscreenButton, layout.showFullscreenBtn);
+    }
+    if (overflowButton) {
+        gtk_widget_set_visible(overflowButton, layout.showOverflowBtn);
+    }
+    for (GtkWidget* sep: separators) {
+        gtk_widget_set_visible(sep, layout.showSeparators);
+    }
+    if (menuHeaderItem) {
+        gtk_widget_set_visible(menuHeaderItem, layout.showTitleInMenu);
+    }
+    if (menuHeaderSep) {
+        gtk_widget_set_visible(menuHeaderSep, layout.showTitleInMenu);
+    }
+    rebuildOverflowMenu();
+    updateMenuButtonTooltip();
+    if (menuButton) {
+        gtk_widget_queue_draw(menuButton);
+    }
+}
+
+void TopBar::updateMenuButtonTooltip() {
+    if (!menuButton) {
+        return;
+    }
+    if (layout.showTitleInMenu && !docName.empty()) {
+        std::string tip = FS(_F("Main menu: {1}, {2}") % docName % docStatus);
+        gtk_widget_set_tooltip_text(menuButton, tip.c_str());
+    } else {
+        gtk_widget_set_tooltip_text(menuButton, _("Main menu"));
+    }
+}
+
+void TopBar::rebuildOverflowMenu() {
+    if (!overflowMenu) {
+        return;
+    }
+    g_menu_remove_all(overflowMenu.get());
+    if (!layout.showOverflowBtn) {
+        return;
+    }
+    if (!layout.showSidebarBtn) {
+        xoj::util::GObjectSPtr<GMenu> navSec(g_menu_new(), xoj::util::adopt);
+        g_menu_append(navSec.get(), _("Page sidebar"), winAction(Action::SHOW_SIDEBAR).c_str());
+        g_menu_append(navSec.get(), _("Previous page"), winAction(Action::GOTO_PREVIOUS).c_str());
+        g_menu_append(navSec.get(), _("Next page"), winAction(Action::GOTO_NEXT).c_str());
+        g_menu_append(navSec.get(), _("Go to page…"), winAction(Action::GOTO_PAGE).c_str());
+        g_menu_append_section(overflowMenu.get(), nullptr, G_MENU_MODEL(navSec.get()));
+    }
+    xoj::util::GObjectSPtr<GMenu> pageSec(g_menu_new(), xoj::util::adopt);
+    if (!layout.showNewPageBtn) {
+        g_menu_append(pageSec.get(), _("New page"), winAction(Action::NEW_PAGE_AFTER).c_str());
+    }
+    if (!layout.showFullscreenBtn) {
+        g_menu_append(pageSec.get(), _("Fullscreen"), winAction(Action::FULLSCREEN).c_str());
+    }
+    g_menu_append_section(overflowMenu.get(), nullptr, G_MENU_MODEL(pageSec.get()));
 }
 
 void TopBar::setTouchLayout(bool touch) {

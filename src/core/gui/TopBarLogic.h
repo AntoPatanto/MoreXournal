@@ -68,4 +68,47 @@ constexpr ToolGroup toolGroupFor(ToolType tool, DrawingType dt) {
     }
 }
 
+/// Responsive breakpoints for the top bar (window width in logical pixels)
+constexpr int BREAKPOINT_OVERFLOW = 1000;
+constexpr int BREAKPOINT_NO_TITLE = 860;
+constexpr int BREAKPOINT_NARROW = 700;
+constexpr int MIN_WINDOW_WIDTH = 600;
+
+/// Which optional chrome pieces are shown directly in the top bar at a given window width.
+/// The tool buttons, Undo and Redo never leave the bar.
+struct BarLayout {
+    bool showTitle = true;            ///< Document title + status beside the menu button (>= 860)
+    bool showTitleInMenu = false;     ///< Document title + status header in the main menu (< 860)
+    bool showPageArrows = true;       ///< Full `< 3 / 12 >` control (>= 860)
+    bool showPageCompactBtn = false;  ///< Compact `3 / 12 v` popover button (700..859)
+    bool showSidebarBtn = true;       ///< Sidebar toggle in the bar (>= 700)
+    bool showNewPageBtn = true;       ///< New page button in the bar (>= 1000)
+    bool showFullscreenBtn = true;    ///< Fullscreen toggle in the bar (>= 1000)
+    bool showOverflowBtn = false;     ///< Overflow `...` menu button (< 1000)
+    bool showSeparators = true;       ///< Vertical separators between groups (>= 700)
+
+    bool operator==(const BarLayout&) const = default;
+};
+
+constexpr BarLayout barLayoutForWidth(int width) {
+    BarLayout l{};
+    if (width < BREAKPOINT_OVERFLOW) {
+        l.showNewPageBtn = false;
+        l.showFullscreenBtn = false;
+        l.showOverflowBtn = true;
+    }
+    if (width < BREAKPOINT_NO_TITLE) {
+        l.showTitle = false;
+        l.showTitleInMenu = true;
+        l.showPageArrows = false;
+        l.showPageCompactBtn = true;
+    }
+    if (width < BREAKPOINT_NARROW) {
+        l.showPageCompactBtn = false;
+        l.showSidebarBtn = false;
+        l.showSeparators = false;
+    }
+    return l;
+}
+
 }  // namespace xoj::topbar

@@ -10,7 +10,12 @@
 
 #include "gui/TopBarLogic.h"
 
+using xoj::topbar::barLayoutForWidth;
+using xoj::topbar::BREAKPOINT_NARROW;
+using xoj::topbar::BREAKPOINT_NO_TITLE;
+using xoj::topbar::BREAKPOINT_OVERFLOW;
 using xoj::topbar::isShapeDrawingType;
+using xoj::topbar::MIN_WINDOW_WIDTH;
 using xoj::topbar::ToolGroup;
 using xoj::topbar::toolGroupFor;
 
@@ -99,5 +104,65 @@ TEST(TopBarLogicTest, testFullTable) {
                                                     expectedGroupIgnoringDrawingType(tool);
             EXPECT_EQ(toolGroupFor(tool, dt), expected) << "tool " << t << ", drawing type " << dt;
         }
+    }
+}
+
+TEST(TopBarLogicTest, testNarrowWindowBreakpoints) {
+    EXPECT_EQ(MIN_WINDOW_WIDTH, 600);
+
+    // >= 1000 px: everything visible, no overflow menu
+    for (int w: {1280, BREAKPOINT_OVERFLOW}) {
+        const auto l = barLayoutForWidth(w);
+        EXPECT_TRUE(l.showTitle) << w;
+        EXPECT_FALSE(l.showTitleInMenu) << w;
+        EXPECT_TRUE(l.showPageArrows) << w;
+        EXPECT_FALSE(l.showPageCompactBtn) << w;
+        EXPECT_TRUE(l.showSidebarBtn) << w;
+        EXPECT_TRUE(l.showNewPageBtn) << w;
+        EXPECT_TRUE(l.showFullscreenBtn) << w;
+        EXPECT_FALSE(l.showOverflowBtn) << w;
+        EXPECT_TRUE(l.showSeparators) << w;
+    }
+
+    // 860..999 px: new page and fullscreen move into overflow
+    for (int w: {BREAKPOINT_OVERFLOW - 1, 900, BREAKPOINT_NO_TITLE}) {
+        const auto l = barLayoutForWidth(w);
+        EXPECT_TRUE(l.showTitle) << w;
+        EXPECT_FALSE(l.showTitleInMenu) << w;
+        EXPECT_TRUE(l.showPageArrows) << w;
+        EXPECT_FALSE(l.showPageCompactBtn) << w;
+        EXPECT_TRUE(l.showSidebarBtn) << w;
+        EXPECT_FALSE(l.showNewPageBtn) << w;
+        EXPECT_FALSE(l.showFullscreenBtn) << w;
+        EXPECT_TRUE(l.showOverflowBtn) << w;
+        EXPECT_TRUE(l.showSeparators) << w;
+    }
+
+    // 700..859 px: title moves into main menu header, page arrows become compact "3 / 12 v" button
+    for (int w: {BREAKPOINT_NO_TITLE - 1, 760, BREAKPOINT_NARROW}) {
+        const auto l = barLayoutForWidth(w);
+        EXPECT_FALSE(l.showTitle) << w;
+        EXPECT_TRUE(l.showTitleInMenu) << w;
+        EXPECT_FALSE(l.showPageArrows) << w;
+        EXPECT_TRUE(l.showPageCompactBtn) << w;
+        EXPECT_TRUE(l.showSidebarBtn) << w;
+        EXPECT_FALSE(l.showNewPageBtn) << w;
+        EXPECT_FALSE(l.showFullscreenBtn) << w;
+        EXPECT_TRUE(l.showOverflowBtn) << w;
+        EXPECT_TRUE(l.showSeparators) << w;
+    }
+
+    // < 700 px: sidebar and page number move into overflow as well; tools + undo/redo stay
+    for (int w: {BREAKPOINT_NARROW - 1, 600}) {
+        const auto l = barLayoutForWidth(w);
+        EXPECT_FALSE(l.showTitle) << w;
+        EXPECT_TRUE(l.showTitleInMenu) << w;
+        EXPECT_FALSE(l.showPageArrows) << w;
+        EXPECT_FALSE(l.showPageCompactBtn) << w;
+        EXPECT_FALSE(l.showSidebarBtn) << w;
+        EXPECT_FALSE(l.showNewPageBtn) << w;
+        EXPECT_FALSE(l.showFullscreenBtn) << w;
+        EXPECT_TRUE(l.showOverflowBtn) << w;
+        EXPECT_FALSE(l.showSeparators) << w;
     }
 }

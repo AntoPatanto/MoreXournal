@@ -176,29 +176,22 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
                              return;
                          }
                          auto* win = static_cast<MainWindow*>(self);
-                         const bool compact = alloc->width < 900;
-                         win->pendingCompactMode = compact;
-                         if (compact == win->compactMode || win->compactIdleId != 0) {
+                         win->pendingAllocatedWidth = alloc->width;
+                         if (alloc->width == win->lastAllocatedWidth || win->resizeIdleId != 0) {
                              return;
                          }
-                         // Apply outside size-allocate so GTK does not mutate classes or visibility mid-layout
-                         win->compactIdleId = g_idle_add_full(
+                         // Apply outside size-allocate so GTK does not mutate widget visibility mid-layout
+                         win->resizeIdleId = g_idle_add_full(
                                  G_PRIORITY_HIGH_IDLE,
                                  +[](gpointer self) -> gboolean {
                                      auto* win = static_cast<MainWindow*>(self);
-                                     win->compactIdleId = 0;
-                                     if (win->pendingCompactMode == win->compactMode) {
+                                     win->resizeIdleId = 0;
+                                     if (win->pendingAllocatedWidth == win->lastAllocatedWidth) {
                                          return G_SOURCE_REMOVE;
                                      }
-                                     win->compactMode = win->pendingCompactMode;
-                                     GtkStyleContext* ctx = gtk_widget_get_style_context(win->window);
-                                     if (win->compactMode) {
-                                         gtk_style_context_add_class(ctx, "compact");
-                                     } else {
-                                         gtk_style_context_remove_class(ctx, "compact");
-                                     }
+                                     win->lastAllocatedWidth = win->pendingAllocatedWidth;
                                      if (win->topBar) {
-                                         win->topBar->setCompact(win->compactMode);
+                                         win->topBar->setWidth(win->lastAllocatedWidth);
                                      }
                                      return G_SOURCE_REMOVE;
                                  },
@@ -207,6 +200,12 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
                      this);
 
     updateScrollbarSidebarPosition();
+
+    // Allow shrinking down to 600 px so the window can half-tile on 1280/1366 px displays
+    GdkGeometry geom{};
+    geom.min_width = xoj::topbar::MIN_WINDOW_WIDTH;
+    geom.min_height = 400;
+    gtk_window_set_geometry_hints(GTK_WINDOW(this->window), nullptr, &geom, GDK_HINT_MIN_SIZE);
 
     gtk_window_set_default_size(GTK_WINDOW(this->window), control->getSettings()->getMainWndWidth(),
                                 control->getSettings()->getMainWndHeight());
@@ -243,8 +242,8 @@ void MainWindow::populate(GladeSearchpath* gladeSearchPath) {
     migrateSelectedToolbar();
     menubar->populate(gladeSearchPath, this);
     createTopBar();
-    if (compactMode && topBar) {
-        topBar->setCompact(true);
+    if (lastAllocatedWidth > 0 && topBar) {
+        topBar->setWidth(lastAllocatedWidth);
     }
     floatingTools = std::make_unique<FloatingTools>(control, GTK_OVERLAY(get("mainOverlay")), mainContentWidget.get());
 
@@ -260,9 +259,9 @@ void MainWindow::populate(GladeSearchpath* gladeSearchPath) {
 GMenuModel* MainWindow::getMenuModel() const { return menubar->getModel(); }
 
 MainWindow::~MainWindow() {
-    if (this->compactIdleId != 0) {
-        g_source_remove(this->compactIdleId);
-        this->compactIdleId = 0;
+    if (this->resizeIdleId != 0) {
+        g_source_remove(this->resizeIdleId);
+        this->resizeIdleId = 0;
     }
 
     // First, so that the selection deleted with the view does not update it, and floating listeners detach cleanly
@@ -1135,9 +1134,9 @@ void MainWindow::updatePageNumbers(size_t page, size_t pagecount, size_t pdfpage
     }
 }
 
-void MainWindow::setDocumentTitle(const std::string& name, const std::string& status) {
+void MainWindow::setDocumentTitle(const std::string& name, const std::string& status, bool unsaved) {
     if (topBar) {
-        topBar->setDocumentTitle(name, status);
+        topBar->setDocumentTitle(name, status, unsaved);
     }
 }
 

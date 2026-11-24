@@ -2117,15 +2117,16 @@ void Control::updateWindowTitle() {
         name = char_cast(refPath.filename().u8string());
     }
     // Autosave writes a backup file, not the document: only a real save counts as saved
+    const bool unsaved = undoRedo->isChanged();
     std::string status = doc->getFilepath().empty() ? _("Not saved yet") :
-                         undoRedo->isChanged()      ? _("Unsaved changes") :
+                         unsaved                    ? _("Unsaved changes") :
                                                       _("Saved");
     this->doc->unlock_shared();
 
     title += " - MoreXournal";
 
     gtk_window_set_title(getGtkWindow(), title.c_str());
-    win->setDocumentTitle(name, status);
+    win->setDocumentTitle(name, status, unsaved);
 }
 
 static fs::path createExportFilePath(Document* doc, const Settings* settings) {

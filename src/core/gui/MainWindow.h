@@ -84,7 +84,7 @@ public:
     void updatePageNumbers(size_t page, size_t pagecount, size_t pdfpage);
 
     /// Shows the document name and its save state in the top bar
-    void setDocumentTitle(const std::string& name, const std::string& status);
+    void setDocumentTitle(const std::string& name, const std::string& status, bool unsaved = false);
 
     void setMaximized(bool maximized);
     bool isMaximized() const;
@@ -218,9 +218,9 @@ private:
     xoj::util::GObjectSPtr<GtkCssProvider> themeCssProvider;
     xoj::util::GObjectSPtr<GtkGesture> pointerGesture;
     bool touchLayout = false;
-    bool compactMode = false;
-    bool pendingCompactMode = false;
-    guint compactIdleId = 0;
+    int lastAllocatedWidth = 0;
+    int pendingAllocatedWidth = 0;
+    guint resizeIdleId = 0;
 
     GtkWidget* titlebar = nullptr;         ///< Header bar used as window title bar, owned by the window
     GtkWidget* inlineBar = nullptr;        ///< Header bar at the top of the content, owned by the window

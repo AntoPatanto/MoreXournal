@@ -40,15 +40,15 @@ public:
      */
     void attachTo(GtkHeaderBar* bar);
 
-    void setDocumentTitle(const std::string& name, const std::string& status);
+    void setDocumentTitle(const std::string& name, const std::string& status, bool unsaved = false);
     /// @param page 0-based index of the current page
     void setPageInfo(size_t page, size_t pageCount);
 
     /// View > Toolbars hides the tools, the history and the page buttons. The menu and the title stay.
     void setToolsVisible(bool visible);
 
-    /// Below 900 px the status line and separators hide so the bar fits without overflowing
-    void setCompact(bool compact);
+    /// Applies the narrow-window breakpoints (1000 / 860 / 700 px) for the current window width
+    void setWidth(int width);
 
     /// Switches icon sizes between compact (18 px) and touch (20 px)
     void setTouchLayout(bool touch);
@@ -60,6 +60,9 @@ private:
     void createStart(GMenuModel* mainMenu);
     void createCenter();
     void createEnd();
+    void applyLayout();
+    void updateMenuButtonTooltip();
+    void rebuildOverflowMenu();
 
     void onToolClicked(xoj::topbar::ToolGroup group);
     void onActionStateChanged(GAction* action);
@@ -69,17 +72,38 @@ private:
 private:
     Control* control;
 
+    xoj::util::WidgetSPtr startWrap;  ///< Shrinkable wrapper around startBox so window can shrink to 600 px
     xoj::util::WidgetSPtr startBox;
     xoj::util::WidgetSPtr centerBox;
+    xoj::util::WidgetSPtr endWrap;  ///< Shrinkable wrapper around endBox so window can shrink to 600 px
     xoj::util::WidgetSPtr endBox;
     GtkHeaderBar* attachedBar = nullptr;
 
+    GtkWidget* menuButton = nullptr;
+    GtkWidget* titleBox = nullptr;
     GtkLabel* titleLabel = nullptr;
     GtkLabel* statusLabel = nullptr;
+    GtkWidget* menuHeaderItem = nullptr;
+    GtkWidget* menuHeaderSep = nullptr;
+    GtkLabel* menuHeaderTitle = nullptr;
+    GtkLabel* menuHeaderStatus = nullptr;
+
+    GtkWidget* sidebarButton = nullptr;
+    GtkWidget* pageNav = nullptr;
     GtkLabel* pageLabel = nullptr;
+    GtkWidget* pageCompactButton = nullptr;
+    GtkLabel* compactPageLabel = nullptr;
+    GtkWidget* newPageButton = nullptr;
+    GtkWidget* fullscreenButton = nullptr;
+    GtkWidget* overflowButton = nullptr;
+    xoj::util::GObjectSPtr<GMenu> overflowMenu;
+
     std::vector<GtkWidget*> separators;
-    bool compact = false;
+    xoj::topbar::BarLayout layout{};
     bool touchLayout = false;
+    bool docUnsaved = false;
+    std::string docName;
+    std::string docStatus;
 
     struct ToolButtonData {
         TopBar* self;
