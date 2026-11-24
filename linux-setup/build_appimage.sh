@@ -43,7 +43,7 @@ fi
 
 # Extract tar contents to APPDIR; tar file already contains a top
 # level dir, so remove it.
-TAR_NAME=$(find packages -maxdepth 1 -name 'morexournal-*.tar.gz' | head -n 1)
+TAR_NAME=$(find packages -maxdepth 1 -name 'morexournal-*.tar.gz' -print -quit)
 if [[ -z "$TAR_NAME" ]]; then
     echo "Error: no packages/morexournal-*.tar.gz archive found in $(pwd)"
     exit 1

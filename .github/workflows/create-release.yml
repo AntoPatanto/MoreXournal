@@ -8,6 +8,9 @@ on:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
+permissions:
+  contents: read
+
 env:
   build-targets-json: '.github/available-build-targets.json'
   build-type: 'RelWithDebInfo'
@@ -50,8 +53,8 @@ jobs:
             }
             core.setOutput('linux_builds', JSON.stringify([appimageTarget]))
 
-            if ("${{ github.event_name }}" === 'push' && "${{ github.ref_type }}" === 'tag') {
-              const tag = "${{ github.ref_name }}"
+            if (context.eventName === 'push' && process.env.GITHUB_REF_TYPE === 'tag') {
+              const tag = process.env.GITHUB_REF_NAME
               const version = tag.substring(1) // Remove leading 'v'
               const release_name = "MoreXournal " + version
               core.setOutput('tag', tag)
@@ -61,7 +64,7 @@ jobs:
               core.setOutput('should_publish', 'true')
               core.setOutput('release-name', release_name)
               console.log("Building artifacts for release " + release_name)
-            } else if ("${{ github.event_name }}" === 'workflow_dispatch') {
+            } else if (context.eventName === 'workflow_dispatch') {
               const cmake = fs.readFileSync('CMakeLists.txt', 'utf8')
               const match = cmake.match(/^\s+VERSION\s+([0-9]+\.[0-9]+\.[0-9]+)/m)
               if (!match) {
@@ -156,7 +159,7 @@ jobs:
             found { print }
           ' changelog/CHANGELOG.md)"
           {
-            echo 'body<<EOF'
+            echo 'body<<EOF_RELEASE_BODY'
             if [ -n "${NOTES}" ]; then
               printf '%s\n\n' "${NOTES}"
             else
@@ -164,7 +167,7 @@ jobs:
               echo ""
             fi
             echo "See https://github.com/AntoPatanto/MoreXournal/blob/${RELEASE_TAG}/CHANGELOG.md for the full changelog."
-            echo 'EOF'
+            echo 'EOF_RELEASE_BODY'
           } >> "$GITHUB_ENV"
       - uses: ncipollo/release-action@v1
         with:

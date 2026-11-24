@@ -148,7 +148,7 @@ jobs:
     steps:
       - name: 'Install RPM build tooling'
         run: |
-          dnf install -y git-core rpm-build rpmdevtools 'dnf-command(builddep)'
+          dnf install -y git-core rpm-build rpmdevtools 'dnf5-command(builddep)'
       - name: 'Checkout repository'
         uses: actions/checkout@v6
         with:
