@@ -13,6 +13,7 @@
 
 #include <gtest/gtest.h>
 
+#include "control/XournalMain.h"
 #include "control/settings/ButtonConfig.h"
 #include "control/settings/Settings.h"
 
@@ -512,4 +513,32 @@ TEST(SettingsTest, testSelectionColorDefaultAndMigration) {
     }
 
     fs::remove(outPath);
+}
+
+TEST(ConfigMigrationTest, skipsEmergencySaveAndErrorLogs) {
+    const fs::path baseDir = fs::temp_directory_path() / "morexournal-test-config-migration";
+    std::error_code ec;
+    fs::remove_all(baseDir, ec);
+    const fs::path srcDir = baseDir / "xournalpp";
+    const fs::path dstDir = baseDir / "morexournal";
+
+    fs::create_directories(srcDir / "palettes");
+    fs::create_directories(srcDir / "errorlogs");
+    {
+        std::ofstream(srcDir / "settings.xml") << "<settings/>";
+        std::ofstream(srcDir / "toolbar.ini") << "[MoreXournal]\n";
+        std::ofstream(srcDir / "palettes" / "custom.gpl") << "GIMP Palette\n";
+        std::ofstream(srcDir / "emergencysave.xopp") << "stale crash save";
+        std::ofstream(srcDir / "errorlogs" / "errorlog.20260101.log") << "crash trace";
+    }
+
+    XournalMain::copyMigratedConfigDirectory(srcDir, dstDir);
+
+    EXPECT_TRUE(fs::exists(dstDir / "settings.xml"));
+    EXPECT_TRUE(fs::exists(dstDir / "toolbar.ini"));
+    EXPECT_TRUE(fs::exists(dstDir / "palettes" / "custom.gpl"));
+    EXPECT_FALSE(fs::exists(dstDir / "emergencysave.xopp"));
+    EXPECT_FALSE(fs::exists(dstDir / "errorlogs"));
+
+    fs::remove_all(baseDir, ec);
 }

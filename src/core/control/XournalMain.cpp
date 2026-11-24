@@ -104,7 +104,7 @@ auto migrateSettings() -> MigrateResult {
                       newConfigPath.string().c_str());
             Util::ensureFolderExists(newConfigPath.parent_path());
             try {
-                fs::copy(oldPath, newConfigPath, fs::copy_options::recursive);
+                XournalMain::copyMigratedConfigDirectory(oldPath, newConfigPath);
                 constexpr auto msg =
                         "MoreXournal uses its own configuration folder.\nThe configuration files have been "
                         "automatically copied from\n\t{1}\nto\n\t{2}";
@@ -714,4 +714,15 @@ auto XournalMain::run(int argc, char** argv) -> int {
     auto rv = g_application_run(G_APPLICATION(app), argc, argv);
     g_object_unref(app);
     return rv;
+}
+
+void XournalMain::copyMigratedConfigDirectory(const fs::path& sourceDir, const fs::path& targetDir) {
+    fs::create_directories(targetDir);
+    for (const auto& entry: fs::directory_iterator(sourceDir)) {
+        const fs::path name = entry.path().filename();
+        if (name == "emergencysave.xopp" || name == ERRORLOG_DIR || name == "errorlogs") {
+            continue;
+        }
+        fs::copy(entry.path(), targetDir / name, fs::copy_options::recursive);
+    }
 }
