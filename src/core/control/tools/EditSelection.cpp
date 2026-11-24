@@ -1081,8 +1081,8 @@ auto EditSelection::isNearSelectedStroke(double rxView, double ryView, double zo
     const double docX = rxView / zoom;
     const double docY = ryView / zoom;
     const auto orig = this->contents->getOriginalBounds();
-    const double scaleX = (std::abs(orig.width) > 1e-6 && std::abs(this->width) > 1e-6) ? (this->width / orig.width) :
-                                                                                          1.0;
+    const double scaleX =
+            (std::abs(orig.width) > 1e-6 && std::abs(this->width) > 1e-6) ? (this->width / orig.width) : 1.0;
     const double scaleY =
             (std::abs(orig.height) > 1e-6 && std::abs(this->height) > 1e-6) ? (this->height / orig.height) : 1.0;
     const double origX = orig.x + (docX - this->x) / scaleX;
@@ -1099,6 +1099,21 @@ auto EditSelection::isNearSelectedStroke(double rxView, double ryView, double zo
     return false;
 }
 
+auto EditSelection::isSingleLine() const -> bool {
+    if (!this->contents) {
+        return false;
+    }
+    const InsertionOrder& elements = this->contents->getInsertionOrder();
+    if (elements.size() != 1 || elements.front().e->getType() != ELEMENT_STROKE) {
+        return false;
+    }
+    const auto* s = static_cast<const Stroke*>(elements.front().e.get());
+    if (const auto& shape = s->getShape()) {
+        return shape->type == ShapeType::LINE;
+    }
+    return s->getPointCount() == 2;
+}
+
 /**
  * Get the cursor type for the current position (if 0 then the default cursor should be used)
  */
@@ -1110,8 +1125,9 @@ auto EditSelection::getSelectionTypeForPos(double x, double y, double zoom, xoj:
 
     cairo_matrix_transform_point(&this->cmatrix, &x, &y);
     const auto layout = computeLayout(zoom);
+    const bool isLine = isSingleLine();
     const bool nearStroke = this->transient && isNearSelectedStroke(x, y, zoom, device);
-    return xoj::handles::hitTestSelection(layout, x, y, device, this->transient, nearStroke).type;
+    return xoj::handles::hitTestSelection(layout, x, y, device, this->transient, nearStroke, isLine).type;
 }
 
 auto EditSelection::updateHover(double x, double y, double zoom, xoj::handles::DeviceKind device)
@@ -1134,8 +1150,9 @@ auto EditSelection::updateHover(double x, double y, double zoom, xoj::handles::D
 
     cairo_matrix_transform_point(&this->cmatrix, &x, &y);
     const auto layout = computeLayout(zoom);
+    const bool isLine = isSingleLine();
     const bool nearStroke = this->transient && isNearSelectedStroke(x, y, zoom, device);
-    const auto hit = xoj::handles::hitTestSelection(layout, x, y, device, this->transient, nearStroke);
+    const auto hit = xoj::handles::hitTestSelection(layout, x, y, device, this->transient, nearStroke, isLine);
     const CursorSelectionType newHover = allowHover ? hit.handle : CURSOR_SELECTION_NONE;
     if (this->hoveredHandle != newHover || this->hoveredShapeHandle.has_value()) {
         this->hoveredHandle = newHover;
@@ -1186,6 +1203,9 @@ void EditSelection::paintContents(cairo_t* cr, double zoom) {
 void EditSelection::paintOverlay(cairo_t* cr, double zoom) {
     if (const Stroke* s = getShapeStroke()) {
         paintShapeOverlay(cr, s, zoom);
+        return;
+    }
+    if (!xoj::handles::selectionAllowsGrab(this->transient, isSingleLine())) {
         return;
     }
 
@@ -1307,6 +1327,10 @@ auto EditSelection::getShapeOffset() const -> xoj::util::Point<double> {
 
 auto EditSelection::shapeHandleAt(const Stroke* s, double x, double y, double zoom,
                                   xoj::handles::DeviceKind device) const -> std::optional<size_t> {
+    const bool isLine = s->getShape()->type == ShapeType::LINE;
+    if (!xoj::handles::selectionAllowsGrab(this->transient, isLine)) {
+        return std::nullopt;
+    }
     const auto offset = getShapeOffset();
     const auto handles = ShapeHandles::handlesFor(*s->getShape(), xoj::handles::SHAPE_ROTATE_DISTANCE_PX / zoom);
     std::vector<xoj::handles::ShapeHandleTarget> targets;
@@ -1316,11 +1340,14 @@ auto EditSelection::shapeHandleAt(const Stroke* s, double x, double y, double zo
         const auto anchor = (h.anchor + offset) * zoom;
         targets.push_back({pos.x, pos.y, anchor.x, anchor.y, h.kind == ShapeHandles::HandleKind::ROTATE});
     }
-    return xoj::handles::hitTestShapeHandles(targets.data(), targets.size(), x, y, device);
+    return xoj::handles::hitTestShapeHandles(targets.data(), targets.size(), x, y, device, this->transient, isLine);
 }
 
 auto EditSelection::getShapeSelectionTypeForPos(const Stroke* s, double x, double y, double zoom,
                                                 xoj::handles::DeviceKind device) const -> CursorSelectionType {
+    if (!xoj::handles::selectionAllowsGrab(this->transient, s->getShape()->type == ShapeType::LINE)) {
+        return CURSOR_SELECTION_NONE;
+    }
     if (shapeHandleAt(s, x, y, zoom, device)) {
         return CURSOR_SELECTION_SHAPE_HANDLE;
     }
@@ -1404,6 +1431,9 @@ void EditSelection::paintShapeContents(cairo_t* cr, const Stroke* s, double zoom
 
 void EditSelection::paintShapeOverlay(cairo_t* cr, const Stroke* s, double zoom) {
     if (view->getXournal()->getControl()->getToolHandler()->getToolType() == TOOL_HAND) {
+        return;
+    }
+    if (!xoj::handles::selectionAllowsGrab(this->transient, s->getShape()->type == ShapeType::LINE)) {
         return;
     }
 
