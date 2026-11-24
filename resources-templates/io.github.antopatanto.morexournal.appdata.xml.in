@@ -41,7 +41,6 @@
       <li>LaTeX support (requires a working LaTeX installation) with customizable template and a resizable editor with syntax highlighting</li>
       <li>Sidebar containing page previews with advanced page sorting, PDF bookmarks and layers (can be individually hidden/edited)</li>
       <li>Allows mapping different tools/colors etc. to stylus/mouse buttons</li>
-      <li>Customizable toolbar with multiple configurations, e.g. to optimize toolbar for portrait/landscape</li>
       <li>Custom color palette support using the .gpl format</li>
       <li>Page template definitions</li>
       <li>Bug reporting, autosave, and auto backup tools</li>
