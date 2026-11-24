@@ -207,10 +207,6 @@ auto InputContext::handle(GdkEvent* sourceEvent) -> bool {
     // Deactivate touchscreen when a pen event occurs
     this->handRecognition->event(event.deviceClass);
 
-    if (this->view && event.type == BUTTON_PRESS_EVENT) {
-        this->view->setLastPressDeviceKind(event.deviceKind);
-    }
-
     // separate events to appropriate handlers
     // handle geometry tool
     if (geometryToolInputHandler && geometryToolInputHandler->handle(event)) {

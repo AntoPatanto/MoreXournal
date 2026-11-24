@@ -571,6 +571,11 @@ void XournalView::zoomChanged() {
     // Updates the Eraser's cursor icon in order to make it as big as the erasing area
     control->getCursor()->updateCursor();
 
+    // The rotation pivot of a selection is in view coordinates: keep hit testing aligned with the drawn handles
+    if (EditSelection* selection = this->getSelection()) {
+        selection->updateMatrix();
+    }
+
     // if we changed the zoom of the page, we should hide the pdf floating toolbox
     // and if user clicked the selection again, the floating toolbox shows again
     control->getWindow()->getPdfToolbox()->hide();

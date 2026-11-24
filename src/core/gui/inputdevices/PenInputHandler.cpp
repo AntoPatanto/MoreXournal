@@ -85,6 +85,10 @@ auto PenInputHandler::actionStart(InputEvent const& event) -> bool {
 
     this->lastActionStartTimeStamp = event.timestamp;
     this->sequenceStartPosition = event.absolute;
+    // Only presses a handler accepted size the handles: a blocked palm or a scroll gesture must not
+    if (XournalView* view = this->inputContext->getView()) {
+        view->setLastPressDeviceKind(event.deviceKind);
+    }
 
     XojPageView* currentPage = this->getPageAtCurrentPosition(event);
     // set reference data for handling of entering/leaving page

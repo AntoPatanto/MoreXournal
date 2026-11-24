@@ -564,7 +564,6 @@ void EditSelection::mouseDown(CursorSelectionType type, double x, double y, xoj:
     double zoom = this->view->getXournal()->getZoom();
 
     this->mouseDownType = type;
-    this->activeGestureDevice = device;
     this->hoveredHandle = CURSOR_SELECTION_NONE;
     this->hoveredShapeHandle.reset();
     this->scaleGrabOffsetX = 0.0;
@@ -1126,6 +1125,9 @@ auto EditSelection::updateHover(double x, double y, double zoom, xoj::handles::D
             this->hoveredShapeHandle = newHover;
             this->hoveredHandle = CURSOR_SELECTION_NONE;
             this->view->getXournal()->repaintSelection();
+        }
+        if (handle) {
+            return CURSOR_SELECTION_SHAPE_HANDLE;
         }
         return getShapeSelectionTypeForPos(s, x, y, zoom, device);
     }

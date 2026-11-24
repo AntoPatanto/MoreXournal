@@ -283,6 +283,9 @@ public:
     /// Clear any hovered handle highlight and repaint if needed
     void clearHover();
 
+    /// Updates the rotation matrix, which depends on the zoom
+    void updateMatrix();
+
     /**
      * Paints the selection to cr, with the given zoom factor. The coordinates of cr
      * should be relative to the provided view by getView() (use translateEvent())
@@ -385,10 +388,6 @@ private:
      */
     void translateToView(XojPageView* v);
 
-    /**
-     * Updates rotation matrix
-     */
-    void updateMatrix();
 
     /**
      * scales and shifts to update bounding boxes
@@ -489,7 +488,6 @@ private:  // HANDLER
     bool transient = false;
 
     /// Device class that started the active drag gesture (kept until mouseUp)
-    xoj::handles::DeviceKind activeGestureDevice = xoj::handles::DeviceKind::Fine;
 
     /// Currently hovered handle for visual feedback (only for mouse/pen hover when not dragging)
     CursorSelectionType hoveredHandle = CURSOR_SELECTION_NONE;
