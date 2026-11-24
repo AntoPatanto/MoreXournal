@@ -13,24 +13,24 @@
 #include <cairo.h>  // for cairo_matrix_translate
 #include <glib.h>   // for g_free, g_message
 
-#include "eraser/PaddedBox.h"                     // for PaddedBox
-#include "model/AudioContent.h"                   // for AudioContent
-#include "model/Element.h"                        // for Element, ELEMENT_ST...
-#include "model/LineStyle.h"                      // for LineStyle
-#include "model/Point.h"                          // for Point, Point::NO_PR...
-#include "util/Assert.h"                          // for xoj_assert
-#include "util/BasePointerIterator.h"             // for BasePointerIterator
-#include "util/Interval.h"                        // for Interval
-#include "util/Matrix.h"                          // for Matrix
-#include "util/PairView.h"                        // for PairView<>::BaseIte...
-#include "util/PairView.h"                        // for PairView
-#include "util/PlaceholderString.h"               // for PlaceholderString
-#include "util/Point.h"                           // for xoj::util::Point<>
-#include "util/Rectangle.h"                       // for Rectangle
-#include "util/SmallVector.h"                     // for SmallVector
-#include "util/TinyVector.h"                      // for TinyVector
-#include "util/i18n.h"                            // for FC, FORMAT_STR
-#include "util/serdesstream.h"                    // for serdes_stream
+#include "eraser/PaddedBox.h"                       // for PaddedBox
+#include "model/AudioContent.h"                     // for AudioContent
+#include "model/Element.h"                          // for Element, ELEMENT_ST...
+#include "model/LineStyle.h"                        // for LineStyle
+#include "model/Point.h"                            // for Point, Point::NO_PR...
+#include "util/Assert.h"                            // for xoj_assert
+#include "util/BasePointerIterator.h"               // for BasePointerIterator
+#include "util/Interval.h"                          // for Interval
+#include "util/Matrix.h"                            // for Matrix
+#include "util/PairView.h"                          // for PairView<>::BaseIte...
+#include "util/PairView.h"                          // for PairView
+#include "util/PlaceholderString.h"                 // for PlaceholderString
+#include "util/Point.h"                             // for xoj::util::Point<>
+#include "util/Rectangle.h"                         // for Rectangle
+#include "util/SmallVector.h"                       // for SmallVector
+#include "util/TinyVector.h"                        // for TinyVector
+#include "util/i18n.h"                              // for FC, FORMAT_STR
+#include "util/serdesstream.h"                      // for serdes_stream
 #include "util/serializing/InputStreamException.h"  // for InputStreamException
 #include "util/serializing/ObjectInputStream.h"     // for ObjectInputStream
 #include "util/serializing/ObjectOutputStream.h"    // for ObjectOutputStream
@@ -401,6 +401,9 @@ void Stroke::move(double dx, double dy) {
     }
     if (shape) {
         shape->transform(xoj::util::Matrix::TRANSLATION(dx, dy));
+        if (!shape->isValid()) {
+            shape.reset();
+        }
     }
     this->boundingBox = this->boundingBox.translated(dx, dy);
     Element::snappedBounds = Element::snappedBounds.translated(dx, dy);
@@ -423,6 +426,9 @@ void Stroke::rotate(double x0, double y0, double th) {
     }
     if (shape) {
         shape->transform(matrix);
+        if (!shape->isValid()) {
+            shape.reset();
+        }
     }
     this->sizeCalculated = false;
     // Width and Height will likely be changed after this operation
@@ -447,6 +453,9 @@ void Stroke::scale(double x0, double y0, double fx, double fy, double rotation, 
     }
     if (shape) {
         shape->transform(matrix);
+        if (!shape->isValid()) {
+            shape.reset();
+        }
     }
     this->width *= fz;
 

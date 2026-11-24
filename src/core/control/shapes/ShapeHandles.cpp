@@ -118,7 +118,7 @@ ShapeInfo dragHandle(const ShapeInfo& base, size_t index, Vec target, double min
     ShapeInfo res = base;
     switch (base.type) {
         case ShapeType::LINE:
-            if (index < 2) {
+            if (index < 2 && base.pts.size() == 2) {
                 const double length = norm(target - base.pts[1 - index]);
                 if (length > 0.0 && length >= minSize) {
                     res.pts[index] = target;
@@ -137,18 +137,27 @@ ShapeInfo dragHandle(const ShapeInfo& base, size_t index, Vec target, double min
             const Vec& o = base.pts[0];
             const Vec u = base.pts[1] - o;
             const Vec v = base.pts[2] - o;
+            const double det = cross(u, v);
+            const double normU = norm(u);
+            const double normV = norm(v);
+            if (det == 0.0 || normU == 0.0 || normV == 0.0 || !std::isfinite(det) || !std::isfinite(normU) ||
+                !std::isfinite(normV)) {
+                break;
+            }
             const size_t opp = (index + 2) % 4;
             const Vec fixed = o + u * CORNER_S[opp] + v * CORNER_T[opp];
             // Solve target - fixed = alpha u + beta v
             const Vec d = target - fixed;
-            const double det = cross(u, v);
             double alpha = cross(d, v) / det;
             double beta = cross(u, d) / det;
+            if (!std::isfinite(alpha) || !std::isfinite(beta)) {
+                break;
+            }
             // The corner moves by +-u and +-v from the fixed one
             const double ds = CORNER_S[index] - CORNER_S[opp];
             const double dt = CORNER_T[index] - CORNER_T[opp];
-            alpha = clampLength(alpha * norm(u), minSize, ds) / norm(u);
-            beta = clampLength(beta * norm(v), minSize, dt) / norm(v);
+            alpha = clampLength(alpha * normU, minSize, ds) / normU;
+            beta = clampLength(beta * normV, minSize, dt) / normV;
             const Vec newU = u * (alpha / ds);
             const Vec newV = v * (beta / dt);
             const Vec newO = fixed - newU * CORNER_S[opp] - newV * CORNER_T[opp];
@@ -163,8 +172,12 @@ ShapeInfo dragHandle(const ShapeInfo& base, size_t index, Vec target, double min
             const bool alongA = index % 2 == 0;
             const double sign = index < 2 ? 1.0 : -1.0;
             const Vec axis = (alongA ? base.pts[1] : base.pts[2]) - c;
+            const double axisLen = norm(axis);
+            if (axisLen == 0.0 || !std::isfinite(axisLen)) {
+                break;
+            }
             // Unit vector from the fixed opposite side towards the dragged one
-            const Vec dir = axis * (sign / norm(axis));
+            const Vec dir = axis * (sign / axisLen);
             const Vec fixed = c - axis * sign;
             const double diameter = clampLength(dot(target - fixed, dir), minSize, 1.0);
             const Vec newC = fixed + dir * (diameter / 2);

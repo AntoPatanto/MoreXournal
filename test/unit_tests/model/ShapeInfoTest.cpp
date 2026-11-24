@@ -256,3 +256,26 @@ TEST(ShapeInfo, copiesKeepTheShape) {
     ASSERT_NE(elementStroke, nullptr);
     EXPECT_TRUE(elementStroke->getShape());
 }
+
+TEST(ShapeInfo, degenerateTransformDropsShape) {
+    {
+        auto rect = shapeStroke(rotatedRectangle());
+        rect->scale(100, 50, 0.0, 1.0, 0.0, false);
+        EXPECT_FALSE(rect->getShape().has_value());
+    }
+    {
+        auto rect = shapeStroke(rotatedRectangle());
+        rect->scale(100, 50, 1.0, 0.0, 0.0, false);
+        EXPECT_FALSE(rect->getShape().has_value());
+    }
+    {
+        auto ellipse = shapeStroke(tiltedEllipse());
+        ellipse->scale(200, 150, 0.0, 1.0, 0.0, false);
+        EXPECT_FALSE(ellipse->getShape().has_value());
+    }
+    {
+        auto line = shapeStroke(ShapeInfo{ShapeType::LINE, {{10, 20}, {50, 20}}});
+        line->scale(10, 20, 0.0, 1.0, 0.0, false);
+        EXPECT_FALSE(line->getShape().has_value());
+    }
+}
