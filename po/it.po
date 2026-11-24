@@ -4404,7 +4404,7 @@ msgstr "_Livello precedente"
 
 #: ../ui/mainmenubar.xml:418
 msgid "_Next Layer"
-msgstr "_Livello successivo"
+msgstr "Livello su_ccessivo"
 
 #: ../ui/mainmenubar.xml:423
 msgid "_Top Layer"
