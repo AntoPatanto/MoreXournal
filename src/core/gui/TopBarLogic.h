@@ -48,7 +48,6 @@ constexpr ToolGroup toolGroupFor(ToolType tool, DrawingType dt) {
         case TOOL_SELECT_MULTILAYER_RECT:
         case TOOL_SELECT_MULTILAYER_REGION:
         case TOOL_SELECT_OBJECT:
-        case TOOL_VERTICAL_SPACE:
         case TOOL_PLAY_OBJECT:
             return ToolGroup::SELECTION;
         case TOOL_DRAW_RECT:

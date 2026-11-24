@@ -32,7 +32,6 @@ ToolGroup expectedGroupIgnoringDrawingType(ToolType tool) {
         case TOOL_SELECT_MULTILAYER_RECT:
         case TOOL_SELECT_MULTILAYER_REGION:
         case TOOL_SELECT_OBJECT:
-        case TOOL_VERTICAL_SPACE:
         case TOOL_PLAY_OBJECT:
             return ToolGroup::SELECTION;
         case TOOL_DRAW_RECT:
@@ -50,6 +49,7 @@ ToolGroup expectedGroupIgnoringDrawingType(ToolType tool) {
             return ToolGroup::HAND;
         case TOOL_NONE:
         case TOOL_FLOATING_TOOLBOX:
+        case TOOL_VERTICAL_SPACE:
         case TOOL_SELECT_PDF_TEXT_LINEAR:
         case TOOL_SELECT_PDF_TEXT_RECT:
         case TOOL_LASER_POINTER_PEN:

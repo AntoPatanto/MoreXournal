@@ -45,6 +45,19 @@ TEST(ToolPillLogicTest, testPinBlackColorForHighlighter) {
     }
 }
 
+TEST(ToolPillLogicTest, testSpecialToolsWithoutTopBarButton) {
+    EXPECT_EQ(sectionsFor(ToolGroup::NONE, {true, false, false, false}, TOOL_LATEX), SPECIAL_TOOL_CHIP);
+    EXPECT_EQ(sectionsFor(ToolGroup::NONE, {}, TOOL_LINK), SPECIAL_TOOL_CHIP);
+    EXPECT_EQ(sectionsFor(ToolGroup::NONE, {}, TOOL_VERTICAL_SPACE), SPECIAL_TOOL_CHIP);
+    EXPECT_EQ(sectionsFor(ToolGroup::NONE, {true, false, false, false}, TOOL_SELECT_PDF_TEXT_LINEAR),
+              SPECIAL_TOOL_CHIP | PDF_TEXT_MODES);
+    EXPECT_EQ(sectionsFor(ToolGroup::NONE, {true, false, false, false}, TOOL_SELECT_PDF_TEXT_RECT),
+              SPECIAL_TOOL_CHIP | PDF_TEXT_MODES);
+
+    // Laser pointers are not chip tools and keep their colour/thickness sections
+    EXPECT_EQ(sectionsFor(ToolGroup::NONE, {true, true, false, false}, TOOL_LASER_POINTER_PEN), COLORS | THICKNESS);
+}
+
 TEST(ToolPillLogicTest, testCapabilitiesForSelectionAndToolsWithoutButton) {
     // Fixed top-bar groups other than selection ignore capabilities
     EXPECT_EQ(sectionsFor(ToolGroup::ERASER, {true, true, true, true}), ERASER_OPTIONS);

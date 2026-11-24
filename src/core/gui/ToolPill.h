@@ -72,6 +72,9 @@ private:
     void addColors(GtkBox* box);
     void addThickness(GtkBox* box, uint32_t sections, xoj::topbar::ToolGroup group);
     void addTextAlignment(GtkBox* box);
+    void addImageOptions(GtkBox* box);
+    void addSpecialToolChip(GtkBox* box);
+    void addPdfTextModes(GtkBox* box);
 
 private:
     Control* control;

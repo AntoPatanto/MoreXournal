@@ -5242,3 +5242,33 @@ msgstr "Tratto e punto"
 msgctxt "line style"
 msgid "Dotted"
 msgstr "Punteggiata"
+
+msgid "Insert image…"
+msgstr "Inserisci immagine…"
+
+msgid "Insert image from file"
+msgstr "Inserisci immagine da file"
+
+msgid "or tap the page"
+msgstr "o tocca la pagina"
+
+msgid "Link"
+msgstr "Collegamento"
+
+msgid "PDF text selection"
+msgstr "Selezione testo PDF"
+
+msgid "Tap where to insert the formula"
+msgstr "Tocca dove inserire la formula"
+
+msgid "Tap where to insert the link"
+msgstr "Tocca dove inserire il collegamento"
+
+msgid "Drag down to make room"
+msgstr "Trascina in basso per fare spazio"
+
+msgid "Return to default tool"
+msgstr "Torna allo strumento predefinito"
+
+msgid "Linear"
+msgstr "Lineare"

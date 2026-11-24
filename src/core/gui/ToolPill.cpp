@@ -11,6 +11,7 @@
 #include "control/actions/ActionDatabase.h"         // for ActionDatabase
 #include "control/settings/Settings.h"              // for Settings
 #include "control/tools/EditSelection.h"            // for EditSelection
+#include "control/tools/ImageHandler.h"             // for ImageHandler
 #include "enums/Action.enum.h"                      // for Action
 #include "gui/ChromeUtil.h"                         // for newChromeIcon, updateScalableIcons
 #include "gui/IconNameHelper.h"                     // for IconNameHelper
@@ -19,9 +20,14 @@
 #include "gui/toolbarMenubar/ColorToolItem.h"       // for ColorToolItem
 #include "gui/toolbarMenubar/FontButton.h"          // for FontButton
 #include "gui/toolbarMenubar/model/ColorPalette.h"  // for Palette
+#include "model/Document.h"                         // for Document
+#include "model/Image.h"                            // for Image
 #include "model/TextAlignment.h"                    // for TextAlignment
+#include "model/XojPage.h"                          // for XojPage
 #include "util/GtkUtil.h"                           // for setToggleButtonUnreleasable
 #include "util/NamedColor.h"                        // for NamedColor
+#include "util/Point.h"                             // for Point
+#include "util/Util.h"                              // for npos
 #include "util/i18n.h"                              // for _
 #include "util/raii/GVariantSPtr.h"                 // for makeGVariantSPtr
 
@@ -374,13 +380,17 @@ void ToolPill::onToolChanged() {
                     pill::Capabilities{} :
                     pill::Capabilities{th->hasCapability(TOOL_CAP_COLOR), th->hasCapability(TOOL_CAP_SIZE),
                                        th->hasCapability(TOOL_CAP_FILL), th->hasCapability(TOOL_CAP_LINE_STYLE)};
-    uint32_t sections = pill::sectionsFor(group, caps);
+    uint32_t sections = pill::sectionsFor(group, caps, tool);
     if (pill::showSelectionActionsInPill(sel != nullptr, isShapeSel)) {
         sections |= pill::SELECTION_ACTIONS;
     }
 
-    // The thickness values differ between tools without a button, so their content is rebuilt on any tool change
-    if (built && group == shownGroup && sections == shownSections && (group != ToolGroup::NONE || tool == shownTool)) {
+    const bool samePdfText = (tool == TOOL_SELECT_PDF_TEXT_LINEAR || tool == TOOL_SELECT_PDF_TEXT_RECT) &&
+                             (shownTool == TOOL_SELECT_PDF_TEXT_LINEAR || shownTool == TOOL_SELECT_PDF_TEXT_RECT);
+    // The thickness values or chip labels differ between tools without a button, so rebuild when switching between them
+    if (built && group == shownGroup && sections == shownSections &&
+        (group != ToolGroup::NONE || tool == shownTool || samePdfText)) {
+        shownTool = tool;
         updateThickness();
         return;
     }
@@ -418,6 +428,8 @@ void ToolPill::rebuild() {
             first = false;
             add();
         };
+        section(pill::SPECIAL_TOOL_CHIP, [&] { addSpecialToolChip(box); });
+        section(pill::PDF_TEXT_MODES, [&] { addPdfTextModes(box); });
         section(pill::SHAPE_TYPES, [&] { addShapeTypes(box); });
         section(pill::SELECTION_MODES, [&] { addSelectionModes(box); });
         section(pill::ERASER_OPTIONS, [&] { addEraserOptions(box); });
@@ -425,11 +437,7 @@ void ToolPill::rebuild() {
         section(pill::COLORS, [&] { addColors(box); });
         section(pill::THICKNESS, [&] { addThickness(box, s, shownGroup); });
         section(pill::TEXT_ALIGNMENT, [&] { addTextAlignment(box); });
-        section(pill::IMAGE_PASTE, [&] {
-            gtk_box_pack_start(
-                    box, newActionButton(gtk_button_new(), Action::PASTE, _("Paste"), "mx-copy-symbolic", nullptr),
-                    false, false, 0);
-        });
+        section(pill::IMAGE_PASTE, [&] { addImageOptions(box); });
         section(pill::SELECTION_ACTIONS, [&] { addSelectionActions(box); });
 
         gtk_container_add(GTK_CONTAINER(pill.get()), content);
@@ -807,6 +815,133 @@ void ToolPill::addTextAlignment(GtkBox* box) {
     gtk_actionable_set_action_name(GTK_ACTIONABLE(justify), winAction(Action::TEXT_JUSTIFY).c_str());
     xoj::util::gtk::fixActionableInitialSensitivity(GTK_ACTIONABLE(justify));
     gtk_box_pack_start(box, justify, false, false, 0);
+}
+
+void ToolPill::addImageOptions(GtkBox* box) {
+    GtkWidget* insertBtn = prepareButton(gtk_button_new(), _("Insert image from file"));
+    addClass(insertBtn, "mx-wide");
+    gtk_button_set_image(GTK_BUTTON(insertBtn), newIcon("mx-image-add-symbolic"));
+    gtk_button_set_label(GTK_BUTTON(insertBtn), _("Insert image…"));
+    gtk_button_set_always_show_image(GTK_BUTTON(insertBtn), true);
+    g_signal_connect(
+            insertBtn, "clicked", G_CALLBACK(+[](GtkButton*, gpointer ctrlPtr) {
+                auto* ctrl = static_cast<Control*>(ctrlPtr);
+                const size_t pageNr = ctrl->getCurrentPageNo();
+                if (pageNr == npos) {
+                    return;
+                }
+                Document* doc = ctrl->getDocument();
+                doc->lock_shared();
+                PageRef page = doc->getPage(pageNr);
+                doc->unlock_shared();
+                if (!page) {
+                    return;
+                }
+                ImageHandler imgHandler(ctrl);
+                imgHandler.chooseAndCreateImage([page, ctrl](std::unique_ptr<Image> img) {
+                    if (!img) {
+                        return;
+                    }
+                    auto [natW, natH] = img->getNaturalSize();
+                    const double maxW = page->getWidth() * 0.75;
+                    const double maxH = page->getHeight() * 0.75;
+                    double scale = 1.0;
+                    if (natW > 0.0 && natH > 0.0) {
+                        if (natW > maxW) {
+                            scale = std::min(scale, maxW / natW);
+                        }
+                        if (natH > maxH) {
+                            scale = std::min(scale, maxH / natH);
+                        }
+                    }
+                    double cx = page->getWidth() / 2.0;
+                    double cy = page->getHeight() / 2.0;
+                    if (MainWindow* win = ctrl->getWindow(); win && win->getXournal()) {
+                        win->getXournal()->getPasteTarget(cx, cy);
+                    }
+                    const double w = natW * scale;
+                    const double h = natH * scale;
+                    const double x = std::clamp(cx - w / 2.0, 0.0, std::max(0.0, page->getWidth() - w));
+                    const double y = std::clamp(cy - h / 2.0, 0.0, std::max(0.0, page->getHeight() - h));
+                    img->setTransformation({scale, 0.0, 0.0, scale, xoj::util::Point<double>{x, y}});
+                    ImageHandler::addImageToDocument(std::move(img), page, ctrl, true);
+                });
+            }),
+            control);
+    xoj::util::gtk::setWidgetFollowActionEnabled(
+            insertBtn, G_ACTION(control->getActionDatabase()->getAction(Action::SELECT_TOOL).get()));
+    gtk_box_pack_start(box, insertBtn, false, false, 0);
+
+    GtkWidget* pasteBtn = newActionButton(gtk_button_new(), Action::PASTE, _("Paste"), "mx-paste-symbolic", nullptr);
+    addClass(pasteBtn, "mx-wide");
+    gtk_box_pack_start(box, pasteBtn, false, false, 0);
+
+    GtkWidget* hint = gtk_label_new(_("or tap the page"));
+    addClass(hint, "mx-pill-hint");
+    gtk_box_pack_start(box, hint, false, false, 0);
+}
+
+void ToolPill::addSpecialToolChip(GtkBox* box) {
+    const char* icon = "mx-sigma-symbolic";
+    const char* name = "";
+    const char* hintText = nullptr;
+    switch (shownTool) {
+        case TOOL_LATEX:
+            icon = "mx-sigma-symbolic";
+            name = _("LaTeX");
+            hintText = _("Tap where to insert the formula");
+            break;
+        case TOOL_LINK:
+            icon = "mx-link-symbolic";
+            name = _("Link");
+            hintText = _("Tap where to insert the link");
+            break;
+        case TOOL_VERTICAL_SPACE:
+            icon = "mx-vspace-symbolic";
+            name = _("Vertical space");
+            hintText = _("Drag down to make room");
+            break;
+        case TOOL_SELECT_PDF_TEXT_LINEAR:
+        case TOOL_SELECT_PDF_TEXT_RECT:
+            icon = "mx-pdftext-symbolic";
+            name = _("PDF text selection");
+            break;
+        default:
+            break;
+    }
+
+    GtkWidget* chip = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+    addClass(chip, "mx-tool-chip");
+    gtk_widget_set_valign(chip, GTK_ALIGN_CENTER);
+
+    gtk_box_pack_start(GTK_BOX(chip), xoj::chrome::newChromeIcon(icon, 16, false), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(chip), gtk_label_new(name), false, false, 0);
+
+    GtkWidget* closeBtn = prepareButton(gtk_button_new(), _("Return to default tool"));
+    addClass(closeBtn, "mx-chip-close");
+    gtk_button_set_image(GTK_BUTTON(closeBtn), xoj::chrome::newChromeIcon("mx-close-symbolic", 14, false));
+    gtk_actionable_set_action_name(GTK_ACTIONABLE(closeBtn), winAction(Action::SELECT_DEFAULT_TOOL).c_str());
+    xoj::util::gtk::fixActionableInitialSensitivity(GTK_ACTIONABLE(closeBtn));
+    gtk_box_pack_start(GTK_BOX(chip), closeBtn, false, false, 0);
+
+    gtk_box_pack_start(box, chip, false, false, 0);
+
+    if (hintText) {
+        GtkWidget* hint = gtk_label_new(hintText);
+        addClass(hint, "mx-pill-hint");
+        gtk_box_pack_start(box, hint, false, false, 0);
+    }
+}
+
+void ToolPill::addPdfTextModes(GtkBox* box) {
+    GtkWidget* seg = newSegment();
+    gtk_box_pack_start(GTK_BOX(seg),
+                       newTargetToggle(Action::SELECT_TOOL, TOOL_SELECT_PDF_TEXT_LINEAR, _("Linear")), false, false,
+                       0);
+    gtk_box_pack_start(GTK_BOX(seg),
+                       newTargetToggle(Action::SELECT_TOOL, TOOL_SELECT_PDF_TEXT_RECT, _("Rectangle")), false, false,
+                       0);
+    gtk_box_pack_start(box, seg, false, false, 0);
 }
 
 void ToolPill::updateThickness() {
