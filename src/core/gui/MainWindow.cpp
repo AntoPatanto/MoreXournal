@@ -394,6 +394,10 @@ bool MainWindow::handleChromeFocusKey(GdkEventKey* event) {
     GtkWidget* page = xournal ? xournal->getWidget() : nullptr;
 
     GtkWidget* current = gtk_window_get_focus(GTK_WINDOW(this->window));
+    // An open popover is a child of its button: let it handle Escape itself, and don't move the focus out of it
+    if (current && gtk_widget_get_ancestor(current, GTK_TYPE_POPOVER)) {
+        return false;
+    }
     auto inWidget = [&](GtkWidget* container) {
         return current && container && (current == container || gtk_widget_is_ancestor(current, container));
     };
