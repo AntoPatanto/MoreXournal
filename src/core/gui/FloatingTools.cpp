@@ -136,6 +136,7 @@ GtkWidget* FloatingTools::createZoom() {
     gtk_container_add(GTK_CONTAINER(popover), popBox);
     gtk_menu_button_set_popover(GTK_MENU_BUTTON(value), popover);
     gtk_menu_button_set_direction(GTK_MENU_BUTTON(value), GTK_ARROW_UP);
+    xoj::chrome::hideTooltipWhilePopupOpen(value, popover);
     gtk_box_pack_start(GTK_BOX(box), value, false, false, 0);
 
     gtk_box_pack_start(GTK_BOX(box), prepareButton(gtk_button_new(), Action::ZOOM_IN, "mx-plus-symbolic", _("Zoom in")),

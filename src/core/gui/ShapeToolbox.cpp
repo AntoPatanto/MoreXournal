@@ -85,6 +85,7 @@ GtkBox* newPopover(GtkWidget* menuButton, GtkWidget** outPopover) {
     GtkWidget* popBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
     gtk_container_add(GTK_CONTAINER(popover), popBox);
     gtk_menu_button_set_popover(GTK_MENU_BUTTON(menuButton), popover);
+    xoj::chrome::hideTooltipWhilePopupOpen(menuButton, popover);
     *outPopover = popover;
     return GTK_BOX(popBox);
 }
@@ -296,7 +297,7 @@ void ShapeToolbox::build() {
     gtk_widget_set_valign(root, GTK_ALIGN_START);
 
     // Stroke color
-    this->strokeColorButton = prepareFlatButton(gtk_menu_button_new(), _("Stroke color"));
+    this->strokeColorButton = prepareFlatButton(gtk_menu_button_new(), nullptr);
     addClass(this->strokeColorButton, "mx-wide");
     GtkWidget* strokeBtnInner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     this->strokeSwatch = newColorSwatch(SWATCH_SIZE);
@@ -319,7 +320,7 @@ void ShapeToolbox::build() {
     gtk_box_pack_start(GTK_BOX(root), this->strokeColorButton, false, false, 0);
 
     // Thickness
-    this->widthButton = prepareFlatButton(gtk_menu_button_new(), _("Stroke width"));
+    this->widthButton = prepareFlatButton(gtk_menu_button_new(), nullptr);
     addClass(this->widthButton, "mx-wide");
     GtkWidget* widthBtnInner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     this->widthSample = newSample(2.0, 24, 14);
@@ -381,7 +382,6 @@ void ShapeToolbox::build() {
                             }),
                             this->fillSwitch, GConnectFlags(0));
     gtk_box_pack_start(GTK_BOX(fillSwitchRow), fillLabelBox, false, false, 0);
-    gtk_widget_set_tooltip_text(fillSwitchRow, _("Fill"));
     gtk_box_pack_start(GTK_BOX(root), fillSwitchRow, false, false, 0);
 
     this->fillButton = prepareFlatButton(gtk_menu_button_new(), _("Fill color and opacity"));
@@ -463,7 +463,7 @@ void ShapeToolbox::build() {
     addClass(delBtn, "destructive");
     gtk_box_pack_start(GTK_BOX(root), delBtn, false, false, 0);
 
-    GtkWidget* convBtn = prepareFlatButton(gtk_button_new(), _("Convert to stroke"));
+    GtkWidget* convBtn = prepareFlatButton(gtk_button_new(), nullptr);
     addClass(convBtn, "mx-wide");
     GtkWidget* convInner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     gtk_box_pack_start(GTK_BOX(convInner), newIcon("mx-spline-symbolic"), false, false, 0);

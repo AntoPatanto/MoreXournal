@@ -108,3 +108,23 @@ TEST(RecentColorsTest, testStringRoundTrip) {
     EXPECT_EQ(RecentColors::fromString("#ff0000,#ffff00,#0000ff,#00ff00,#00ffff,#ff00ff").get(),
               (Colors_{red, yellow, blue, green, cyan}));
 }
+
+TEST(RecentColorsTest, testHighlighterOmitsPinnedBlackAndShowsFiveRecent) {
+    RecentColors r;
+    for (Color c: {red, yellow, blue, green, cyan}) {
+        r.push(c);
+    }
+    const Colors_ palette{black, yellow, green, blue, gray, white};
+
+    // Highlighter (includePinned = false) shows the 5 recent colours with no pinned black
+    EXPECT_EQ(pillColors(r, palette, RECENT_COLOR_COUNT, false), (Colors_{cyan, green, blue, yellow, red}));
+
+    // With fewer than 5 recent colours, palette fills remaining slots while still skipping black
+    RecentColors partial;
+    partial.push(yellow);
+    EXPECT_EQ(pillColors(partial, palette, RECENT_COLOR_COUNT, false), (Colors_{yellow, green, blue, gray, white}));
+
+    // With empty recent and a palette starting with black, black is never included
+    EXPECT_EQ(pillColors(RecentColors{}, palette, RECENT_COLOR_COUNT, false),
+              (Colors_{yellow, green, blue, gray, white}));
+}

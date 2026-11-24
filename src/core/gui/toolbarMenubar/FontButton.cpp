@@ -22,9 +22,9 @@ FontButton::FontButton(std::string id, ActionDatabase& db):
 
 static GtkWidget* makeChild(const char* desc) {
     XojFont font(desc);
-    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
-    gtk_widget_set_margin_start(box, 4);
-    gtk_widget_set_margin_end(box, 4);
+    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+    gtk_widget_set_margin_start(box, 2);
+    gtk_widget_set_margin_end(box, 2);
     GtkWidget* label = gtk_label_new(nullptr);
     auto markup = "<span font=\"" + font.getName() + "\">" + font.getName() + "</span>";
     gtk_label_set_markup(GTK_LABEL(label), markup.c_str());
@@ -33,6 +33,10 @@ static GtkWidget* makeChild(const char* desc) {
     auto size = serdes_stream<std::stringstream>();
     size << font.getSize();
     gtk_box_append(GTK_BOX(box), gtk_label_new(size.str().c_str()));
+
+    GtkWidget* chevron = gtk_image_new_from_icon_name("mx-down-symbolic", GTK_ICON_SIZE_BUTTON);
+    gtk_image_set_pixel_size(GTK_IMAGE(chevron), 16);
+    gtk_box_append(GTK_BOX(box), chevron);
     gtk_widget_show_all(box);
     return box;
 }

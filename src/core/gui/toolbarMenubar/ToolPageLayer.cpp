@@ -8,6 +8,7 @@
 
 #include "control/layer/LayerController.h"        // for LayerController
 #include "enums/Action.enum.h"                    // for Action
+#include "gui/ChromeUtil.h"                       // for hideTooltipWhilePopupOpen
 #include "gui/IconNameHelper.h"                   // for IconNameHelper
 #include "gui/toolbarMenubar/AbstractToolItem.h"  // for AbstractToolItem
 #include "model/PageRef.h"                        // for PageRef
@@ -211,6 +212,7 @@ public:
             gtk_style_context_add_class(gtk_widget_get_style_context(menuButton), "flat");
             gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(this->popover)), "mx-popover");
             gtk_widget_set_tooltip_text(menuButton, _("Layer"));
+            xoj::chrome::hideTooltipWhilePopupOpen(menuButton, GTK_WIDGET(this->popover));
             gtk_box_append(hbox, menuButton);
             gtk_menu_button_set_direction(GTK_MENU_BUTTON(menuButton), GTK_ARROW_UP);
         } else {

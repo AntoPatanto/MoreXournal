@@ -90,4 +90,12 @@ constexpr uint32_t sectionsFor(xoj::topbar::ToolGroup group, Capabilities caps =
     return (caps.color ? COLORS : 0U) | (caps.size ? THICKNESS : 0U) | (caps.size && caps.fill ? FILL : 0U);
 }
 
+/// Highlighter omits the pinned black swatch and shows only the 5 recent colours instead
+constexpr bool pinBlackColorFor(xoj::topbar::ToolGroup group) { return group != xoj::topbar::ToolGroup::HIGHLIGHTER; }
+
+/// Duplicate/Delete live in ShapeToolbox when a shape is selected, and in the pill for plain selections
+constexpr bool showSelectionActionsInPill(bool hasSelection, bool isShapeSelection) {
+    return hasSelection && !isShapeSelection;
+}
+
 }  // namespace xoj::toolpill

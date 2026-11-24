@@ -179,6 +179,7 @@ GtkBox* newPopover(GtkWidget* menuButton) {
     GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
     gtk_container_add(GTK_CONTAINER(popover), box);
     gtk_menu_button_set_popover(GTK_MENU_BUTTON(menuButton), popover);
+    xoj::chrome::hideTooltipWhilePopupOpen(menuButton, popover);
     return GTK_BOX(box);
 }
 
@@ -400,16 +401,17 @@ void ToolPill::onToolChanged() {
     const ToolGroup group = xoj::topbar::toolGroupFor(tool, th->getDrawingType());
     MainWindow* win = control->getWindow();
     EditSelection* sel = (win && win->getXournal()) ? win->getXournal()->getSelection() : nullptr;
-    // A single selected shape already shows the dedicated ShapeToolbox right below it: keep the selection pill free of
-    // duplicate style controls
-    const bool handledByShapeToolbox = group == ToolGroup::SELECTION && sel && sel->getShapeStroke() != nullptr;
+    // A single selected shape already shows the dedicated ShapeToolbox right below it: keep the pill free of
+    // duplicate style controls and selection actions
+    const bool isShapeSel = sel && sel->getShapeStroke() != nullptr;
+    const bool handledByShapeToolbox = group == ToolGroup::SELECTION && isShapeSel;
     const pill::Capabilities caps =
             handledByShapeToolbox ?
                     pill::Capabilities{} :
                     pill::Capabilities{th->hasCapability(TOOL_CAP_COLOR), th->hasCapability(TOOL_CAP_SIZE),
                                        th->hasCapability(TOOL_CAP_FILL), th->hasCapability(TOOL_CAP_LINE_STYLE)};
     uint32_t sections = pill::sectionsFor(group, caps);
-    if (sel) {
+    if (pill::showSelectionActionsInPill(sel != nullptr, isShapeSel)) {
         sections |= pill::SELECTION_ACTIONS;
     }
 
@@ -597,8 +599,10 @@ void ToolPill::updateColors() {
     for (size_t i = 0; i < palette.size(); i++) {
         paletteColors.push_back(palette.getColorAt(i).getColor());
     }
+    const bool pinBlack = pill::pinBlackColorFor(shownGroup);
+    const size_t colorCount = pinBlack ? PILL_COLOR_COUNT : xoj::toolpill::RECENT_COLOR_COUNT;
     std::vector<Color> colors =
-            pill::pillColors(control->getSettings()->getRecentColors(), paletteColors, PILL_COLOR_COUNT);
+            pill::pillColors(control->getSettings()->getRecentColors(), paletteColors, colorCount, pinBlack);
     if (colors == shownColors) {
         return;
     }

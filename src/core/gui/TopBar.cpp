@@ -121,6 +121,7 @@ void TopBar::createStart(GMenuModel* mainMenu) {
     gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(menuButton), mainMenu);
     if (GtkMenu* popup = gtk_menu_button_get_popup(GTK_MENU_BUTTON(menuButton))) {
         gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(popup)), "mx-menu");
+        xoj::chrome::hideTooltipWhilePopupOpen(menuButton, GTK_WIDGET(popup));
         g_signal_connect(popup, "show",
                          G_CALLBACK(+[](GtkWidget* menu, gpointer ctrl) {
                              GdkEvent* ev = gtk_get_current_event();

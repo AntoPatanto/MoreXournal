@@ -31,6 +31,18 @@ TEST(ToolPillLogicTest, testSelectionActionsBitIsAddedOnlyBySelectionState) {
         EXPECT_EQ(sectionsFor(g, {true, true, true, true}) & SELECTION_ACTIONS, 0U) << static_cast<int>(g);
     }
     EXPECT_GT(static_cast<uint32_t>(SELECTION_ACTIONS), static_cast<uint32_t>(IMAGE_PASTE));
+
+    // Plain selections keep actions in the pill; selected shapes leave actions to ShapeToolbox
+    EXPECT_FALSE(showSelectionActionsInPill(false, false));
+    EXPECT_TRUE(showSelectionActionsInPill(true, false));
+    EXPECT_FALSE(showSelectionActionsInPill(true, true));
+}
+
+TEST(ToolPillLogicTest, testPinBlackColorForHighlighter) {
+    EXPECT_FALSE(pinBlackColorFor(ToolGroup::HIGHLIGHTER));
+    for (auto g: {ToolGroup::PEN, ToolGroup::SHAPES, ToolGroup::TEXT, ToolGroup::SELECTION, ToolGroup::NONE}) {
+        EXPECT_TRUE(pinBlackColorFor(g)) << static_cast<int>(g);
+    }
 }
 
 TEST(ToolPillLogicTest, testCapabilitiesForSelectionAndToolsWithoutButton) {
