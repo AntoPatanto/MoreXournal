@@ -17,8 +17,25 @@
 #include "control/settings/ButtonConfig.h"
 #include "control/settings/Settings.h"
 
+namespace {
+struct ScopedTempSettingsFile {
+    fs::path path;
+
+    explicit ScopedTempSettingsFile(const char* name): path(fs::temp_directory_path() / name) {
+        std::error_code ec;
+        fs::remove(path, ec);
+    }
+
+    ~ScopedTempSettingsFile() {
+        std::error_code ec;
+        fs::remove(path, ec);
+    }
+};
+}  // namespace
+
 TEST(SettingsTest, testLoadDoesNotThrowForNonExistingFilePath) {
-    Settings settings{"non-existing-file-path"};
+    ScopedTempSettingsFile tmp{"xournalpp-test-units_Settings_nonExisting.xml"};
+    Settings settings{tmp.path};
     EXPECT_NO_THROW(settings.load());
 }
 
@@ -85,7 +102,8 @@ TEST(SettingsTest, testReadWrite) {
 }
 
 TEST(SettingsTest, testHoldToShapeDefaults) {
-    Settings settings{"non-existing-file-path"};
+    ScopedTempSettingsFile tmp{"xournalpp-test-units_Settings_holdDefaults.xml"};
+    Settings settings{tmp.path};
     EXPECT_TRUE(settings.isHoldToShapeEnabled());
     EXPECT_EQ(settings.getHoldToShapeDelay(), 400);
     EXPECT_DOUBLE_EQ(settings.getHoldToShapeTolerancePx(), 8.0);
@@ -95,7 +113,8 @@ TEST(SettingsTest, testHoldToShapeDefaults) {
 }
 
 TEST(SettingsTest, testHoldToShapeDelayIsClamped) {
-    Settings settings{"non-existing-file-path"};
+    ScopedTempSettingsFile tmp{"xournalpp-test-units_Settings_holdDelayClamp.xml"};
+    Settings settings{tmp.path};
     settings.transactionStart();  // do not write the settings file
     settings.setHoldToShapeDelay(10);
     EXPECT_EQ(settings.getHoldToShapeDelay(), HOLD_TO_SHAPE_DELAY_MIN);
@@ -262,7 +281,8 @@ TEST(SettingsTest, testTouchModeReadWrite) {
 }
 
 TEST(SettingsTest, testLastShapeTypeOnlyAcceptsShapes) {
-    Settings settings{"non-existing-file-path"};
+    ScopedTempSettingsFile tmp{"xournalpp-test-units_Settings_lastShapeType.xml"};
+    Settings settings{tmp.path};
     settings.transactionStart();  // do not write the settings file
     EXPECT_EQ(settings.getLastShapeType(), DRAWING_TYPE_RECTANGLE);
     settings.setLastShapeType(DRAWING_TYPE_SHAPE_RECOGNIZER);
@@ -372,11 +392,13 @@ TEST(SettingsTest, testRecentColorsReadWrite) {
 
 TEST(SettingsTest, testCanvasAidColorsDefaultAndMigration) {
     // Fresh settings use the new defaults
-    Settings fresh{"non-existing-file-path"};
+    ScopedTempSettingsFile freshTmp{"xournalpp-test-units_Settings_aidColorsFresh.xml"};
+    Settings fresh{freshTmp.path};
     EXPECT_EQ(fresh.getBorderColor(), Colors::mx_accent);
     EXPECT_EQ(fresh.getActiveSelectionColor(), Colors::mx_search_current);
 
-    const fs::path outPath = fs::temp_directory_path() / "xournalpp-test-units_Settings_testAidColorsMigration.xml";
+    ScopedTempSettingsFile outTmp{"xournalpp-test-units_Settings_testAidColorsMigration.xml"};
+    const fs::path& outPath = outTmp.path;
 
     // Older settings file with old defaults gets migrated to the new accent/search defaults
     {
@@ -441,7 +463,8 @@ TEST(SettingsTest, testSelectionColorDefaultAndMigration) {
 
     // Fresh settings use the app accent #3563e9
     {
-        Settings fresh{"non-existing-file-path"};
+        ScopedTempSettingsFile freshTmp{"xournalpp-test-units_Settings_selectionColorFresh.xml"};
+        Settings fresh{freshTmp.path};
         EXPECT_EQ(fresh.getSelectionColor(), DEFAULT_SELECTION_COLOR);
         EXPECT_EQ(fresh.getSelectionColor(), Color(0xff3563e9U));
     }
