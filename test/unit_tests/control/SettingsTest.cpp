@@ -13,11 +13,29 @@
 
 #include <gtest/gtest.h>
 
+#include "control/XournalMain.h"
 #include "control/settings/ButtonConfig.h"
 #include "control/settings/Settings.h"
 
+namespace {
+struct ScopedTempSettingsFile {
+    fs::path path;
+
+    explicit ScopedTempSettingsFile(const char* name): path(fs::temp_directory_path() / name) {
+        std::error_code ec;
+        fs::remove(path, ec);
+    }
+
+    ~ScopedTempSettingsFile() {
+        std::error_code ec;
+        fs::remove(path, ec);
+    }
+};
+}  // namespace
+
 TEST(SettingsTest, testLoadDoesNotThrowForNonExistingFilePath) {
-    Settings settings{"non-existing-file-path"};
+    ScopedTempSettingsFile tmp{"xournalpp-test-units_Settings_nonExisting.xml"};
+    Settings settings{tmp.path};
     EXPECT_NO_THROW(settings.load());
 }
 
@@ -84,7 +102,8 @@ TEST(SettingsTest, testReadWrite) {
 }
 
 TEST(SettingsTest, testHoldToShapeDefaults) {
-    Settings settings{"non-existing-file-path"};
+    ScopedTempSettingsFile tmp{"xournalpp-test-units_Settings_holdDefaults.xml"};
+    Settings settings{tmp.path};
     EXPECT_TRUE(settings.isHoldToShapeEnabled());
     EXPECT_EQ(settings.getHoldToShapeDelay(), 400);
     EXPECT_DOUBLE_EQ(settings.getHoldToShapeTolerancePx(), 8.0);
@@ -94,7 +113,8 @@ TEST(SettingsTest, testHoldToShapeDefaults) {
 }
 
 TEST(SettingsTest, testHoldToShapeDelayIsClamped) {
-    Settings settings{"non-existing-file-path"};
+    ScopedTempSettingsFile tmp{"xournalpp-test-units_Settings_holdDelayClamp.xml"};
+    Settings settings{tmp.path};
     settings.transactionStart();  // do not write the settings file
     settings.setHoldToShapeDelay(10);
     EXPECT_EQ(settings.getHoldToShapeDelay(), HOLD_TO_SHAPE_DELAY_MIN);
@@ -261,7 +281,8 @@ TEST(SettingsTest, testTouchModeReadWrite) {
 }
 
 TEST(SettingsTest, testLastShapeTypeOnlyAcceptsShapes) {
-    Settings settings{"non-existing-file-path"};
+    ScopedTempSettingsFile tmp{"xournalpp-test-units_Settings_lastShapeType.xml"};
+    Settings settings{tmp.path};
     settings.transactionStart();  // do not write the settings file
     EXPECT_EQ(settings.getLastShapeType(), DRAWING_TYPE_RECTANGLE);
     settings.setLastShapeType(DRAWING_TYPE_SHAPE_RECOGNIZER);
@@ -369,13 +390,70 @@ TEST(SettingsTest, testRecentColorsReadWrite) {
     fs::remove(outPath);
 }
 
+TEST(SettingsTest, testPushRecentColorDebouncesSaveAndFlushes) {
+    ScopedTempSettingsFile tmp{"xournalpp-test-units_Settings_recentColorDebounce.xml"};
+    {
+        Settings settings(tmp.path);
+        EXPECT_FALSE(settings.hasPendingSave());
+        settings.flushPendingSave();
+        EXPECT_FALSE(fs::exists(tmp.path));
+
+        ASSERT_TRUE(settings.pushRecentColor(Color(0xffff0000U)));
+        // Pen-down must not write settings.xml synchronously
+        EXPECT_TRUE(settings.hasPendingSave());
+        EXPECT_FALSE(fs::exists(tmp.path));
+
+        ASSERT_TRUE(settings.pushRecentColor(Color(0xff00ff00U)));
+        EXPECT_TRUE(settings.hasPendingSave());
+        EXPECT_FALSE(fs::exists(tmp.path));
+
+        settings.flushPendingSave();
+        EXPECT_FALSE(settings.hasPendingSave());
+        ASSERT_TRUE(fs::exists(tmp.path));
+
+        Settings midReload(tmp.path);
+        ASSERT_TRUE(midReload.load());
+        EXPECT_EQ(midReload.getRecentColors().get(), (std::vector<Color>{Color(0xff00ff00U), Color(0xffff0000U)}));
+
+        // Another pending change is flushed on destruction/shutdown
+        ASSERT_TRUE(settings.pushRecentColor(Color(0xff0000ffU)));
+        EXPECT_TRUE(settings.hasPendingSave());
+    }
+    Settings reloaded(tmp.path);
+    ASSERT_TRUE(reloaded.load());
+    EXPECT_EQ(reloaded.getRecentColors().get(),
+              (std::vector<Color>{Color(0xff0000ffU), Color(0xff00ff00U), Color(0xffff0000U)}));
+}
+
+TEST(SettingsTest, testPushRecentColorTimerSavesAfterDebounce) {
+    ScopedTempSettingsFile tmp{"xournalpp-test-units_Settings_recentColorTimer.xml"};
+    Settings settings(tmp.path);
+    ASSERT_TRUE(settings.pushRecentColor(Color(0xffff0000U)));
+    EXPECT_TRUE(settings.hasPendingSave());
+    EXPECT_FALSE(fs::exists(tmp.path));
+
+    const gint64 deadline = g_get_monotonic_time() + 4 * G_TIME_SPAN_SECOND;
+    while (settings.hasPendingSave() && g_get_monotonic_time() < deadline) {
+        while (g_main_context_iteration(nullptr, FALSE)) {}
+        g_usleep(10000);
+    }
+
+    EXPECT_FALSE(settings.hasPendingSave());
+    ASSERT_TRUE(fs::exists(tmp.path));
+    Settings reloaded(tmp.path);
+    ASSERT_TRUE(reloaded.load());
+    EXPECT_EQ(reloaded.getRecentColors().get(), (std::vector<Color>{Color(0xffff0000U)}));
+}
+
 TEST(SettingsTest, testCanvasAidColorsDefaultAndMigration) {
     // Fresh settings use the new defaults
-    Settings fresh{"non-existing-file-path"};
+    ScopedTempSettingsFile freshTmp{"xournalpp-test-units_Settings_aidColorsFresh.xml"};
+    Settings fresh{freshTmp.path};
     EXPECT_EQ(fresh.getBorderColor(), Colors::mx_accent);
     EXPECT_EQ(fresh.getActiveSelectionColor(), Colors::mx_search_current);
 
-    const fs::path outPath = fs::temp_directory_path() / "xournalpp-test-units_Settings_testAidColorsMigration.xml";
+    ScopedTempSettingsFile outTmp{"xournalpp-test-units_Settings_testAidColorsMigration.xml"};
+    const fs::path& outPath = outTmp.path;
 
     // Older settings file with old defaults gets migrated to the new accent/search defaults
     {
@@ -440,7 +518,8 @@ TEST(SettingsTest, testSelectionColorDefaultAndMigration) {
 
     // Fresh settings use the app accent #3563e9
     {
-        Settings fresh{"non-existing-file-path"};
+        ScopedTempSettingsFile freshTmp{"xournalpp-test-units_Settings_selectionColorFresh.xml"};
+        Settings fresh{freshTmp.path};
         EXPECT_EQ(fresh.getSelectionColor(), DEFAULT_SELECTION_COLOR);
         EXPECT_EQ(fresh.getSelectionColor(), Color(0xff3563e9U));
     }
@@ -512,4 +591,32 @@ TEST(SettingsTest, testSelectionColorDefaultAndMigration) {
     }
 
     fs::remove(outPath);
+}
+
+TEST(ConfigMigrationTest, skipsEmergencySaveAndErrorLogs) {
+    const fs::path baseDir = fs::temp_directory_path() / "morexournal-test-config-migration";
+    std::error_code ec;
+    fs::remove_all(baseDir, ec);
+    const fs::path srcDir = baseDir / "xournalpp";
+    const fs::path dstDir = baseDir / "morexournal";
+
+    fs::create_directories(srcDir / "palettes");
+    fs::create_directories(srcDir / "errorlogs");
+    {
+        std::ofstream(srcDir / "settings.xml") << "<settings/>";
+        std::ofstream(srcDir / "toolbar.ini") << "[MoreXournal]\n";
+        std::ofstream(srcDir / "palettes" / "custom.gpl") << "GIMP Palette\n";
+        std::ofstream(srcDir / "emergencysave.xopp") << "stale crash save";
+        std::ofstream(srcDir / "errorlogs" / "errorlog.20260101.log") << "crash trace";
+    }
+
+    XournalMain::copyMigratedConfigDirectory(srcDir, dstDir);
+
+    EXPECT_TRUE(fs::exists(dstDir / "settings.xml"));
+    EXPECT_TRUE(fs::exists(dstDir / "toolbar.ini"));
+    EXPECT_TRUE(fs::exists(dstDir / "palettes" / "custom.gpl"));
+    EXPECT_FALSE(fs::exists(dstDir / "emergencysave.xopp"));
+    EXPECT_FALSE(fs::exists(dstDir / "errorlogs"));
+
+    fs::remove_all(baseDir, ec);
 }

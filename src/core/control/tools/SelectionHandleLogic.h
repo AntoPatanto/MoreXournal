@@ -134,7 +134,7 @@ constexpr Rgba rgbaFromColor(Color c, double alpha = 1.0) {
 constexpr HandlePalette handlePaletteFor(Color selectionColor, bool darkPaper) {
     if (darkPaper) {
         return {
-                rgbaFromColor(ACCENT_DARK_PAPER, 1.0),  // #86a2ff
+                rgbaFromColor(ACCENT_DARK_PAPER, 1.0),            // #86a2ff
                 {42.0 / 255.0, 45.0 / 255.0, 53.0 / 255.0, 1.0},  // #2a2d35
                 {56.0 / 255.0, 65.0 / 255.0, 89.0 / 255.0, 1.0},  // subtle tint over #2a2d35
                 {0.0, 0.0, 0.0, 0.55},                            // rgba(0, 0, 0, .55)
@@ -269,6 +269,10 @@ inline double distanceToSegment2D(double px, double py, double ax, double ay, do
     return std::hypot(px - (ax + abx * t), py - (ay + aby * t));
 }
 
+/// Whether a selection should answer canvas presses/hovers to grab handles or move.
+/// Transient selections on lines do not grab so consecutive lines can start at the previous endpoint.
+constexpr bool selectionAllowsGrab(bool transient, bool isLine) { return !(transient && isLine); }
+
 /**
  * Resolve which part of a selection (px, py) hits in screen px.
  *
@@ -280,7 +284,10 @@ inline double distanceToSegment2D(double px, double py, double ax, double ay, do
  *  5. None (page content).
  */
 inline HitResult hitTestSelection(const SelectionLayout& layout, double px, double py, DeviceKind device,
-                                  bool transient = false, bool nearStroke = false) {
+                                  bool transient = false, bool nearStroke = false, bool isLine = false) {
+    if (!selectionAllowsGrab(transient, isLine)) {
+        return {};
+    }
     const double radius = hitRadiusPx(device);
     const double edgeHalf = edgeBandHalfWidthPx(device);
 
@@ -367,7 +374,10 @@ struct ShapeHandleTarget {
 };
 
 inline std::optional<size_t> hitTestShapeHandles(const ShapeHandleTarget* handles, size_t count, double px, double py,
-                                                 DeviceKind device) {
+                                                 DeviceKind device, bool transient = false, bool isLine = false) {
+    if (!selectionAllowsGrab(transient, isLine)) {
+        return std::nullopt;
+    }
     const double radius = hitRadiusPx(device);
     std::optional<size_t> best;
     double bestDist = radius;

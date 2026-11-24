@@ -11,10 +11,11 @@
 
 #pragma once
 
-
-
+#include "filesystem.h"  // for path
 
 namespace XournalMain {
 auto run(int argc, char** argv) -> int;
 void initLocalisation();
-}
+/// Copies an upstream configuration directory into MoreXournal's config folder, skipping crash artifacts.
+void copyMigratedConfigDirectory(const fs::path& sourceDir, const fs::path& targetDir);
+}  // namespace XournalMain

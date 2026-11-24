@@ -347,6 +347,9 @@ private:
     /// Whether (rxView, ryView) in unrotated view pixels lies within stroke hit tolerance of a selected element
     bool isNearSelectedStroke(double rxView, double ryView, double zoom, xoj::handles::DeviceKind device) const;
 
+    /// Whether the selection consists of a single line (ShapeType::LINE or a plain 2-point stroke)
+    bool isSingleLine() const;
+
     /// Compute the screen-space layout of a rectangular selection at `zoom`
     xoj::handles::SelectionLayout computeLayout(double zoom) const;
 
@@ -493,7 +496,8 @@ private:  // HANDLER
     CursorSelectionType hoveredHandle = CURSOR_SELECTION_NONE;
     std::optional<size_t> hoveredShapeHandle;
 
-    /// Initial pointer offset from the logical box edge when dragging a scale handle (prevents jumps on off-center/tiny grabs)
+    /// Initial pointer offset from the logical box edge when dragging a scale handle (prevents jumps on off-center/tiny
+    /// grabs)
     double scaleGrabOffsetX = 0.0;
     double scaleGrabOffsetY = 0.0;
 

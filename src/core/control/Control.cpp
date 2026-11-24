@@ -2325,6 +2325,8 @@ void Control::close(std::function<void(bool)> callback, const bool allowDestroy,
 }
 
 void Control::closeDocument() {
+    // Finish pending edits (selection, opacity drag, text) while they can still land in this document's undo stack
+    clearSelectionEndText();
     this->undoRedo->clearContents();
 
     this->doc->lock();

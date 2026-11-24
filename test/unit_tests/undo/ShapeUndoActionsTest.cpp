@@ -11,6 +11,7 @@
 
 #include <gtest/gtest.h>
 
+#include "gui/ShapeToolbox.h"
 #include "model/Document.h"
 #include "model/DocumentHandler.h"
 #include "model/Layer.h"
@@ -96,4 +97,41 @@ TEST(ShapeUndoActions, fillColorUndoRestoresOpacityAndColorTogether) {
     action.apply(&f.doc, true);  // undo
     EXPECT_EQ(f.stroke->getFill(), -1);
     EXPECT_FALSE(f.stroke->getFillColor().has_value());
+}
+
+TEST(ShapeUndoActions, opacityDragProducesOneUndoStepAndRevertsCleanly) {
+    Fixture f;
+    f.stroke->setFill(128);
+    f.stroke->setFillColor(Color(0xff112233U));
+
+    ShapeToolbox::OpacityDrag drag;
+    drag.begin(f.page, f.stroke);
+    ASSERT_TRUE(drag.active());
+
+    // Live slider preview steps mutate the stroke directly without pushing undo actions
+    f.stroke->setFill(180);
+    f.stroke->setFill(220);
+
+    // Committing (e.g. on release or when selection is cleared mid-drag) yields a single FillColorUndoAction
+    UndoActionPtr action = drag.commit();
+    ASSERT_NE(action, nullptr);
+    EXPECT_FALSE(drag.active());
+
+    // A second commit (e.g. popover hide after selection clear) must be a no-op
+    EXPECT_EQ(drag.commit(), nullptr);
+
+    auto* fillAction = dynamic_cast<FillColorUndoAction*>(action.get());
+    ASSERT_NE(fillAction, nullptr);
+    fillAction->apply(&f.doc, true);  // undo restores pre-drag opacity
+    EXPECT_EQ(f.stroke->getFill(), 128);
+    EXPECT_EQ(f.stroke->getFillColor(), Color(0xff112233U));
+    fillAction->apply(&f.doc, false);  // redo restores final drag opacity
+    EXPECT_EQ(f.stroke->getFill(), 220);
+    EXPECT_EQ(f.stroke->getFillColor(), Color(0xff112233U));
+
+    // A drag that returns to its starting opacity creates no undo step
+    drag.begin(f.page, f.stroke);
+    f.stroke->setFill(50);
+    f.stroke->setFill(220);
+    EXPECT_EQ(drag.commit(), nullptr);
 }

@@ -18,6 +18,7 @@
 #include "model/LineStyle.h"                        // for LineStyle
 #include "model/Stroke.h"                           // for Stroke
 #include "model/StrokeStyle.h"                      // for parseStyle, formatStyle
+#include "undo/FillColorUndoAction.h"               // for FillColorUndoAction
 #include "undo/UndoRedoHandler.h"                   // for UndoRedoHandler
 #include "util/Color.h"                             // for Color, GdkRGBA_to_rgb
 #include "util/i18n.h"                              // for _, N_
@@ -187,9 +188,47 @@ ShapeToolbox::ShapeToolbox(MainWindow* win, GtkOverlay* overlay): win(win), over
     gtk_widget_hide(this->box.get());
 }
 
+void ShapeToolbox::OpacityDrag::begin(PageRef p, Stroke* s) {
+    if (p && s && s->getFill() != -1) {
+        this->page = std::move(p);
+        this->stroke = s;
+        this->startFill = s->getFill();
+        this->startFillColor = s->getFillColor();
+    } else {
+        reset();
+    }
+}
+
+void ShapeToolbox::OpacityDrag::reset() {
+    this->page = nullptr;
+    this->stroke = nullptr;
+    this->startFill = -1;
+    this->startFillColor.reset();
+}
+
+auto ShapeToolbox::OpacityDrag::commit() -> UndoActionPtr {
+    if (!this->stroke) {
+        return nullptr;
+    }
+    PageRef targetPage = std::move(this->page);
+    Stroke* targetStroke = this->stroke;
+    const int beforeFill = this->startFill;
+    const std::optional<Color> beforeColor = this->startFillColor;
+    reset();
+
+    const int afterFill = targetStroke->getFill();
+    const std::optional<Color> afterColor = targetStroke->getFillColor();
+    if (afterFill == -1 || (afterFill == beforeFill && afterColor == beforeColor)) {
+        return nullptr;
+    }
+    auto undo = std::make_unique<FillColorUndoAction>(targetPage);
+    undo->addStroke(targetStroke, {beforeFill, beforeColor}, {afterFill, afterColor});
+    return undo;
+}
+
 ShapeToolbox::~ShapeToolbox() {
     this->updating = true;
-    this->opacityDragStart.reset();
+    this->opacityDrag.reset();
     size_t n = 0;
     for (auto& adj: this->adjustments) {
         for (int i = 0; i < 2; i++) {
@@ -226,10 +265,9 @@ void ShapeToolbox::populatePaletteGrid(GtkWidget* grid, std::vector<std::pair<Co
                                                  std::nullopt;
         GtkWidget* btn = prepareFlatButton(gtk_toggle_button_new(), nc.getName().c_str());
         addClass(btn, "mx-swatch");
-        gtk_container_add(
-                GTK_CONTAINER(btn),
-                xoj::chrome::newContrastSwatch(nc.getColor(), xoj::chrome::chromeSwatchDotSize(this->touchLayout),
-                                               secondary));
+        gtk_container_add(GTK_CONTAINER(btn),
+                          xoj::chrome::newContrastSwatch(
+                                  nc.getColor(), xoj::chrome::chromeSwatchDotSize(this->touchLayout), secondary));
         g_object_set_data(G_OBJECT(btn), COLOR_KEY, GUINT_TO_POINTER(static_cast<uint32_t>(nc.getColor())));
         g_signal_connect(btn, "toggled", callback, this);
         gtk_container_add(GTK_CONTAINER(grid), btn);
@@ -471,6 +509,9 @@ void ShapeToolbox::update() {
         }
         return;
     }
+    if (this->opacityDrag.active() && sel->getShapeStroke() != this->opacityDrag.stroke) {
+        commitOpacityDrag();
+    }
     if (sel->isMoving()) {
         if (gtk_widget_get_visible(this->box.get())) {
             gtk_widget_hide(this->box.get());
@@ -563,6 +604,7 @@ void ShapeToolbox::applyStrokeColor(Color color) {
 }
 
 void ShapeToolbox::applyFill(std::optional<Color> color, int alpha) {
+    commitOpacityDrag();
     EditSelection* sel = getShapeSelection();
     if (!sel) {
         return;
@@ -579,26 +621,11 @@ void ShapeToolbox::applyFill(std::optional<Color> color, int alpha) {
     update();
 }
 
-void ShapeToolbox::commitOpacityDrag() {
-    if (!this->opacityDragStart.has_value()) {
-        return;
-    }
-    const int startFill = *this->opacityDragStart;
-    this->opacityDragStart.reset();
+void ShapeToolbox::commitPendingEdits() { commitOpacityDrag(); }
 
-    EditSelection* sel = getShapeSelection();
-    if (!sel) {
-        return;
-    }
-    const Stroke* s = sel->getShapeStroke();
-    const int endFill = this->fillAlpha;
-    if (s->getFill() != -1 && startFill != endFill) {
-        // Restore the pre-drag fill and re-apply the final opacity so the whole drag is one undo step.
-        // Keep endFill in a local: setFillStyle() repaints the selection, which refreshes this->fillAlpha.
-        const auto fillColor = s->getFillColor();
-        sel->setFillStyle(startFill, fillColor);
-        addUndoAction(sel->setFillStyle(endFill, fillColor));
-        update();
+void ShapeToolbox::commitOpacityDrag() {
+    if (auto action = this->opacityDrag.commit()) {
+        addUndoAction(std::move(action));
     }
 }
 
@@ -704,6 +731,7 @@ void ShapeToolbox::fillSwitchChangedCb(GObject* sw, GParamSpec*, ShapeToolbox* s
     if (self->updating || !sel) {
         return;
     }
+    self->commitOpacityDrag();
     const Stroke* s = sel->getShapeStroke();
     const bool active = gtk_switch_get_active(GTK_SWITCH(sw));
     int fill = -1;
@@ -746,11 +774,10 @@ void ShapeToolbox::fillCustomColorCb(GtkButton*, ShapeToolbox* self) {
 }
 
 auto ShapeToolbox::opacityPressCb(GtkWidget*, GdkEventButton*, ShapeToolbox* self) -> gboolean {
+    // A press without a matching release (e.g. a second button) must not drop the drag in progress
+    self->commitOpacityDrag();
     if (EditSelection* sel = self->getShapeSelection()) {
-        const Stroke* s = sel->getShapeStroke();
-        if (s->getFill() != -1) {
-            self->opacityDragStart = s->getFill();
-        }
+        self->opacityDrag.begin(sel->getSourcePage(), sel->getShapeStroke());
     }
     return false;
 }
@@ -772,8 +799,8 @@ void ShapeToolbox::opacityValueChangedCb(GtkRange* range, ShapeToolbox* self) {
     gtk_label_set_text(self->opacityValueLabel, pctStr.c_str());
 
     const Stroke* s = sel->getShapeStroke();
-    if (self->opacityDragStart.has_value()) {
-        // Preview during the drag; commitOpacityDrag() pushes a single undo step on release
+    if (self->opacityDrag.active()) {
+        // Preview during the drag; commitOpacityDrag() pushes a single undo step on release or selection clear
         self->fillAlpha = alpha;
         if (s->getFill() != -1) {
             sel->setFillStyle(alpha, s->getFillColor());

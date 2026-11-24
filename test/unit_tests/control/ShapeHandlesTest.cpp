@@ -240,3 +240,41 @@ TEST(ShapeHandles, contains) {
     EXPECT_FALSE(contains(line, {5, 3}, 1));
     EXPECT_FALSE(contains(line, {12, 0}, 1));
 }
+
+TEST(ShapeHandles, degenerateShapeDragReturnsBaseUnchanged) {
+    const std::vector<ShapeInfo> degenerateRects = {
+            ShapeInfo{ShapeType::RECTANGLE, {{10, 10}, {30, 10}, {50, 10}}},  // collinear u and v (det == 0)
+            ShapeInfo{ShapeType::RECTANGLE, {{10, 10}, {10, 10}, {10, 30}}},  // zero u
+            ShapeInfo{ShapeType::RECTANGLE, {{10, 10}, {30, 10}, {10, 10}}},  // zero v
+    };
+    for (const auto& base: degenerateRects) {
+        for (size_t k = 0; k < 4; k++) {
+            const ShapeInfo res = dragHandle(base, k, {100, 100}, MIN_SIZE);
+            EXPECT_EQ(res, base);
+            for (const auto& p: res.pts) {
+                EXPECT_TRUE(std::isfinite(p.x));
+                EXPECT_TRUE(std::isfinite(p.y));
+            }
+        }
+    }
+
+    const ShapeInfo zeroA{ShapeType::ELLIPSE, {{50, 50}, {50, 50}, {50, 70}}};
+    for (size_t k: {0U, 2U}) {
+        const ShapeInfo res = dragHandle(zeroA, k, {100, 50}, MIN_SIZE);
+        EXPECT_EQ(res, zeroA);
+        for (const auto& p: res.pts) {
+            EXPECT_TRUE(std::isfinite(p.x));
+            EXPECT_TRUE(std::isfinite(p.y));
+        }
+    }
+
+    const ShapeInfo zeroB{ShapeType::ELLIPSE, {{50, 50}, {70, 50}, {50, 50}}};
+    for (size_t k: {1U, 3U}) {
+        const ShapeInfo res = dragHandle(zeroB, k, {50, 100}, MIN_SIZE);
+        EXPECT_EQ(res, zeroB);
+        for (const auto& p: res.pts) {
+            EXPECT_TRUE(std::isfinite(p.x));
+            EXPECT_TRUE(std::isfinite(p.y));
+        }
+    }
+}

@@ -201,8 +201,8 @@ void XournalppCursor::setInputDeviceClass(InputDeviceClass device) {
 
 
 void XournalppCursor::setPointerPosition(double widgetX, double widgetY) {
-    const bool moved = !this->pointerWidgetPos || this->pointerWidgetPos->x != widgetX ||
-                       this->pointerWidgetPos->y != widgetY;
+    const bool moved =
+            !this->pointerWidgetPos || this->pointerWidgetPos->x != widgetX || this->pointerWidgetPos->y != widgetY;
     this->pointerWidgetPos = xoj::util::Point<double>{widgetX, widgetY};
     if (moved && (this->lastDrawnOverlayRect || isEraserOverlayVisible())) {
         invalidateOverlay();
@@ -294,8 +294,9 @@ void XournalppCursor::paintOverlay(cairo_t* cr, GtkWidget* widget) {
     const double layoutX = cx + gtk_adjustment_get_value(xournal->hadjustment);
     const double layoutY = cy + gtk_adjustment_get_value(xournal->vadjustment);
 
-    XojPageView* pv = xournal->layout ? xournal->layout->getPageViewAt(round_cast<int>(layoutX), round_cast<int>(layoutY)) :
-                                        nullptr;
+    XojPageView* pv = xournal->layout ?
+                              xournal->layout->getPageViewAt(round_cast<int>(layoutX), round_cast<int>(layoutY)) :
+                              nullptr;
     if (!pv) {
         this->lastDrawnOverlayRect.reset();
         return;
@@ -308,14 +309,9 @@ void XournalppCursor::paintOverlay(cairo_t* cr, GtkWidget* widget) {
 
     const auto geom = xoj::cursor::computeEraserIndicatorGeometry(eraserType, thickness, zoom, this->mouseDown);
 
-    const Color pageBg = pv->getPage()->getBackgroundColor();
-    const auto& recolorParams = control->getSettings()->getRecolorParameters();
-    const Color displayedPaper =
-            recolorParams.recolorizeMainView ? Color(recolorParams.recolor.convertColor(pageBg)) : pageBg;
-    const Color whiteoutFillColor =
-            recolorParams.recolorizeMainView ? Color(recolorParams.recolor.convertColor(Colors::white)) : Colors::white;
-    const auto palette =
-            xoj::cursor::computeEraserIndicatorPalette(xoj::cursor::isDarkColor(displayedPaper), whiteoutFillColor);
+    const PageRef page = pv->getPage();
+    const auto palette = xoj::cursor::computeEraserIndicatorPaletteForPage(
+            page->getPdfPageNr() != npos, page->getBackgroundColor(), control->getSettings()->getRecolorParameters());
 
     cairo_save(cr);
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);

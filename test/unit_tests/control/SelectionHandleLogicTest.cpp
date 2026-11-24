@@ -232,6 +232,59 @@ TEST(SelectionHandleLogic, shapeHandlesClosestWinsAndStemHasNoDeadGap) {
     EXPECT_EQ(hitTestShapeHandles(handles.data(), handles.size(), 82.0, 100.0, DeviceKind::Touch), 0U);
 }
 
+TEST(SelectionHandleLogic, transientLineDoesNotGrab) {
+    // Plain-stroke layout (hold-to-shape / shape recognizer): transient line must never grab handles or stroke
+    const auto layout = computeSelectionLayout(100, 100, 260, 180, DeviceKind::Pen);
+    EXPECT_EQ(hitTestSelection(layout, 100, 100, DeviceKind::Pen, /*transient=*/true, /*nearStroke=*/true,
+                               /*isLine=*/true)
+                      .type,
+              CURSOR_SELECTION_NONE);
+    EXPECT_EQ(hitTestSelection(layout, 180, 140, DeviceKind::Pen, /*transient=*/true, /*nearStroke=*/true,
+                               /*isLine=*/true)
+                      .type,
+              CURSOR_SELECTION_NONE);
+    EXPECT_EQ(hitTestSelection(layout, layout.rotateX, layout.rotateY, DeviceKind::Pen, /*transient=*/true,
+                               /*nearStroke=*/false, /*isLine=*/true)
+                      .type,
+              CURSOR_SELECTION_NONE);
+
+    // Transient non-line (e.g. rectangle) keeps grabbing handles and stroke as today
+    EXPECT_EQ(hitTestSelection(layout, 100, 100, DeviceKind::Pen, /*transient=*/true, /*nearStroke=*/false,
+                               /*isLine=*/false)
+                      .type,
+              CURSOR_SELECTION_TOP_LEFT);
+    EXPECT_EQ(hitTestSelection(layout, 180, 140, DeviceKind::Pen, /*transient=*/true, /*nearStroke=*/true,
+                               /*isLine=*/false)
+                      .type,
+              CURSOR_SELECTION_MOVE);
+
+    // Non-transient line (selected with a select tool) keeps working handles and body
+    EXPECT_EQ(hitTestSelection(layout, 100, 100, DeviceKind::Pen, /*transient=*/false, /*nearStroke=*/false,
+                               /*isLine=*/true)
+                      .type,
+              CURSOR_SELECTION_TOP_LEFT);
+    EXPECT_EQ(hitTestSelection(layout, 180, 140, DeviceKind::Pen, /*transient=*/false, /*nearStroke=*/false,
+                               /*isLine=*/true)
+                      .type,
+              CURSOR_SELECTION_MOVE);
+
+    // Shape handles (Line/ruler tool): transient line must not grab endpoint handles;
+    // transient rectangle and non-transient line keep grabbing handles
+    const std::array<ShapeHandleTarget, 2> lineHandles = {{
+            {100.0, 100.0, 100.0, 100.0, false},
+            {260.0, 180.0, 260.0, 180.0, false},
+    }};
+    EXPECT_FALSE(hitTestShapeHandles(lineHandles.data(), lineHandles.size(), 260.0, 180.0, DeviceKind::Pen,
+                                     /*transient=*/true, /*isLine=*/true)
+                         .has_value());
+    EXPECT_EQ(hitTestShapeHandles(lineHandles.data(), lineHandles.size(), 260.0, 180.0, DeviceKind::Pen,
+                                  /*transient=*/true, /*isLine=*/false),
+              1U);
+    EXPECT_EQ(hitTestShapeHandles(lineHandles.data(), lineHandles.size(), 260.0, 180.0, DeviceKind::Pen,
+                                  /*transient=*/false, /*isLine=*/true),
+              1U);
+}
+
 TEST(SelectionHandleLogic, paletteFollowsPaperLightness) {
     const auto light = handlePaletteFor(ACCENT_LIGHT_PAPER, false);
     EXPECT_NEAR(light.accent.r, 0x35 / 255.0, 1e-6);

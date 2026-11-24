@@ -154,6 +154,44 @@ TEST(EraserIndicatorLogicTest, testLightAndDarkRecoloredPalettes) {
     EXPECT_DOUBLE_EQ(darkPal.whiteoutFill.a, 0.90);
 }
 
+TEST(EraserIndicatorLogicTest, testPdfPageAndColoredPaperPalette) {
+    RecolorParameters noRecolor{};
+    noRecolor.recolorizeMainView = false;
+
+    // PDF page with dark underlying backgroundColor is rendered white: indicator must use light-paper palette
+    const Color pdfPaper = displayedPaperColor(/*isPdfPage=*/true, Colors::black, noRecolor);
+    EXPECT_EQ(pdfPaper, Colors::white);
+    const auto pdfPal = computeEraserIndicatorPaletteForPage(/*isPdfPage=*/true, Colors::black, noRecolor);
+    EXPECT_FALSE(pdfPal.darkPage);
+    EXPECT_DOUBLE_EQ(pdfPal.whiteoutFill.r, 1.0);
+    EXPECT_DOUBLE_EQ(pdfPal.whiteoutFill.g, 1.0);
+    EXPECT_DOUBLE_EQ(pdfPal.whiteoutFill.b, 1.0);
+
+    // PDF page with dark main-view recolor maps white paper to dark recolored paper
+    RecolorParameters darkRecolor{};
+    darkRecolor.recolorizeMainView = true;
+    darkRecolor.recolor = Recolor(ColorU8{30, 32, 39}, ColorU8{230, 232, 240});
+    const auto darkPdfPal = computeEraserIndicatorPaletteForPage(/*isPdfPage=*/true, Colors::black, darkRecolor);
+    EXPECT_TRUE(darkPdfPal.darkPage);
+    EXPECT_NEAR(darkPdfPal.whiteoutFill.r, 30.0 / 255.0, 1e-2);
+
+    // Non-PDF colored paper picks the palette from the paper, but whiteout strokes are painted white,
+    // so the whiteout preview stays white
+    const Color charcoal{0xff20242cU};
+    const auto charcoalPal = computeEraserIndicatorPaletteForPage(/*isPdfPage=*/false, charcoal, noRecolor);
+    EXPECT_TRUE(charcoalPal.darkPage);
+    EXPECT_DOUBLE_EQ(charcoalPal.whiteoutFill.r, 1.0);
+    EXPECT_DOUBLE_EQ(charcoalPal.whiteoutFill.g, 1.0);
+    EXPECT_DOUBLE_EQ(charcoalPal.whiteoutFill.b, 1.0);
+
+    const Color cream = Colors::xopp_antiquewhite;
+    const auto creamPal = computeEraserIndicatorPaletteForPage(/*isPdfPage=*/false, cream, noRecolor);
+    EXPECT_FALSE(creamPal.darkPage);
+    EXPECT_DOUBLE_EQ(creamPal.whiteoutFill.r, 1.0);
+    EXPECT_DOUBLE_EQ(creamPal.whiteoutFill.g, 1.0);
+    EXPECT_DOUBLE_EQ(creamPal.whiteoutFill.b, 1.0);
+}
+
 TEST(EraserIndicatorLogicTest, testVisibilityAcrossDevicesAndStates) {
     EraserOverlayInput base{};
     base.insidePage = true;

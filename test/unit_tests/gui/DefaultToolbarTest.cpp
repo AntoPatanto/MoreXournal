@@ -26,13 +26,20 @@ TEST(DefaultToolbarTest, testDefaultLayoutIsPredefined) {
     const fs::path ini = fs::path(std::u8string(PROJECT_SOURCE_DIR)) / "resources-templates" / "toolbar.ini.in";
     ASSERT_TRUE(model.parse(ini, true, palette));
 
-    Settings settings{"non-existing-file-path"};
-    const std::string& defaultId = settings.getSelectedToolbar();
-    EXPECT_EQ(defaultId, "MoreXournal");
+    const fs::path tmpPath = fs::temp_directory_path() / "xournalpp-test-units_DefaultToolbarTest.xml";
+    std::error_code ec;
+    fs::remove(tmpPath, ec);
+    {
+        Settings settings{tmpPath};
+        const std::string& defaultId = settings.getSelectedToolbar();
+        EXPECT_EQ(defaultId, "MoreXournal");
 
-    const auto& toolbars = model.getToolbars();
-    auto it = std::find_if(toolbars.begin(), toolbars.end(), [&](const auto& d) { return d->getId() == defaultId; });
-    ASSERT_NE(it, toolbars.end()) << "the default toolbar layout is missing from toolbar.ini";
-    EXPECT_TRUE((*it)->isPredefined());
-    EXPECT_EQ((*it)->getName(), "MoreXournal");
+        const auto& toolbars = model.getToolbars();
+        auto it =
+                std::find_if(toolbars.begin(), toolbars.end(), [&](const auto& d) { return d->getId() == defaultId; });
+        ASSERT_NE(it, toolbars.end()) << "the default toolbar layout is missing from toolbar.ini";
+        EXPECT_TRUE((*it)->isPredefined());
+        EXPECT_EQ((*it)->getName(), "MoreXournal");
+    }
+    fs::remove(tmpPath, ec);
 }
