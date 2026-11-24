@@ -401,6 +401,9 @@ public:
     void setThemeVariant(ThemeVariant theme);
     ThemeVariant getThemeVariant() const;
 
+    void setTouchMode(TouchMode mode);
+    TouchMode getTouchMode() const;
+
     SidebarNumberingStyle getSidebarNumberingStyle() const;
     void setSidebarNumberingStyle(SidebarNumberingStyle numberingStyle);
 
@@ -754,6 +757,11 @@ private:
      * Follow system's default theme variant or force one or the other
      */
     ThemeVariant themeVariant;
+
+    /**
+     * Chrome layout density mode: auto switches on touchscreen/mouse press, off stays compact, on stays touch
+     */
+    TouchMode touchMode;
 
     /**
      * Sidebar page number style

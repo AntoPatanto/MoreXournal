@@ -12,6 +12,7 @@
 #include "control/settings/Settings.h"              // for Settings
 #include "control/tools/EditSelection.h"            // for EditSelection
 #include "enums/Action.enum.h"                      // for Action
+#include "gui/ChromeUtil.h"                         // for newChromeIcon, updateScalableIcons
 #include "gui/IconNameHelper.h"                     // for IconNameHelper
 #include "gui/MainWindow.h"                         // for MainWindow
 #include "gui/XournalView.h"                        // for XournalView
@@ -33,7 +34,6 @@ namespace pill = xoj::toolpill;
 namespace {
 /// How many colors the pill shows (black and the recent colors); the palette is in the "more colors" popover
 constexpr size_t PILL_COLOR_COUNT = 1 + xoj::toolpill::RECENT_COLOR_COUNT;
-constexpr int SWATCH_SIZE = 20;
 constexpr int ICON_SIZE = 18;
 /// Data key of the line width (in 1/100 px) drawn by a thickness sample
 constexpr const char* SAMPLE_WIDTH_KEY = "mx-sample-width";
@@ -44,10 +44,8 @@ void addClass(GtkWidget* w, const char* cssClass) {
     gtk_style_context_add_class(gtk_widget_get_style_context(w), cssClass);
 }
 
-GtkWidget* newIcon(const std::string& iconName) {
-    GtkWidget* img = gtk_image_new_from_icon_name(iconName.c_str(), GTK_ICON_SIZE_SMALL_TOOLBAR);
-    gtk_image_set_pixel_size(GTK_IMAGE(img), ICON_SIZE);
-    return img;
+GtkWidget* newIcon(const std::string& iconName, int size = ICON_SIZE) {
+    return xoj::chrome::newChromeIcon(iconName.c_str(), size);
 }
 
 GtkWidget* newSeparator() {
@@ -58,7 +56,7 @@ GtkWidget* newSeparator() {
 
 /// A group of buttons drawn as one control
 GtkWidget* newSegment() {
-    GtkWidget* seg = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+    GtkWidget* seg = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     addClass(seg, "mx-seg");
     gtk_widget_set_valign(seg, GTK_ALIGN_CENTER);
     return seg;
@@ -352,6 +350,16 @@ void ToolPill::setVisible(bool visible) {
     updateVisibility();
 }
 
+void ToolPill::setTouchLayout(bool touch) {
+    if (touchLayout == touch) {
+        return;
+    }
+    touchLayout = touch;
+    if (built) {
+        rebuild();
+    }
+}
+
 void ToolPill::updateVisibility() {
     const bool show = allowedVisible && shownSections != 0;
     const bool wasVisible = gtk_widget_get_visible(pill.get());
@@ -429,7 +437,7 @@ void ToolPill::rebuild() {
 
     const uint32_t s = shownSections;
     if (s != 0) {
-        content = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+        content = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
         GtkBox* box = GTK_BOX(content);
 
         // Each section gets a separator before it, except the first one
@@ -459,6 +467,7 @@ void ToolPill::rebuild() {
         section(pill::SELECTION_ACTIONS, [&] { addSelectionActions(box); });
 
         gtk_container_add(GTK_CONTAINER(pill.get()), content);
+        xoj::chrome::updateScalableIcons(content, xoj::chrome::chromeIconSize(touchLayout));
         gtk_widget_show_all(content);
         updateThickness();
     }
@@ -556,17 +565,18 @@ void ToolPill::addEraserOptions(GtkBox* box) {
 void ToolPill::addFont(GtkBox* box) {
     GtkWidget* btn = FontButton::makeButton(G_ACTION(control->getActionDatabase()->getAction(Action::FONT).get()));
     prepareButton(btn, nullptr);
+    addClass(btn, "mx-wide");
     gtk_box_pack_start(box, btn, false, false, 0);
 }
 
 namespace {
 /// A color button of the pill, drawn with the recolor parameters like the toolbar colors
-GtkWidget* newSwatch(const NamedColor& c, const RecolorParameters& recolorParams) {
+GtkWidget* newSwatch(const NamedColor& c, const RecolorParameters& recolorParams, int dotSize) {
     std::optional<Color> secondary;
     if (recolorParams.recolorizeMainView) {
         secondary = recolorParams.recolor.convertColor(c.getColor());
     }
-    GtkWidget* btn = ColorToolItem::makeButton(c, secondary, SWATCH_SIZE);
+    GtkWidget* btn = ColorToolItem::makeButton(c, secondary, dotSize);
     prepareButton(btn, nullptr);
     addClass(btn, "mx-swatch");
     return btn;
@@ -591,6 +601,7 @@ void ToolPill::updateColors() {
 
     gtk_container_foreach(GTK_CONTAINER(swatchBox), +[](GtkWidget* w, gpointer) { gtk_widget_destroy(w); }, nullptr);
     const auto& recolorParams = control->getSettings()->getRecolorParameters();
+    const int dotSize = xoj::chrome::chromeSwatchDotSize(touchLayout);
     for (Color color: colors) {
         // The palette entry gives the tooltip its name; other colors are custom
         NamedColor named(color);
@@ -602,7 +613,7 @@ void ToolPill::updateColors() {
                 break;
             }
         }
-        gtk_box_pack_start(GTK_BOX(swatchBox), newSwatch(named, recolorParams), false, false, 0);
+        gtk_box_pack_start(GTK_BOX(swatchBox), newSwatch(named, recolorParams, dotSize), false, false, 0);
     }
     gtk_widget_show_all(swatchBox);
     shownColors = std::move(colors);
@@ -611,9 +622,10 @@ void ToolPill::updateColors() {
 void ToolPill::addColors(GtkBox* box) {
     const Palette& palette = control->getPalette();
     const auto& recolorParams = control->getSettings()->getRecolorParameters();
+    const int dotSize = xoj::chrome::chromeSwatchDotSize(touchLayout);
 
-    GtkWidget* dots = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-    swatchBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+    GtkWidget* dots = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    swatchBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_box_pack_start(GTK_BOX(dots), swatchBox, false, false, 0);
     updateColors();
 
@@ -629,7 +641,7 @@ void ToolPill::addColors(GtkBox* box) {
     gtk_flow_box_set_min_children_per_line(GTK_FLOW_BOX(grid),
                                            static_cast<guint>(std::min(PILL_COLOR_COUNT, palette.size())));
     for (size_t i = 0; i < palette.size(); i++) {
-        GtkWidget* swatch = newSwatch(palette.getColorAt(i), recolorParams);
+        GtkWidget* swatch = newSwatch(palette.getColorAt(i), recolorParams, dotSize);
         popdownOnClick(swatch, popover);
         gtk_container_add(GTK_CONTAINER(grid), swatch);
         // Flow box children take the focus and draw a hover box: keep only the button's look
@@ -657,6 +669,7 @@ void ToolPill::addThickness(GtkBox* box, uint32_t sections, ToolGroup group) {
     GtkWidget* btn = prepareButton(gtk_menu_button_new(), group == ToolGroup::SHAPES ?
                                                                   _("Thickness and line style, shared with the pen") :
                                                                   _("Thickness"));
+    addClass(btn, "mx-wide");
     GtkWidget* inner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     thicknessSample = newSample(1, 28, 14);
     thicknessLabel = GTK_LABEL(gtk_label_new(nullptr));

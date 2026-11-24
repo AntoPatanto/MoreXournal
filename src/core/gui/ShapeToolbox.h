@@ -43,6 +43,9 @@ public:
     /// Rebuild the color grids in the stroke and fill popovers (e.g. after the palette changed)
     void rebuildPalettes();
 
+    /// Switches icon sizes between compact (18 px) and touch (20 px)
+    void setTouchLayout(bool touch);
+
 private:
     void build();
     GtkWidget* makeIconButton(const char* iconName, const char* tooltip, GCallback callback);

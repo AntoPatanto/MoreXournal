@@ -50,6 +50,9 @@ public:
     /// Below 900 px the status line and separators hide so the bar fits without overflowing
     void setCompact(bool compact);
 
+    /// Switches icon sizes between compact (18 px) and touch (20 px)
+    void setTouchLayout(bool touch);
+
 private:
     void createStart(GMenuModel* mainMenu);
     void createCenter();
@@ -73,6 +76,7 @@ private:
     GtkLabel* pageLabel = nullptr;
     std::vector<GtkWidget*> separators;
     bool compact = false;
+    bool touchLayout = false;
 
     struct ToolButtonData {
         TopBar* self;

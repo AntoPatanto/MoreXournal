@@ -1505,6 +1505,7 @@ void Control::showSettings() {
 
                 xournal->getHandRecognition()->reload();
                 ctrl->win->updateColorscheme();
+                ctrl->win->updateTouchMode();
 
                 ctrl->getActionDatabase()->setActionState(Action::TOGGLE_TOUCH_DRAWING,
                                                           settings->getTouchDrawingEnabled());

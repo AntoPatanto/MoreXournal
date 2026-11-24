@@ -91,6 +91,8 @@ enum IconTheme {
 
 enum ThemeVariant { THEME_VARIANT_USE_SYSTEM, THEME_VARIANT_FORCE_LIGHT, THEME_VARIANT_FORCE_DARK };
 
+enum class TouchMode { AUTO = 0, OFF = 1, ON = 2 };
+
 /**
  * The user-selectable Page Preview Decoration style
  */
@@ -191,6 +193,19 @@ constexpr auto themeVariantToString(ThemeVariant variant) -> const char* {
     }
 }
 
+constexpr auto touchModeToString(TouchMode mode) -> const char* {
+    switch (mode) {
+        case TouchMode::AUTO:
+            return "auto";
+        case TouchMode::OFF:
+            return "off";
+        case TouchMode::ON:
+            return "on";
+        default:
+            return "auto";
+    }
+}
+
 constexpr auto emptyLastPageAppendToString(EmptyLastPageAppendType appendType) -> const char* {
     switch (appendType) {
         case EmptyLastPageAppendType::Disabled:
@@ -208,4 +223,5 @@ StylusCursorType stylusCursorTypeFromString(const std::string& stylusCursorTypeS
 EraserVisibility eraserVisibilityFromString(const std::string& eraserVisibilityStr);
 IconTheme iconThemeFromString(const std::string& iconThemeStr);
 ThemeVariant themeVariantFromString(const std::string& themeVariantStr);
+TouchMode touchModeFromString(const std::string& touchModeStr);
 EmptyLastPageAppendType emptyLastPageAppendFromString(const std::string& str);

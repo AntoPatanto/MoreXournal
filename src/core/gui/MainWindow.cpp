@@ -18,6 +18,7 @@
 #include "control/settings/Settings.h"                  // for Settings
 #include "control/settings/SettingsEnums.h"             // for SCROLLBAR_HIDE_HO...
 #include "control/zoom/ZoomControl.h"                   // for ZoomControl
+#include "gui/ChromeUtil.h"                             // for classifyEvent
 #include "gui/FloatingToolbox.h"                        // for FloatingToolbox
 #include "gui/FloatingTools.h"                          // for FloatingTools
 #include "gui/GladeGui.h"                               // for GladeGui
@@ -25,6 +26,7 @@
 #include "gui/SearchBar.h"                              // for SearchBar
 #include "gui/ShapeToolbox.h"                           // for ShapeToolbox
 #include "gui/TopBar.h"                                 // for TopBar
+#include "gui/TouchModeLogic.h"                         // for resolveTouchLayout
 #include "gui/inputdevices/InputEvents.h"               // for INPUT_DEVICE_TOUC...
 #include "gui/menus/menubar/Menubar.h"                  // for Menubar
 #include "gui/menus/menubar/ToolbarSelectionSubmenu.h"  // for ToolbarSelectionSubmenu
@@ -126,6 +128,19 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
     // "watch over" all key events
     g_signal_connect(this->window, "key-press-event", G_CALLBACK(onKeyEvent), this);
     g_signal_connect(this->window, "key-release-event", G_CALLBACK(onKeyEvent), this);
+
+    // Observe mouse, pen and touchscreen presses anywhere in the window (capture phase, before buttons consume them)
+    pointerGesture.reset(gtk_gesture_multi_press_new(this->window), xoj::util::adopt);
+    gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(pointerGesture.get()), 0);
+    gtk_event_controller_set_propagation_phase(GTK_EVENT_CONTROLLER(pointerGesture.get()), GTK_PHASE_CAPTURE);
+    g_signal_connect(pointerGesture.get(), "pressed",
+                     G_CALLBACK(+[](GtkGestureMultiPress* gesture, gint, gdouble, gdouble, gpointer self) {
+                         GdkEventSequence* seq = gtk_gesture_single_get_current_sequence(GTK_GESTURE_SINGLE(gesture));
+                         if (const GdkEvent* ev = gtk_gesture_get_last_event(GTK_GESTURE(gesture), seq)) {
+                             static_cast<MainWindow*>(self)->onPointerInput(ev);
+                         }
+                     }),
+                     this);
     g_signal_connect(this->window, "notify::is-active", G_CALLBACK(+[](GObject* w, GParamSpec*, gpointer self) {
                          auto* win = static_cast<MainWindow*>(self);
                          // An open menu of the menu bar grabs the keyboard, which also makes the window inactive
@@ -239,6 +254,7 @@ void MainWindow::populate(GladeSearchpath* gladeSearchPath) {
     createToolbar();
 
     setToolbarVisible(control->getSettings()->isToolbarVisible());
+    updateTouchMode();
 }
 
 GMenuModel* MainWindow::getMenuModel() const { return menubar->getModel(); }
@@ -250,6 +266,7 @@ MainWindow::~MainWindow() {
     }
 
     // First, so that the selection deleted with the view does not update it, and floating listeners detach cleanly
+    this->pointerGesture.reset();
     this->floatingTools.reset();
     this->shapeToolbox.reset();
 
@@ -384,6 +401,41 @@ void MainWindow::setMenubarTemporarilyVisible(bool visible) {
 
 void MainWindow::updateMenubarReveal() {
     gtk_revealer_set_reveal_child(GTK_REVEALER(menubarRevealer), menubarPinned || menubarTemporary);
+}
+
+void MainWindow::updateTouchMode() {
+    const TouchMode mode = control->getSettings()->getTouchMode();
+    setTouchLayout(xoj::chrome::resolveTouchLayout(mode, xoj::chrome::PointerKind::Other, this->touchLayout));
+}
+
+void MainWindow::onPointerInput(const GdkEvent* event) {
+    const TouchMode mode = control->getSettings()->getTouchMode();
+    const auto kind = xoj::chrome::classifyEvent(event);
+    setTouchLayout(xoj::chrome::resolveTouchLayout(mode, kind, this->touchLayout));
+}
+
+bool MainWindow::isTouchLayout() const { return this->touchLayout; }
+
+void MainWindow::setTouchLayout(bool touch) {
+    if (this->touchLayout == touch) {
+        return;
+    }
+    this->touchLayout = touch;
+    GtkStyleContext* ctx = gtk_widget_get_style_context(this->window);
+    if (touch) {
+        gtk_style_context_add_class(ctx, "mx-touch");
+    } else {
+        gtk_style_context_remove_class(ctx, "mx-touch");
+    }
+    if (this->topBar) {
+        this->topBar->setTouchLayout(touch);
+    }
+    if (this->floatingTools) {
+        this->floatingTools->setTouchLayout(touch);
+    }
+    if (this->shapeToolbox) {
+        this->shapeToolbox->setTouchLayout(touch);
+    }
 }
 
 struct ThemeProperties {

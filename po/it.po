@@ -5208,3 +5208,21 @@ msgstr "Vai"
 
 msgid "Insert"
 msgstr "Inserisci"
+
+msgid "Touch mode:"
+msgstr "Modalità touch:"
+
+msgctxt "touch mode"
+msgid "Automatic"
+msgstr "Automatica"
+
+msgctxt "touch mode"
+msgid "Off"
+msgstr "Spenta"
+
+msgctxt "touch mode"
+msgid "On"
+msgstr "Accesa"
+
+msgid "<i>Switches on finger touch and mouse; pen keeps the current layout.</i>"
+msgstr "<i>Si accende con un dito e si spegne con il mouse; la penna mantiene il layout attuale.</i>"

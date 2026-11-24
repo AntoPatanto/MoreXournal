@@ -119,6 +119,12 @@ public:
     void updateToolbarMenu();
     void updateColorscheme();
 
+    /// Re-evaluates the touch chrome layout from Settings::getTouchMode() (e.g. after Preferences closes)
+    void updateTouchMode();
+    /// Updates touch chrome layout from a press/touch event (when TouchMode::AUTO is active)
+    void onPointerInput(const GdkEvent* event);
+    bool isTouchLayout() const;
+
     const ToolbarWidgetArray& getToolbarWidgets() const;
     const char* getToolbarName(GtkToolbar* toolbar) const;
 
@@ -184,6 +190,7 @@ private:
     /// Shows the menu bar until the next menu action, Escape, click, focus loss or Alt press
     void setMenubarTemporarilyVisible(bool visible);
     void updateMenubarReveal();
+    void setTouchLayout(bool touch);
 
 private:
     Control* control;
@@ -207,6 +214,8 @@ private:
     std::unique_ptr<TopBar> topBar;
 
     xoj::util::GObjectSPtr<GtkCssProvider> themeCssProvider;
+    xoj::util::GObjectSPtr<GtkGesture> pointerGesture;
+    bool touchLayout = false;
     bool compactMode = false;
     bool pendingCompactMode = false;
     guint compactIdleId = 0;

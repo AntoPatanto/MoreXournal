@@ -154,7 +154,9 @@ auto InputContext::handle(GdkEvent* sourceEvent) -> bool {
     if (this->view && (gdk_event_get_event_type(sourceEvent) == GDK_BUTTON_PRESS ||
                        gdk_event_get_event_type(sourceEvent) == GDK_TOUCH_BEGIN)) {
         // Alt held while drawing is a modifier, and a press on the page closes the menu bar shown with Alt
-        this->view->getControl()->getWindow()->onPagePressed();
+        MainWindow* win = this->view->getControl()->getWindow();
+        win->onPagePressed();
+        win->onPointerInput(sourceEvent);
     }
 
     InputEvent event = InputEvents::translateEvent(

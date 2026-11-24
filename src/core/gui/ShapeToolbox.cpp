@@ -11,6 +11,7 @@
 #include "control/settings/Settings.h"              // for Settings
 #include "control/shapes/ShapeEditController.h"     // for duplicate, convertToStroke
 #include "control/tools/EditSelection.h"            // for EditSelection
+#include "gui/ChromeUtil.h"                         // for newChromeIcon, updateScalableIcons
 #include "gui/XournalView.h"                        // for XournalView
 #include "gui/scroll/ScrollHandling.h"              // for ScrollHandling
 #include "gui/toolbarMenubar/icon/ColorIcon.h"      // for ColorIcon
@@ -61,9 +62,7 @@ void addClass(GtkWidget* w, const char* cssClass) {
 }
 
 GtkWidget* newIcon(const char* iconName, int size = ICON_SIZE) {
-    GtkWidget* img = gtk_image_new_from_icon_name(iconName, GTK_ICON_SIZE_SMALL_TOOLBAR);
-    gtk_image_set_pixel_size(GTK_IMAGE(img), size);
-    return img;
+    return xoj::chrome::newChromeIcon(iconName, size, size == ICON_SIZE);
 }
 
 GtkWidget* newSeparator() {
@@ -327,8 +326,12 @@ void ShapeToolbox::rebuildPalettes() {
     }
 }
 
+void ShapeToolbox::setTouchLayout(bool touch) {
+    xoj::chrome::updateScalableIcons(this->box.get(), xoj::chrome::chromeIconSize(touch));
+}
+
 void ShapeToolbox::build() {
-    GtkWidget* root = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+    GtkWidget* root = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     this->box.reset(root, xoj::util::refsink);
     gtk_widget_set_name(root, "shapeToolbox");
     addClass(root, "mx-pill");
@@ -338,6 +341,7 @@ void ShapeToolbox::build() {
 
     // Stroke color
     this->strokeColorButton = prepareFlatButton(gtk_menu_button_new(), _("Stroke color"));
+    addClass(this->strokeColorButton, "mx-wide");
     GtkWidget* strokeBtnInner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     this->strokeSwatch = newColorSwatch(SWATCH_SIZE);
     gtk_box_pack_start(GTK_BOX(strokeBtnInner), this->strokeSwatch, false, false, 0);
@@ -360,6 +364,7 @@ void ShapeToolbox::build() {
 
     // Thickness
     this->widthButton = prepareFlatButton(gtk_menu_button_new(), _("Stroke width"));
+    addClass(this->widthButton, "mx-wide");
     GtkWidget* widthBtnInner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     this->widthSample = newSample(2.0, 24, 14);
     gtk_box_pack_start(GTK_BOX(widthBtnInner), this->widthSample, false, false, 0);
@@ -423,6 +428,7 @@ void ShapeToolbox::build() {
     gtk_box_pack_start(GTK_BOX(root), fillSwitchRow, false, false, 0);
 
     this->fillButton = prepareFlatButton(gtk_menu_button_new(), _("Fill color and opacity"));
+    addClass(this->fillButton, "mx-wide");
     GtkWidget* fillBtnInner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     this->fillSwatch = newColorSwatch(SWATCH_SIZE);
     this->fillPercentLabel = GTK_LABEL(gtk_label_new("50%"));
@@ -474,7 +480,7 @@ void ShapeToolbox::build() {
     this->lineStyleSeparator = newSeparator();
     gtk_box_pack_start(GTK_BOX(root), this->lineStyleSeparator, false, false, 0);
 
-    this->lineStyleBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+    this->lineStyleBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     addClass(this->lineStyleBox, "mx-seg");
     gtk_widget_set_valign(this->lineStyleBox, GTK_ALIGN_CENTER);
     const char* lineStyleTooltips[3] = {_("Solid line"), _("Dashed line"), _("Dotted line")};
@@ -500,6 +506,7 @@ void ShapeToolbox::build() {
     gtk_box_pack_start(GTK_BOX(root), delBtn, false, false, 0);
 
     GtkWidget* convBtn = prepareFlatButton(gtk_button_new(), _("Convert to stroke"));
+    addClass(convBtn, "mx-wide");
     GtkWidget* convInner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     gtk_box_pack_start(GTK_BOX(convInner), newIcon("mx-spline-symbolic"), false, false, 0);
     gtk_box_pack_start(GTK_BOX(convInner), gtk_label_new(_("Convert to stroke")), false, false, 0);

@@ -52,6 +52,9 @@ public:
     /// Allows or hides the pill (follows toolbars and presentation mode); an empty pill stays hidden either way
     void setVisible(bool visible);
 
+    /// Switches icon and swatch sizes between compact (18/20 px) and touch (20/24 px)
+    void setTouchLayout(bool touch);
+
 private:
     /// Coalesces tool and selection updates onto the next high-priority idle turn
     void scheduleUpdate();
@@ -82,6 +85,7 @@ private:
     uint32_t shownSections = 0;
     bool built = false;
     bool allowedVisible = true;
+    bool touchLayout = false;
 
     /// Parts of the thickness button, children of content (nullptr if the tool has no thickness)
     GtkWidget* thicknessSample = nullptr;

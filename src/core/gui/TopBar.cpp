@@ -7,6 +7,7 @@
 #include "control/actions/ActionDatabase.h"  // for ActionDatabase
 #include "control/settings/Settings.h"       // for Settings
 #include "enums/Action.enum.h"               // for Action
+#include "gui/ChromeUtil.h"                  // for newChromeIcon, updateScalableIcons, updateMenuTouchClass
 #include "undo/UndoRedoHandler.h"            // for UndoRedoHandler
 #include "util/GVariantTemplate.h"           // for getGVariantValue
 #include "util/GtkUtil.h"                    // for fixActionableInitialSensitivity, setWidgetFollowActionEnabled
@@ -16,7 +17,7 @@
 using xoj::topbar::ToolGroup;
 
 namespace {
-constexpr int ICON_PIXEL_SIZE = 20;
+constexpr int COMPACT_ICON_PIXEL_SIZE = 18;
 
 /// The actions holding the drawing type of the active tool, and the drawing type each one stands for
 constexpr std::pair<Action, DrawingType> DRAWING_TYPE_ACTIONS[] = {
@@ -40,15 +41,14 @@ Action actionForDrawingType(DrawingType dt) {
 
 std::string winAction(Action a) { return std::string("win.") + Action_toString(a); }
 
-GtkWidget* newIcon(const std::string& iconName) {
-    GtkWidget* img = gtk_image_new_from_icon_name(iconName.c_str(), GTK_ICON_SIZE_LARGE_TOOLBAR);
-    gtk_image_set_pixel_size(GTK_IMAGE(img), ICON_PIXEL_SIZE);
-    return img;
+GtkWidget* newIcon(const std::string& iconName, int size = COMPACT_ICON_PIXEL_SIZE) {
+    return xoj::chrome::newChromeIcon(iconName.c_str(), size);
 }
 
-/// A flat button bound to a window action. The bar buttons never take the keyboard focus from the page.
+/// A flat button bound to a window action.
 GtkWidget* newActionButton(GtkWidget* btn, Action action, const std::string& iconName, const char* tooltip) {
     gtk_widget_set_can_focus(btn, false);
+    gtk_widget_set_valign(btn, GTK_ALIGN_CENTER);
     gtk_style_context_add_class(gtk_widget_get_style_context(btn), "flat");
     if (!iconName.empty()) {
         gtk_button_set_image(GTK_BUTTON(btn), newIcon(iconName));
@@ -104,11 +104,12 @@ TopBar::~TopBar() {
 }
 
 void TopBar::createStart(GMenuModel* mainMenu) {
-    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     startBox.reset(box, xoj::util::refsink);
 
     GtkWidget* menuButton = gtk_menu_button_new();
     gtk_widget_set_can_focus(menuButton, false);
+    gtk_widget_set_valign(menuButton, GTK_ALIGN_CENTER);
     gtk_style_context_add_class(gtk_widget_get_style_context(menuButton), "flat");
     gtk_style_context_add_class(gtk_widget_get_style_context(menuButton), "mx-menu-button");
     gtk_button_set_image(GTK_BUTTON(menuButton), newIcon("mx-menu-symbolic"));
@@ -116,6 +117,20 @@ void TopBar::createStart(GMenuModel* mainMenu) {
     // A real menu, not a popover: it scrolls, shows the shortcuts and opens the submenus to the side
     gtk_menu_button_set_use_popover(GTK_MENU_BUTTON(menuButton), false);
     gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(menuButton), mainMenu);
+    if (GtkMenu* popup = gtk_menu_button_get_popup(GTK_MENU_BUTTON(menuButton))) {
+        gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(popup)), "mx-menu");
+        g_signal_connect(popup, "show",
+                         G_CALLBACK(+[](GtkWidget* menu, gpointer ctrl) {
+                             GdkEvent* ev = gtk_get_current_event();
+                             const bool fromTouch = xoj::chrome::isTouchEvent(ev);
+                             if (ev) {
+                                 gdk_event_free(ev);
+                             }
+                             xoj::chrome::updateMenuTouchClass(
+                                     menu, static_cast<Control*>(ctrl)->getSettings()->getTouchMode(), fromTouch);
+                         }),
+                         control);
+    }
     gtk_container_add(GTK_CONTAINER(box), menuButton);
 
     GtkWidget* titleBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -142,7 +157,7 @@ void TopBar::createStart(GMenuModel* mainMenu) {
 }
 
 void TopBar::createCenter() {
-    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     centerBox.reset(box, xoj::util::refsink);
     gtk_style_context_add_class(gtk_widget_get_style_context(box), "mx-tools");
 
@@ -164,6 +179,7 @@ void TopBar::createCenter() {
         const auto i = static_cast<size_t>(def.group);
         GtkWidget* btn = gtk_toggle_button_new();
         gtk_widget_set_can_focus(btn, false);
+        gtk_widget_set_valign(btn, GTK_ALIGN_CENTER);
         gtk_style_context_add_class(gtk_widget_get_style_context(btn), "flat");
         gtk_style_context_add_class(gtk_widget_get_style_context(btn), "mx-tool");
         gtk_button_set_image(GTK_BUTTON(btn), newIcon(def.icon));
@@ -191,7 +207,7 @@ void TopBar::createCenter() {
 }
 
 void TopBar::createEnd() {
-    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     endBox.reset(box, xoj::util::refsink);
 
     // Undo and redo name the action they revert or repeat in the tooltip
@@ -224,6 +240,7 @@ void TopBar::createEnd() {
     gtk_container_add(GTK_CONTAINER(pageNav),
                       newActionButton(gtk_button_new(), Action::GOTO_PREVIOUS, "mx-prev-symbolic", _("Previous page")));
     GtkWidget* pageButton = newActionButton(gtk_button_new(), Action::GOTO_PAGE, "", _("Go to page"));
+    gtk_style_context_add_class(gtk_widget_get_style_context(pageButton), "mx-page-goto");
     pageLabel = GTK_LABEL(gtk_label_new(nullptr));
     gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(pageLabel)), "mx-page-label");
     gtk_container_add(GTK_CONTAINER(pageButton), GTK_WIDGET(pageLabel));
@@ -281,6 +298,17 @@ void TopBar::setCompact(bool c) {
     for (GtkWidget* sep: separators) {
         gtk_widget_set_visible(sep, !compact);
     }
+}
+
+void TopBar::setTouchLayout(bool touch) {
+    if (touchLayout == touch) {
+        return;
+    }
+    touchLayout = touch;
+    const int iconSize = xoj::chrome::chromeIconSize(touch);
+    xoj::chrome::updateScalableIcons(startBox.get(), iconSize);
+    xoj::chrome::updateScalableIcons(centerBox.get(), iconSize);
+    xoj::chrome::updateScalableIcons(endBox.get(), iconSize);
 }
 
 void TopBar::onToolClicked(ToolGroup group) {
