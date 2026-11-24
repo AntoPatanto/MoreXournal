@@ -16,7 +16,8 @@
 #include <gdk/gdk.h>  // for GdkEvent, gdk_event_free, gdk_event_copy
 #include <glib.h>     // for gdouble, gchar, guint, guint32
 
-#include "model/Point.h"  // for Point::NO_PRESSURE
+#include "control/tools/SelectionHandleLogic.h"  // for DeviceKind
+#include "model/Point.h"                         // for Point::NO_PRESSURE
 #include "util/Point.h"
 
 #include "DeviceId.h"
@@ -53,6 +54,7 @@ struct InputEvent final {
 
     InputEventType type{UNKNOWN};
     InputDeviceClass deviceClass{INPUT_DEVICE_IGNORE};
+    xoj::handles::DeviceKind deviceKind{xoj::handles::DeviceKind::Fine};
     const gchar* deviceName{};
 
     xoj::util::Point<double> absolute;  ///< In widget coordinates
@@ -78,6 +80,7 @@ struct KeyEvent final {
 struct InputEvents {
     static InputDeviceClass translateDeviceType(GdkDevice* device, Settings* settings);
     static InputDeviceClass translateDeviceType(const std::string& name, GdkInputSource source, Settings* settings);
+    static xoj::handles::DeviceKind translateDeviceKind(GdkInputSource source);
 
     static InputEvent translateEvent(GdkEvent* sourceEvent, Settings* settings,
                                      const xoj::util::Point<double>& relativeOffset);

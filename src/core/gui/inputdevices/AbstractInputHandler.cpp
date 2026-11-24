@@ -89,6 +89,7 @@ auto AbstractInputHandler::getInputDataRelativeToCurrentPage(XojPageView* page, 
     pos.timestamp = event.timestamp;
 
     pos.deviceId = event.deviceId;
+    pos.deviceKind = event.deviceKind;
 
     return pos;
 }

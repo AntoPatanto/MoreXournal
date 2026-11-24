@@ -741,6 +741,17 @@ void XournalView::repaintSelection(bool evenWithoutSelection) {
     updateShapeToolbox();
 }
 
+void XournalView::setLastPressDeviceKind(xoj::handles::DeviceKind kind) {
+    if (this->lastPressDeviceKind != kind) {
+        this->lastPressDeviceKind = kind;
+        if (getSelection() != nullptr) {
+            repaintSelection();
+        }
+    }
+}
+
+auto XournalView::getLastPressDeviceKind() const -> xoj::handles::DeviceKind { return this->lastPressDeviceKind; }
+
 void XournalView::layoutPages() { this->getLayout()->recalculate(); }
 
 auto XournalView::getDisplayHeight() const -> int {
