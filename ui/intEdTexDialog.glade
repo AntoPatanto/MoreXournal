@@ -200,12 +200,15 @@
             </child>
             <child>
               <object class="GtkButton" id="btOk">
-                <property name="label" translatable="yes">Ok</property>
+                <property name="label" translatable="yes">Apply</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
                 <property name="image">iconOk</property>
                 <accelerator key="Return" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>

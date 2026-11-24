@@ -142,7 +142,8 @@ void checkForEmergencySave(Control* control) {
     enum { DELETE_FILE = 1, RESTORE_FILE };
     XojMsgBox::askQuestion(
             control->getGtkWindow(), _("Recovery file detected"), msg,
-            {{_("Delete file"), DELETE_FILE}, {_("Restore file"), RESTORE_FILE}},
+            {{_("Delete file"), DELETE_FILE, "destructive-action"},
+             {_("Restore file"), RESTORE_FILE, "suggested-action"}},
             [file = std::move(file), ctrl = control](int response) mutable {
                 if (response == DELETE_FILE) {
                     deleteFile(file, ctrl->getGtkWindow());

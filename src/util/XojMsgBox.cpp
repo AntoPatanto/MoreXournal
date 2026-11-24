@@ -100,7 +100,13 @@ void XojMsgBox::askQuestionWithMarkup(GtkWindow* win, std::string_view maintext,
             gtk_message_dialog_new_with_markup(win, GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE, nullptr);
 
     for (auto& b: buttons) {
-        gtk_dialog_add_button(GTK_DIALOG(dialog), b.label.c_str(), b.response);
+        GtkWidget* btn = gtk_dialog_add_button(GTK_DIALOG(dialog), b.label.c_str(), b.response);
+        if (!b.styleClass.empty()) {
+            gtk_style_context_add_class(gtk_widget_get_style_context(btn), b.styleClass.c_str());
+        }
+        if (b.styleClass == "suggested-action") {
+            gtk_dialog_set_default_response(GTK_DIALOG(dialog), b.response);
+        }
     }
 
     gtk_message_dialog_set_markup(GTK_MESSAGE_DIALOG(dialog), maintext.data());
@@ -166,7 +172,13 @@ auto XojMsgBox::askPluginQuestion(const std::string& pluginName, const std::stri
     g_value_unset(&val);
 
     for (auto& b: buttons) {
-        gtk_dialog_add_button(GTK_DIALOG(dialog), b.label.c_str(), b.response);
+        GtkWidget* btn = gtk_dialog_add_button(GTK_DIALOG(dialog), b.label.c_str(), b.response);
+        if (!b.styleClass.empty()) {
+            gtk_style_context_add_class(gtk_widget_get_style_context(btn), b.styleClass.c_str());
+        }
+        if (b.styleClass == "suggested-action") {
+            gtk_dialog_set_default_response(GTK_DIALOG(dialog), b.response);
+        }
     }
 
     int res = gtk_dialog_run(GTK_DIALOG(dialog));
