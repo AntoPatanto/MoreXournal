@@ -154,9 +154,7 @@ auto InputContext::handle(GdkEvent* sourceEvent) -> bool {
     if (this->view && (gdk_event_get_event_type(sourceEvent) == GDK_BUTTON_PRESS ||
                        gdk_event_get_event_type(sourceEvent) == GDK_TOUCH_BEGIN)) {
         // Alt held while drawing is a modifier, and a press on the page closes the menu bar shown with Alt
-        MainWindow* win = this->view->getControl()->getWindow();
-        win->onPagePressed();
-        win->onPointerInput(sourceEvent);
+        this->view->getControl()->getWindow()->onPagePressed();
     }
 
     InputEvent event = InputEvents::translateEvent(
@@ -321,7 +319,8 @@ auto InputContext::isBlocked(InputContext::DeviceType deviceType) -> bool {
         case STYLUS:
             return this->stylusHandler->isBlocked();
         case TOUCHSCREEN:
-            return this->touchDrawingHandler && this->touchDrawingHandler->isBlocked();
+            return this->touchHandler->isBlocked() ||
+                   (this->touchDrawingHandler && this->touchDrawingHandler->isBlocked());
     }
     return false;
 }

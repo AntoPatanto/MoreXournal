@@ -27,6 +27,7 @@
 #include "gui/ShapeToolbox.h"                           // for ShapeToolbox
 #include "gui/TopBar.h"                                 // for TopBar
 #include "gui/TouchModeLogic.h"                         // for resolveTouchLayout
+#include "gui/inputdevices/InputContext.h"              // for InputContext
 #include "gui/inputdevices/InputEvents.h"               // for INPUT_DEVICE_TOUC...
 #include "gui/menus/menubar/Menubar.h"                  // for Menubar
 #include "gui/menus/menubar/ToolbarSelectionSubmenu.h"  // for ToolbarSelectionSubmenu
@@ -493,8 +494,26 @@ void MainWindow::updateTouchMode() {
 }
 
 void MainWindow::onPointerInput(const GdkEvent* event) {
-    const TouchMode mode = control->getSettings()->getTouchMode();
+    if (!event) {
+        return;
+    }
     const auto kind = xoj::chrome::classifyEvent(event);
+    if (kind == xoj::chrome::PointerKind::Touch) {
+        // Ignore touches blocked by HandRecognition (palm rejection) or mapped to Disabled/Ignore
+        if (this->xournal) {
+            if (GtkWidget* w = this->xournal->getWidget(); w && GTK_IS_XOURNAL(w)) {
+                if (InputContext* ic = GTK_XOURNAL(w)->input; ic && ic->isBlocked(InputContext::TOUCHSCREEN)) {
+                    return;
+                }
+            }
+        }
+        if (GdkDevice* src = gdk_event_get_source_device(event)) {
+            if (InputEvents::translateDeviceType(src, control->getSettings()) == INPUT_DEVICE_IGNORE) {
+                return;
+            }
+        }
+    }
+    const TouchMode mode = control->getSettings()->getTouchMode();
     setTouchLayout(xoj::chrome::resolveTouchLayout(mode, kind, this->touchLayout));
 }
 
