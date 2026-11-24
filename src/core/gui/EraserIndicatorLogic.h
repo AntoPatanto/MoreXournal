@@ -146,7 +146,10 @@ inline auto displayedPaperColor(bool isPdfPage, Color backgroundColor, const Rec
 inline auto computeEraserIndicatorPaletteForPage(bool isPdfPage, Color backgroundColor,
                                                  const RecolorParameters& recolorParams) -> EraserIndicatorPalette {
     const Color displayedPaper = displayedPaperColor(isPdfPage, backgroundColor, recolorParams);
-    return computeEraserIndicatorPalette(isDarkColor(displayedPaper), displayedPaper);
+    // Whiteout strokes are always painted white, so preview them as white (recolored like the strokes are)
+    const Color whiteoutFill =
+            recolorParams.recolorizeMainView ? Color(recolorParams.recolor.convertColor(Colors::white)) : Colors::white;
+    return computeEraserIndicatorPalette(isDarkColor(displayedPaper), whiteoutFill);
 }
 
 struct EraserOverlayInput {

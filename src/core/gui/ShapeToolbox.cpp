@@ -774,6 +774,8 @@ void ShapeToolbox::fillCustomColorCb(GtkButton*, ShapeToolbox* self) {
 }
 
 auto ShapeToolbox::opacityPressCb(GtkWidget*, GdkEventButton*, ShapeToolbox* self) -> gboolean {
+    // A press without a matching release (e.g. a second button) must not drop the drag in progress
+    self->commitOpacityDrag();
     if (EditSelection* sel = self->getShapeSelection()) {
         self->opacityDrag.begin(sel->getSourcePage(), sel->getShapeStroke());
     }

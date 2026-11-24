@@ -175,20 +175,21 @@ TEST(EraserIndicatorLogicTest, testPdfPageAndColoredPaperPalette) {
     EXPECT_TRUE(darkPdfPal.darkPage);
     EXPECT_NEAR(darkPdfPal.whiteoutFill.r, 30.0 / 255.0, 1e-2);
 
-    // Non-PDF colored paper (e.g. dark charcoal or cream) uses the displayed paper color for whiteout fill
+    // Non-PDF colored paper picks the palette from the paper, but whiteout strokes are painted white,
+    // so the whiteout preview stays white
     const Color charcoal{0xff20242cU};
     const auto charcoalPal = computeEraserIndicatorPaletteForPage(/*isPdfPage=*/false, charcoal, noRecolor);
     EXPECT_TRUE(charcoalPal.darkPage);
-    EXPECT_NEAR(charcoalPal.whiteoutFill.r, 0x20 / 255.0, 1e-6);
-    EXPECT_NEAR(charcoalPal.whiteoutFill.g, 0x24 / 255.0, 1e-6);
-    EXPECT_NEAR(charcoalPal.whiteoutFill.b, 0x2c / 255.0, 1e-6);
+    EXPECT_DOUBLE_EQ(charcoalPal.whiteoutFill.r, 1.0);
+    EXPECT_DOUBLE_EQ(charcoalPal.whiteoutFill.g, 1.0);
+    EXPECT_DOUBLE_EQ(charcoalPal.whiteoutFill.b, 1.0);
 
     const Color cream = Colors::xopp_antiquewhite;
     const auto creamPal = computeEraserIndicatorPaletteForPage(/*isPdfPage=*/false, cream, noRecolor);
     EXPECT_FALSE(creamPal.darkPage);
-    EXPECT_NEAR(creamPal.whiteoutFill.r, cream.red / 255.0, 1e-6);
-    EXPECT_NEAR(creamPal.whiteoutFill.g, cream.green / 255.0, 1e-6);
-    EXPECT_NEAR(creamPal.whiteoutFill.b, cream.blue / 255.0, 1e-6);
+    EXPECT_DOUBLE_EQ(creamPal.whiteoutFill.r, 1.0);
+    EXPECT_DOUBLE_EQ(creamPal.whiteoutFill.g, 1.0);
+    EXPECT_DOUBLE_EQ(creamPal.whiteoutFill.b, 1.0);
 }
 
 TEST(EraserIndicatorLogicTest, testVisibilityAcrossDevicesAndStates) {
