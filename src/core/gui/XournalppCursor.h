@@ -11,11 +11,18 @@
 
 #pragma once
 
-#include <gdk/gdk.h>  // for GdkCursor
-#include <glib.h>     // for guint, gulong
+#include <cstdint>
+#include <optional>
 
+#include <cairo.h>    // for cairo_t
+#include <gdk/gdk.h>  // for GdkCursor, GdkRectangle
+#include <glib.h>     // for guint, gulong
+#include <gtk/gtk.h>  // for GtkWidget
+
+#include "control/settings/SettingsEnums.h"     // for StylusCursorType
 #include "control/tools/CursorSelectionType.h"  // for CursorSelectionType
 #include "gui/inputdevices/InputEvents.h"       // for InputDeviceClass, INP...
+#include "util/Point.h"                         // for Point
 
 class Control;
 
@@ -38,19 +45,39 @@ public:
     void setRotationAngle(double angle);
     void setMirror(bool mirror);
 
+    /// Track the pointer position in GtkXournal widget coordinates for canvas overlays (e.g. eraser indicator)
+    void setPointerPosition(double widgetX, double widgetY);
+    void clearPointerPosition();
+
+    /// Paint canvas-drawn cursor overlays (eraser indicator) in GtkXournal widget coordinates
+    void paintOverlay(cairo_t* cr, GtkWidget* widget);
+
 private:
     void setCursor(guint id);
 
     GdkCursor* getPenCursor();
-
-    GdkCursor* getEraserCursor();
     GdkCursor* getHighlighterCursor();
     GdkCursor* getResizeCursor(double deltaAngle);
 
     GdkCursor* createHighlighterOrPenCursor(double alpha);
     GdkCursor* createCustomDrawDirCursor(int size, bool shift, bool ctrl);
 
+    bool isEraserOverlayVisible() const;
+    std::optional<GdkRectangle> computeOverlayBounds() const;
+    void invalidateOverlay();
+
 private:
+    struct PenCursorKey {
+        StylusCursorType cursorType = STYLUS_CURSOR_DOT;
+        bool bright = false;
+        int alphaKey = 0;
+        int sizeQuarterPx = 0;
+        uint32_t colorRgb = 0;
+        int scaleFactor = 1;
+
+        bool operator==(const PenCursorKey&) const = default;
+    };
+
     InputDeviceClass inputDevice = INPUT_DEVICE_MOUSE;
 
     Control* control = nullptr;
@@ -62,6 +89,9 @@ private:
     bool invisible = false;
     bool linkHighlighted = false;
 
+    std::optional<xoj::util::Point<double>> pointerWidgetPos;
+    std::optional<GdkRectangle> lastDrawnOverlayRect;
+
     // One shot drawDir custom cursor -drawn instead of pen/stylus then cleared.
     bool drawDirActive = false;
     bool drawDirShift = false;
@@ -69,8 +99,8 @@ private:
 
     // avoid re-assigning same cursor
     guint currentCursor = 0;        // enum AVAILABLECURSORS
-    gulong currentCursorFlavour{};  // for different flavours of a cursor (i.e. drawdir, pen and highlighter custom
-                                    // cursors)
+    gulong currentCursorFlavour{};  // for different flavours of a cursor (i.e. drawdir, resize)
+    std::optional<PenCursorKey> currentPenCursorKey;
 
     // for resizing rotated/mirrored selections
     double angle = 0;

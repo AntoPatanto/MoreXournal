@@ -16,6 +16,7 @@
 #include "gui/PageView.h"                   // for XojPageView
 #include "gui/Shadow.h"                     // for Shadow
 #include "gui/XournalView.h"                // for XournalView
+#include "gui/XournalppCursor.h"            // for XournalppCursor
 #include "gui/inputdevices/InputContext.h"  // for InputContext
 #include "gui/scroll/ScrollHandling.h"      // for ScrollHandling
 #include "util/Color.h"                     // for cairo_set_source_rgbi
@@ -306,6 +307,7 @@ static auto gtk_xournal_draw(GtkWidget* widget, cairo_t* cr) -> gboolean {
 
     GtkXournal* xournal = GTK_XOURNAL(widget);
 
+    cairo_save(cr);
     cairo_translate(cr, -gtk_adjustment_get_value(xournal->hadjustment),
                     -gtk_adjustment_get_value(xournal->vadjustment));
 
@@ -364,6 +366,11 @@ static auto gtk_xournal_draw(GtkWidget* widget, cairo_t* cr) -> gboolean {
 
     if (recolor) {
         recolor->recolorCurrentCairoRegion(cr);
+    }
+    cairo_restore(cr);
+
+    if (XournalppCursor* cursor = xournal->view->getCursor()) {
+        cursor->paintOverlay(cr, widget);
     }
 
     return true;
