@@ -11,13 +11,17 @@
 #include "gui/TopBarLogic.h"
 
 using xoj::topbar::barLayoutForWidth;
-using xoj::topbar::BREAKPOINT_NARROW;
-using xoj::topbar::BREAKPOINT_NO_TITLE;
-using xoj::topbar::BREAKPOINT_OVERFLOW;
+using xoj::topbar::COMPACT_USABLE_NARROW;
+using xoj::topbar::COMPACT_USABLE_NO_TITLE;
+using xoj::topbar::COMPACT_USABLE_OVERFLOW;
 using xoj::topbar::isShapeDrawingType;
 using xoj::topbar::MIN_WINDOW_WIDTH;
 using xoj::topbar::ToolGroup;
 using xoj::topbar::toolGroupFor;
+using xoj::topbar::TOUCH_USABLE_NARROW;
+using xoj::topbar::TOUCH_USABLE_NO_TITLE;
+using xoj::topbar::TOUCH_USABLE_OVERFLOW;
+using xoj::topbar::TOUCH_USABLE_TIGHT;
 
 namespace {
 constexpr DrawingType ALL_DRAWING_TYPES[] = {
@@ -107,12 +111,12 @@ TEST(TopBarLogicTest, testFullTable) {
     }
 }
 
-TEST(TopBarLogicTest, testNarrowWindowBreakpoints) {
+TEST(TopBarLogicTest, testNarrowWindowBreakpointsCompact) {
     EXPECT_EQ(MIN_WINDOW_WIDTH, 600);
 
-    // >= 1000 px: everything visible, no overflow menu
-    for (int w: {1280, BREAKPOINT_OVERFLOW}) {
-        const auto l = barLayoutForWidth(w);
+    // Wide usable bar (>= 880 px, ~1006+ px window with CSD): everything visible, no overflow menu
+    for (int w: {1154, COMPACT_USABLE_OVERFLOW}) {
+        const auto l = barLayoutForWidth(w, false);
         EXPECT_TRUE(l.showTitle) << w;
         EXPECT_FALSE(l.showTitleInMenu) << w;
         EXPECT_TRUE(l.showPageArrows) << w;
@@ -122,11 +126,12 @@ TEST(TopBarLogicTest, testNarrowWindowBreakpoints) {
         EXPECT_TRUE(l.showFullscreenBtn) << w;
         EXPECT_FALSE(l.showOverflowBtn) << w;
         EXPECT_TRUE(l.showSeparators) << w;
+        EXPECT_FALSE(l.compactBarButtons) << w;
     }
 
-    // 860..999 px: new page and fullscreen move into overflow
-    for (int w: {BREAKPOINT_OVERFLOW - 1, 900, BREAKPOINT_NO_TITLE}) {
-        const auto l = barLayoutForWidth(w);
+    // 740..879 px usable (~866..1005 px window with CSD): new page and fullscreen move into overflow
+    for (int w: {COMPACT_USABLE_OVERFLOW - 1, 774, COMPACT_USABLE_NO_TITLE}) {
+        const auto l = barLayoutForWidth(w, false);
         EXPECT_TRUE(l.showTitle) << w;
         EXPECT_FALSE(l.showTitleInMenu) << w;
         EXPECT_TRUE(l.showPageArrows) << w;
@@ -136,11 +141,12 @@ TEST(TopBarLogicTest, testNarrowWindowBreakpoints) {
         EXPECT_FALSE(l.showFullscreenBtn) << w;
         EXPECT_TRUE(l.showOverflowBtn) << w;
         EXPECT_TRUE(l.showSeparators) << w;
+        EXPECT_FALSE(l.compactBarButtons) << w;
     }
 
-    // 700..859 px: title moves into main menu header, page arrows become compact "3 / 12 v" button
-    for (int w: {BREAKPOINT_NO_TITLE - 1, 760, BREAKPOINT_NARROW}) {
-        const auto l = barLayoutForWidth(w);
+    // 625..739 px usable (~751..865 px window with CSD): title moves into main menu, page becomes compact button
+    for (int w: {COMPACT_USABLE_NO_TITLE - 1, 634, COMPACT_USABLE_NARROW}) {
+        const auto l = barLayoutForWidth(w, false);
         EXPECT_FALSE(l.showTitle) << w;
         EXPECT_TRUE(l.showTitleInMenu) << w;
         EXPECT_FALSE(l.showPageArrows) << w;
@@ -150,11 +156,12 @@ TEST(TopBarLogicTest, testNarrowWindowBreakpoints) {
         EXPECT_FALSE(l.showFullscreenBtn) << w;
         EXPECT_TRUE(l.showOverflowBtn) << w;
         EXPECT_TRUE(l.showSeparators) << w;
+        EXPECT_FALSE(l.compactBarButtons) << w;
     }
 
-    // < 700 px: sidebar and page number move into overflow as well; tools + undo/redo stay
-    for (int w: {BREAKPOINT_NARROW - 1, 600}) {
-        const auto l = barLayoutForWidth(w);
+    // < 625 px usable (<= 750 px window with CSD, incl. 700 and 600 px): sidebar & page move into overflow
+    for (int w: {COMPACT_USABLE_NARROW - 1, 574, 474}) {
+        const auto l = barLayoutForWidth(w, false);
         EXPECT_FALSE(l.showTitle) << w;
         EXPECT_TRUE(l.showTitleInMenu) << w;
         EXPECT_FALSE(l.showPageArrows) << w;
@@ -164,5 +171,65 @@ TEST(TopBarLogicTest, testNarrowWindowBreakpoints) {
         EXPECT_FALSE(l.showFullscreenBtn) << w;
         EXPECT_TRUE(l.showOverflowBtn) << w;
         EXPECT_FALSE(l.showSeparators) << w;
+        EXPECT_FALSE(l.compactBarButtons) << w;
+    }
+}
+
+TEST(TopBarLogicTest, testNarrowWindowBreakpointsTouch) {
+    // >= 910 px usable (~1036+ px window with CSD): full touch bar
+    for (int w: {1154, TOUCH_USABLE_OVERFLOW}) {
+        const auto l = barLayoutForWidth(w, true);
+        EXPECT_TRUE(l.showTitle) << w;
+        EXPECT_TRUE(l.showPageArrows) << w;
+        EXPECT_TRUE(l.showNewPageBtn) << w;
+        EXPECT_TRUE(l.showFullscreenBtn) << w;
+        EXPECT_FALSE(l.showOverflowBtn) << w;
+        EXPECT_FALSE(l.compactBarButtons) << w;
+    }
+
+    // 850..909 px usable: overflow only, title + arrows still fit
+    for (int w: {TOUCH_USABLE_OVERFLOW - 1, TOUCH_USABLE_NO_TITLE}) {
+        const auto l = barLayoutForWidth(w, true);
+        EXPECT_TRUE(l.showTitle) << w;
+        EXPECT_TRUE(l.showPageArrows) << w;
+        EXPECT_FALSE(l.showNewPageBtn) << w;
+        EXPECT_FALSE(l.showFullscreenBtn) << w;
+        EXPECT_TRUE(l.showOverflowBtn) << w;
+        EXPECT_FALSE(l.compactBarButtons) << w;
+    }
+
+    // 710..849 px usable (~836..975 px window, incl. 860 and 900 px touch): title in menu, compact page button
+    for (int w: {TOUCH_USABLE_NO_TITLE - 1, 774, 734, TOUCH_USABLE_NARROW}) {
+        const auto l = barLayoutForWidth(w, true);
+        EXPECT_FALSE(l.showTitle) << w;
+        EXPECT_TRUE(l.showTitleInMenu) << w;
+        EXPECT_FALSE(l.showPageArrows) << w;
+        EXPECT_TRUE(l.showPageCompactBtn) << w;
+        EXPECT_TRUE(l.showSidebarBtn) << w;
+        EXPECT_TRUE(l.showOverflowBtn) << w;
+        EXPECT_TRUE(l.showSeparators) << w;
+        EXPECT_FALSE(l.compactBarButtons) << w;
+    }
+
+    // 550..709 px usable (~676..835 px window, incl. 700 and 760 px touch): narrow layout, full 44 px buttons
+    for (int w: {TOUCH_USABLE_NARROW - 1, 634, 574, TOUCH_USABLE_TIGHT}) {
+        const auto l = barLayoutForWidth(w, true);
+        EXPECT_FALSE(l.showTitle) << w;
+        EXPECT_FALSE(l.showPageCompactBtn) << w;
+        EXPECT_FALSE(l.showSidebarBtn) << w;
+        EXPECT_FALSE(l.showSeparators) << w;
+        EXPECT_TRUE(l.showOverflowBtn) << w;
+        EXPECT_FALSE(l.compactBarButtons) << w;
+    }
+
+    // < 550 px usable (< ~676 px window, incl. 600 px touch): narrow layout + tightened 38 px bar buttons
+    for (int w: {TOUCH_USABLE_TIGHT - 1, 474}) {
+        const auto l = barLayoutForWidth(w, true);
+        EXPECT_FALSE(l.showTitle) << w;
+        EXPECT_FALSE(l.showPageCompactBtn) << w;
+        EXPECT_FALSE(l.showSidebarBtn) << w;
+        EXPECT_FALSE(l.showSeparators) << w;
+        EXPECT_TRUE(l.showOverflowBtn) << w;
+        EXPECT_TRUE(l.compactBarButtons) << w;
     }
 }

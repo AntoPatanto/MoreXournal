@@ -47,10 +47,10 @@ public:
     /// View > Toolbars hides the tools, the history and the page buttons. The menu and the title stay.
     void setToolsVisible(bool visible);
 
-    /// Applies the narrow-window breakpoints (1000 / 860 / 700 px) for the current window width
+    /// Updates the bar box's target natural width from the window width; layout breakpoints follow usable bar width
     void setWidth(int width);
 
-    /// Switches icon sizes between compact (18 px) and touch (20 px)
+    /// Switches icon sizes between compact (18 px) and touch (20 px) and recomputes density-aware breakpoints
     void setTouchLayout(bool touch);
 
     /// Header bar currently holding the top bar controls (for F6 focus cycling)
@@ -60,6 +60,8 @@ private:
     void createStart(GMenuModel* mainMenu);
     void createCenter();
     void createEnd();
+    void onUsableWidthAllocated(int usableWidth);
+    void updateLayoutForUsableWidth(int usableWidth);
     void applyLayout();
     void updateMenuButtonTooltip();
     void rebuildOverflowMenu();
@@ -100,6 +102,9 @@ private:
 
     std::vector<GtkWidget*> separators;
     xoj::topbar::BarLayout layout{};
+    int lastUsableWidth = 0;
+    int pendingUsableWidth = 0;
+    guint layoutIdleId = 0;
     bool touchLayout = false;
     bool docUnsaved = false;
     std::string docName;

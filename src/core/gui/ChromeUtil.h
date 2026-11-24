@@ -30,6 +30,8 @@ constexpr const char* SWATCH_SECONDARY_KEY = "mx-swatch-secondary";
 constexpr const char* SWATCH_EMPTY_KEY = "mx-swatch-empty";
 constexpr const char* LINE_STYLE_KIND_KEY = "mx-line-style-kind";
 constexpr const char* HAD_TOOLTIP_KEY = "mx-had-tooltip";
+constexpr const char* SUBMENU_HOOKED_KEY = "mx-submenu-hooked";
+constexpr const char* MENU_TOUCH_ACTIVE_KEY = "mx-menu-touch-active";
 
 inline double linearizeChannel(double c) { return c <= 0.03928 ? c / 12.92 : std::pow((c + 0.055) / 1.055, 2.4); }
 
@@ -142,17 +144,56 @@ inline void hideTooltipWhilePopupOpen(GtkWidget* button, GtkWidget* popup) {
             button, GConnectFlags(0));
 }
 
-/// Applies `.mx-touch-menu` to a GtkMenu when opened from touch (or when TouchMode::ON)
-inline void updateMenuTouchClass(GtkWidget* menu, TouchMode mode, bool openedFromTouch) {
-    if (!menu) {
+/// Recursively applies `.mx-menu` and (when `touch`) `.mx-touch-menu` to a GtkMenu and all its submenus,
+/// hooking `show` on submenus so dynamically populated submenus (recent files, plugins) stay styled too.
+inline void applyMenuClassesRecursive(GtkWidget* menu, bool touch) {
+    if (!menu || !GTK_IS_MENU(menu)) {
         return;
     }
     GtkStyleContext* ctx = gtk_widget_get_style_context(menu);
-    if (isTouchMenuLayout(mode, openedFromTouch)) {
+    gtk_style_context_add_class(ctx, "mx-menu");
+    if (touch) {
         gtk_style_context_add_class(ctx, "mx-touch-menu");
     } else {
         gtk_style_context_remove_class(ctx, "mx-touch-menu");
     }
+    g_object_set_data(G_OBJECT(menu), detail::MENU_TOUCH_ACTIVE_KEY, GINT_TO_POINTER(touch ? 1 : 0));
+
+    GList* children = gtk_container_get_children(GTK_CONTAINER(menu));
+    for (GList* l = children; l != nullptr; l = l->next) {
+        GtkWidget* item = GTK_WIDGET(l->data);
+        if (!GTK_IS_MENU_ITEM(item)) {
+            continue;
+        }
+        GtkWidget* sub = gtk_menu_item_get_submenu(GTK_MENU_ITEM(item));
+        if (!sub || !GTK_IS_MENU(sub)) {
+            continue;
+        }
+        if (g_object_get_data(G_OBJECT(sub), detail::SUBMENU_HOOKED_KEY) == nullptr) {
+            g_object_set_data(G_OBJECT(sub), detail::SUBMENU_HOOKED_KEY, GINT_TO_POINTER(1));
+            g_signal_connect(sub, "show",
+                             G_CALLBACK(+[](GtkWidget* subMenu, gpointer) {
+                                 bool subTouch = GPOINTER_TO_INT(g_object_get_data(
+                                                         G_OBJECT(subMenu), detail::MENU_TOUCH_ACTIVE_KEY)) != 0;
+                                 if (GtkWidget* attach = gtk_menu_get_attach_widget(GTK_MENU(subMenu))) {
+                                     if (GtkWidget* parentMenu = gtk_widget_get_parent(attach);
+                                         parentMenu && GTK_IS_MENU(parentMenu)) {
+                                         subTouch = GPOINTER_TO_INT(g_object_get_data(
+                                                            G_OBJECT(parentMenu), detail::MENU_TOUCH_ACTIVE_KEY)) != 0;
+                                     }
+                                 }
+                                 applyMenuClassesRecursive(subMenu, subTouch);
+                             }),
+                             nullptr);
+        }
+        applyMenuClassesRecursive(sub, touch);
+    }
+    g_list_free(children);
+}
+
+/// Applies `.mx-menu` and `.mx-touch-menu` to a GtkMenu (and every submenu) when opened from touch or TouchMode::ON
+inline void updateMenuTouchClass(GtkWidget* menu, TouchMode mode, bool openedFromTouch) {
+    applyMenuClassesRecursive(menu, isTouchMenuLayout(mode, openedFromTouch));
 }
 
 inline gboolean drawContrastSwatch(GtkWidget* w, cairo_t* cr, gpointer) {
