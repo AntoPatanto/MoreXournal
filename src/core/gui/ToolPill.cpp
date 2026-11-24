@@ -748,7 +748,9 @@ void ToolPill::addThickness(GtkBox* box, uint32_t sections, ToolGroup group) {
         gtk_box_pack_start(pop, eventBox, false, false, 0);
 
         if (group != ToolGroup::SELECTION) {
-            GtkWidget* opacity = newActionButton(gtk_button_new(), Action::TOOL_FILL_OPACITY, nullptr, {}, nullptr);
+            // Trigger TOOL_FILL_OPACITY directly instead of GtkActionable so GtkActionHelper does not override
+            // sensitivity when the fill switch is off
+            GtkWidget* opacity = prepareButton(gtk_button_new(), nullptr);
             addClass(opacity, "mx-prow");
             GtkWidget* opBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
             GtkWidget* opLbl = gtk_label_new(_("Fill opacity"));
@@ -766,12 +768,22 @@ void ToolPill::addThickness(GtkBox* box, uint32_t sections, ToolGroup group) {
             gtk_box_pack_start(GTK_BOX(opBox), newIcon("mx-down-symbolic", 16), false, false, 0);
             gtk_container_add(GTK_CONTAINER(opacity), opBox);
 
+            g_signal_connect(
+                    opacity, "clicked",
+                    G_CALLBACK(+[](GtkButton*, gpointer ctrlPtr) {
+                        static_cast<Control*>(ctrlPtr)->getActionDatabase()->fireActivateAction(
+                                Action::TOOL_FILL_OPACITY);
+                    }),
+                    control);
+
             g_object_bind_property(sw, "active", opacity, "sensitive", G_BINDING_SYNC_CREATE);
-            // Refresh the percentage whenever the popover opens
+            // Refresh the percentage and sensitivity whenever the popover opens
             struct OpacityRefreshData {
                 ToolHandler* th;
                 bool isHighlighter;
                 GtkLabel* pctLbl;
+                GtkWidget* sw;
+                GtkWidget* opacity;
             };
             g_signal_connect_data(
                     popover, "show",
@@ -781,8 +793,9 @@ void ToolPill::addThickness(GtkBox* box, uint32_t sections, ToolGroup group) {
                                 data->isHighlighter ? data->th->getHighlighterFill() : data->th->getPenFill();
                         const int pct = static_cast<int>(std::clamp(alpha, 0, 255) * 100.0 / 255.0 + 0.5);
                         gtk_label_set_text(data->pctLbl, (std::to_string(pct) + "%").c_str());
+                        gtk_widget_set_sensitive(data->opacity, gtk_switch_get_active(GTK_SWITCH(data->sw)));
                     }),
-                    new OpacityRefreshData{th, group == ToolGroup::HIGHLIGHTER, GTK_LABEL(pctLbl)},
+                    new OpacityRefreshData{th, group == ToolGroup::HIGHLIGHTER, GTK_LABEL(pctLbl), sw, opacity},
                     +[](gpointer d, GClosure*) { delete static_cast<OpacityRefreshData*>(d); }, GConnectFlags(0));
 
             popdownOnClick(opacity, popover);

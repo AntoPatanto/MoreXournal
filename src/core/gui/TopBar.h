@@ -72,10 +72,10 @@ private:
 private:
     Control* control;
 
-    xoj::util::WidgetSPtr startWrap;  ///< Shrinkable wrapper around startBox so window can shrink to 600 px
+    xoj::util::WidgetSPtr barContainer;  ///< Custom 3-slot container so the bar shrinks cleanly to 600 px without overlap
+    xoj::util::WidgetSPtr emptyTitle;    ///< Unshown 0-width custom_title so GtkHeaderBar does not show default window title
     xoj::util::WidgetSPtr startBox;
     xoj::util::WidgetSPtr centerBox;
-    xoj::util::WidgetSPtr endWrap;  ///< Shrinkable wrapper around endBox so window can shrink to 600 px
     xoj::util::WidgetSPtr endBox;
     GtkHeaderBar* attachedBar = nullptr;
 

@@ -1,6 +1,7 @@
 #include "TopBar.h"
 
-#include <utility>  // for pair
+#include <algorithm>  // for clamp, max, min
+#include <utility>    // for pair
 
 #include "control/Control.h"                 // for Control
 #include "control/ToolHandler.h"             // for ToolHandler
@@ -19,71 +20,189 @@ using xoj::topbar::ToolGroup;
 namespace {
 constexpr int COMPACT_ICON_PIXEL_SIZE = 18;
 
-// Minimal GtkBin wrapper whose minimum width is 0 while preserving natural width and height.
-// Packing startBox and endBox inside this wrapper lets the GtkHeaderBar shrink down to 600 px
-// even before the narrow-window breakpoints hide optional buttons.
-struct MxShrinkBox {
-    GtkBin parent;
+// Custom 3-slot container (start, center, end) packed into GtkHeaderBar with hexpand=true.
+// Keeps the tools centered on the full window when there is room, shifts them smoothly left when
+// narrow so end controls never collide with CSD window buttons, ellipsizes the title cleanly,
+// and reports a minimum width under 600 px so the window can shrink or half-tile freely.
+struct MxTopBarBox {
+    GtkContainer parent;
+    GtkWidget* start;
+    GtkWidget* center;
+    GtkWidget* end;
+    gint targetWidth;
 };
-struct MxShrinkBoxClass {
-    GtkBinClass parent_class;
+struct MxTopBarBoxClass {
+    GtkContainerClass parent_class;
 };
 
-G_DEFINE_TYPE(MxShrinkBox, mx_shrink_box, GTK_TYPE_BIN)
+G_DEFINE_TYPE(MxTopBarBox, mx_top_bar_box, GTK_TYPE_CONTAINER)
 
-void mx_shrink_box_get_preferred_width(GtkWidget* widget, gint* minimum, gint* natural) {
-    GtkWidget* child = gtk_bin_get_child(GTK_BIN(widget));
-    gint childMin = 0;
-    gint childNat = 0;
-    if (child && gtk_widget_get_visible(child)) {
-        gtk_widget_get_preferred_width(child, &childMin, &childNat);
-    }
-    if (minimum) {
-        *minimum = 0;
-    }
-    if (natural) {
-        *natural = childNat;
+void mx_top_bar_box_set_target_width(GtkWidget* widget, gint width) {
+    auto* self = reinterpret_cast<MxTopBarBox*>(widget);
+    if (self->targetWidth != width) {
+        self->targetWidth = width;
+        gtk_widget_queue_resize(widget);
     }
 }
 
-void mx_shrink_box_get_preferred_height(GtkWidget* widget, gint* minimum, gint* natural) {
-    GtkWidget* child = gtk_bin_get_child(GTK_BIN(widget));
-    gint childMin = 0;
-    gint childNat = 0;
-    if (child && gtk_widget_get_visible(child)) {
-        gtk_widget_get_preferred_height(child, &childMin, &childNat);
-    }
+void mx_top_bar_box_get_preferred_width(GtkWidget* widget, gint* minimum, gint* natural) {
+    auto* self = reinterpret_cast<MxTopBarBox*>(widget);
+    auto natOf = [](GtkWidget* w) -> gint {
+        if (!w || !gtk_widget_get_visible(w)) {
+            return 0;
+        }
+        gint m = 0;
+        gint n = 0;
+        gtk_widget_get_preferred_width(w, &m, &n);
+        return n;
+    };
+    const gint nat = natOf(self->start) + natOf(self->center) + natOf(self->end) + 16;
     if (minimum) {
-        *minimum = childMin;
+        // Below MIN_WINDOW_WIDTH minus CSD window buttons (~100 px) so WM allows shrinking to 600 px
+        *minimum = std::min(nat, 480);
     }
     if (natural) {
-        *natural = childNat;
+        // GtkHeaderBar caps pack_start children to their natural width; request targetWidth so this
+        // container spans the full header bar up to the CSD window controls at any window width.
+        *natural = std::max(nat, self->targetWidth);
     }
 }
 
-void mx_shrink_box_size_allocate(GtkWidget* widget, GtkAllocation* allocation) {
+void mx_top_bar_box_get_preferred_height(GtkWidget* widget, gint* minimum, gint* natural) {
+    auto* self = reinterpret_cast<MxTopBarBox*>(widget);
+    gint maxMin = 0;
+    gint maxNat = 0;
+    for (GtkWidget* w: {self->start, self->center, self->end}) {
+        if (w && gtk_widget_get_visible(w)) {
+            gint m = 0;
+            gint n = 0;
+            gtk_widget_get_preferred_height(w, &m, &n);
+            maxMin = std::max(maxMin, m);
+            maxNat = std::max(maxNat, n);
+        }
+    }
+    if (minimum) {
+        *minimum = maxMin;
+    }
+    if (natural) {
+        *natural = maxNat;
+    }
+}
+
+void mx_top_bar_box_size_allocate(GtkWidget* widget, GtkAllocation* allocation) {
     gtk_widget_set_allocation(widget, allocation);
-    GtkWidget* child = gtk_bin_get_child(GTK_BIN(widget));
-    if (child && gtk_widget_get_visible(child)) {
-        gtk_widget_size_allocate(child, allocation);
+    auto* self = reinterpret_cast<MxTopBarBox*>(widget);
+
+    auto measure = [](GtkWidget* w, gint& minW, gint& natW) {
+        minW = 0;
+        natW = 0;
+        if (w && gtk_widget_get_visible(w)) {
+            gtk_widget_get_preferred_width(w, &minW, &natW);
+        }
+    };
+    gint startMin = 0, startNat = 0;
+    gint centerMin = 0, centerNat = 0;
+    gint endMin = 0, endNat = 0;
+    measure(self->start, startMin, startNat);
+    measure(self->center, centerMin, centerNat);
+    measure(self->end, endMin, endNat);
+
+    const bool hasStart = self->start && gtk_widget_get_visible(self->start);
+    const bool hasCenter = self->center && gtk_widget_get_visible(self->center);
+    const bool hasEnd = self->end && gtk_widget_get_visible(self->end);
+    constexpr gint GAP = 6;
+
+    const gint endW = hasEnd ? std::min(endNat, allocation->width) : 0;
+    const gint endX = allocation->x + allocation->width - endW;
+
+    const gint centerW = hasCenter ? std::min(centerNat, std::max(0, allocation->width - endW)) : 0;
+
+    // Aim to centre the tools on the whole header bar (window width), not only this box
+    gint headerCenterX = allocation->x + allocation->width / 2;
+    if (GtkWidget* parent = gtk_widget_get_parent(widget)) {
+        GtkAllocation pa{};
+        gtk_widget_get_allocation(parent, &pa);
+        if (pa.width > allocation->width) {
+            headerCenterX = pa.x + pa.width / 2;
+        }
+    }
+    const gint desiredCenterX = headerCenterX - centerW / 2;
+    const gint maxCenterX = std::max(allocation->x, endX - centerW - (hasEnd ? GAP : 0));
+    const gint minCenterX = allocation->x + (hasStart ? startMin + GAP : 0);
+    const gint centerX =
+            minCenterX <= maxCenterX ? std::clamp(desiredCenterX, minCenterX, maxCenterX) : minCenterX;
+
+    const gint availStart = hasCenter ? std::max(startMin, centerX - allocation->x - GAP) :
+                                        std::max(0, endX - allocation->x - (hasEnd ? GAP : 0));
+    const gint startW = hasStart ? std::min(startNat, availStart) : 0;
+
+    if (hasStart) {
+        GtkAllocation a{allocation->x, allocation->y, startW, allocation->height};
+        gtk_widget_size_allocate(self->start, &a);
+    }
+    if (hasCenter) {
+        GtkAllocation a{centerX, allocation->y, centerW, allocation->height};
+        gtk_widget_size_allocate(self->center, &a);
+    }
+    if (hasEnd) {
+        GtkAllocation a{endX, allocation->y, endW, allocation->height};
+        gtk_widget_size_allocate(self->end, &a);
     }
 }
 
-void mx_shrink_box_class_init(MxShrinkBoxClass* klass) {
-    GtkWidgetClass* wc = GTK_WIDGET_CLASS(klass);
-    wc->get_preferred_width = mx_shrink_box_get_preferred_width;
-    wc->get_preferred_height = mx_shrink_box_get_preferred_height;
-    wc->size_allocate = mx_shrink_box_size_allocate;
+void mx_top_bar_box_forall(GtkContainer* container, gboolean, GtkCallback callback, gpointer data) {
+    auto* self = reinterpret_cast<MxTopBarBox*>(container);
+    for (GtkWidget* w: {self->start, self->center, self->end}) {
+        if (w) {
+            callback(w, data);
+        }
+    }
 }
 
-void mx_shrink_box_init(MxShrinkBox*) {}
+void mx_top_bar_box_remove(GtkContainer* container, GtkWidget* child) {
+    auto* self = reinterpret_cast<MxTopBarBox*>(container);
+    if (self->start == child) {
+        self->start = nullptr;
+        gtk_widget_unparent(child);
+    } else if (self->center == child) {
+        self->center = nullptr;
+        gtk_widget_unparent(child);
+    } else if (self->end == child) {
+        self->end = nullptr;
+        gtk_widget_unparent(child);
+    }
+}
 
-GtkWidget* wrapShrinkable(GtkWidget* child) {
-    GtkWidget* wrap = GTK_WIDGET(g_object_new(mx_shrink_box_get_type(), nullptr));
-    gtk_widget_set_valign(wrap, GTK_ALIGN_CENTER);
-    gtk_container_add(GTK_CONTAINER(wrap), child);
-    gtk_widget_show(wrap);
-    return wrap;
+void mx_top_bar_box_class_init(MxTopBarBoxClass* klass) {
+    GtkWidgetClass* wc = GTK_WIDGET_CLASS(klass);
+    wc->get_preferred_width = mx_top_bar_box_get_preferred_width;
+    wc->get_preferred_height = mx_top_bar_box_get_preferred_height;
+    wc->size_allocate = mx_top_bar_box_size_allocate;
+
+    GtkContainerClass* cc = GTK_CONTAINER_CLASS(klass);
+    cc->forall = mx_top_bar_box_forall;
+    cc->remove = mx_top_bar_box_remove;
+}
+
+void mx_top_bar_box_init(MxTopBarBox* self) {
+    gtk_widget_set_has_window(GTK_WIDGET(self), false);
+    gtk_widget_set_hexpand(GTK_WIDGET(self), true);
+    self->start = nullptr;
+    self->center = nullptr;
+    self->end = nullptr;
+    self->targetWidth = 0;
+}
+
+GtkWidget* newTopBarBox(GtkWidget* start, GtkWidget* center, GtkWidget* end) {
+    auto* box = reinterpret_cast<MxTopBarBox*>(g_object_new(mx_top_bar_box_get_type(), nullptr));
+    box->start = start;
+    box->center = center;
+    box->end = end;
+    gtk_widget_set_parent(start, GTK_WIDGET(box));
+    gtk_widget_set_parent(center, GTK_WIDGET(box));
+    gtk_widget_set_parent(end, GTK_WIDGET(box));
+    gtk_widget_show(GTK_WIDGET(box));
+    return GTK_WIDGET(box);
 }
 
 /// Draws an 8 px @mx_accent unsaved dot with a 2 px @mx_chrome halo on the top-right of the menu button
@@ -171,6 +290,8 @@ TopBar::TopBar(Control* control, GMenuModel* mainMenu): control(control) {
     createStart(mainMenu);
     createCenter();
     createEnd();
+    barContainer.reset(newTopBarBox(startBox.get(), centerBox.get(), endBox.get()), xoj::util::refsink);
+    emptyTitle.reset(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0), xoj::util::refsink);
 
     // Follow tool changes from shortcuts, menus, toolbars and stylus buttons
     ActionDatabase* db = control->getActionDatabase();
@@ -201,7 +322,6 @@ TopBar::~TopBar() {
 void TopBar::createStart(GMenuModel* mainMenu) {
     GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     startBox.reset(box, xoj::util::refsink);
-    startWrap.reset(wrapShrinkable(box), xoj::util::refsink);
 
     menuButton = gtk_menu_button_new();
     gtk_widget_set_can_focus(menuButton, true);
@@ -353,7 +473,6 @@ void TopBar::createCenter() {
 void TopBar::createEnd() {
     GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     endBox.reset(box, xoj::util::refsink);
-    endWrap.reset(wrapShrinkable(box), xoj::util::refsink);
 
     // Undo and redo name the action they revert or repeat in the tooltip
     auto queryTooltip = [](GtkWidget*, gint, gint, gboolean, GtkTooltip* tooltip, gpointer d) -> gboolean {
@@ -493,14 +612,13 @@ void TopBar::attachTo(GtkHeaderBar* bar) {
         return;
     }
     if (attachedBar) {
-        gtk_container_remove(GTK_CONTAINER(attachedBar), startWrap.get());
-        gtk_container_remove(GTK_CONTAINER(attachedBar), endWrap.get());
         gtk_header_bar_set_custom_title(attachedBar, nullptr);
+        gtk_container_remove(GTK_CONTAINER(attachedBar), barContainer.get());
     }
-    gtk_header_bar_pack_start(bar, startWrap.get());
-    // The custom title is centred on the whole bar, so the tools stay in the middle of the window
-    gtk_header_bar_set_custom_title(bar, centerBox.get());
-    gtk_header_bar_pack_end(bar, endWrap.get());
+    // Setting an unshown custom_title suppresses GtkHeaderBar's default window-title label
+    // while letting the hexpand barContainer span the full width up to the CSD window buttons.
+    gtk_header_bar_set_custom_title(bar, emptyTitle.get());
+    gtk_header_bar_pack_start(bar, barContainer.get());
     attachedBar = bar;
 }
 
@@ -534,10 +652,13 @@ void TopBar::setPageInfo(size_t page, size_t pageCount) {
 
 void TopBar::setToolsVisible(bool visible) {
     gtk_widget_set_visible(centerBox.get(), visible);
-    gtk_widget_set_visible(endWrap.get(), visible);
+    gtk_widget_set_visible(endBox.get(), visible);
 }
 
 void TopBar::setWidth(int width) {
+    if (barContainer) {
+        mx_top_bar_box_set_target_width(barContainer.get(), width);
+    }
     const auto next = xoj::topbar::barLayoutForWidth(width);
     if (next == layout) {
         return;

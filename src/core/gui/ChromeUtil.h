@@ -61,7 +61,7 @@ inline PointerKind classifyEvent(const GdkEvent* ev) {
     }
     const GdkEventType type = ev->type;
     if (type == GDK_TOUCH_BEGIN || type == GDK_TOUCH_UPDATE || type == GDK_TOUCH_END || type == GDK_TOUCH_CANCEL ||
-        gdk_event_get_pointer_emulated(ev)) {
+        gdk_event_get_pointer_emulated(const_cast<GdkEvent*>(ev))) {
         return PointerKind::Touch;
     }
     GdkDevice* src = gdk_event_get_source_device(ev);
