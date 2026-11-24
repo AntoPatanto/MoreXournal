@@ -10,28 +10,28 @@
             <object class="GtkButton">
                 <property name="action-name">win.move-page-towards-beginning</property>
 <child><object class="GtkImage"><property name="visible">1</property><property name="can-focus">0</property><property name="icon-name">go-up</property></object></child>
-                <property name="tooltip-text">Swap the current page with the one above</property>
+                <property name="tooltip-text" translatable="yes">Swap the current page with the one above</property>
             </object>
         </child>
         <child>
             <object class="GtkButton">
                 <property name="action-name">win.move-page-towards-end</property>
 <child><object class="GtkImage"><property name="visible">1</property><property name="can-focus">0</property><property name="icon-name">go-down</property></object></child>
-                <property name="tooltip-text">Swap the current page with the one below</property>
+                <property name="tooltip-text" translatable="yes">Swap the current page with the one below</property>
             </object>
         </child>
         <child>
             <object class="GtkButton">
                 <property name="action-name">win.duplicate-page</property>
 <child><object class="GtkImage"><property name="visible">1</property><property name="can-focus">0</property><property name="icon-name">edit-copy</property></object></child>
-                <property name="tooltip-text">Insert a copy of the current page below</property>
+                <property name="tooltip-text" translatable="yes">Insert a copy of the current page below</property>
             </object>
         </child>
         <child>
             <object class="GtkButton">
                 <property name="action-name">win.delete-page</property>
 <child><object class="GtkImage"><property name="visible">1</property><property name="can-focus">0</property><property name="icon-name">delete</property></object></child>
-                <property name="tooltip-text">Delete this page</property>
+                <property name="tooltip-text" translatable="yes">Delete this page</property>
             </object>
         </child>
     </object>
@@ -81,7 +81,7 @@
                         <property name="icon-name">go-up</property>
                     </object>
                 </child>
-                <property name="tooltip-text">Swap the current layer with the one above</property>
+                <property name="tooltip-text" translatable="yes">Swap the current layer with the one above</property>
             </object>
         </child>
         <child>
@@ -94,7 +94,7 @@
                         <property name="icon-name">go-down</property>
                     </object>
                 </child>
-                <property name="tooltip-text">Swap the current layer with the one below</property>
+                <property name="tooltip-text" translatable="yes">Swap the current layer with the one below</property>
             </object>
         </child>
         <child>
@@ -107,14 +107,14 @@
                         <property name="icon-name">edit-copy</property>
                     </object>
                 </child>
-                <property name="tooltip-text">Insert a copy of the current layer below</property>
+                <property name="tooltip-text" translatable="yes">Insert a copy of the current layer below</property>
             </object>
         </child>
         <child>
             <object class="GtkButton">
                 <property name="action-name">win.layer-delete</property>
 <child><object class="GtkImage"><property name="visible">1</property><property name="can-focus">0</property><property name="icon-name">delete</property></object></child>
-                <property name="tooltip-text">Delete this layer</property>
+                <property name="tooltip-text" translatable="yes">Delete this layer</property>
             </object>
         </child>
     </object>

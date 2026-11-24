@@ -149,16 +149,12 @@ static GtkLabel* makeLabel() {
     return label;
 }
 
-/// @brief Appends to `box` a button with bold label `name` activating the Action `action`
+/// @brief Appends to `box` a button with label `name` activating the Action `action`
 static void addSpecialButton(GtkBox* box, const std::string& name, Action action) {
     GtkWidget* btn = gtk_button_new();
     gtk_widget_set_can_focus(btn, false);  // todo(gtk4) not necessary anymore
     GtkWidget* lb = gtk_label_new(name.c_str());
     gtk_widget_set_halign(lb, GTK_ALIGN_START);
-
-    xoj::util::PangoAttrListSPtr attrs(pango_attr_list_new(), xoj::util::adopt);
-    pango_attr_list_insert(attrs.get(), pango_attr_weight_new(PANGO_WEIGHT_BOLD));
-    gtk_label_set_attributes(GTK_LABEL(lb), attrs.get());
 
     gtk_button_set_child(GTK_BUTTON(btn), lb);
     std::string fullActionName = std::string("win.") + Action_toString(action);

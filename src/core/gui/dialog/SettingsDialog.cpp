@@ -715,7 +715,7 @@ void SettingsDialog::load() {
     setAudioRecordingFolder(settings->getAudioFolder());
     if (this->control->getAudioController()) {
         this->audioInputDevices = this->control->getAudioController()->getInputDevices();
-        gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(builder.get("cbAudioInputDevice")), "", "System default");
+        gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(builder.get("cbAudioInputDevice")), "", _("System default"));
         gtk_combo_box_set_active(GTK_COMBO_BOX(builder.get("cbAudioInputDevice")), 0);
         for (auto& audioInputDevice: this->audioInputDevices) {
             gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(builder.get("cbAudioInputDevice")), "",
@@ -728,7 +728,7 @@ void SettingsDialog::load() {
         }
 
         this->audioOutputDevices = this->control->getAudioController()->getOutputDevices();
-        gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(builder.get("cbAudioOutputDevice")), "", "System default");
+        gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(builder.get("cbAudioOutputDevice")), "", _("System default"));
         gtk_combo_box_set_active(GTK_COMBO_BOX(builder.get("cbAudioOutputDevice")), 0);
         for (auto& audioOutputDevice: this->audioOutputDevices) {
             gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(builder.get("cbAudioOutputDevice")), "",
