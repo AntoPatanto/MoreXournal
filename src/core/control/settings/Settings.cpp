@@ -13,15 +13,15 @@
 #include <libxml/parser.h>     // for xmlKeepBlanksDefault
 #include <libxml/xmlstring.h>  // for xmlStrcmp, xmlChar
 
-#include "control/DeviceListHelper.h"               // for InputDevice
-#include "control/ToolEnums.h"                      // for ERASER_TYPE_NONE
-#include "control/settings/LatexSettings.h"                     // for LatexSettings
-#include "control/settings/PageTemplateSettings.h"              // for PageTemplateSettings
-#include "control/settings/SettingsEnums.h"                     // for InputDeviceTypeOp...
-#include "control/shaperecognizer/ShapeSensitivityLogic.h"      // for clampParam, clamp...
-#include "gui/TopBarLogic.h"                                    // for isShapeDrawingType
-#include "gui/toolbarMenubar/model/ColorPalette.h"  // for Palette
-#include "model/FormatDefinitions.h"                // for FormatUnits, XOJ_...
+#include "control/DeviceListHelper.h"                       // for InputDevice
+#include "control/ToolEnums.h"                              // for ERASER_TYPE_NONE
+#include "control/settings/LatexSettings.h"                 // for LatexSettings
+#include "control/settings/PageTemplateSettings.h"          // for PageTemplateSettings
+#include "control/settings/SettingsEnums.h"                 // for InputDeviceTypeOp...
+#include "control/shaperecognizer/ShapeSensitivityLogic.h"  // for clampParam, clamp...
+#include "gui/TopBarLogic.h"                                // for isShapeDrawingType
+#include "gui/toolbarMenubar/model/ColorPalette.h"          // for Palette
+#include "model/FormatDefinitions.h"                        // for FormatUnits, XOJ_...
 #include "util/Color.h"
 #include "util/PathUtil.h"    // for getConfigFile
 #include "util/Util.h"        // for PRECISION_FORMAT_...
@@ -62,7 +62,12 @@ Settings::Settings(fs::path savePath, fs::path loadPath): savePath(std::move(sav
     loadDefault();
 }
 
-Settings::~Settings() = default;
+Settings::~Settings() {
+    this->deferredSaveTimer.cancel();
+    if (this->deferredSavePending && !this->inTransaction) {
+        save();
+    }
+}
 
 void Settings::loadDefault() {
     this->pressureSensitivity = true;
@@ -664,8 +669,9 @@ void Settings::parseItem(xmlDocPtr doc, xmlNodePtr cur) {
                 std::clamp(static_cast<int>(g_ascii_strtoll(reinterpret_cast<const char*>(value), nullptr, 10)),
                            HOLD_TO_SHAPE_DELAY_MIN, HOLD_TO_SHAPE_DELAY_MAX);
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("holdToShapeTolerancePx")) == 0) {
-        this->holdToShapeTolerancePx = xoj::shapes::clampParam(
-                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr), xoj::shapes::HOLD_TOLERANCE_PX_RANGE);
+        this->holdToShapeTolerancePx =
+                xoj::shapes::clampParam(tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr),
+                                        xoj::shapes::HOLD_TOLERANCE_PX_RANGE);
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("shapeSensitivity")) == 0) {
         this->shapeSensitivity =
                 std::clamp(static_cast<int>(g_ascii_strtoll(reinterpret_cast<const char*>(value), nullptr, 10)),
@@ -681,24 +687,23 @@ void Settings::parseItem(xmlDocPtr doc, xmlNodePtr cur) {
                 tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr), xoj::shapes::CIRCLE_MIN_DET_RANGE);
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("shapeCircleMaxScore")) == 0) {
         this->shapeRecognizerParams.circleMaxScore = xoj::shapes::clampParam(
-                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr),
-                xoj::shapes::CIRCLE_MAX_SCORE_RANGE);
+                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr), xoj::shapes::CIRCLE_MAX_SCORE_RANGE);
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("shapeRectangleAngleTolerance")) == 0) {
-        this->shapeRecognizerParams.rectangleAngleToleranceDeg = xoj::shapes::clampParam(
-                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr),
-                xoj::shapes::RECTANGLE_ANGLE_TOLERANCE_DEG_RANGE);
+        this->shapeRecognizerParams.rectangleAngleToleranceDeg =
+                xoj::shapes::clampParam(tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr),
+                                        xoj::shapes::RECTANGLE_ANGLE_TOLERANCE_DEG_RANGE);
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("shapeRectangleLinearTolerance")) == 0) {
-        this->shapeRecognizerParams.rectangleLinearTolerance = xoj::shapes::clampParam(
-                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr),
-                xoj::shapes::RECTANGLE_LINEAR_TOLERANCE_RANGE);
+        this->shapeRecognizerParams.rectangleLinearTolerance =
+                xoj::shapes::clampParam(tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr),
+                                        xoj::shapes::RECTANGLE_LINEAR_TOLERANCE_RANGE);
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("shapeTriangleLinearTolerance")) == 0) {
-        this->shapeRecognizerParams.triangleLinearTolerance = xoj::shapes::clampParam(
-                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr),
-                xoj::shapes::TRIANGLE_LINEAR_TOLERANCE_RANGE);
+        this->shapeRecognizerParams.triangleLinearTolerance =
+                xoj::shapes::clampParam(tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr),
+                                        xoj::shapes::TRIANGLE_LINEAR_TOLERANCE_RANGE);
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("shapeSlantTolerance")) == 0) {
-        this->shapeRecognizerParams.slantToleranceDeg = xoj::shapes::clampParam(
-                tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr),
-                xoj::shapes::SLANT_TOLERANCE_DEG_RANGE);
+        this->shapeRecognizerParams.slantToleranceDeg =
+                xoj::shapes::clampParam(tempg_ascii_strtod(reinterpret_cast<const char*>(value), nullptr),
+                                        xoj::shapes::SLANT_TOLERANCE_DEG_RANGE);
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("touchDrawing")) == 0) {
         this->touchDrawing = xmlStrcmp(value, reinterpret_cast<const xmlChar*>("true")) == 0;
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("gtkTouchInertialScrolling")) == 0) {
@@ -1078,10 +1083,37 @@ void Settings::transactionEnd() {
     save();
 }
 
+void Settings::scheduleSave() {
+    if (inTransaction) {
+        return;
+    }
+    this->deferredSavePending = true;
+    this->deferredSaveTimer = g_timeout_add(
+            DEFERRED_SAVE_DELAY_MS,
+            +[](gpointer userData) -> gboolean {
+                auto* self = static_cast<Settings*>(userData);
+                self->deferredSaveTimer.consume();
+                self->flushPendingSave();
+                return G_SOURCE_REMOVE;
+            },
+            this);
+}
+
+void Settings::flushPendingSave() {
+    if (!this->deferredSavePending) {
+        return;
+    }
+    save();
+}
+
+auto Settings::hasPendingSave() const -> bool { return this->deferredSavePending; }
+
 void Settings::save() {
     if (inTransaction) {
         return;
     }
+    this->deferredSaveTimer.cancel();
+    this->deferredSavePending = false;
 
     xmlDocPtr doc = nullptr;
     xmlNodePtr root = nullptr;
@@ -1240,7 +1272,8 @@ void Settings::save() {
     xmlNode = savePropertyDouble("shapeSegmentMaxDet", shapeRecognizerParams.segmentMaxDet, root);
     xmlNode = savePropertyDouble("shapeCircleMinDet", shapeRecognizerParams.circleMinDet, root);
     xmlNode = savePropertyDouble("shapeCircleMaxScore", shapeRecognizerParams.circleMaxScore, root);
-    xmlNode = savePropertyDouble("shapeRectangleAngleTolerance", shapeRecognizerParams.rectangleAngleToleranceDeg, root);
+    xmlNode =
+            savePropertyDouble("shapeRectangleAngleTolerance", shapeRecognizerParams.rectangleAngleToleranceDeg, root);
     xmlNode = savePropertyDouble("shapeRectangleLinearTolerance", shapeRecognizerParams.rectangleLinearTolerance, root);
     xmlNode = savePropertyDouble("shapeTriangleLinearTolerance", shapeRecognizerParams.triangleLinearTolerance, root);
     xmlNode = savePropertyDouble("shapeSlantTolerance", shapeRecognizerParams.slantToleranceDeg, root);
@@ -1836,7 +1869,7 @@ auto Settings::pushRecentColor(Color color) -> bool {
     if (!this->recentColors.push(color)) {
         return false;
     }
-    save();
+    scheduleSave();
     return true;
 }
 

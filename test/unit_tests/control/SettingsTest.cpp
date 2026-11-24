@@ -390,6 +390,61 @@ TEST(SettingsTest, testRecentColorsReadWrite) {
     fs::remove(outPath);
 }
 
+TEST(SettingsTest, testPushRecentColorDebouncesSaveAndFlushes) {
+    ScopedTempSettingsFile tmp{"xournalpp-test-units_Settings_recentColorDebounce.xml"};
+    {
+        Settings settings(tmp.path);
+        EXPECT_FALSE(settings.hasPendingSave());
+        settings.flushPendingSave();
+        EXPECT_FALSE(fs::exists(tmp.path));
+
+        ASSERT_TRUE(settings.pushRecentColor(Color(0xffff0000U)));
+        // Pen-down must not write settings.xml synchronously
+        EXPECT_TRUE(settings.hasPendingSave());
+        EXPECT_FALSE(fs::exists(tmp.path));
+
+        ASSERT_TRUE(settings.pushRecentColor(Color(0xff00ff00U)));
+        EXPECT_TRUE(settings.hasPendingSave());
+        EXPECT_FALSE(fs::exists(tmp.path));
+
+        settings.flushPendingSave();
+        EXPECT_FALSE(settings.hasPendingSave());
+        ASSERT_TRUE(fs::exists(tmp.path));
+
+        Settings midReload(tmp.path);
+        ASSERT_TRUE(midReload.load());
+        EXPECT_EQ(midReload.getRecentColors().get(), (std::vector<Color>{Color(0xff00ff00U), Color(0xffff0000U)}));
+
+        // Another pending change is flushed on destruction/shutdown
+        ASSERT_TRUE(settings.pushRecentColor(Color(0xff0000ffU)));
+        EXPECT_TRUE(settings.hasPendingSave());
+    }
+    Settings reloaded(tmp.path);
+    ASSERT_TRUE(reloaded.load());
+    EXPECT_EQ(reloaded.getRecentColors().get(),
+              (std::vector<Color>{Color(0xff0000ffU), Color(0xff00ff00U), Color(0xffff0000U)}));
+}
+
+TEST(SettingsTest, testPushRecentColorTimerSavesAfterDebounce) {
+    ScopedTempSettingsFile tmp{"xournalpp-test-units_Settings_recentColorTimer.xml"};
+    Settings settings(tmp.path);
+    ASSERT_TRUE(settings.pushRecentColor(Color(0xffff0000U)));
+    EXPECT_TRUE(settings.hasPendingSave());
+    EXPECT_FALSE(fs::exists(tmp.path));
+
+    const gint64 deadline = g_get_monotonic_time() + 4 * G_TIME_SPAN_SECOND;
+    while (settings.hasPendingSave() && g_get_monotonic_time() < deadline) {
+        while (g_main_context_iteration(nullptr, FALSE)) {}
+        g_usleep(10000);
+    }
+
+    EXPECT_FALSE(settings.hasPendingSave());
+    ASSERT_TRUE(fs::exists(tmp.path));
+    Settings reloaded(tmp.path);
+    ASSERT_TRUE(reloaded.load());
+    EXPECT_EQ(reloaded.getRecentColors().get(), (std::vector<Color>{Color(0xffff0000U)}));
+}
+
 TEST(SettingsTest, testCanvasAidColorsDefaultAndMigration) {
     // Fresh settings use the new defaults
     ScopedTempSettingsFile freshTmp{"xournalpp-test-units_Settings_aidColorsFresh.xml"};

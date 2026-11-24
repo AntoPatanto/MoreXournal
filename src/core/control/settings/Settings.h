@@ -24,12 +24,13 @@
 #include <glib.h>         // for gchar, gboolean, gint
 #include <libxml/tree.h>  // for xmlNodePtr, xmlDocPtr
 
-#include "control/ToolEnums.h"                                // for DrawingType
-#include "control/shaperecognizer/ShapeRecognizerParams.h"    // for ShapeRecognizerParams
-#include "control/tools/StrokeStabilizerEnum.h"               // for AveragingMethod, Pre...
-#include "gui/RecentColors.h"                    // for RecentColors
-#include "model/Font.h"                          // for XojFont
-#include "util/Color.h"                          // for Color
+#include "control/ToolEnums.h"                              // for DrawingType
+#include "control/shaperecognizer/ShapeRecognizerParams.h"  // for ShapeRecognizerParams
+#include "control/tools/StrokeStabilizerEnum.h"             // for AveragingMethod, Pre...
+#include "gui/RecentColors.h"                               // for RecentColors
+#include "model/Font.h"                                     // for XojFont
+#include "util/Color.h"                                     // for Color
+#include "util/raii/GSourceURef.h"                          // for GSourceURef
 
 #include "LatexSettings.h"         // for LatexSettings
 #include "PageTemplateSettings.h"  // for PageTemplateSettings
@@ -125,8 +126,14 @@ public:
     void parseData(xmlNodePtr cur, SElement& elem);
 
     void save();
+    /// Writes settings.xml immediately if a debounced save is pending (e.g. on shutdown).
+    void flushPendingSave();
+    /// Whether a debounced save is currently scheduled.
+    bool hasPendingSave() const;
 
 private:
+    /// Schedules a debounced save on the GLib main loop instead of writing synchronously.
+    void scheduleSave();
     void loadDefault();
     void parseItem(xmlDocPtr doc, xmlNodePtr cur);
 
@@ -1242,6 +1249,10 @@ private:
      * "Transaction" running, do not save until the end is reached
      */
     bool inTransaction{};
+
+    static constexpr unsigned int DEFERRED_SAVE_DELAY_MS = 1500;
+    xoj::util::GSourceURef deferredSaveTimer;
+    bool deferredSavePending{};
 
     /** The preferred locale as its language code
      * e.g. "en_US"
