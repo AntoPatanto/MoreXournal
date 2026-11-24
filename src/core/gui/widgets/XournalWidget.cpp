@@ -237,7 +237,18 @@ static void gtk_xournal_draw_shadow(GtkXournal* xournal, cairo_t* cr, int left, 
         }
 
         // Draw border
-        Util::cairo_set_source_rgbi(cr, settings->getBorderColor());
+        Color borderColor = settings->getBorderColor();
+        if (borderColor == Colors::mx_accent) {
+            GdkRGBA themeAccent;
+            if (gtk_style_context_lookup_color(gtk_widget_get_style_context(GTK_WIDGET(xournal)), "mx_accent",
+                                               &themeAccent)) {
+                cairo_set_source_rgba(cr, themeAccent.red, themeAccent.green, themeAccent.blue, 0.45);
+            } else {
+                Util::cairo_set_source_rgbi(cr, borderColor, 0.45);
+            }
+        } else {
+            Util::cairo_set_source_rgbi(cr, borderColor);
+        }
         cairo_set_line_width(cr, 2.0);
         cairo_set_line_cap(cr, CAIRO_LINE_CAP_SQUARE);
         cairo_set_line_join(cr, CAIRO_LINE_JOIN_MITER);

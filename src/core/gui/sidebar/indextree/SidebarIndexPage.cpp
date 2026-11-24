@@ -168,7 +168,7 @@ auto SidebarIndexPage::treeSearchFunction(GtkTreeModel* model, gint column, cons
 
 auto SidebarIndexPage::getName() -> std::string { return _("Contents"); }
 
-auto SidebarIndexPage::getIconName() -> std::string { return this->iconNameHelper.iconName("sidebar-index"); }
+auto SidebarIndexPage::getIconName() -> std::string { return "mx-sidebar-index-symbolic"; }
 
 auto SidebarIndexPage::hasData() -> bool { return this->hasContents; }
 

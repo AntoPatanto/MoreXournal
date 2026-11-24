@@ -7,6 +7,31 @@
 #include "gui/MainWindow.h"
 #include "util/raii/CairoWrappers.h"
 
+namespace {
+void setSelectedBorderColor(cairo_t* cr, SidebarPreviewPageEntry* pageEntry, Control* control, double alpha = 1.0) {
+    Color borderColor = control->getSettings()->getBorderColor();
+    GdkRGBA themeAccent;
+    if (borderColor == Colors::mx_accent &&
+        gtk_style_context_lookup_color(gtk_widget_get_style_context(pageEntry->getWidget()), "mx_accent",
+                                       &themeAccent)) {
+        cairo_set_source_rgba(cr, themeAccent.red, themeAccent.green, themeAccent.blue, themeAccent.alpha * alpha);
+    } else {
+        Util::cairo_set_source_rgbi(cr, borderColor, alpha);
+    }
+}
+
+void setBadgeTextColor(cairo_t* cr, SidebarPreviewPageEntry* pageEntry, Control* control) {
+    GdkRGBA onAccent;
+    if (pageEntry->isSelected() && control->getSettings()->getBorderColor() == Colors::mx_accent &&
+        gtk_style_context_lookup_color(gtk_widget_get_style_context(pageEntry->getWidget()), "mx_on_accent",
+                                       &onAccent)) {
+        gdk_cairo_set_source_rgba(cr, &onAccent);
+    } else {
+        Util::cairo_set_source_argb(cr, Colors::white);
+    }
+}
+}  // namespace
+
 void PagePreviewDecoration::drawDecoration(cairo_t* cr, SidebarPreviewPageEntry* pageEntry, Control* control) {
     switch (control->getSettings()->getSidebarNumberingStyle()) {
         case SidebarNumberingStyle::NUMBER_BELOW_PREVIEW:
@@ -28,11 +53,12 @@ void PagePreviewDecoration::drawPageNumberBelowPreview(cairo_t* cr, SidebarPrevi
     xoj::util::CairoSaveGuard saveGuard(cr);
     cairo_text_extents_t extents;
     std::string pageNumber = std::to_string(pageEntry->getIndex() + 1);
-    Color color = control->getWindow()->isDarkTheme() ? Colors::white : Colors::xopp_darkslategray;
     if (pageEntry->isSelected()) {
-        color = control->getSettings()->getBorderColor();
+        setSelectedBorderColor(cr, pageEntry, control);
+    } else {
+        Color color = control->getWindow()->isDarkTheme() ? Colors::white : Colors::xopp_darkslategray;
+        Util::cairo_set_source_rgbi(cr, color);
     }
-    Util::cairo_set_source_rgbi(cr, color);
     cairo_select_font_face(cr, FONT_NAME, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, FONT_SIZE);
     cairo_text_extents(cr, pageNumber.c_str(), &extents);
@@ -53,8 +79,7 @@ void PagePreviewDecoration::drawPageNumberWithCircleBackground(cairo_t* cr, Side
 
     // Set the color for drawing the circle. This circle is required to provide good contrast for the page number.
     if (pageEntry->isSelected()) {
-        Color color = control->getSettings()->getBorderColor();
-        Util::cairo_set_source_rgbi(cr, color, CIRCLE_LABEL_OPACITY);
+        setSelectedBorderColor(cr, pageEntry, control, CIRCLE_LABEL_OPACITY);
     } else {
         Util::cairo_set_source_rgbi(cr, Colors::xopp_darkslategray, CIRCLE_LABEL_OPACITY);
     }
@@ -80,7 +105,7 @@ void PagePreviewDecoration::drawPageNumberWithCircleBackground(cairo_t* cr, Side
 
     // Draw the page number in the center of the previously drawn circle
     cairo_move_to(cr, x - addititionalWidth / 2 - (extents.width / 2 + extents.x_bearing), y + CIRCLE_TEXT_Y);
-    Util::cairo_set_source_argb(cr, Colors::white);
+    setBadgeTextColor(cr, pageEntry, control);
     cairo_show_text(cr, pageNumber.c_str());
 }
 
@@ -95,7 +120,7 @@ void PagePreviewDecoration::drawPageNumberWithSquareBackground(cairo_t* cr, Side
 
     // Select the color for painting the square background
     if (pageEntry->isSelected()) {
-        Util::cairo_set_source_rgbi(cr, control->getSettings()->getBorderColor());
+        setSelectedBorderColor(cr, pageEntry, control);
     } else {
         Util::cairo_set_source_rgbi(cr, Colors::xopp_darkslategray);
 
@@ -124,6 +149,6 @@ void PagePreviewDecoration::drawPageNumberWithSquareBackground(cairo_t* cr, Side
 
     // Draw the page number in the center of the square
     cairo_move_to(cr, x + recWidth / 2 - (extents.width / 2 + extents.x_bearing), y + SQUARE_TEXT_Y);
-    Util::cairo_set_source_argb(cr, Colors::white);
+    setBadgeTextColor(cr, pageEntry, control);
     cairo_show_text(cr, pageNumber.c_str());
 }

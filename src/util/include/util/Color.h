@@ -244,4 +244,8 @@ constexpr Color xopp_pink{0xffffc0d4U};
 constexpr Color xopp_royalblue{0xff3333ccU};
 constexpr Color xopp_silver{0xffbdbdbdU};
 constexpr Color xopp_snow{0xfffafaf9U};
+// MoreXournal accent & canvas aid defaults
+constexpr Color mx_accent{0xff3563e9U};
+constexpr Color mx_search_current{0xfff5b400U};
+constexpr Color mx_search_current_border{0xffb07d00U};
 }  // namespace Colors

@@ -348,3 +348,72 @@ TEST(SettingsTest, testRecentColorsReadWrite) {
 
     fs::remove(outPath);
 }
+
+TEST(SettingsTest, testCanvasAidColorsDefaultAndMigration) {
+    // Fresh settings use the new defaults and keep the selection colour unchanged
+    Settings fresh{"non-existing-file-path"};
+    EXPECT_EQ(fresh.getBorderColor(), Colors::mx_accent);
+    EXPECT_EQ(fresh.getActiveSelectionColor(), Colors::mx_search_current);
+    EXPECT_EQ(fresh.getSelectionColor(), Colors::xopp_cornflowerblue);
+
+    const fs::path outPath = fs::temp_directory_path() / "xournalpp-test-units_Settings_testAidColorsMigration.xml";
+
+    // Older settings file with old defaults gets migrated to the new accent/search defaults
+    {
+        std::ofstream v1Defaults(outPath);
+        v1Defaults << R"(<?xml version="1.0"?>
+<settings>
+  <property name="uiLayoutVersion" value="1"/>
+  <property name="selectionBorderColor" value="4294901760"/>
+  <property name="selectionMarkerColor" value="4285702095"/>
+  <property name="activeSelectionColor" value="4286381056"/>
+</settings>
+)";
+    }
+
+    Settings migrated(outPath);
+    ASSERT_TRUE(migrated.load());
+    EXPECT_EQ(migrated.getUiLayoutVersion(), UI_LAYOUT_VERSION);
+    EXPECT_EQ(migrated.getBorderColor(), Colors::mx_accent);
+    EXPECT_EQ(migrated.getActiveSelectionColor(), Colors::mx_search_current);
+    EXPECT_EQ(migrated.getSelectionColor(), Colors::xopp_cornflowerblue);
+
+    // Older settings file with custom colours keeps the user's choices
+    const Color customBorder{0xff123456U};
+    const Color customSearch{0xff654321U};
+    {
+        std::ofstream v1Custom(outPath);
+        v1Custom << "<?xml version=\"1.0\"?>\n<settings>\n"
+                 << "  <property name=\"uiLayoutVersion\" value=\"1\"/>\n"
+                 << "  <property name=\"selectionBorderColor\" value=\"" << std::to_string(uint32_t(customBorder))
+                 << "\"/>\n"
+                 << "  <property name=\"activeSelectionColor\" value=\"" << std::to_string(uint32_t(customSearch))
+                 << "\"/>\n"
+                 << "</settings>\n";
+    }
+
+    Settings keptCustom(outPath);
+    ASSERT_TRUE(keptCustom.load());
+    EXPECT_EQ(keptCustom.getUiLayoutVersion(), UI_LAYOUT_VERSION);
+    EXPECT_EQ(keptCustom.getBorderColor(), customBorder);
+    EXPECT_EQ(keptCustom.getActiveSelectionColor(), customSearch);
+
+    // A current settings file where the user explicitly chose the old colours is not overwritten
+    {
+        std::ofstream v2Explicit(outPath);
+        v2Explicit << "<?xml version=\"1.0\"?>\n<settings>\n"
+                   << "  <property name=\"uiLayoutVersion\" value=\"" << std::to_string(UI_LAYOUT_VERSION) << "\"/>\n"
+                   << "  <property name=\"selectionBorderColor\" value=\"" << std::to_string(uint32_t(Colors::red))
+                   << "\"/>\n"
+                   << "  <property name=\"activeSelectionColor\" value=\""
+                   << std::to_string(uint32_t(Colors::lawngreen)) << "\"/>\n"
+                   << "</settings>\n";
+    }
+
+    Settings keptExplicit(outPath);
+    ASSERT_TRUE(keptExplicit.load());
+    EXPECT_EQ(keptExplicit.getBorderColor(), Colors::red);
+    EXPECT_EQ(keptExplicit.getActiveSelectionColor(), Colors::lawngreen);
+
+    fs::remove(outPath);
+}

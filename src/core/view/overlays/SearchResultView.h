@@ -49,9 +49,11 @@ private:
     const Color frameHighlightColor;
 
 public:
-    // Width of the line delimiting moved elements
-    static constexpr int BORDER_WIDTH_IN_PIXELS = 1;
-    // Opacity of the background
-    static constexpr double BACKGROUND_OPACITY = 0.3;
+    // Width of the frame around the active search match in screen-space pixels
+    static constexpr double CURRENT_BORDER_WIDTH_IN_PIXELS = 1.5;
+    // Fill opacity of the active search match
+    static constexpr double CURRENT_BACKGROUND_OPACITY = 0.35;
+    // Fill opacity of non-active search matches
+    static constexpr double BACKGROUND_OPACITY = 0.15;
 };
 };  // namespace xoj::view

@@ -107,7 +107,9 @@ popover.toolbar button:not(:checked):not(:active):not(:hover){
   background-image:none;
 }
 
-radiobutton.invisible radio {
+/* The checked state of the hidden background radio would otherwise get the accent fill on hover */
+radiobutton.invisible radio,
+radiobutton.invisible radio:checked:hover {
   color:transparent;
   background-color:transparent;
   background-image:none;
@@ -154,8 +156,232 @@ toolbar button
 Labels for subsections of the Settings dialog
 */
 notebook frame>label {
-    color: #666;
+    color: @mx_text2;
     font-weight: bold;
+}
+
+/*
+ * App-level menu and dialog overrides so GTK menus, checkboxes, radios,
+ * scales, lists and action buttons use MoreXournal's accent colour instead
+ * of Adwaita blue (#3584e4).
+ */
+menu,
+.menu,
+.context-menu {
+	background-color: @mx_surface;
+	color: @mx_text;
+	border: 1px solid @mx_line;
+	border-radius: 10px;
+	padding: 4px;
+}
+
+menu menuitem,
+.menu menuitem,
+.context-menu menuitem {
+	border-radius: 6px;
+	padding: 5px 10px;
+	color: @mx_text;
+}
+
+menu menuitem:hover,
+.menu menuitem:hover,
+.context-menu menuitem:hover {
+	background-color: @mx_accent;
+	color: @mx_on_accent;
+}
+
+menu menuitem:disabled,
+.menu menuitem:disabled,
+.context-menu menuitem:disabled {
+	color: alpha(@mx_text, 0.42);
+}
+
+menu > menuitem accelerator,
+.menu > menuitem accelerator,
+.context-menu > menuitem accelerator {
+	color: @mx_text2;
+}
+
+menu > menuitem:hover > accelerator,
+menu > menuitem:hover > box > accelerator,
+menu > menuitem:hover > arrow,
+.menu > menuitem:hover > accelerator,
+.menu > menuitem:hover > box > accelerator,
+.menu > menuitem:hover > arrow,
+.context-menu > menuitem:hover > accelerator,
+.context-menu > menuitem:hover > box > accelerator,
+.context-menu > menuitem:hover > arrow {
+	color: @mx_on_accent;
+}
+
+menu > menuitem check:checked,
+menu > menuitem radio:checked,
+.menu > menuitem check:checked,
+.menu > menuitem radio:checked,
+.context-menu > menuitem check:checked,
+.context-menu > menuitem radio:checked {
+	background-color: transparent;
+	border-color: @mx_accent;
+	color: @mx_accent;
+}
+
+/* The :checked copies outrank the global check:checked:hover rule below */
+menu > menuitem:hover > check,
+menu > menuitem:hover > radio,
+menu > menuitem:hover > box > check,
+menu > menuitem:hover > box > radio,
+.menu > menuitem:hover > check,
+.menu > menuitem:hover > radio,
+.context-menu > menuitem:hover > check,
+.context-menu > menuitem:hover > radio,
+menu > menuitem:hover > check:checked,
+menu > menuitem:hover > radio:checked,
+menu > menuitem:hover > box > check:checked,
+menu > menuitem:hover > box > radio:checked,
+.menu > menuitem:hover > check:checked,
+.menu > menuitem:hover > radio:checked,
+.context-menu > menuitem:hover > check:checked,
+.context-menu > menuitem:hover > radio:checked {
+	color: @mx_on_accent;
+	border-color: @mx_on_accent;
+	background-color: transparent;
+}
+
+menu separator {
+	background-color: @mx_line;
+	margin: 4px 6px;
+}
+
+menubar > menuitem:hover {
+	background-color: @mx_accent_tint;
+	color: @mx_accent_text;
+	box-shadow: inset 0 -2px @mx_accent;
+}
+
+check:checked,
+check:indeterminate,
+radio:checked,
+radio:indeterminate {
+	background-color: @mx_accent;
+	background-image: none;
+	border-color: @mx_accent;
+	color: @mx_on_accent;
+	-gtk-icon-shadow: none;
+}
+
+check:checked:hover,
+check:indeterminate:hover,
+radio:checked:hover,
+radio:indeterminate:hover {
+	background-color: shade(@mx_accent, 1.08);
+	border-color: shade(@mx_accent, 1.08);
+}
+
+switch:checked {
+	background-color: @mx_accent;
+	border-color: @mx_accent;
+	color: @mx_on_accent;
+}
+
+scale highlight {
+	background-color: @mx_accent;
+	border-color: @mx_accent;
+}
+
+row:selected,
+treeview.view:selected,
+treeview.view:selected:focus,
+iconview:selected,
+flowbox flowboxchild:selected,
+textview text selection,
+entry selection,
+label selection {
+	background-color: @mx_accent;
+	color: @mx_on_accent;
+}
+
+entry:focus,
+spinbutton:not(.vertical):focus {
+	border-color: @mx_accent;
+	box-shadow: inset 0 0 0 1px @mx_accent;
+}
+
+notebook > header.top tab:checked {
+	box-shadow: inset 0 -3px @mx_accent;
+}
+
+notebook > header.bottom tab:checked {
+	box-shadow: inset 0 3px @mx_accent;
+}
+
+notebook > header.left tab:checked {
+	box-shadow: inset -3px 0 @mx_accent;
+}
+
+notebook > header.right tab:checked {
+	box-shadow: inset 3px 0 @mx_accent;
+}
+
+messagedialog .dialog-action-area button.suggested-action,
+button.suggested-action {
+	background-color: @mx_accent;
+	background-image: none;
+	border-color: @mx_accent;
+	color: @mx_on_accent;
+	text-shadow: none;
+	-gtk-icon-shadow: none;
+}
+
+messagedialog .dialog-action-area button.suggested-action:hover,
+button.suggested-action:hover {
+	background-color: shade(@mx_accent, 1.08);
+	border-color: shade(@mx_accent, 1.08);
+}
+
+messagedialog .dialog-action-area button.suggested-action:active,
+button.suggested-action:active {
+	background-color: shade(@mx_accent, 0.92);
+	border-color: shade(@mx_accent, 0.92);
+}
+
+messagedialog .dialog-action-area button.suggested-action:disabled,
+button.suggested-action:disabled {
+	background-color: alpha(@mx_accent, 0.4);
+	border-color: transparent;
+	color: alpha(@mx_on_accent, 0.7);
+}
+
+messagedialog .dialog-action-area button.destructive-action,
+button.destructive-action {
+	background-color: transparent;
+	background-image: none;
+	border-color: alpha(@mx_danger, 0.45);
+	color: @mx_danger;
+	text-shadow: none;
+	-gtk-icon-shadow: none;
+}
+
+messagedialog .dialog-action-area button.destructive-action:hover,
+button.destructive-action:hover {
+	background-color: alpha(@mx_danger, 0.12);
+	border-color: @mx_danger;
+}
+
+messagedialog .dialog-action-area button.destructive-action:active,
+button.destructive-action:active {
+	background-color: alpha(@mx_danger, 0.2);
+}
+
+#pagesizeDialog togglebutton {
+	color: @mx_text;
+	padding: 6px 10px;
+}
+
+#pagesizeDialog togglebutton:checked {
+	background-color: @mx_accent_tint;
+	background-image: none;
+	border-color: @mx_accent;
+	color: @mx_accent_text;
 }
 
 menubar, toolbar {
@@ -654,6 +880,12 @@ popover.background.mx-popover scale slider {
 #sidebar #PreviewPagesToolbar button:hover,
 #sidebar #PreviewLayersToolbar button:hover {
 	background-color: @mx_hover;
+}
+
+#sidebar #PreviewPagesToolbar button:disabled,
+#sidebar #PreviewLayersToolbar button:disabled {
+	color: alpha(@mx_text, 0.38);
+	background-color: transparent;
 }
 
 #sidebar .inline-toolbar button:checked {

@@ -108,7 +108,7 @@ auto Menubar::buildMainMenu(GtkBuilder* builder, GMenuModel* pluginsModel) -> xo
     // Category submenus
     xoj::util::GObjectSPtr<GMenu> categoriesSection(g_menu_new(), xoj::util::adopt);
 
-    // Edit omits Preferences and Toolbars, which sit in the top-level section below
+    // Edit omits Preferences, which sits in the top-level section below
     xoj::util::GObjectSPtr<GMenu> editSubmenu(g_menu_new(), xoj::util::adopt);
     for (const char* id:
          {"sectionEditClipboard", "sectionEditSelectFind", "sectionEditSelection", "sectionEditSnapping"}) {
@@ -134,7 +134,7 @@ auto Menubar::buildMainMenu(GtkBuilder* builder, GMenuModel* pluginsModel) -> xo
     }
     g_menu_append_section(mainMenu.get(), nullptr, G_MENU_MODEL(categoriesSection.get()));
 
-    // Preferences, Toolbars (keeping its live submenu link), and Help in one section
+    // Preferences and Help in one section
     xoj::util::GObjectSPtr<GMenu> appSection(g_menu_new(), xoj::util::adopt);
     if (GMenuModel* editPrefs = getModelById("sectionEditPreferences")) {
         const int n = g_menu_model_get_n_items(editPrefs);

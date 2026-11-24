@@ -17,8 +17,6 @@
 namespace {
 constexpr auto G_ACTION_NAMESPACE = "win.";
 constexpr auto G_ACTION_NAME = "select-toolbar";
-/// id from ui/mainmenubar.xml
-constexpr auto SUBMENU_ID = "menuViewToolbar";
 
 auto createToolbarSelectionMenuItem(const ToolbarData* toolbarData) {
 
@@ -68,10 +66,8 @@ ToolbarSelectionSubmenu::~ToolbarSelectionSubmenu() = default;
 
 void ToolbarSelectionSubmenu::setDisabled(bool disabled) { g_simple_action_set_enabled(gAction.get(), !disabled); }
 
-void ToolbarSelectionSubmenu::addToMenubar(Menubar& menubar) {
-    GMenu* submenu = menubar.get<GMenu>(SUBMENU_ID, [](auto* p) { return G_MENU(p); });
-    g_menu_prepend_section(submenu, nullptr, G_MENU_MODEL(customConfigurationsSection.get()));
-    g_menu_prepend_section(submenu, nullptr, G_MENU_MODEL(stockConfigurationsSection.get()));
+void ToolbarSelectionSubmenu::addToMenubar(Menubar&) {
+    // The Toolbars submenu is omitted from the menus; the win.select-toolbar action stays registered.
 }
 
 void ToolbarSelectionSubmenu::update(ToolMenuHandler* toolbarHandler, const ToolbarData* tb) {

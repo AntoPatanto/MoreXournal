@@ -141,19 +141,6 @@
      <attribute name="action">app.preferences</attribute>
      <attribute name="hidden-when">macos-menubar</attribute>
     </item>
-    <submenu id="menuViewToolbar">
-     <attribute name="label" translatable="yes">T_oolbars</attribute>
-     <section>
-      <item>
-       <attribute name="label" translatable="yes">_Manage</attribute>
-       <attribute name="action">win.manage-toolbar</attribute>
-      </item>
-      <item>
-       <attribute name="label" translatable="yes">_Customize</attribute>
-       <attribute name="action">win.customize-toolbar</attribute>
-      </item>
-     </section>
-    </submenu>
    </section>
   </submenu>
   <submenu id="menuPage">

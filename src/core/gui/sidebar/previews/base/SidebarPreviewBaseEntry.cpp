@@ -102,7 +102,15 @@ void SidebarPreviewBaseEntry::paint(cairo_t* cr) {
         Shadow::drawShadow(cr, Shadow::getShadowTopLeftSize(), Shadow::getShadowTopLeftSize(),
                            round_cast<int>(width) + 4, round_cast<int>(height) + 4);
         // Draw border
-        Util::cairo_set_source_rgbi(cr, sidebar->getControl()->getSettings()->getBorderColor());
+        Color borderColor = sidebar->getControl()->getSettings()->getBorderColor();
+        GdkRGBA themeAccent;
+        if (borderColor == Colors::mx_accent &&
+            gtk_style_context_lookup_color(gtk_widget_get_style_context(this->button.get()), "mx_accent",
+                                           &themeAccent)) {
+            gdk_cairo_set_source_rgba(cr, &themeAccent);
+        } else {
+            Util::cairo_set_source_rgbi(cr, borderColor);
+        }
         cairo_set_line_width(cr, 2);
         cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
         cairo_set_line_join(cr, CAIRO_LINE_JOIN_BEVEL);

@@ -45,9 +45,11 @@ private:
 
 public:
     struct Button {
-        Button(std::string l, int r): label(std::move(l)), response(r) {}
+        Button(std::string l, int r, std::string style = {}):
+                label(std::move(l)), response(r), styleClass(std::move(style)) {}
         std::string label;
         int response;
+        std::string styleClass;
     };
 
     /**

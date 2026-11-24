@@ -22,18 +22,21 @@ void SearchResultView::draw(cairo_t* cr) const {
     const XojPdfRectangle* highlightRect = this->searchControl->getHighlightRect();
     xoj::util::CairoSaveGuard saveGuard(cr);
 
-    cairo_set_line_width(cr, BORDER_WIDTH_IN_PIXELS / this->parent->getZoom());
+    cairo_set_line_width(cr, CURRENT_BORDER_WIDTH_IN_PIXELS / this->parent->getZoom());
 
     for (const XojPdfRectangle& rect: this->searchControl->getResults()) {
         cairo_rectangle(cr, rect.x1, rect.y1, rect.x2 - rect.x1, rect.y2 - rect.y1);
-        Color color = frameColor;
         if (&rect == highlightRect) {
-            color = frameHighlightColor;
+            Util::cairo_set_source_rgbi(cr, frameHighlightColor, CURRENT_BACKGROUND_OPACITY);
+            cairo_fill_preserve(cr);
+            Color borderColor = (frameHighlightColor == Colors::mx_search_current) ? Colors::mx_search_current_border :
+                                                                                     frameHighlightColor;
+            Util::cairo_set_source_rgbi(cr, borderColor);
+            cairo_stroke(cr);
+        } else {
+            Util::cairo_set_source_rgbi(cr, frameColor, BACKGROUND_OPACITY);
+            cairo_fill(cr);
         }
-        Util::cairo_set_source_rgbi(cr, color);
-        cairo_stroke_preserve(cr);
-        Util::cairo_set_source_rgbi(cr, color, BACKGROUND_OPACITY);
-        cairo_fill(cr);
     }
 }
 

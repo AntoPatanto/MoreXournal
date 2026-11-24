@@ -164,7 +164,7 @@
             <property name="margin-end">4</property>
             <property name="margin-top">4</property>
             <property name="margin-bottom">4</property>
-            <property name="label">The formula is empty when rendered or invalid.</property>
+            <property name="label" translatable="yes">The formula is empty when rendered or invalid.</property>
             <attributes>
               <attribute name="foreground" value="#e0e01b1b2424"/>
             </attributes>
@@ -200,12 +200,15 @@
             </child>
             <child>
               <object class="GtkButton" id="btOk">
-                <property name="label" translatable="yes">Ok</property>
+                <property name="label" translatable="yes">Apply</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
                 <property name="image">iconOk</property>
                 <accelerator key="Return" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>

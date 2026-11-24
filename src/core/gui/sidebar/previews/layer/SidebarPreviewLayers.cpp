@@ -37,8 +37,7 @@ void SidebarPreviewLayers::enableSidebar() {
 auto SidebarPreviewLayers::getName() -> std::string { return stacked ? _("Layerstack Preview") : _("Layer Preview"); }
 
 auto SidebarPreviewLayers::getIconName() -> std::string {
-    const char* icon = stacked ? "sidebar-layerstack" : "sidebar-layer";
-    return this->iconNameHelper.iconName(icon);
+    return stacked ? "mx-sidebar-layerstack-symbolic" : "mx-sidebar-layer-symbolic";
 }
 
 void SidebarPreviewLayers::pageSizeChanged(size_t page) {

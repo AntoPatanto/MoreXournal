@@ -31,5 +31,5 @@ void PluginsSubmenu::addToMenubar(Menubar& menubar) {
     GMenuModel* mainmenu = menubar.getModel();
     int insertionPlace = g_menu_model_get_n_items(mainmenu) - POSITION_IN_MENUBAR_FROM_END;
     xoj_assert(insertionPlace >= 0);
-    g_menu_insert_submenu(G_MENU(mainmenu), insertionPlace, _("Plugin"), G_MENU_MODEL(submenu.get()));
+    g_menu_insert_submenu(G_MENU(mainmenu), insertionPlace, _("Plugins"), G_MENU_MODEL(submenu.get()));
 }

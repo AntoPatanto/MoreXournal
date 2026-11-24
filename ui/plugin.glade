@@ -111,7 +111,7 @@
             </child>
             <child>
               <object class="GtkButton" id="btOk">
-                <property name="label" translatable="yes">Ok</property>
+                <property name="label" translatable="yes">Save</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="has-focus">True</property>
@@ -119,6 +119,9 @@
                 <property name="has-default">True</property>
                 <property name="receives-default">True</property>
                 <property name="image">iconOk</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>

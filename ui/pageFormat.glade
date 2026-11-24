@@ -236,8 +236,8 @@
                               <object class="GtkImage">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="stock">gtk-orientation-portrait</property>
-                                <property name="icon_size">3</property>
+                                <property name="icon-name">mx-orientation-portrait-symbolic</property>
+                                <property name="pixel-size">22</property>
                               </object>
                             </child>
                           </object>
@@ -256,8 +256,8 @@
                               <object class="GtkImage">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="stock">gtk-orientation-landscape</property>
-                                <property name="icon_size">3</property>
+                                <property name="icon-name">mx-orientation-landscape-symbolic</property>
+                                <property name="pixel-size">22</property>
                               </object>
                             </child>
                           </object>
@@ -343,12 +343,15 @@
             </child>
             <child>
               <object class="GtkButton" id="btOk">
-                <property name="label" translatable="yes">Ok</property>
+                <property name="label" translatable="yes">Apply</property>
                 <property name="name">btOk</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
                 <property name="image">iconOk</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>
