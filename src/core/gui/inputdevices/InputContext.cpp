@@ -83,9 +83,6 @@ static gboolean keyboardCallback(GtkEventControllerKey* self, guint keyval, guin
 InputContext::~InputContext() {
     // Destructor is called in xournal_widget_dispose, so it can still accept events
     g_signal_handler_disconnect(this->widget, signal_id);
-    if (focusOutSignalId) {
-        g_signal_handler_disconnect(this->widget, focusOutSignalId);
-    }
 }
 
 void InputContext::connect(GtkWidget* pWidget, bool connectKeyboardHandler,
@@ -117,19 +114,6 @@ void InputContext::connect(GtkWidget* pWidget, bool connectKeyboardHandler,
             GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_PROXIMITY_IN_MASK | GDK_PROXIMITY_OUT_MASK;
 
     gtk_widget_add_events(pWidget, mask);
-
-    // Switching windows may send no leave event (e.g. on another monitor): hide the eraser indicator anyway
-    focusOutSignalId = g_signal_connect(pWidget, "focus-out-event",
-                                        G_CALLBACK(+[](GtkWidget*, GdkEventFocus*, gpointer self) -> gboolean {
-                                            auto* ctx = static_cast<InputContext*>(self);
-                                            if (ctx->view) {
-                                                if (XournalppCursor* cursor = ctx->view->getCursor()) {
-                                                    cursor->clearPointerPosition();
-                                                }
-                                            }
-                                            return false;
-                                        }),
-                                        this);
 
 
     if (!logfunction) {

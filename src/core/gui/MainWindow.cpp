@@ -49,6 +49,7 @@
 #include "GladeSearchpath.h"     // for GladeSearchpath
 #include "ToolbarDefinitions.h"  // for TOOLBAR_DEFINITIO...
 #include "XournalView.h"         // for XournalView
+#include "XournalppCursor.h"     // for XournalppCursor
 #include "config-dev.h"          // for TOOLBAR_CONFIG
 #include "filesystem.h"          // for path, exists
 
@@ -131,9 +132,18 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
                          const bool menuOpen =
                                  win->menubarWidget &&
                                  gtk_menu_shell_get_selected_item(GTK_MENU_SHELL(win->menubarWidget)) != nullptr;
-                         if (!gtk_window_is_active(GTK_WINDOW(w)) && !menuOpen) {
-                             win->altArmed = false;
-                             win->setMenubarTemporarilyVisible(false);
+                         if (!gtk_window_is_active(GTK_WINDOW(w))) {
+                             // Switching windows may send no leave event (e.g. on another monitor): hide the eraser
+                             // indicator anyway. A menu over the page hides it too.
+                             if (win->xournal) {
+                                 if (XournalppCursor* cursor = win->xournal->getCursor()) {
+                                     cursor->clearPointerPosition();
+                                 }
+                             }
+                             if (!menuOpen) {
+                                 win->altArmed = false;
+                                 win->setMenubarTemporarilyVisible(false);
+                             }
                          }
                      }),
                      this);
