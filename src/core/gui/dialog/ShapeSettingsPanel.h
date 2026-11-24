@@ -79,6 +79,7 @@ private:
     static gboolean onPadButtonRelease(GtkWidget* widget, GdkEventButton* event, gpointer data);
     static gboolean onPadGrabBroken(GtkWidget* widget, GdkEventGrabBroken* event, gpointer data);
     static void onPadRealize(GtkWidget* widget, gpointer data);
+    static void onPadHoldTimeout(ShapeSettingsPanel* self);
 
     void drawPad(cairo_t* cr, int width, int height);
     void restartPadHoldTimer();

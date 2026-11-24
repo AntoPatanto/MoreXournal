@@ -662,15 +662,14 @@ gboolean ShapeSettingsPanel::onPadGrabBroken(GtkWidget*, GdkEventGrabBroken*, gp
     return false;
 }
 
+void ShapeSettingsPanel::onPadHoldTimeout(ShapeSettingsPanel* self) {
+    self->holdTimer.consume();
+    self->tryConvertPadStroke();
+}
+
 void ShapeSettingsPanel::restartPadHoldTimer() {
     holdStartUs = g_get_monotonic_time();
-    holdTimer = g_timeout_add(
-            static_cast<guint>(currentDelayMs()),
-            xoj::util::wrap_for_once_v<+[](ShapeSettingsPanel* self) {
-                self->holdTimer.consume();
-                self->tryConvertPadStroke();
-            }>,
-            this);
+    holdTimer = g_timeout_add(static_cast<guint>(currentDelayMs()), xoj::util::wrap_for_once_v<onPadHoldTimeout>, this);
 
     if (!animTimer) {
         animTimer = g_timeout_add(
