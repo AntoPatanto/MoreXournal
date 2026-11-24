@@ -221,7 +221,7 @@ void Settings::loadDefault() {
     this->eagerPageCleanup = true;
 
     this->selectionBorderColor = Colors::mx_accent;
-    this->selectionMarkerColor = Colors::xopp_cornflowerblue;
+    this->selectionMarkerColor = DEFAULT_SELECTION_COLOR;
     this->activeSelectionColor = Colors::mx_search_current;
 
     this->recolorParameters = {false, false, Recolor(ColorU8{198, 208, 245}, ColorU8{48, 52, 70})};
@@ -1777,6 +1777,13 @@ void Settings::migrateUiLayout() {
         }
         if (sameRgb(this->activeSelectionColor, Colors::lawngreen)) {
             this->activeSelectionColor = Colors::mx_search_current;
+        }
+    }
+    if (this->uiLayoutVersion < 3) {
+        // Version 3 changed the default selection colour from #729fcf to the app accent (#3563e9)
+        if ((uint32_t(this->selectionMarkerColor) & 0x00ffffffU) ==
+            (uint32_t(Colors::xopp_cornflowerblue) & 0x00ffffffU)) {
+            this->selectionMarkerColor = DEFAULT_SELECTION_COLOR;
         }
     }
     this->uiLayoutVersion = UI_LAYOUT_VERSION;

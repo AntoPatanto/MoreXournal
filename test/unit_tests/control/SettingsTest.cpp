@@ -350,11 +350,10 @@ TEST(SettingsTest, testRecentColorsReadWrite) {
 }
 
 TEST(SettingsTest, testCanvasAidColorsDefaultAndMigration) {
-    // Fresh settings use the new defaults and keep the selection colour unchanged
+    // Fresh settings use the new defaults
     Settings fresh{"non-existing-file-path"};
     EXPECT_EQ(fresh.getBorderColor(), Colors::mx_accent);
     EXPECT_EQ(fresh.getActiveSelectionColor(), Colors::mx_search_current);
-    EXPECT_EQ(fresh.getSelectionColor(), Colors::xopp_cornflowerblue);
 
     const fs::path outPath = fs::temp_directory_path() / "xournalpp-test-units_Settings_testAidColorsMigration.xml";
 
@@ -376,7 +375,6 @@ TEST(SettingsTest, testCanvasAidColorsDefaultAndMigration) {
     EXPECT_EQ(migrated.getUiLayoutVersion(), UI_LAYOUT_VERSION);
     EXPECT_EQ(migrated.getBorderColor(), Colors::mx_accent);
     EXPECT_EQ(migrated.getActiveSelectionColor(), Colors::mx_search_current);
-    EXPECT_EQ(migrated.getSelectionColor(), Colors::xopp_cornflowerblue);
 
     // Older settings file with custom colours keeps the user's choices
     const Color customBorder{0xff123456U};
@@ -414,6 +412,84 @@ TEST(SettingsTest, testCanvasAidColorsDefaultAndMigration) {
     ASSERT_TRUE(keptExplicit.load());
     EXPECT_EQ(keptExplicit.getBorderColor(), Colors::red);
     EXPECT_EQ(keptExplicit.getActiveSelectionColor(), Colors::lawngreen);
+}
+
+TEST(SettingsTest, testSelectionColorDefaultAndMigration) {
+    const fs::path outPath = fs::temp_directory_path() / "xournalpp-test-units_Settings_testSelectionColor.xml";
+    fs::remove(outPath);
+
+    // Fresh settings use the app accent #3563e9
+    {
+        Settings fresh{"non-existing-file-path"};
+        EXPECT_EQ(fresh.getSelectionColor(), DEFAULT_SELECTION_COLOR);
+        EXPECT_EQ(fresh.getSelectionColor(), Color(0xff3563e9U));
+    }
+
+    // Stored v1 settings with the old default (#729fcf) are migrated once to #3563e9
+    {
+        std::ofstream v1(outPath);
+        v1 << R"(<?xml version="1.0"?>
+<settings>
+  <property name="uiLayoutVersion" value="1"/>
+  <property name="selectionMarkerColor" value="4285702095"/>
+</settings>
+)";
+    }
+    {
+        Settings migrated(outPath);
+        ASSERT_TRUE(migrated.load());
+        EXPECT_EQ(migrated.getUiLayoutVersion(), UI_LAYOUT_VERSION);
+        EXPECT_EQ(migrated.getSelectionColor(), Color(0xff3563e9U));
+    }
+
+    // Stored v1 settings with legacy RGB-only old default (0x00729fcf = 7512015) are also migrated
+    {
+        std::ofstream v1LegacyRgb(outPath);
+        v1LegacyRgb << R"(<?xml version="1.0"?>
+<settings>
+  <property name="uiLayoutVersion" value="1"/>
+  <property name="selectionMarkerColor" value="7512015"/>
+</settings>
+)";
+    }
+    {
+        Settings migrated(outPath);
+        ASSERT_TRUE(migrated.load());
+        EXPECT_EQ(migrated.getSelectionColor(), Color(0xff3563e9U));
+    }
+
+    // Stored v1 settings with a custom selection colour are preserved
+    {
+        std::ofstream custom(outPath);
+        custom << R"(<?xml version="1.0"?>
+<settings>
+  <property name="uiLayoutVersion" value="1"/>
+  <property name="selectionMarkerColor" value="4294901930"/>
+</settings>
+)";
+    }
+    {
+        Settings kept(outPath);
+        ASSERT_TRUE(kept.load());
+        EXPECT_EQ(kept.getUiLayoutVersion(), UI_LAYOUT_VERSION);
+        EXPECT_EQ(kept.getSelectionColor(), Color(0xffff00aaU));
+    }
+
+    // Current-version settings explicitly set back to #729fcf are not overwritten
+    {
+        std::ofstream explicitOld(outPath);
+        explicitOld << R"(<?xml version="1.0"?>
+<settings>
+  <property name="uiLayoutVersion" value="3"/>
+  <property name="selectionMarkerColor" value="4285702095"/>
+</settings>
+)";
+    }
+    {
+        Settings keptOld(outPath);
+        ASSERT_TRUE(keptOld.load());
+        EXPECT_EQ(keptOld.getSelectionColor(), Colors::xopp_cornflowerblue);
+    }
 
     fs::remove(outPath);
 }
