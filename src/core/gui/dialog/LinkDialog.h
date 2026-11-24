@@ -78,12 +78,12 @@ public:
     static constexpr float MAX_HEIGHT_RATIO = 0.75;
     static constexpr int INITIAL_NUMBER_OF_LINES = 2;
 
-    static constexpr char PLACEHOLDER_HTTPS[] = "xournalpp.github.io";
+    static constexpr char PLACEHOLDER_HTTPS[] = "github.com/AntoPatanto/MoreXournal";
     static constexpr char PLACEHOLDER_MAIL[] = "email-address@provider.domain";
 #if defined(_WIN32)
     static constexpr char PLACEHOLDER_FILE[] = "/C:/foo/bar";
 #else
     static constexpr char PLACEHOLDER_FILE[] = "/absolute/path/to/file";
 #endif
-    static constexpr char PLACEHOLDER_OTHER[] = "https://www.xournalpp.github.io";
+    static constexpr char PLACEHOLDER_OTHER[] = "https://github.com/AntoPatanto/MoreXournal";
 };

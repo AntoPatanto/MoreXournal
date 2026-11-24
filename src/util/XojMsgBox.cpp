@@ -211,7 +211,7 @@ void XojMsgBox::replaceFileQuestion(GtkWindow* win, fs::path file,
     popup.show(win);
 }
 
-constexpr auto* XOJ_HELP = "https://xournalpp.github.io/community/help/";
+constexpr auto* XOJ_HELP = "https://github.com/AntoPatanto/MoreXournal";
 
 void XojMsgBox::showHelp(GtkWindow* win) { openURL(win, XOJ_HELP); }
 

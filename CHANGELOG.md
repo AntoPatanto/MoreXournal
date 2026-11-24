@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.1.0 (2026-11-24)
+
+First public release of MoreXournal, based on Xournal++ 1.3.8 at upstream commit `fd54c74c8`.
+
+### Added
+
+* Separate application identity (`io.github.antopatanto.morexournal`), executables (`morexournal`, `morexournal-wrapper`, `morexournal-thumbnailer`) and configuration folders so MoreXournal installs side by side with Xournal++ and copies an existing `~/.config/xournalpp` on first launch (#1)
+* Hold-to-shape drawing for pen and highlighter: holding the tip still converts the stroke into a recognized line, triangle, rectangle or circle before lifting the pen, with 15-degree rotation snapping for lines and single-step undo (#2)
+* Editable shape objects for the Line, Rectangle and Ellipse tools, stored as backwards-compatible `.xopp` stroke extensions (`mxShape`, `mxShapeParams`, `mxFillColor`), with geometry handles and a floating shape menu for stroke color, width, fill color and opacity, line style, duplicate, delete and convert-to-stroke (#3, #4)
+* Automatic shapes preferences panel with sensitivity slider, per-threshold controls, hold delay, jitter tolerance, minimum size and a built-in test pad (#13)
+* Floating tool options pill under the top bar with recently used color swatches (recorded when drawing or typing starts), thickness, line style, fill, selection actions and fullscreen toggle, plus floating zoom and layer controls in the bottom corners (#6, #7, #9, #10, #11)
+* Built-in indigo light and dark themes (`ui/morexournal-light.css` and `ui/morexournal-dark.css`) that keep the page paper light in dark mode (#6)
+* Touch mode setting with automatic runtime device switching, two-density chrome sizing, `F6` keyboard focus navigation across chrome regions, a special-tool chip, an insert/paste image pill and a narrow-window overflow menu down to 600 px width (#17)
+* True-size canvas overlay for the eraser indicator and a halo pen dot cursor (#14)
+
+### Changed
+
+* Replaced the classic menu bar and toolbar rows with a single top bar (header bar or inline in fullscreen) with temporary `Alt` menu bar reveal and `F10` toggle (#5)
+* Hold-to-shape and the shape recognizer produce plain strokes that stay transiently selected on release, while only the Line, Rectangle and Ellipse tools create editable shapes (#9, #10)
+* Reorganized the main menu and menu bar into categories, removed the legacy Toolbars submenu and updated dialog styling, sidebar icons and canvas aid colors (#12, #15)
+* Redesigned canvas selection and shape handles with device-aware hit areas and an accent default selection color (#16)
+* Enabled the overlay vertical scrollbar only during sustained page scrolling (#19)
+* Pointed crash reports, help, about links, man page and issue templates to `AntoPatanto/MoreXournal` and set version to `0.1.0`
+
+### Fixed
+
+* Guarded against a GTK 3 `GtkScrolledWindow` crash when a long-press gesture fires with a null event (#18)
+* Fixed Italian translations, markup errors and menu mnemonics (#15)
+* Fixed hold-to-shape transient grab handling and hover/focus cleanup for the eraser indicator (#14, #16)
+
+## Upstream Xournal++ history
+
+Changes below this point are from upstream Xournal++ prior to the fork at commit `fd54c74c8`.
+
 ## 1.3.8+dev (Unreleased)
 
 ## 1.3.8

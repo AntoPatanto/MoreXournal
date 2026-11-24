@@ -21,17 +21,17 @@ endif()
 ## Project related Variables
 ## Also update changelog in debian folder!
 project(morexournal
-        VERSION 1.3.8
+        VERSION 0.1.0
         DESCRIPTION "MoreXournal - hand note-taking program based on Xournal++"
-        HOMEPAGE_URL "https://xournalpp.github.io/"
+        HOMEPAGE_URL "https://github.com/AntoPatanto/MoreXournal"
         LANGUAGES CXX C)
 # according to https://cmake.org/cmake/help/latest/command/project.html we must fix the suffix:
 # And https://gitlab.kitware.com/cmake/cmake/-/issues/16716 is still open:
-set(VERSION_SUFFIX "+dev")
+set(VERSION_SUFFIX "")
 set(PROJECT_VERSION "${PROJECT_VERSION}${VERSION_SUFFIX}")
 set(morexournal_VERSION ${PROJECT_VERSION})
 set(CMAKE_PROJECT_VERSION ${PROJECT_VERSION})
-set(PROJECT_CONTACT "core.xournalpp@github.com")
+set(PROJECT_CONTACT "MoreXournal maintainers <https://github.com/AntoPatanto/MoreXournal/issues>")
 
 ## CMAKE_Variables
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/find" "${PROJECT_SOURCE_DIR}/cmake/include")
