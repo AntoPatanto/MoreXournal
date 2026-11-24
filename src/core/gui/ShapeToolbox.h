@@ -43,6 +43,9 @@ public:
     /// Rebuild the color grids in the stroke and fill popovers (e.g. after the palette changed)
     void rebuildPalettes();
 
+    /// Switches icon sizes between compact (18 px) and touch (20 px)
+    void setTouchLayout(bool touch);
+
 private:
     void build();
     GtkWidget* makeIconButton(const char* iconName, const char* tooltip, GCallback callback);
@@ -116,13 +119,15 @@ private:
     GtkWidget* opacityScale = nullptr;
     GtkLabel* opacityValueLabel = nullptr;
 
-    // Line style (plain, dash, dot)
+    // Line style (plain, dash, dashdot, dot)
     GtkWidget* lineStyleSeparator = nullptr;
     GtkWidget* lineStyleBox = nullptr;
-    std::array<GtkWidget*, 3> lineStyleButtons{};
+    std::array<GtkWidget*, 4> lineStyleButtons{};
 
     /// Set while the widgets are updated from the stroke, to ignore their signals
     bool updating = false;
+    /// True when the window uses the touch density (scales icons to 20 px and palette dots to 24 px)
+    bool touchLayout = false;
     /// Opacity remembered for the current stroke while fill is off (0..255)
     int fillAlpha = 128;
     /// Fill alpha recorded when an opacity slider drag begins, committed as one undo step on release

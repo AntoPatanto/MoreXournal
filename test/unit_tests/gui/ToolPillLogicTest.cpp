@@ -31,6 +31,31 @@ TEST(ToolPillLogicTest, testSelectionActionsBitIsAddedOnlyBySelectionState) {
         EXPECT_EQ(sectionsFor(g, {true, true, true, true}) & SELECTION_ACTIONS, 0U) << static_cast<int>(g);
     }
     EXPECT_GT(static_cast<uint32_t>(SELECTION_ACTIONS), static_cast<uint32_t>(IMAGE_PASTE));
+
+    // Plain selections keep actions in the pill; selected shapes leave actions to ShapeToolbox
+    EXPECT_FALSE(showSelectionActionsInPill(false, false));
+    EXPECT_TRUE(showSelectionActionsInPill(true, false));
+    EXPECT_FALSE(showSelectionActionsInPill(true, true));
+}
+
+TEST(ToolPillLogicTest, testPinBlackColorForHighlighter) {
+    EXPECT_FALSE(pinBlackColorFor(ToolGroup::HIGHLIGHTER));
+    for (auto g: {ToolGroup::PEN, ToolGroup::SHAPES, ToolGroup::TEXT, ToolGroup::SELECTION, ToolGroup::NONE}) {
+        EXPECT_TRUE(pinBlackColorFor(g)) << static_cast<int>(g);
+    }
+}
+
+TEST(ToolPillLogicTest, testSpecialToolsWithoutTopBarButton) {
+    EXPECT_EQ(sectionsFor(ToolGroup::NONE, {true, false, false, false}, TOOL_LATEX), SPECIAL_TOOL_CHIP);
+    EXPECT_EQ(sectionsFor(ToolGroup::NONE, {}, TOOL_LINK), SPECIAL_TOOL_CHIP);
+    EXPECT_EQ(sectionsFor(ToolGroup::NONE, {}, TOOL_VERTICAL_SPACE), SPECIAL_TOOL_CHIP);
+    EXPECT_EQ(sectionsFor(ToolGroup::NONE, {true, false, false, false}, TOOL_SELECT_PDF_TEXT_LINEAR),
+              SPECIAL_TOOL_CHIP | PDF_TEXT_MODES);
+    EXPECT_EQ(sectionsFor(ToolGroup::NONE, {true, false, false, false}, TOOL_SELECT_PDF_TEXT_RECT),
+              SPECIAL_TOOL_CHIP | PDF_TEXT_MODES);
+
+    // Laser pointers are not chip tools and keep their colour/thickness sections
+    EXPECT_EQ(sectionsFor(ToolGroup::NONE, {true, true, false, false}, TOOL_LASER_POINTER_PEN), COLORS | THICKNESS);
 }
 
 TEST(ToolPillLogicTest, testCapabilitiesForSelectionAndToolsWithoutButton) {

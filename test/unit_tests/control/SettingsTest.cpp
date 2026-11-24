@@ -240,6 +240,26 @@ TEST(SettingsTest, testTopBarSettingsReadWrite) {
     fs::remove(outPath);
 }
 
+TEST(SettingsTest, testTouchModeReadWrite) {
+    const fs::path outPath = fs::temp_directory_path() / "xournalpp-test-units_Settings_testTouchMode.xml";
+    fs::remove(outPath);
+
+    Settings settings(outPath);
+    EXPECT_EQ(settings.getTouchMode(), TouchMode::AUTO);
+    settings.setTouchMode(TouchMode::ON);
+
+    Settings loaded(outPath);
+    ASSERT_TRUE(loaded.load());
+    EXPECT_EQ(loaded.getTouchMode(), TouchMode::ON);
+
+    loaded.setTouchMode(TouchMode::OFF);
+    Settings reloaded(outPath);
+    ASSERT_TRUE(reloaded.load());
+    EXPECT_EQ(reloaded.getTouchMode(), TouchMode::OFF);
+
+    fs::remove(outPath);
+}
+
 TEST(SettingsTest, testLastShapeTypeOnlyAcceptsShapes) {
     Settings settings{"non-existing-file-path"};
     settings.transactionStart();  // do not write the settings file

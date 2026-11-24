@@ -61,6 +61,20 @@ auto themeVariantFromString(const std::string& themeVariantStr) -> ThemeVariant 
     return THEME_VARIANT_USE_SYSTEM;
 }
 
+auto touchModeFromString(const std::string& touchModeStr) -> TouchMode {
+    if (touchModeStr == "auto") {
+        return TouchMode::AUTO;
+    }
+    if (touchModeStr == "off") {
+        return TouchMode::OFF;
+    }
+    if (touchModeStr == "on") {
+        return TouchMode::ON;
+    }
+    g_warning("Settings::Unknown touch mode: %s\n", touchModeStr.c_str());
+    return TouchMode::AUTO;
+}
+
 auto emptyLastPageAppendFromString(const std::string& str) -> EmptyLastPageAppendType {
     if (str == "disabled") {
         return EmptyLastPageAppendType::Disabled;

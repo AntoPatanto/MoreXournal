@@ -18,6 +18,7 @@
 #include "control/settings/Settings.h"                  // for Settings
 #include "control/settings/SettingsEnums.h"             // for SCROLLBAR_HIDE_HO...
 #include "control/zoom/ZoomControl.h"                   // for ZoomControl
+#include "gui/ChromeUtil.h"                             // for classifyEvent
 #include "gui/FloatingToolbox.h"                        // for FloatingToolbox
 #include "gui/FloatingTools.h"                          // for FloatingTools
 #include "gui/GladeGui.h"                               // for GladeGui
@@ -25,6 +26,8 @@
 #include "gui/SearchBar.h"                              // for SearchBar
 #include "gui/ShapeToolbox.h"                           // for ShapeToolbox
 #include "gui/TopBar.h"                                 // for TopBar
+#include "gui/TouchModeLogic.h"                         // for resolveTouchLayout
+#include "gui/inputdevices/InputContext.h"              // for InputContext
 #include "gui/inputdevices/InputEvents.h"               // for INPUT_DEVICE_TOUC...
 #include "gui/menus/menubar/Menubar.h"                  // for Menubar
 #include "gui/menus/menubar/ToolbarSelectionSubmenu.h"  // for ToolbarSelectionSubmenu
@@ -126,6 +129,19 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
     // "watch over" all key events
     g_signal_connect(this->window, "key-press-event", G_CALLBACK(onKeyEvent), this);
     g_signal_connect(this->window, "key-release-event", G_CALLBACK(onKeyEvent), this);
+
+    // Observe mouse, pen and touchscreen presses anywhere in the window (capture phase, before buttons consume them)
+    pointerGesture.reset(gtk_gesture_multi_press_new(this->window), xoj::util::adopt);
+    gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(pointerGesture.get()), 0);
+    gtk_event_controller_set_propagation_phase(GTK_EVENT_CONTROLLER(pointerGesture.get()), GTK_PHASE_CAPTURE);
+    g_signal_connect(pointerGesture.get(), "pressed",
+                     G_CALLBACK(+[](GtkGestureMultiPress* gesture, gint, gdouble, gdouble, gpointer self) {
+                         GdkEventSequence* seq = gtk_gesture_single_get_current_sequence(GTK_GESTURE_SINGLE(gesture));
+                         if (const GdkEvent* ev = gtk_gesture_get_last_event(GTK_GESTURE(gesture), seq)) {
+                             static_cast<MainWindow*>(self)->onPointerInput(ev);
+                         }
+                     }),
+                     this);
     g_signal_connect(this->window, "notify::is-active", G_CALLBACK(+[](GObject* w, GParamSpec*, gpointer self) {
                          auto* win = static_cast<MainWindow*>(self);
                          // An open menu of the menu bar grabs the keyboard, which also makes the window inactive
@@ -161,29 +177,22 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
                              return;
                          }
                          auto* win = static_cast<MainWindow*>(self);
-                         const bool compact = alloc->width < 900;
-                         win->pendingCompactMode = compact;
-                         if (compact == win->compactMode || win->compactIdleId != 0) {
+                         win->pendingAllocatedWidth = alloc->width;
+                         if (alloc->width == win->lastAllocatedWidth || win->resizeIdleId != 0) {
                              return;
                          }
-                         // Apply outside size-allocate so GTK does not mutate classes or visibility mid-layout
-                         win->compactIdleId = g_idle_add_full(
+                         // Apply outside size-allocate so GTK does not mutate widget visibility mid-layout
+                         win->resizeIdleId = g_idle_add_full(
                                  G_PRIORITY_HIGH_IDLE,
                                  +[](gpointer self) -> gboolean {
                                      auto* win = static_cast<MainWindow*>(self);
-                                     win->compactIdleId = 0;
-                                     if (win->pendingCompactMode == win->compactMode) {
+                                     win->resizeIdleId = 0;
+                                     if (win->pendingAllocatedWidth == win->lastAllocatedWidth) {
                                          return G_SOURCE_REMOVE;
                                      }
-                                     win->compactMode = win->pendingCompactMode;
-                                     GtkStyleContext* ctx = gtk_widget_get_style_context(win->window);
-                                     if (win->compactMode) {
-                                         gtk_style_context_add_class(ctx, "compact");
-                                     } else {
-                                         gtk_style_context_remove_class(ctx, "compact");
-                                     }
+                                     win->lastAllocatedWidth = win->pendingAllocatedWidth;
                                      if (win->topBar) {
-                                         win->topBar->setCompact(win->compactMode);
+                                         win->topBar->setWidth(win->lastAllocatedWidth);
                                      }
                                      return G_SOURCE_REMOVE;
                                  },
@@ -192,6 +201,12 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
                      this);
 
     updateScrollbarSidebarPosition();
+
+    // Allow shrinking down to 600 px so the window can half-tile on 1280/1366 px displays
+    GdkGeometry geom{};
+    geom.min_width = xoj::topbar::MIN_WINDOW_WIDTH;
+    geom.min_height = 400;
+    gtk_window_set_geometry_hints(GTK_WINDOW(this->window), nullptr, &geom, GDK_HINT_MIN_SIZE);
 
     gtk_window_set_default_size(GTK_WINDOW(this->window), control->getSettings()->getMainWndWidth(),
                                 control->getSettings()->getMainWndHeight());
@@ -228,8 +243,8 @@ void MainWindow::populate(GladeSearchpath* gladeSearchPath) {
     migrateSelectedToolbar();
     menubar->populate(gladeSearchPath, this);
     createTopBar();
-    if (compactMode && topBar) {
-        topBar->setCompact(true);
+    if (lastAllocatedWidth > 0 && topBar) {
+        topBar->setWidth(lastAllocatedWidth);
     }
     floatingTools = std::make_unique<FloatingTools>(control, GTK_OVERLAY(get("mainOverlay")), mainContentWidget.get());
 
@@ -239,17 +254,19 @@ void MainWindow::populate(GladeSearchpath* gladeSearchPath) {
     createToolbar();
 
     setToolbarVisible(control->getSettings()->isToolbarVisible());
+    updateTouchMode();
 }
 
 GMenuModel* MainWindow::getMenuModel() const { return menubar->getModel(); }
 
 MainWindow::~MainWindow() {
-    if (this->compactIdleId != 0) {
-        g_source_remove(this->compactIdleId);
-        this->compactIdleId = 0;
+    if (this->resizeIdleId != 0) {
+        g_source_remove(this->resizeIdleId);
+        this->resizeIdleId = 0;
     }
 
     // First, so that the selection deleted with the view does not update it, and floating listeners detach cleanly
+    this->pointerGesture.reset();
     this->floatingTools.reset();
     this->shapeToolbox.reset();
 
@@ -338,7 +355,96 @@ auto MainWindow::onKeyEvent(GtkWidget* window, GdkEventKey* event, MainWindow* s
     if (self->handleMenubarKey(event)) {
         return true;
     }
+    if (self->handleChromeFocusKey(event)) {
+        return true;
+    }
     return gtk_window_propagate_key_event(GTK_WINDOW(window), event);
+}
+
+namespace {
+GtkWidget* findFirstFocusable(GtkWidget* root) {
+    if (!root || !gtk_widget_get_visible(root) || !gtk_widget_get_sensitive(root)) {
+        return nullptr;
+    }
+    if (gtk_widget_get_can_focus(root) && gtk_widget_is_sensitive(root) && gtk_widget_get_mapped(root)) {
+        return root;
+    }
+    if (GTK_IS_CONTAINER(root)) {
+        GList* children = gtk_container_get_children(GTK_CONTAINER(root));
+        GtkWidget* found = nullptr;
+        for (GList* l = children; l != nullptr && !found; l = l->next) {
+            found = findFirstFocusable(GTK_WIDGET(l->data));
+        }
+        g_list_free(children);
+        return found;
+    }
+    return nullptr;
+}
+}  // namespace
+
+bool MainWindow::handleChromeFocusKey(GdkEventKey* event) {
+    if (event->type != GDK_KEY_PRESS) {
+        return false;
+    }
+
+    GtkWidget* bar = topBar ? topBar->getActiveBar() : nullptr;
+    GtkWidget* pill = floatingTools ? floatingTools->getPillWidget() : nullptr;
+    GtkWidget* layer = floatingTools ? floatingTools->getLayerWidget() : nullptr;
+    GtkWidget* zoom = floatingTools ? floatingTools->getZoomWidget() : nullptr;
+    GtkWidget* page = xournal ? xournal->getWidget() : nullptr;
+
+    GtkWidget* current = gtk_window_get_focus(GTK_WINDOW(this->window));
+    // An open popover is a child of its button: let it handle Escape itself, and don't move the focus out of it
+    if (current && gtk_widget_get_ancestor(current, GTK_TYPE_POPOVER)) {
+        return false;
+    }
+    auto inWidget = [&](GtkWidget* container) {
+        return current && container && (current == container || gtk_widget_is_ancestor(current, container));
+    };
+
+    int region = 3;  // default: page
+    if (inWidget(bar)) {
+        region = 0;
+    } else if (inWidget(pill)) {
+        region = 1;
+    } else if (inWidget(layer) || inWidget(zoom)) {
+        region = 2;
+    }
+
+    if (event->keyval == GDK_KEY_Escape) {
+        if (region != 3 && page) {
+            xournal->requestFocus();
+            return true;
+        }
+        return false;
+    }
+
+    if (event->keyval != GDK_KEY_F6) {
+        return false;
+    }
+
+    const int dir = (event->state & GDK_SHIFT_MASK) ? -1 : 1;
+    for (int step = 1; step <= 4; step++) {
+        const int next = (region + dir * step + 4) % 4;
+        GtkWidget* target = nullptr;
+        if (next == 0) {
+            target = findFirstFocusable(bar);
+        } else if (next == 1) {
+            target = findFirstFocusable(pill);
+        } else if (next == 2) {
+            target = findFirstFocusable(layer);
+            if (!target) {
+                target = findFirstFocusable(zoom);
+            }
+        } else {
+            target = page;
+        }
+        if (target) {
+            gtk_widget_grab_focus(target);
+            return true;
+        }
+    }
+    return false;
 }
 
 bool MainWindow::handleMenubarKey(GdkEventKey* event) {
@@ -384,6 +490,59 @@ void MainWindow::setMenubarTemporarilyVisible(bool visible) {
 
 void MainWindow::updateMenubarReveal() {
     gtk_revealer_set_reveal_child(GTK_REVEALER(menubarRevealer), menubarPinned || menubarTemporary);
+}
+
+void MainWindow::updateTouchMode() {
+    const TouchMode mode = control->getSettings()->getTouchMode();
+    setTouchLayout(xoj::chrome::resolveTouchLayout(mode, xoj::chrome::PointerKind::Other, this->touchLayout));
+}
+
+void MainWindow::onPointerInput(const GdkEvent* event) {
+    if (!event) {
+        return;
+    }
+    const auto kind = xoj::chrome::classifyEvent(event);
+    if (kind == xoj::chrome::PointerKind::Touch) {
+        // Ignore touches blocked by HandRecognition (palm rejection) or mapped to Disabled/Ignore
+        if (this->xournal) {
+            if (GtkWidget* w = this->xournal->getWidget(); w && GTK_IS_XOURNAL(w)) {
+                if (InputContext* ic = GTK_XOURNAL(w)->input; ic && ic->isBlocked(InputContext::TOUCHSCREEN)) {
+                    return;
+                }
+            }
+        }
+        if (GdkDevice* src = gdk_event_get_source_device(event)) {
+            if (InputEvents::translateDeviceType(src, control->getSettings()) == INPUT_DEVICE_IGNORE) {
+                return;
+            }
+        }
+    }
+    const TouchMode mode = control->getSettings()->getTouchMode();
+    setTouchLayout(xoj::chrome::resolveTouchLayout(mode, kind, this->touchLayout));
+}
+
+bool MainWindow::isTouchLayout() const { return this->touchLayout; }
+
+void MainWindow::setTouchLayout(bool touch) {
+    if (this->touchLayout == touch) {
+        return;
+    }
+    this->touchLayout = touch;
+    GtkStyleContext* ctx = gtk_widget_get_style_context(this->window);
+    if (touch) {
+        gtk_style_context_add_class(ctx, "mx-touch");
+    } else {
+        gtk_style_context_remove_class(ctx, "mx-touch");
+    }
+    if (this->topBar) {
+        this->topBar->setTouchLayout(touch);
+    }
+    if (this->floatingTools) {
+        this->floatingTools->setTouchLayout(touch);
+    }
+    if (this->shapeToolbox) {
+        this->shapeToolbox->setTouchLayout(touch);
+    }
 }
 
 struct ThemeProperties {
@@ -998,9 +1157,9 @@ void MainWindow::updatePageNumbers(size_t page, size_t pagecount, size_t pdfpage
     }
 }
 
-void MainWindow::setDocumentTitle(const std::string& name, const std::string& status) {
+void MainWindow::setDocumentTitle(const std::string& name, const std::string& status, bool unsaved) {
     if (topBar) {
-        topBar->setDocumentTitle(name, status);
+        topBar->setDocumentTitle(name, status, unsaved);
     }
 }
 

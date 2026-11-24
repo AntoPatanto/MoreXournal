@@ -8,6 +8,7 @@
 #include "control/actions/ActionDatabase.h"     // for ActionDatabase
 #include "control/settings/Settings.h"          // for Settings
 #include "enums/Action.enum.h"                  // for Action
+#include "gui/ChromeUtil.h"                     // for newChromeIcon, updateScalableIcons
 #include "gui/IconNameHelper.h"                 // for IconNameHelper
 #include "gui/toolbarMenubar/ToolPageLayer.h"   // for ToolPageLayer
 #include "gui/toolbarMenubar/ToolZoomSlider.h"  // for ToolZoomSlider
@@ -26,13 +27,11 @@ constexpr int SIDE_GAP = 0;
 constexpr int ICON_SIZE = 18;
 
 GtkWidget* prepareButton(GtkWidget* btn, Action action, const char* iconName, const char* tooltip) {
-    gtk_widget_set_can_focus(btn, false);
+    gtk_widget_set_can_focus(btn, true);
     gtk_widget_set_focus_on_click(btn, false);
     gtk_style_context_add_class(gtk_widget_get_style_context(btn), "flat");
     if (iconName) {
-        GtkWidget* img = gtk_image_new_from_icon_name(iconName, GTK_ICON_SIZE_BUTTON);
-        gtk_image_set_pixel_size(GTK_IMAGE(img), ICON_SIZE);
-        gtk_button_set_image(GTK_BUTTON(btn), img);
+        gtk_button_set_image(GTK_BUTTON(btn), xoj::chrome::newChromeIcon(iconName, ICON_SIZE));
     }
     gtk_widget_set_tooltip_text(btn, tooltip);
     std::string name = std::string("win.") + Action_toString(action);
@@ -88,7 +87,7 @@ FloatingTools::~FloatingTools() {
 
 GtkWidget* FloatingTools::createZoom() {
     ActionDatabase* db = control->getActionDatabase();
-    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_widget_set_name(box, "zoomFloat");
     gtk_style_context_add_class(gtk_widget_get_style_context(box), "mx-float");
     gtk_style_context_add_class(gtk_widget_get_style_context(box), "mx-zoom");
@@ -101,9 +100,10 @@ GtkWidget* FloatingTools::createZoom() {
 
     // The zoom value; its popover has the zoom slider and 100%
     GtkWidget* value = gtk_menu_button_new();
-    gtk_widget_set_can_focus(value, false);
+    gtk_widget_set_can_focus(value, true);
     gtk_widget_set_focus_on_click(value, false);
     gtk_style_context_add_class(gtk_widget_get_style_context(value), "flat");
+    gtk_style_context_add_class(gtk_widget_get_style_context(value), "mx-zoom-val");
     gtk_widget_set_tooltip_text(value, _("Zoom"));
     GtkWidget* label = gtk_label_new(nullptr);
     gtk_style_context_add_class(gtk_widget_get_style_context(label), "mx-numeric");
@@ -136,6 +136,7 @@ GtkWidget* FloatingTools::createZoom() {
     gtk_container_add(GTK_CONTAINER(popover), popBox);
     gtk_menu_button_set_popover(GTK_MENU_BUTTON(value), popover);
     gtk_menu_button_set_direction(GTK_MENU_BUTTON(value), GTK_ARROW_UP);
+    xoj::chrome::hideTooltipWhilePopupOpen(value, popover);
     gtk_box_pack_start(GTK_BOX(box), value, false, false, 0);
 
     gtk_box_pack_start(GTK_BOX(box), prepareButton(gtk_button_new(), Action::ZOOM_IN, "mx-plus-symbolic", _("Zoom in")),
@@ -173,6 +174,17 @@ void FloatingTools::rebuildToolOptions() { pill->rebuild(); }
 void FloatingTools::updateRecentColors() { pill->updateColors(); }
 
 void FloatingTools::onSelectionChanged() { pill->onSelectionChanged(); }
+
+void FloatingTools::setTouchLayout(bool touch) {
+    pill->setTouchLayout(touch);
+    const int iconSize = xoj::chrome::chromeIconSize(touch);
+    xoj::chrome::updateScalableIcons(zoom.get(), iconSize);
+    xoj::chrome::updateScalableIcons(layer.get(), iconSize);
+}
+
+GtkWidget* FloatingTools::getPillWidget() const { return pill->getWidget(); }
+GtkWidget* FloatingTools::getLayerWidget() const { return layer.get(); }
+GtkWidget* FloatingTools::getZoomWidget() const { return zoom.get(); }
 
 void FloatingTools::updateVisibility() {
     xoj::util::GVariantSPtr state(g_action_get_state(G_ACTION(presentationAction.get())), xoj::util::adopt);

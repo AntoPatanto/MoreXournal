@@ -46,6 +46,13 @@ public:
     /// Updates the tool pill when a selection appears or disappears
     void onSelectionChanged();
 
+    /// Switches icon and swatch sizes between compact and touch density
+    void setTouchLayout(bool touch);
+
+    GtkWidget* getPillWidget() const;
+    GtkWidget* getLayerWidget() const;
+    GtkWidget* getZoomWidget() const;
+
 private:
     GtkWidget* createZoom();
     GtkWidget* createLayer();

@@ -430,15 +430,23 @@ image.flying-icon:hover {
 /*
  * MoreXournal top bar: menu and document name, tools, history and pages.
  * It is a GtkHeaderBar, in the window title bar or inline at the top of the window.
+ * Two densities: compact (mouse/pen) and touch (window.mx-touch).
+ * Buttons use a 2 px transparent border with background-clip: padding-box so hit areas
+ * are 4 px larger than the visible box and adjacent hit areas touch with a 4 px visual gap.
+ * Radius scale: 6 / 10 / 14 / pill (9999px).
  */
 headerbar.mx-topbar {
-	min-height: 52px;
+	min-height: 48px;
 	padding: 0 6px;
 	background-color: @mx_chrome;
 	background-image: none;
 	color: @mx_text;
 	border-bottom: 1px solid @mx_line;
 	box-shadow: none;
+}
+
+window.mx-touch headerbar.mx-topbar {
+	min-height: 56px;
 }
 
 .mx-topbar .mx-title {
@@ -453,16 +461,26 @@ headerbar.mx-topbar {
 }
 
 .mx-topbar button.flat {
-	min-width: 28px;
-	min-height: 32px;
+	min-width: 34px;
+	min-height: 34px;
 	margin: 0;
-	padding: 2px;
-	border-radius: 8px;
-	border: 1px solid transparent;
+	padding: 0;
+	border: 2px solid transparent;
+	border-radius: 12px;
 	background-color: transparent;
 	background-image: none;
+	background-clip: padding-box;
 	box-shadow: none;
 	color: @mx_text;
+}
+
+window.mx-touch .mx-topbar button.flat {
+	min-width: 40px;
+	min-height: 40px;
+}
+
+.mx-topbar button.flat.mx-wide {
+	padding: 0 10px;
 }
 
 .mx-topbar button.flat:hover {
@@ -477,16 +495,52 @@ headerbar.mx-topbar {
 .mx-topbar button.flat:checked {
 	background-color: @mx_accent_tint;
 	border-color: transparent;
+	box-shadow: inset 0 0 0 1.5px @mx_accent;
 	color: @mx_accent_text;
 }
 
+.mx-topbar button.flat:disabled,
+.mx-topbar .mx-tools button.mx-tool:disabled,
+.mx-topbar .mx-pagenav button.flat:disabled {
+	color: alpha(@mx_text, 0.38);
+	background-color: transparent;
+}
+
+.mx-topbar button.flat:disabled .mx-page-label {
+	color: alpha(@mx_text, 0.38);
+}
+
+.mx-topbar button.flat:focus {
+	outline: 2px solid @mx_accent;
+	outline-offset: -1px;
+	-gtk-outline-radius: 11px;
+}
+
+.mx-topbar .mx-pagenav button.flat:focus {
+	-gtk-outline-radius: 7px;
+}
+
 .mx-topbar .mx-tools button.mx-tool {
-	min-width: 36px;
-	min-height: 36px;
+	min-width: 34px;
+	min-height: 34px;
 	margin: 0;
 	padding: 0;
-	border-radius: 10px;
+	border: 2px solid transparent;
+	border-radius: 12px;
+	background-clip: padding-box;
 	color: @mx_text2;
+}
+
+window.mx-touch .mx-topbar .mx-tools button.mx-tool {
+	min-width: 40px;
+	min-height: 40px;
+}
+
+/* Narrow touch windows (< 550 px usable bar width): tighten top bar buttons to 34/38 px so 12 buttons fit at 600 px */
+window.mx-touch .mx-topbar .mx-topbar-tight button.flat,
+window.mx-touch .mx-topbar .mx-topbar-tight .mx-tools button.mx-tool {
+	min-width: 34px;
+	min-height: 34px;
 }
 
 .mx-topbar .mx-tools button.mx-tool:hover {
@@ -494,12 +548,12 @@ headerbar.mx-topbar {
 	color: @mx_text;
 }
 
-/* The active tool gets an indigo tint and recoloured symbolic glyph */
+/* The active tool gets an indigo tint, 1.5 px accent inset ring and recoloured symbolic glyph */
 .mx-topbar .mx-tools button.mx-tool:checked {
 	background-image: none;
 	background-color: @mx_accent_tint;
 	border-color: transparent;
-	box-shadow: none;
+	box-shadow: inset 0 0 0 1.5px @mx_accent;
 	color: @mx_accent_text;
 }
 
@@ -507,20 +561,36 @@ headerbar.mx-topbar {
 	background-color: @mx_surface;
 	border-radius: 10px;
 	border: 1px solid @mx_line;
-	box-shadow: 0 1px 2px @mx_shadow;
-	padding: 2px;
+	box-shadow: none;
+	padding: 0 1px;
 	margin: 0 2px;
 }
 
 .mx-topbar .mx-pagenav button.flat {
-	min-width: 24px;
-	min-height: 26px;
+	min-width: 28px;
+	min-height: 28px;
 	margin: 0;
-	padding: 1px 3px;
+	padding: 0;
+	border: 2px solid transparent;
+	border-top-width: 4px;
+	border-bottom-width: 4px;
+	border-radius: 8px;
+	background-clip: padding-box;
+}
+
+window.mx-touch .mx-topbar .mx-pagenav button.flat {
+	min-width: 36px;
+	min-height: 36px;
+	border: 4px solid transparent;
+	border-radius: 10px;
+}
+
+.mx-topbar .mx-pagenav button.mx-page-goto {
+	padding: 0 4px;
 }
 
 .mx-topbar .mx-page-label {
-	min-width: 36px;
+	min-width: 40px;
 	font-feature-settings: "tnum";
 	color: @mx_text;
 }
@@ -533,35 +603,7 @@ separator.mx-separator {
 }
 
 .mx-topbar separator.mx-separator {
-	margin: 10px 2px;
-}
-
-/* Compact window layout below 900 px */
-window.compact headerbar.mx-topbar {
-	padding: 0 4px;
-}
-
-window.compact .mx-topbar button.flat {
-	min-width: 26px;
-	min-height: 28px;
-	padding: 1px;
-}
-
-window.compact .mx-topbar .mx-tools button.mx-tool {
-	min-width: 30px;
-	min-height: 32px;
-}
-
-window.compact .mx-topbar .mx-pagenav {
-	padding: 0;
-	margin: 0;
-	background-color: transparent;
-	border-color: transparent;
-	box-shadow: none;
-}
-
-window.compact .mx-topbar .mx-page-label {
-	min-width: 34px;
+	margin: 12px 4px;
 }
 
 /*
@@ -578,50 +620,64 @@ window.compact .mx-topbar .mx-page-label {
 }
 
 /* GTK scales an oversized radius down to half the height, so the ends stay semicircles at any pill height */
-.mx-pill {
+.mx-pill,
+#shapeToolbox.mx-pill {
 	border-radius: 9999px;
 	padding: 4px;
 	min-height: 36px;
 }
 
-#shapeToolbox.mx-pill {
-	border-radius: 14px;
-	padding: 4px 6px;
+window.mx-touch .mx-pill,
+window.mx-touch #shapeToolbox.mx-pill {
+	min-height: 44px;
 }
 
-.mx-zoom {
-	border-radius: 12px;
-	padding: 3px 4px;
-}
-
-.mx-chip {
-	border-radius: 16px;
-	padding: 1px 4px;
-}
-
-.mx-chip button.flat {
-	min-height: 28px;
-	padding: 0 8px;
-	border-radius: 14px;
-}
-
-.mx-numeric {
-	font-feature-settings: "tnum";
-}
-
-/* Flat buttons inside floating surfaces and popovers */
+/* Flat buttons inside floating surfaces and popovers (generic rules first so specific controls below win) */
 .mx-float button.flat,
-#shapeToolbox button.flat,
-popover.background.mx-popover button.flat {
-	min-height: 30px;
-	min-width: 30px;
-	padding: 2px 8px;
-	border-radius: 8px;
-	border: 1px solid transparent;
+#shapeToolbox button.flat {
+	min-height: 32px;
+	min-width: 32px;
+	margin: 0;
+	padding: 0;
+	border: 2px solid transparent;
+	border-radius: 9999px;
 	background-color: transparent;
 	background-image: none;
+	background-clip: padding-box;
 	box-shadow: none;
 	color: @mx_text;
+}
+
+window.mx-touch .mx-float button.flat,
+window.mx-touch #shapeToolbox button.flat {
+	min-height: 40px;
+	min-width: 40px;
+}
+
+.mx-float button.flat.mx-wide,
+.mx-float button.flat.text-button,
+#shapeToolbox button.flat.mx-wide,
+#shapeToolbox button.flat.text-button {
+	padding: 0 10px;
+}
+
+popover.background.mx-popover button.flat {
+	min-height: 32px;
+	min-width: 32px;
+	margin: 0;
+	padding: 0 10px;
+	border: 2px solid transparent;
+	border-radius: 12px;
+	background-color: transparent;
+	background-image: none;
+	background-clip: padding-box;
+	box-shadow: none;
+	color: @mx_text;
+}
+
+window.mx-touch popover.background.mx-popover button.flat {
+	min-height: 40px;
+	min-width: 40px;
 }
 
 .mx-float button.flat:hover,
@@ -647,8 +703,24 @@ popover.background.mx-popover button.flat:checked {
 }
 
 .mx-float button.flat:disabled,
-#shapeToolbox button.flat:disabled {
-	opacity: 0.42;
+#shapeToolbox button.flat:disabled,
+popover.background.mx-popover button.flat:disabled {
+	color: alpha(@mx_text, 0.38);
+	background-color: transparent;
+	opacity: 1;
+}
+
+.mx-float button.flat:focus,
+#shapeToolbox button.flat:focus {
+	outline: 2px solid @mx_accent;
+	outline-offset: -1px;
+	-gtk-outline-radius: 9999px;
+}
+
+popover.background.mx-popover button.flat:focus {
+	outline: 2px solid @mx_accent;
+	outline-offset: -1px;
+	-gtk-outline-radius: 10px;
 }
 
 .mx-float button.destructive,
@@ -656,21 +728,113 @@ popover.background.mx-popover button.flat:checked {
 	color: @mx_danger;
 }
 
+.mx-float button.destructive:disabled,
+#shapeToolbox button.destructive:disabled {
+	color: alpha(@mx_text, 0.38);
+}
+
+.mx-zoom {
+	border-radius: 9999px;
+	padding: 0 2px;
+}
+
+.mx-zoom button.mx-zoom-val {
+	min-width: 48px;
+	padding: 0 6px;
+}
+
+window.mx-touch .mx-zoom button.mx-zoom-val {
+	min-width: 56px;
+	padding: 0 8px;
+}
+
+.mx-chip {
+	border-radius: 9999px;
+	padding: 0 2px;
+}
+
+.mx-chip button.flat {
+	min-height: 32px;
+	min-width: 32px;
+	padding: 0 10px;
+	border: 2px solid transparent;
+	border-radius: 9999px;
+	background-clip: padding-box;
+}
+
+window.mx-touch .mx-chip button.flat {
+	min-height: 40px;
+	min-width: 40px;
+	padding: 0 12px;
+}
+
+.mx-numeric {
+	font-feature-settings: "tnum";
+}
+
+/* Active-tool chip for tools without a top bar button (LaTeX, Link, Vertical space, PDF text) */
+.mx-tool-chip {
+	min-height: 32px;
+	padding: 0 2px 0 12px;
+	margin: 2px;
+	border-radius: 9999px;
+	background-color: @mx_accent_tint;
+	color: @mx_accent_text;
+	font-weight: 600;
+	box-shadow: inset 0 0 0 1.5px @mx_accent;
+}
+
+window.mx-touch .mx-tool-chip {
+	min-height: 40px;
+}
+
+.mx-tool-chip button.mx-chip-close {
+	min-width: 24px;
+	min-height: 24px;
+	padding: 0;
+	border: 4px solid transparent;
+	border-radius: 9999px;
+	background-clip: padding-box;
+	color: @mx_accent_text;
+}
+
+window.mx-touch .mx-tool-chip button.mx-chip-close {
+	min-width: 32px;
+	min-height: 32px;
+	border: 4px solid transparent;
+}
+
+.mx-pill-hint {
+	color: @mx_text2;
+	font-size: 12.5px;
+	padding: 0 10px 0 6px;
+}
+
 /* Linked segmented controls */
 .mx-seg {
 	background-color: @mx_hover;
-	border-radius: 9px;
-	padding: 2px;
+	border-radius: 9999px;
+	padding: 0;
 }
 
 .mx-seg button.flat,
 #shapeToolbox .mx-seg button.flat,
 popover.background.mx-popover .mx-seg button.flat {
-	min-height: 26px;
-	min-width: 28px;
+	min-height: 32px;
+	min-width: 32px;
 	padding: 0 10px;
-	border-radius: 7px;
+	border: 2px solid transparent;
+	border-radius: 9999px;
+	background-clip: padding-box;
 	color: @mx_text2;
+}
+
+window.mx-touch .mx-seg button.flat,
+window.mx-touch #shapeToolbox .mx-seg button.flat,
+window.mx-touch popover.background.mx-popover .mx-seg button.flat {
+	min-height: 40px;
+	min-width: 40px;
+	padding: 0 12px;
 }
 
 .mx-seg button.flat:hover,
@@ -685,45 +849,41 @@ popover.background.mx-popover .mx-seg button.flat:hover {
 popover.background.mx-popover .mx-seg button.flat:checked {
 	background-color: @mx_seg_checked;
 	color: @mx_accent_text;
-	box-shadow: 0 1px 2px @mx_shadow;
+	box-shadow: inset 0 0 0 1.5px @mx_accent;
+	font-weight: 600;
 }
 
-/* Round the outer side of the first and last pill controls to follow the pill's semicircular ends */
-#toolPill > box > button.flat:not(.mx-swatch):first-child,
-#toolPill > box > box:not(.mx-seg):first-child > button.flat:not(.mx-swatch):first-child,
-#toolPill > box > .mx-seg:first-child > button.flat:first-child {
-	border-top-left-radius: 18px;
-	border-bottom-left-radius: 18px;
+.mx-seg button.flat:focus,
+#shapeToolbox .mx-seg button.flat:focus,
+popover.background.mx-popover .mx-seg button.flat:focus {
+	outline: 2px solid @mx_accent;
+	outline-offset: -1px;
+	-gtk-outline-radius: 9999px;
 }
 
-#toolPill > box > button.flat:not(.mx-swatch):last-child,
-#toolPill > box > box:not(.mx-seg):last-child > button.flat:not(.mx-swatch):last-child,
-#toolPill > box > .mx-seg:last-child > button.flat:last-child {
-	border-top-right-radius: 18px;
-	border-bottom-right-radius: 18px;
-}
-
-#toolPill > box > .mx-seg:first-child {
-	border-top-left-radius: 20px;
-	border-bottom-left-radius: 20px;
-}
-
-#toolPill > box > .mx-seg:last-child {
-	border-top-right-radius: 20px;
-	border-bottom-right-radius: 20px;
-}
-
-/* Colour swatches: circular dots with an indigo selection ring */
+/* Colour swatches: circular dots (20 px in 32x36 compact, 24 px in 44x44 touch) */
 .mx-float button.mx-swatch,
 popover.background.mx-popover button.mx-swatch {
-	min-width: 28px;
-	min-height: 28px;
-	padding: 2px;
+	min-width: 30px;
+	min-height: 30px;
+	margin: 0;
+	padding: 0;
+	border-top: 3px solid transparent;
+	border-bottom: 3px solid transparent;
+	border-left: 1px solid transparent;
+	border-right: 1px solid transparent;
 	border-radius: 9999px;
-	border: 2px solid transparent;
 	background-color: transparent;
 	background-image: none;
+	background-clip: padding-box;
 	box-shadow: none;
+}
+
+window.mx-touch .mx-float button.mx-swatch,
+window.mx-touch popover.background.mx-popover button.mx-swatch {
+	min-width: 34px;
+	min-height: 34px;
+	border: 5px solid transparent;
 }
 
 .mx-float button.mx-swatch:hover,
@@ -734,29 +894,66 @@ popover.background.mx-popover button.mx-swatch:hover {
 
 .mx-float button.mx-swatch:checked,
 popover.background.mx-popover button.mx-swatch:checked {
-	background-color: @mx_surface;
-	border-color: @mx_accent;
-	box-shadow: none;
+	background-color: transparent;
+	border-color: transparent;
+	box-shadow: inset 0 0 0 2px @mx_accent;
 }
 
-/* Switches in the tool pill and shape menu */
+.mx-float button.mx-swatch:focus,
+popover.background.mx-popover button.mx-swatch:focus {
+	outline: 2px solid @mx_accent;
+	outline-offset: -1px;
+	-gtk-outline-radius: 9999px;
+}
+
+/* Switches in the tool pill and shape menu (40x22 in 40 row compact, 48x28 in 44 row touch) */
 .mx-switch-row {
-	padding: 0 4px;
+	min-height: 40px;
+	padding: 0 10px;
+	border-radius: 10px;
+}
+
+popover.background.mx-popover .mx-switch-row:hover {
+	background-color: @mx_hover;
+}
+
+.mx-switch-row switch:focus {
+	outline: 2px solid @mx_accent;
+	outline-offset: 2px;
+	-gtk-outline-radius: 9999px;
+}
+
+window.mx-touch .mx-switch-row {
+	min-height: 44px;
+}
+
+#shapeToolbox .mx-switch-row {
+	min-height: 32px;
+	padding: 0 6px;
+}
+
+window.mx-touch #shapeToolbox .mx-switch-row {
+	min-height: 40px;
 }
 
 .mx-switch-row switch {
-	min-width: 34px;
-	min-height: 18px;
+	min-width: 40px;
+	min-height: 22px;
 	margin: 0;
 	padding: 0;
 	border-radius: 9999px;
 	border: none;
-	background-color: @mx_line;
+	background-color: alpha(@mx_text, 0.22);
 	background-image: none;
 	box-shadow: none;
 	color: transparent;
 	text-shadow: none;
 	font-size: 0;
+}
+
+window.mx-touch .mx-switch-row switch {
+	min-width: 48px;
+	min-height: 28px;
 }
 
 .mx-switch-row switch:checked {
@@ -776,9 +973,9 @@ popover.background.mx-popover button.mx-swatch:checked {
 .mx-switch-row switch:hover slider,
 .mx-switch-row switch:dir(ltr):checked slider,
 .mx-switch-row switch:dir(ltr):not(:checked) slider {
-	min-width: 14px;
-	min-height: 14px;
-	margin: 2px;
+	min-width: 16px;
+	min-height: 16px;
+	margin: 3px;
 	padding: 0;
 	border-radius: 9999px;
 	background-color: #ffffff;
@@ -787,9 +984,18 @@ popover.background.mx-popover button.mx-swatch:checked {
 	box-shadow: 0 1px 2px @mx_shadow;
 }
 
+window.mx-touch .mx-switch-row switch slider,
+window.mx-touch .mx-switch-row switch:hover slider,
+window.mx-touch .mx-switch-row switch:dir(ltr):checked slider,
+window.mx-touch .mx-switch-row switch:dir(ltr):not(:checked) slider {
+	min-width: 22px;
+	min-height: 22px;
+	margin: 3px;
+}
+
 .mx-switch-row switch:checked > slider,
 .mx-switch-row switch:checked:hover > slider {
-	background-color: @mx_on_accent;
+	background-color: #ffffff;
 	border: none;
 }
 
@@ -798,26 +1004,76 @@ popover.background.mx-popover {
 	background-color: @mx_surface;
 	color: @mx_text;
 	border: 1px solid @mx_line;
-	border-radius: 12px;
-	padding: 8px;
+	border-radius: 14px;
+	padding: 4px;
 	box-shadow: 0 6px 20px @mx_shadow, 0 0 0 1px @mx_ring;
 }
 
 popover.background.mx-popover .mx-popover-title {
-	font-size: 12px;
+	font-size: 11.5px;
 	font-weight: 600;
 	color: @mx_text2;
-	margin: 4px 8px 6px 8px;
+	padding: 8px 10px 4px 10px;
+	margin: 0;
 }
 
 popover.background.mx-popover button.mx-prow {
-	min-height: 36px;
-	padding: 2px 10px;
-	border-radius: 8px;
+	min-height: 40px;
+	padding: 0 10px;
+	border: none;
+	border-radius: 10px;
+}
+
+window.mx-touch popover.background.mx-popover button.mx-prow {
+	min-height: 44px;
+}
+
+popover.background.mx-popover separator {
+	background-color: @mx_line;
+	min-height: 1px;
+	margin: 4px 6px;
+}
+
+/* Menus opened from the top bar: 32 px compact rows, 44 px when opened from touch */
+menu.mx-menu {
+	border-radius: 10px;
+	padding: 4px;
+}
+
+menu.mx-menu menuitem {
+	min-height: 32px;
+	padding: 0 10px;
+	border-radius: 6px;
+}
+
+menu.mx-touch-menu menuitem {
+	min-height: 44px;
+}
+
+menu.mx-menu menuitem.mx-menu-header,
+menu.mx-menu menuitem.mx-menu-header:hover,
+menu.mx-menu menuitem.mx-menu-header:disabled {
+	background-color: transparent;
+	padding: 6px 10px;
+	opacity: 1;
+}
+
+menu.mx-menu .mx-menu-header-title,
+menu.mx-menu menuitem.mx-menu-header:disabled .mx-menu-header-title {
+	font-weight: 600;
+	color: @mx_text;
+	opacity: 1;
+}
+
+menu.mx-menu .mx-menu-header-status,
+menu.mx-menu menuitem.mx-menu-header:disabled .mx-menu-header-status {
+	font-size: 11.5px;
+	color: @mx_text2;
+	opacity: 1;
 }
 
 popover.background.mx-popover flowbox flowboxchild {
-	padding: 1px;
+	padding: 0;
 	background-color: transparent;
 	border: none;
 	outline: none;
@@ -845,10 +1101,16 @@ popover.background.mx-popover scale slider {
 	background-color: @mx_surface;
 	border: 2px solid @mx_accent;
 	border-radius: 9999px;
-	min-width: 14px;
-	min-height: 14px;
-	margin: -6px 0;
+	min-width: 18px;
+	min-height: 18px;
+	margin: -7px 0;
 	box-shadow: 0 1px 2px @mx_shadow;
+}
+
+window.mx-touch popover.background.mx-popover scale slider {
+	min-width: 24px;
+	min-height: 24px;
+	margin: -10px 0;
 }
 
 /* Page and layer sidebar */

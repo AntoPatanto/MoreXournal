@@ -27,8 +27,10 @@ enum Section : uint32_t {
     LINE_STYLE = 1U << 6,          ///< Line styles, in the thickness popover
     FILL = 1U << 7,                ///< Fill and fill opacity, in the thickness popover
     TEXT_ALIGNMENT = 1U << 8,      ///< Left, centre, right, justify
-    IMAGE_PASTE = 1U << 9,         ///< Paste button for the image tool
+    IMAGE_PASTE = 1U << 9,         ///< Insert image and paste buttons for the image tool
     SELECTION_ACTIONS = 1U << 10,  ///< Duplicate and delete for the active selection
+    SPECIAL_TOOL_CHIP = 1U << 11,  ///< Active tool chip with close button for tools without a top bar button
+    PDF_TEXT_MODES = 1U << 12,     ///< Linear / Rectangle segment for PDF text selection
 };
 
 /// What the active tool (or the current selection) supports, from ToolHandler::hasCapability().
@@ -62,8 +64,22 @@ constexpr ToolType thicknessTableTool(ToolType tool, xoj::topbar::ToolGroup grou
     return hasOwnThicknessTable(tool) ? tool : TOOL_PEN;
 }
 
-/// The sections of the pill for a tool group
-constexpr uint32_t sectionsFor(xoj::topbar::ToolGroup group, Capabilities caps = {}) {
+/// Tools without a top bar button that show an active-tool chip with an x button in the pill
+constexpr bool isSpecialChipTool(ToolType tool) {
+    switch (tool) {
+        case TOOL_LATEX:
+        case TOOL_LINK:
+        case TOOL_VERTICAL_SPACE:
+        case TOOL_SELECT_PDF_TEXT_LINEAR:
+        case TOOL_SELECT_PDF_TEXT_RECT:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/// The sections of the pill for a tool group (and tool, for tools without a top bar button)
+constexpr uint32_t sectionsFor(xoj::topbar::ToolGroup group, Capabilities caps = {}, ToolType tool = TOOL_NONE) {
     using xoj::topbar::ToolGroup;
     switch (group) {
         case ToolGroup::PEN:
@@ -85,9 +101,23 @@ constexpr uint32_t sectionsFor(xoj::topbar::ToolGroup group, Capabilities caps =
         case ToolGroup::HAND:
             return 0U;
         case ToolGroup::NONE:
+            if (tool == TOOL_SELECT_PDF_TEXT_LINEAR || tool == TOOL_SELECT_PDF_TEXT_RECT) {
+                return SPECIAL_TOOL_CHIP | PDF_TEXT_MODES;
+            }
+            if (isSpecialChipTool(tool)) {
+                return SPECIAL_TOOL_CHIP;
+            }
             break;
     }
     return (caps.color ? COLORS : 0U) | (caps.size ? THICKNESS : 0U) | (caps.size && caps.fill ? FILL : 0U);
+}
+
+/// Highlighter omits the pinned black swatch and shows only the 5 recent colours instead
+constexpr bool pinBlackColorFor(xoj::topbar::ToolGroup group) { return group != xoj::topbar::ToolGroup::HIGHLIGHTER; }
+
+/// Duplicate/Delete live in ShapeToolbox when a shape is selected, and in the pill for plain selections
+constexpr bool showSelectionActionsInPill(bool hasSelection, bool isShapeSelection) {
+    return hasSelection && !isShapeSelection;
 }
 
 }  // namespace xoj::toolpill

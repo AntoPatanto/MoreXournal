@@ -47,9 +47,11 @@ private:
 };
 
 /**
- * The `count` colors of the pill: PINNED_COLOR, the recent colors, then palette colors in palette order (skipping
- * the ones already shown) when there are not enough recent colors. All colors are opaque.
+ * The `count` colors of the pill: optionally PINNED_COLOR (black), the recent colors, then palette colors in palette
+ * order (skipping the ones already shown, and skipping PINNED_COLOR when `includePinned` is false) when there are not
+ * enough recent colors. All colors are opaque.
  */
-std::vector<Color> pillColors(const RecentColors& recent, const std::vector<Color>& palette, size_t count);
+std::vector<Color> pillColors(const RecentColors& recent, const std::vector<Color>& palette, size_t count,
+                              bool includePinned = true);
 
 }  // namespace xoj::toolpill

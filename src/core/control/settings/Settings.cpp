@@ -129,6 +129,7 @@ void Settings::loadDefault() {
     this->eraserVisibility = ERASER_VISIBILITY_ALWAYS;
     this->iconTheme = ICON_THEME_COLOR;
     this->themeVariant = THEME_VARIANT_USE_SYSTEM;
+    this->touchMode = TouchMode::AUTO;
     this->highlightPosition = false;
     this->cursorHighlightColor = 0x80FFFF00;  // Yellow with 50% opacity
     this->cursorHighlightRadius = 30.0;
@@ -535,6 +536,8 @@ void Settings::parseItem(xmlDocPtr doc, xmlNodePtr cur) {
         this->iconTheme = iconThemeFromString(reinterpret_cast<const char*>(value));
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("themeVariant")) == 0) {
         this->themeVariant = themeVariantFromString(reinterpret_cast<const char*>(value));
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("touchMode")) == 0) {
+        this->touchMode = touchModeFromString(reinterpret_cast<const char*>(value));
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("highlightPosition")) == 0) {
         this->highlightPosition = xmlStrcmp(value, reinterpret_cast<const xmlChar*>("true")) == 0;
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("cursorHighlightColor")) == 0) {
@@ -1175,6 +1178,9 @@ void Settings::save() {
     xmlNode = saveProperty("themeVariant", themeVariantToString(this->themeVariant), root);
     ATTACH_COMMENT("Dark/light mode, allowed values are \"useSystem\", \"forceLight\", \"forceDark\"");
 
+    xmlNode = saveProperty("touchMode", touchModeToString(this->touchMode), root);
+    ATTACH_COMMENT("Touch layout mode, allowed values are \"auto\", \"off\", \"on\"");
+
     SAVE_BOOL_PROP(highlightPosition);
     xmlNode = savePropertyUnsigned("cursorHighlightColor", uint32_t(cursorHighlightColor), root);
     xmlNode = savePropertyUnsigned("cursorHighlightBorderColor", uint32_t(cursorHighlightBorderColor), root);
@@ -1637,6 +1643,16 @@ void Settings::setThemeVariant(ThemeVariant theme) {
         return;
     }
     this->themeVariant = theme;
+    save();
+}
+
+auto Settings::getTouchMode() const -> TouchMode { return this->touchMode; }
+
+void Settings::setTouchMode(TouchMode mode) {
+    if (this->touchMode == mode) {
+        return;
+    }
+    this->touchMode = mode;
     save();
 }
 

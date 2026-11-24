@@ -63,15 +63,21 @@ RecentColors RecentColors::fromString(std::string_view s) {
     return RecentColors(parsed);
 }
 
-std::vector<Color> pillColors(const RecentColors& recent, const std::vector<Color>& palette, size_t count) {
+std::vector<Color> pillColors(const RecentColors& recent, const std::vector<Color>& palette, size_t count,
+                              bool includePinned) {
     std::vector<Color> shown;
     auto add = [&](Color c) {
         c = opaque(c);
+        if (!includePinned && c == PINNED_COLOR) {
+            return;
+        }
         if (shown.size() < count && !contains(shown, c)) {
             shown.push_back(c);
         }
     };
-    add(PINNED_COLOR);
+    if (includePinned) {
+        add(PINNED_COLOR);
+    }
     for (Color c: recent.get()) {
         add(c);
     }

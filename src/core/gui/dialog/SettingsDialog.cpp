@@ -631,6 +631,19 @@ void SettingsDialog::load() {
             break;
     }
 
+    switch (settings->getTouchMode()) {
+        case TouchMode::OFF:
+            gtk_combo_box_set_active(GTK_COMBO_BOX(builder.get("cbTouchMode")), 1);
+            break;
+        case TouchMode::ON:
+            gtk_combo_box_set_active(GTK_COMBO_BOX(builder.get("cbTouchMode")), 2);
+            break;
+        case TouchMode::AUTO:
+        default:
+            gtk_combo_box_set_active(GTK_COMBO_BOX(builder.get("cbTouchMode")), 0);
+            break;
+    }
+
     auto viewMode = settings->getViewModes().at(PresetViewModeIds::VIEW_MODE_FULLSCREEN);
     bool showFullscreenMenubar = viewMode.showMenubar;
     bool showFullscreenToolbar = viewMode.showToolbar;
@@ -922,6 +935,19 @@ void SettingsDialog::save() {
         case 0:
         default:
             settings->setThemeVariant(THEME_VARIANT_USE_SYSTEM);
+            break;
+    }
+
+    switch (gtk_combo_box_get_active(GTK_COMBO_BOX(builder.get("cbTouchMode")))) {
+        case 1:
+            settings->setTouchMode(TouchMode::OFF);
+            break;
+        case 2:
+            settings->setTouchMode(TouchMode::ON);
+            break;
+        case 0:
+        default:
+            settings->setTouchMode(TouchMode::AUTO);
             break;
     }
 

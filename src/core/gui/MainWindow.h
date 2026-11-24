@@ -84,7 +84,7 @@ public:
     void updatePageNumbers(size_t page, size_t pagecount, size_t pdfpage);
 
     /// Shows the document name and its save state in the top bar
-    void setDocumentTitle(const std::string& name, const std::string& status);
+    void setDocumentTitle(const std::string& name, const std::string& status, bool unsaved = false);
 
     void setMaximized(bool maximized);
     bool isMaximized() const;
@@ -118,6 +118,12 @@ public:
 
     void updateToolbarMenu();
     void updateColorscheme();
+
+    /// Re-evaluates the touch chrome layout from Settings::getTouchMode() (e.g. after Preferences closes)
+    void updateTouchMode();
+    /// Updates touch chrome layout from a press/touch event (when TouchMode::AUTO is active)
+    void onPointerInput(const GdkEvent* event);
+    bool isTouchLayout() const;
 
     const ToolbarWidgetArray& getToolbarWidgets() const;
     const char* getToolbarName(GtkToolbar* toolbar) const;
@@ -181,9 +187,12 @@ private:
     static gboolean onKeyEvent(GtkWidget* window, GdkEventKey* event, MainWindow* self);
     /// @return true if the event was used to hide the menu bar and must not go further
     bool handleMenubarKey(GdkEventKey* event);
+    /// Cycles keyboard focus across top bar -> tool pill -> floating layer/zoom -> page (F6 / Shift+F6)
+    bool handleChromeFocusKey(GdkEventKey* event);
     /// Shows the menu bar until the next menu action, Escape, click, focus loss or Alt press
     void setMenubarTemporarilyVisible(bool visible);
     void updateMenubarReveal();
+    void setTouchLayout(bool touch);
 
 private:
     Control* control;
@@ -207,9 +216,11 @@ private:
     std::unique_ptr<TopBar> topBar;
 
     xoj::util::GObjectSPtr<GtkCssProvider> themeCssProvider;
-    bool compactMode = false;
-    bool pendingCompactMode = false;
-    guint compactIdleId = 0;
+    xoj::util::GObjectSPtr<GtkGesture> pointerGesture;
+    bool touchLayout = false;
+    int lastAllocatedWidth = 0;
+    int pendingAllocatedWidth = 0;
+    guint resizeIdleId = 0;
 
     GtkWidget* titlebar = nullptr;         ///< Header bar used as window title bar, owned by the window
     GtkWidget* inlineBar = nullptr;        ///< Header bar at the top of the content, owned by the window

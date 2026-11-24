@@ -11,9 +11,9 @@
 #include "control/settings/Settings.h"              // for Settings
 #include "control/shapes/ShapeEditController.h"     // for duplicate, convertToStroke
 #include "control/tools/EditSelection.h"            // for EditSelection
+#include "gui/ChromeUtil.h"                         // for newChromeIcon, updateScalableIcons
 #include "gui/XournalView.h"                        // for XournalView
 #include "gui/scroll/ScrollHandling.h"              // for ScrollHandling
-#include "gui/toolbarMenubar/icon/ColorIcon.h"      // for ColorIcon
 #include "gui/toolbarMenubar/model/ColorPalette.h"  // for Palette
 #include "model/LineStyle.h"                        // for LineStyle
 #include "model/Stroke.h"                           // for Stroke
@@ -33,15 +33,13 @@ constexpr int DEFAULT_FILL_ALPHA = 128;
 
 constexpr int ICON_SIZE = 18;
 constexpr int SWATCH_SIZE = 16;
-constexpr int PALETTE_DOT_SIZE = 20;
 constexpr int PALETTE_COLUMNS = 6;
 
-constexpr const char* LINE_STYLES[3] = {"plain", "dash", "dot"};
+constexpr const char* LINE_STYLES[4] = {"plain", "dash", "dashdot", "dot"};
 
 /// GObject data keys
 constexpr const char* INDEX_KEY = "shape-toolbox-index";
 constexpr const char* COLOR_KEY = "shape-toolbox-color";
-constexpr const char* EMPTY_KEY = "shape-toolbox-empty";
 constexpr const char* WIDTH_KEY = "shape-toolbox-width";
 
 struct WidthChoice {
@@ -61,9 +59,7 @@ void addClass(GtkWidget* w, const char* cssClass) {
 }
 
 GtkWidget* newIcon(const char* iconName, int size = ICON_SIZE) {
-    GtkWidget* img = gtk_image_new_from_icon_name(iconName, GTK_ICON_SIZE_SMALL_TOOLBAR);
-    gtk_image_set_pixel_size(GTK_IMAGE(img), size);
-    return img;
+    return xoj::chrome::newChromeIcon(iconName, size, size == ICON_SIZE);
 }
 
 GtkWidget* newSeparator() {
@@ -73,7 +69,7 @@ GtkWidget* newSeparator() {
 }
 
 GtkWidget* prepareFlatButton(GtkWidget* btn, const char* tooltip) {
-    gtk_widget_set_can_focus(btn, false);
+    gtk_widget_set_can_focus(btn, true);
     gtk_widget_set_focus_on_click(btn, false);
     addClass(btn, "flat");
     if (tooltip) {
@@ -88,6 +84,7 @@ GtkBox* newPopover(GtkWidget* menuButton, GtkWidget** outPopover) {
     GtkWidget* popBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
     gtk_container_add(GTK_CONTAINER(popover), popBox);
     gtk_menu_button_set_popover(GTK_MENU_BUTTON(menuButton), popover);
+    xoj::chrome::hideTooltipWhilePopupOpen(menuButton, popover);
     *outPopover = popover;
     return GTK_BOX(popBox);
 }
@@ -142,87 +139,11 @@ GtkWidget* newSample(double px, int width, int height) {
     return area;
 }
 
-/// A circular color swatch (or a checkered disk when empty)
-GtkWidget* newColorSwatch(int size) {
-    GtkWidget* area = gtk_drawing_area_new();
-    gtk_widget_set_size_request(area, size, size);
-    gtk_widget_set_valign(area, GTK_ALIGN_CENTER);
-    g_signal_connect(
-            area, "draw", G_CALLBACK(+[](GtkWidget* w, cairo_t* cr, gpointer) -> gboolean {
-                const double aw = gtk_widget_get_allocated_width(w);
-                const double ah = gtk_widget_get_allocated_height(w);
-                const double r = std::min(aw, ah) / 2.0 - 0.75;
-                const double cx = aw / 2.0;
-                const double cy = ah / 2.0;
-                const bool empty = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), EMPTY_KEY)) != 0;
-
-                cairo_save(cr);
-                cairo_arc(cr, cx, cy, r, 0, 2.0 * M_PI);
-                cairo_clip(cr);
-                if (empty) {
-                    constexpr double cell = 4.0;
-                    for (int gy = 0; gy * cell < ah; gy++) {
-                        for (int gx = 0; gx * cell < aw; gx++) {
-                            const double v = ((gx + gy) % 2 == 0) ? 0.82 : 1.0;
-                            cairo_set_source_rgb(cr, v, v, v);
-                            cairo_rectangle(cr, gx * cell, gy * cell, cell, cell);
-                            cairo_fill(cr);
-                        }
-                    }
-                } else {
-                    const Color c(static_cast<uint32_t>(GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(w), COLOR_KEY))));
-                    Util::cairo_set_source_rgbi(cr, c, 1.0);
-                    cairo_paint(cr);
-                }
-                cairo_restore(cr);
-
-                cairo_arc(cr, cx, cy, r, 0, 2.0 * M_PI);
-                cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.22);
-                cairo_set_line_width(cr, 1.0);
-                cairo_stroke(cr);
-                return true;
-            }),
-            nullptr);
-    return area;
-}
+/// A circular color swatch (or a checkered disk when empty), with a contrast ring when < 3:1
+GtkWidget* newColorSwatch(int size) { return xoj::chrome::newContrastSwatch(Colors::black, size); }
 
 void setColorSwatch(GtkWidget* swatch, Color color, bool empty = false) {
-    g_object_set_data(G_OBJECT(swatch), COLOR_KEY, GUINT_TO_POINTER(static_cast<uint32_t>(color)));
-    g_object_set_data(G_OBJECT(swatch), EMPTY_KEY, GINT_TO_POINTER(empty ? 1 : 0));
-    gtk_widget_queue_draw(swatch);
-}
-
-gboolean drawLineStyleSample(GtkWidget* w, cairo_t* cr, gpointer) {
-    const int k = getIndex(w);
-    GtkStyleContext* ctx = gtk_widget_get_style_context(w);
-    GdkRGBA color;
-    gtk_style_context_get_color(ctx, gtk_style_context_get_state(ctx), &color);
-    gdk_cairo_set_source_rgba(cr, &color);
-    const double h = gtk_widget_get_allocated_height(w);
-    const double width = gtk_widget_get_allocated_width(w);
-    cairo_set_line_width(cr, 2.2);
-    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
-    if (k == 1) {
-        const double dashes[] = {5.0, 4.0};
-        cairo_set_dash(cr, dashes, 2, 0);
-    } else if (k == 2) {
-        const double dashes[] = {0.1, 4.5};
-        cairo_set_dash(cr, dashes, 2, 0);
-    }
-    cairo_move_to(cr, 3.0, h / 2.0);
-    cairo_line_to(cr, width - 3.0, h / 2.0);
-    cairo_stroke(cr);
-    return true;
-}
-
-/// Solid (0), dashed (1) or dotted (2) horizontal line in the button's text color
-GtkWidget* newLineStyleSample(int kind) {
-    GtkWidget* area = gtk_drawing_area_new();
-    gtk_widget_set_size_request(area, 24, 12);
-    gtk_widget_set_valign(area, GTK_ALIGN_CENTER);
-    g_object_set_data(G_OBJECT(area), INDEX_KEY, GINT_TO_POINTER(kind));
-    g_signal_connect(area, "draw", G_CALLBACK(drawLineStyleSample), nullptr);
-    return area;
+    xoj::chrome::setContrastSwatch(swatch, color, std::nullopt, empty);
 }
 
 std::string formatThickness(double thickness) {
@@ -305,7 +226,10 @@ void ShapeToolbox::populatePaletteGrid(GtkWidget* grid, std::vector<std::pair<Co
                                                  std::nullopt;
         GtkWidget* btn = prepareFlatButton(gtk_toggle_button_new(), nc.getName().c_str());
         addClass(btn, "mx-swatch");
-        gtk_container_add(GTK_CONTAINER(btn), ColorIcon::newGtkImage(nc.getColor(), PALETTE_DOT_SIZE, true, secondary));
+        gtk_container_add(
+                GTK_CONTAINER(btn),
+                xoj::chrome::newContrastSwatch(nc.getColor(), xoj::chrome::chromeSwatchDotSize(this->touchLayout),
+                                               secondary));
         g_object_set_data(G_OBJECT(btn), COLOR_KEY, GUINT_TO_POINTER(static_cast<uint32_t>(nc.getColor())));
         g_signal_connect(btn, "toggled", callback, this);
         gtk_container_add(GTK_CONTAINER(grid), btn);
@@ -327,8 +251,21 @@ void ShapeToolbox::rebuildPalettes() {
     }
 }
 
+void ShapeToolbox::setTouchLayout(bool touch) {
+    this->touchLayout = touch;
+    xoj::chrome::updateScalableIcons(this->box.get(), xoj::chrome::chromeIconSize(touch));
+    const int dotSize = xoj::chrome::chromeSwatchDotSize(touch);
+    for (const auto* list: {&this->strokeDots, &this->fillDots}) {
+        for (const auto& [col, btn]: *list) {
+            if (GtkWidget* dot = gtk_bin_get_child(GTK_BIN(btn))) {
+                gtk_widget_set_size_request(dot, dotSize, dotSize);
+            }
+        }
+    }
+}
+
 void ShapeToolbox::build() {
-    GtkWidget* root = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+    GtkWidget* root = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     this->box.reset(root, xoj::util::refsink);
     gtk_widget_set_name(root, "shapeToolbox");
     addClass(root, "mx-pill");
@@ -337,7 +274,8 @@ void ShapeToolbox::build() {
     gtk_widget_set_valign(root, GTK_ALIGN_START);
 
     // Stroke color
-    this->strokeColorButton = prepareFlatButton(gtk_menu_button_new(), _("Stroke color"));
+    this->strokeColorButton = prepareFlatButton(gtk_menu_button_new(), nullptr);
+    addClass(this->strokeColorButton, "mx-wide");
     GtkWidget* strokeBtnInner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     this->strokeSwatch = newColorSwatch(SWATCH_SIZE);
     gtk_box_pack_start(GTK_BOX(strokeBtnInner), this->strokeSwatch, false, false, 0);
@@ -359,7 +297,8 @@ void ShapeToolbox::build() {
     gtk_box_pack_start(GTK_BOX(root), this->strokeColorButton, false, false, 0);
 
     // Thickness
-    this->widthButton = prepareFlatButton(gtk_menu_button_new(), _("Stroke width"));
+    this->widthButton = prepareFlatButton(gtk_menu_button_new(), nullptr);
+    addClass(this->widthButton, "mx-wide");
     GtkWidget* widthBtnInner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     this->widthSample = newSample(2.0, 24, 14);
     gtk_box_pack_start(GTK_BOX(widthBtnInner), this->widthSample, false, false, 0);
@@ -403,7 +342,8 @@ void ShapeToolbox::build() {
     GtkWidget* fillSwitchRow = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     addClass(fillSwitchRow, "mx-switch-row");
     this->fillSwitch = gtk_switch_new();
-    gtk_widget_set_can_focus(this->fillSwitch, false);
+    gtk_widget_set_can_focus(this->fillSwitch, true);
+    gtk_widget_set_focus_on_click(this->fillSwitch, false);
     gtk_widget_set_valign(this->fillSwitch, GTK_ALIGN_CENTER);
     g_signal_connect(this->fillSwitch, "notify::active", G_CALLBACK(ShapeToolbox::fillSwitchChangedCb), this);
     gtk_box_pack_start(GTK_BOX(fillSwitchRow), this->fillSwitch, false, false, 0);
@@ -419,10 +359,10 @@ void ShapeToolbox::build() {
                             }),
                             this->fillSwitch, GConnectFlags(0));
     gtk_box_pack_start(GTK_BOX(fillSwitchRow), fillLabelBox, false, false, 0);
-    gtk_widget_set_tooltip_text(fillSwitchRow, _("Fill"));
     gtk_box_pack_start(GTK_BOX(root), fillSwitchRow, false, false, 0);
 
     this->fillButton = prepareFlatButton(gtk_menu_button_new(), _("Fill color and opacity"));
+    addClass(this->fillButton, "mx-wide");
     GtkWidget* fillBtnInner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     this->fillSwatch = newColorSwatch(SWATCH_SIZE);
     this->fillPercentLabel = GTK_LABEL(gtk_label_new("50%"));
@@ -455,7 +395,8 @@ void ShapeToolbox::build() {
     gtk_widget_set_margin_bottom(opacityRow, 4);
     this->opacityScale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 5.0, 100.0, 5.0);
     gtk_scale_set_draw_value(GTK_SCALE(this->opacityScale), false);
-    gtk_widget_set_can_focus(this->opacityScale, false);
+    gtk_widget_set_can_focus(this->opacityScale, true);
+    gtk_widget_set_focus_on_click(this->opacityScale, false);
     gtk_widget_set_size_request(this->opacityScale, 140, -1);
     g_signal_connect(this->opacityScale, "button-press-event", G_CALLBACK(ShapeToolbox::opacityPressCb), this);
     g_signal_connect(this->opacityScale, "button-release-event", G_CALLBACK(ShapeToolbox::opacityReleaseCb), this);
@@ -474,13 +415,14 @@ void ShapeToolbox::build() {
     this->lineStyleSeparator = newSeparator();
     gtk_box_pack_start(GTK_BOX(root), this->lineStyleSeparator, false, false, 0);
 
-    this->lineStyleBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+    this->lineStyleBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     addClass(this->lineStyleBox, "mx-seg");
     gtk_widget_set_valign(this->lineStyleBox, GTK_ALIGN_CENTER);
-    const char* lineStyleTooltips[3] = {_("Solid line"), _("Dashed line"), _("Dotted line")};
+    const char* lineStyleTooltips[4] = {C_("line style", "Solid"), C_("line style", "Dashed"),
+                                        C_("line style", "Dash-dot"), C_("line style", "Dotted")};
     for (size_t i = 0; i < this->lineStyleButtons.size(); i++) {
         GtkWidget* b = prepareFlatButton(gtk_toggle_button_new(), lineStyleTooltips[i]);
-        gtk_container_add(GTK_CONTAINER(b), newLineStyleSample(static_cast<int>(i)));
+        gtk_container_add(GTK_CONTAINER(b), xoj::chrome::newLineStyleSample(static_cast<int>(i)));
         g_object_set_data(G_OBJECT(b), INDEX_KEY, GINT_TO_POINTER(static_cast<int>(i)));
         g_signal_connect(b, "toggled", G_CALLBACK(ShapeToolbox::lineStyleToggledCb), this);
         gtk_box_pack_start(GTK_BOX(this->lineStyleBox), b, false, false, 0);
@@ -499,7 +441,8 @@ void ShapeToolbox::build() {
     addClass(delBtn, "destructive");
     gtk_box_pack_start(GTK_BOX(root), delBtn, false, false, 0);
 
-    GtkWidget* convBtn = prepareFlatButton(gtk_button_new(), _("Convert to stroke"));
+    GtkWidget* convBtn = prepareFlatButton(gtk_button_new(), nullptr);
+    addClass(convBtn, "mx-wide");
     GtkWidget* convInner = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     gtk_box_pack_start(GTK_BOX(convInner), newIcon("mx-spline-symbolic"), false, false, 0);
     gtk_box_pack_start(GTK_BOX(convInner), gtk_label_new(_("Convert to stroke")), false, false, 0);

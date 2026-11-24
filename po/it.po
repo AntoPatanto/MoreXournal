@@ -4939,7 +4939,7 @@ msgid "Lasso"
 msgstr "Lazo"
 
 msgid "Line style"
-msgstr "Stile linea"
+msgstr "Stile della linea"
 
 msgid "More colors"
 msgstr "Altri colori"
@@ -5208,3 +5208,76 @@ msgstr "Vai"
 
 msgid "Insert"
 msgstr "Inserisci"
+
+msgid "Touch mode:"
+msgstr "Modalità touch:"
+
+msgctxt "touch mode"
+msgid "Automatic"
+msgstr "Automatica"
+
+msgctxt "touch mode"
+msgid "Off"
+msgstr "Spenta"
+
+msgctxt "touch mode"
+msgid "On"
+msgstr "Accesa"
+
+msgid "<i>Switches on finger touch and mouse; pen keeps the current layout.</i>"
+msgstr "<i>Si accende con un dito e si spegne con il mouse; la penna mantiene il layout attuale.</i>"
+
+msgctxt "line style"
+msgid "Solid"
+msgstr "Continua"
+
+msgctxt "line style"
+msgid "Dashed"
+msgstr "Tratteggiata"
+
+msgctxt "line style"
+msgid "Dash-dot"
+msgstr "Tratto e punto"
+
+msgctxt "line style"
+msgid "Dotted"
+msgstr "Punteggiata"
+
+msgid "Insert image…"
+msgstr "Inserisci immagine…"
+
+msgid "Insert image from file"
+msgstr "Inserisci immagine da file"
+
+msgid "or tap the page"
+msgstr "o tocca la pagina"
+
+msgid "Link"
+msgstr "Collegamento"
+
+msgid "PDF text selection"
+msgstr "Selezione testo PDF"
+
+msgid "Tap where to insert the formula"
+msgstr "Tocca dove inserire la formula"
+
+msgid "Tap where to insert the link"
+msgstr "Tocca dove inserire il collegamento"
+
+msgid "Drag down to make room"
+msgstr "Trascina in basso per fare spazio"
+
+msgid "Return to default tool"
+msgstr "Torna allo strumento predefinito"
+
+msgid "Linear"
+msgstr "Lineare"
+
+msgid "More"
+msgstr "Altro"
+
+msgid "Go to page…"
+msgstr "Vai alla pagina…"
+
+msgid "Main menu: {1}, {2}"
+msgstr "Menu principale: {1}, {2}"
