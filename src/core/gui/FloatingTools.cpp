@@ -27,7 +27,7 @@ constexpr int SIDE_GAP = 0;
 constexpr int ICON_SIZE = 18;
 
 GtkWidget* prepareButton(GtkWidget* btn, Action action, const char* iconName, const char* tooltip) {
-    gtk_widget_set_can_focus(btn, false);
+    gtk_widget_set_can_focus(btn, true);
     gtk_widget_set_focus_on_click(btn, false);
     gtk_style_context_add_class(gtk_widget_get_style_context(btn), "flat");
     if (iconName) {
@@ -100,7 +100,7 @@ GtkWidget* FloatingTools::createZoom() {
 
     // The zoom value; its popover has the zoom slider and 100%
     GtkWidget* value = gtk_menu_button_new();
-    gtk_widget_set_can_focus(value, false);
+    gtk_widget_set_can_focus(value, true);
     gtk_widget_set_focus_on_click(value, false);
     gtk_style_context_add_class(gtk_widget_get_style_context(value), "flat");
     gtk_style_context_add_class(gtk_widget_get_style_context(value), "mx-zoom-val");
@@ -180,6 +180,10 @@ void FloatingTools::setTouchLayout(bool touch) {
     xoj::chrome::updateScalableIcons(zoom.get(), iconSize);
     xoj::chrome::updateScalableIcons(layer.get(), iconSize);
 }
+
+GtkWidget* FloatingTools::getPillWidget() const { return pill->getWidget(); }
+GtkWidget* FloatingTools::getLayerWidget() const { return layer.get(); }
+GtkWidget* FloatingTools::getZoomWidget() const { return zoom.get(); }
 
 void FloatingTools::updateVisibility() {
     xoj::util::GVariantSPtr state(g_action_get_state(G_ACTION(presentationAction.get())), xoj::util::adopt);

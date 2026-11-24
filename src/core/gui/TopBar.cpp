@@ -45,9 +45,10 @@ GtkWidget* newIcon(const std::string& iconName, int size = COMPACT_ICON_PIXEL_SI
     return xoj::chrome::newChromeIcon(iconName.c_str(), size);
 }
 
-/// A flat button bound to a window action.
+/// A flat button bound to a window action. Focusable via keyboard (F6/Tab), never steals focus on click.
 GtkWidget* newActionButton(GtkWidget* btn, Action action, const std::string& iconName, const char* tooltip) {
-    gtk_widget_set_can_focus(btn, false);
+    gtk_widget_set_can_focus(btn, true);
+    gtk_widget_set_focus_on_click(btn, false);
     gtk_widget_set_valign(btn, GTK_ALIGN_CENTER);
     gtk_style_context_add_class(gtk_widget_get_style_context(btn), "flat");
     if (!iconName.empty()) {
@@ -108,7 +109,8 @@ void TopBar::createStart(GMenuModel* mainMenu) {
     startBox.reset(box, xoj::util::refsink);
 
     GtkWidget* menuButton = gtk_menu_button_new();
-    gtk_widget_set_can_focus(menuButton, false);
+    gtk_widget_set_can_focus(menuButton, true);
+    gtk_widget_set_focus_on_click(menuButton, false);
     gtk_widget_set_valign(menuButton, GTK_ALIGN_CENTER);
     gtk_style_context_add_class(gtk_widget_get_style_context(menuButton), "flat");
     gtk_style_context_add_class(gtk_widget_get_style_context(menuButton), "mx-menu-button");
@@ -178,7 +180,8 @@ void TopBar::createCenter() {
     for (const auto& def: tools) {
         const auto i = static_cast<size_t>(def.group);
         GtkWidget* btn = gtk_toggle_button_new();
-        gtk_widget_set_can_focus(btn, false);
+        gtk_widget_set_can_focus(btn, true);
+        gtk_widget_set_focus_on_click(btn, false);
         gtk_widget_set_valign(btn, GTK_ALIGN_CENTER);
         gtk_style_context_add_class(gtk_widget_get_style_context(btn), "flat");
         gtk_style_context_add_class(gtk_widget_get_style_context(btn), "mx-tool");
@@ -310,6 +313,8 @@ void TopBar::setTouchLayout(bool touch) {
     xoj::chrome::updateScalableIcons(centerBox.get(), iconSize);
     xoj::chrome::updateScalableIcons(endBox.get(), iconSize);
 }
+
+GtkWidget* TopBar::getActiveBar() const { return GTK_WIDGET(attachedBar); }
 
 void TopBar::onToolClicked(ToolGroup group) {
     ActionDatabase* db = control->getActionDatabase();

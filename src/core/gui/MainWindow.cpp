@@ -355,7 +355,92 @@ auto MainWindow::onKeyEvent(GtkWidget* window, GdkEventKey* event, MainWindow* s
     if (self->handleMenubarKey(event)) {
         return true;
     }
+    if (self->handleChromeFocusKey(event)) {
+        return true;
+    }
     return gtk_window_propagate_key_event(GTK_WINDOW(window), event);
+}
+
+namespace {
+GtkWidget* findFirstFocusable(GtkWidget* root) {
+    if (!root || !gtk_widget_get_visible(root) || !gtk_widget_get_sensitive(root)) {
+        return nullptr;
+    }
+    if (gtk_widget_get_can_focus(root) && gtk_widget_is_sensitive(root) && gtk_widget_get_mapped(root)) {
+        return root;
+    }
+    if (GTK_IS_CONTAINER(root)) {
+        GList* children = gtk_container_get_children(GTK_CONTAINER(root));
+        GtkWidget* found = nullptr;
+        for (GList* l = children; l != nullptr && !found; l = l->next) {
+            found = findFirstFocusable(GTK_WIDGET(l->data));
+        }
+        g_list_free(children);
+        return found;
+    }
+    return nullptr;
+}
+}  // namespace
+
+bool MainWindow::handleChromeFocusKey(GdkEventKey* event) {
+    if (event->type != GDK_KEY_PRESS) {
+        return false;
+    }
+
+    GtkWidget* bar = topBar ? topBar->getActiveBar() : nullptr;
+    GtkWidget* pill = floatingTools ? floatingTools->getPillWidget() : nullptr;
+    GtkWidget* layer = floatingTools ? floatingTools->getLayerWidget() : nullptr;
+    GtkWidget* zoom = floatingTools ? floatingTools->getZoomWidget() : nullptr;
+    GtkWidget* page = xournal ? xournal->getWidget() : nullptr;
+
+    GtkWidget* current = gtk_window_get_focus(GTK_WINDOW(this->window));
+    auto inWidget = [&](GtkWidget* container) {
+        return current && container && (current == container || gtk_widget_is_ancestor(current, container));
+    };
+
+    int region = 3;  // default: page
+    if (inWidget(bar)) {
+        region = 0;
+    } else if (inWidget(pill)) {
+        region = 1;
+    } else if (inWidget(layer) || inWidget(zoom)) {
+        region = 2;
+    }
+
+    if (event->keyval == GDK_KEY_Escape) {
+        if (region != 3 && page) {
+            xournal->requestFocus();
+            return true;
+        }
+        return false;
+    }
+
+    if (event->keyval != GDK_KEY_F6) {
+        return false;
+    }
+
+    const int dir = (event->state & GDK_SHIFT_MASK) ? -1 : 1;
+    for (int step = 1; step <= 4; step++) {
+        const int next = (region + dir * step + 4) % 4;
+        GtkWidget* target = nullptr;
+        if (next == 0) {
+            target = findFirstFocusable(bar);
+        } else if (next == 1) {
+            target = findFirstFocusable(pill);
+        } else if (next == 2) {
+            target = findFirstFocusable(layer);
+            if (!target) {
+                target = findFirstFocusable(zoom);
+            }
+        } else {
+            target = page;
+        }
+        if (target) {
+            gtk_widget_grab_focus(target);
+            return true;
+        }
+    }
+    return false;
 }
 
 bool MainWindow::handleMenubarKey(GdkEventKey* event) {

@@ -53,6 +53,9 @@ public:
     /// Switches icon sizes between compact (18 px) and touch (20 px)
     void setTouchLayout(bool touch);
 
+    /// Header bar currently holding the top bar controls (for F6 focus cycling)
+    GtkWidget* getActiveBar() const;
+
 private:
     void createStart(GMenuModel* mainMenu);
     void createCenter();

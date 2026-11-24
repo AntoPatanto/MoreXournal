@@ -187,6 +187,8 @@ private:
     static gboolean onKeyEvent(GtkWidget* window, GdkEventKey* event, MainWindow* self);
     /// @return true if the event was used to hide the menu bar and must not go further
     bool handleMenubarKey(GdkEventKey* event);
+    /// Cycles keyboard focus across top bar -> tool pill -> floating layer/zoom -> page (F6 / Shift+F6)
+    bool handleChromeFocusKey(GdkEventKey* event);
     /// Shows the menu bar until the next menu action, Escape, click, focus loss or Alt press
     void setMenubarTemporarilyVisible(bool visible);
     void updateMenubarReveal();

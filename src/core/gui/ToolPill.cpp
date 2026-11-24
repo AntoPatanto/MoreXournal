@@ -62,9 +62,9 @@ GtkWidget* newSegment() {
     return seg;
 }
 
-/// A flat button that never takes the keyboard focus from the page
+/// A flat button focusable via keyboard (F6/Tab), never stealing focus on click
 GtkWidget* prepareButton(GtkWidget* btn, const char* tooltip) {
-    gtk_widget_set_can_focus(btn, false);
+    gtk_widget_set_can_focus(btn, true);
     gtk_widget_set_focus_on_click(btn, false);
     addClass(btn, "flat");
     if (tooltip) {
@@ -570,7 +570,7 @@ void ToolPill::addFont(GtkBox* box) {
 }
 
 namespace {
-/// A color button of the pill, drawn with the recolor parameters like the toolbar colors
+/// A color button of the pill, drawn with a contrast ring when its contrast against @mx_surface is below 3:1
 GtkWidget* newSwatch(const NamedColor& c, const RecolorParameters& recolorParams, int dotSize) {
     std::optional<Color> secondary;
     if (recolorParams.recolorizeMainView) {
@@ -579,6 +579,10 @@ GtkWidget* newSwatch(const NamedColor& c, const RecolorParameters& recolorParams
     GtkWidget* btn = ColorToolItem::makeButton(c, secondary, dotSize);
     prepareButton(btn, nullptr);
     addClass(btn, "mx-swatch");
+    if (GtkWidget* oldChild = gtk_bin_get_child(GTK_BIN(btn))) {
+        gtk_container_remove(GTK_CONTAINER(btn), oldChild);
+    }
+    gtk_container_add(GTK_CONTAINER(btn), xoj::chrome::newContrastSwatch(c.getColor(), dotSize, secondary));
     return btn;
 }
 }  // namespace
@@ -735,23 +739,79 @@ void ToolPill::addThickness(GtkBox* box, uint32_t sections, ToolGroup group) {
     }
 
     if (sections & pill::FILL) {
-        addPopoverTitle(pop, _("Fill"));
-        GtkWidget* row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+        gtk_box_pack_start(pop, gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), false, false, 0);
+
+        GtkWidget* eventBox = gtk_event_box_new();
+        GtkWidget* row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
         addClass(row, "mx-switch-row");
+
+        GtkWidget* fillLbl = gtk_label_new(_("Fill"));
+        gtk_label_set_xalign(GTK_LABEL(fillLbl), 0.0);
+        gtk_box_pack_start(GTK_BOX(row), fillLbl, true, true, 0);
+
         GtkWidget* sw = gtk_switch_new();
-        gtk_widget_set_can_focus(sw, false);
+        gtk_widget_set_can_focus(sw, true);
+        gtk_widget_set_focus_on_click(sw, false);
         gtk_widget_set_valign(sw, GTK_ALIGN_CENTER);
         gtk_actionable_set_action_name(GTK_ACTIONABLE(sw), winAction(Action::TOOL_FILL).c_str());
         xoj::util::gtk::fixActionableInitialSensitivity(GTK_ACTIONABLE(sw));
-        gtk_widget_set_tooltip_text(sw, _("Fill"));
         gtk_box_pack_start(GTK_BOX(row), sw, false, false, 0);
+
+        gtk_container_add(GTK_CONTAINER(eventBox), row);
+        g_signal_connect_object(
+                eventBox, "button-release-event",
+                G_CALLBACK(+[](GtkWidget* eb, GdkEventButton* e, gpointer swPtr) -> gboolean {
+                    if (e->button == 1 && e->window == gtk_widget_get_window(eb) &&
+                        gtk_widget_get_sensitive(GTK_WIDGET(swPtr))) {
+                        gtk_switch_set_active(GTK_SWITCH(swPtr), !gtk_switch_get_active(GTK_SWITCH(swPtr)));
+                        return true;
+                    }
+                    return false;
+                }),
+                sw, GConnectFlags(0));
+        gtk_box_pack_start(pop, eventBox, false, false, 0);
+
         if (group != ToolGroup::SELECTION) {
-            GtkWidget* opacity = newActionButton(gtk_button_new(), Action::TOOL_FILL_OPACITY, _("Fill opacity"),
-                                                 "mx-droplet-symbolic", nullptr);
+            GtkWidget* opacity = newActionButton(gtk_button_new(), Action::TOOL_FILL_OPACITY, nullptr, {}, nullptr);
+            addClass(opacity, "mx-prow");
+            GtkWidget* opBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+            GtkWidget* opLbl = gtk_label_new(_("Fill opacity"));
+            gtk_label_set_xalign(GTK_LABEL(opLbl), 0.0);
+            gtk_box_pack_start(GTK_BOX(opBox), opLbl, true, true, 0);
+
+            auto formatAlpha = [](int alpha) {
+                const int pct = static_cast<int>(std::clamp(alpha, 0, 255) * 100.0 / 255.0 + 0.5);
+                return std::to_string(pct) + "%";
+            };
+            const int initAlpha = group == ToolGroup::HIGHLIGHTER ? th->getHighlighterFill() : th->getPenFill();
+            GtkWidget* pctLbl = gtk_label_new(formatAlpha(initAlpha).c_str());
+            addClass(pctLbl, "mx-numeric");
+            gtk_box_pack_start(GTK_BOX(opBox), pctLbl, false, false, 0);
+            gtk_box_pack_start(GTK_BOX(opBox), newIcon("mx-down-symbolic", 16), false, false, 0);
+            gtk_container_add(GTK_CONTAINER(opacity), opBox);
+
+            g_object_bind_property(sw, "active", opacity, "sensitive", G_BINDING_SYNC_CREATE);
+            // Refresh the percentage whenever the popover opens
+            struct OpacityRefreshData {
+                ToolHandler* th;
+                bool isHighlighter;
+                GtkLabel* pctLbl;
+            };
+            g_signal_connect_data(
+                    popover, "show",
+                    G_CALLBACK(+[](GtkWidget*, gpointer d) {
+                        auto* data = static_cast<OpacityRefreshData*>(d);
+                        const int alpha =
+                                data->isHighlighter ? data->th->getHighlighterFill() : data->th->getPenFill();
+                        const int pct = static_cast<int>(std::clamp(alpha, 0, 255) * 100.0 / 255.0 + 0.5);
+                        gtk_label_set_text(data->pctLbl, (std::to_string(pct) + "%").c_str());
+                    }),
+                    new OpacityRefreshData{th, group == ToolGroup::HIGHLIGHTER, GTK_LABEL(pctLbl)},
+                    +[](gpointer d, GClosure*) { delete static_cast<OpacityRefreshData*>(d); }, GConnectFlags(0));
+
             popdownOnClick(opacity, popover);
-            gtk_box_pack_start(GTK_BOX(row), opacity, false, false, 0);
+            gtk_box_pack_start(pop, opacity, false, false, 0);
         }
-        gtk_box_pack_start(pop, row, false, false, 0);
     }
     gtk_widget_show_all(GTK_WIDGET(pop));
 

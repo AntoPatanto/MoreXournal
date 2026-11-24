@@ -206,7 +206,7 @@ public:
             gtk_box_append(GTK_BOX(content), chevron);
             gtk_widget_show_all(content);
             gtk_container_add(GTK_CONTAINER(menuButton), content);
-            gtk_widget_set_can_focus(menuButton, false);
+            gtk_widget_set_can_focus(menuButton, true);
             gtk_widget_set_focus_on_click(menuButton, false);
             gtk_style_context_add_class(gtk_widget_get_style_context(menuButton), "flat");
             gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(this->popover)), "mx-popover");

@@ -495,7 +495,29 @@ window.mx-touch .mx-topbar button.flat {
 .mx-topbar button.flat:checked {
 	background-color: @mx_accent_tint;
 	border-color: transparent;
+	box-shadow: inset 0 0 0 1.5px @mx_accent;
 	color: @mx_accent_text;
+}
+
+.mx-topbar button.flat:disabled,
+.mx-topbar .mx-tools button.mx-tool:disabled,
+.mx-topbar .mx-pagenav button.flat:disabled {
+	color: alpha(@mx_text, 0.38);
+	background-color: transparent;
+}
+
+.mx-topbar button.flat:disabled .mx-page-label {
+	color: alpha(@mx_text, 0.38);
+}
+
+.mx-topbar button.flat:focus {
+	outline: 2px solid @mx_accent;
+	outline-offset: -1px;
+	-gtk-outline-radius: 11px;
+}
+
+.mx-topbar .mx-pagenav button.flat:focus {
+	-gtk-outline-radius: 7px;
 }
 
 .mx-topbar .mx-tools button.mx-tool {
@@ -519,12 +541,12 @@ window.mx-touch .mx-topbar .mx-tools button.mx-tool {
 	color: @mx_text;
 }
 
-/* The active tool gets an indigo tint and recoloured symbolic glyph */
+/* The active tool gets an indigo tint, 1.5 px accent inset ring and recoloured symbolic glyph */
 .mx-topbar .mx-tools button.mx-tool:checked {
 	background-image: none;
 	background-color: @mx_accent_tint;
 	border-color: transparent;
-	box-shadow: none;
+	box-shadow: inset 0 0 0 1.5px @mx_accent;
 	color: @mx_accent_text;
 }
 
@@ -707,13 +729,34 @@ popover.background.mx-popover button.flat:checked {
 }
 
 .mx-float button.flat:disabled,
-#shapeToolbox button.flat:disabled {
-	opacity: 0.42;
+#shapeToolbox button.flat:disabled,
+popover.background.mx-popover button.flat:disabled {
+	color: alpha(@mx_text, 0.38);
+	background-color: transparent;
+	opacity: 1;
+}
+
+.mx-float button.flat:focus,
+#shapeToolbox button.flat:focus {
+	outline: 2px solid @mx_accent;
+	outline-offset: -1px;
+	-gtk-outline-radius: 9999px;
+}
+
+popover.background.mx-popover button.flat:focus {
+	outline: 2px solid @mx_accent;
+	outline-offset: -1px;
+	-gtk-outline-radius: 10px;
 }
 
 .mx-float button.destructive,
 #shapeToolbox button.destructive {
 	color: @mx_danger;
+}
+
+.mx-float button.destructive:disabled,
+#shapeToolbox button.destructive:disabled {
+	color: alpha(@mx_text, 0.38);
 }
 
 /* Linked segmented controls */
@@ -755,7 +798,16 @@ popover.background.mx-popover .mx-seg button.flat:hover {
 popover.background.mx-popover .mx-seg button.flat:checked {
 	background-color: @mx_seg_checked;
 	color: @mx_accent_text;
-	box-shadow: 0 1px 2px @mx_shadow;
+	box-shadow: inset 0 0 0 1.5px @mx_accent;
+	font-weight: 600;
+}
+
+.mx-seg button.flat:focus,
+#shapeToolbox .mx-seg button.flat:focus,
+popover.background.mx-popover .mx-seg button.flat:focus {
+	outline: 2px solid @mx_accent;
+	outline-offset: -1px;
+	-gtk-outline-radius: 9999px;
 }
 
 /* Colour swatches: circular dots (20 px in 32x36 compact, 24 px in 44x44 touch) */
@@ -796,11 +848,28 @@ popover.background.mx-popover button.mx-swatch:checked {
 	box-shadow: inset 0 0 0 2px @mx_accent;
 }
 
+.mx-float button.mx-swatch:focus,
+popover.background.mx-popover button.mx-swatch:focus {
+	outline: 2px solid @mx_accent;
+	outline-offset: -1px;
+	-gtk-outline-radius: 9999px;
+}
+
 /* Switches in the tool pill and shape menu (40x22 in 40 row compact, 48x28 in 44 row touch) */
 .mx-switch-row {
 	min-height: 40px;
 	padding: 0 10px;
 	border-radius: 10px;
+}
+
+popover.background.mx-popover .mx-switch-row:hover {
+	background-color: @mx_hover;
+}
+
+.mx-switch-row switch:focus {
+	outline: 2px solid @mx_accent;
+	outline-offset: 2px;
+	-gtk-outline-radius: 9999px;
 }
 
 window.mx-touch .mx-switch-row {
