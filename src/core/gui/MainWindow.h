@@ -32,6 +32,7 @@ class Control;
 class Layout;
 class SpinPageAdapter;
 class ScrollHandling;
+class VerticalScrollbarRevealController;
 class ToolMenuHandler;
 class ToolbarData;
 class ToolbarModel;
@@ -200,6 +201,7 @@ private:
     std::unique_ptr<XournalView> xournal;
     GtkWidget* winXournal = nullptr;
     std::unique_ptr<ScrollHandling> scrollHandling;
+    std::unique_ptr<VerticalScrollbarRevealController> vscrollbarReveal;
 
     std::atomic_bool gtkTouchscreenScrollingEnabled{true};
 
