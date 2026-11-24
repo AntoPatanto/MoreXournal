@@ -367,12 +367,8 @@ static auto gtk_xournal_draw(GtkWidget* widget, cairo_t* cr) -> gboolean {
     if (recolor) {
         recolor->recolorCurrentCairoRegion(cr);
     }
-    cairo_restore(cr);
 
-    if (XournalppCursor* cursor = xournal->view->getCursor()) {
-        cursor->paintOverlay(cr, widget);
-    }
-
+    // After the recolouring, which must not tint the handles, but still in scrolled layout coordinates
     if (xournal->selection) {
         cairo_save(cr);
         double zoom = xournal->view->getZoom();
@@ -382,6 +378,12 @@ static auto gtk_xournal_draw(GtkWidget* widget, cairo_t* cr) -> gboolean {
 
         xournal->selection->paintOverlay(cr, zoom);
         cairo_restore(cr);
+    }
+    cairo_restore(cr);
+
+    // In widget coordinates, on top of the selection handles
+    if (XournalppCursor* cursor = xournal->view->getCursor()) {
+        cursor->paintOverlay(cr, widget);
     }
 
     return true;
