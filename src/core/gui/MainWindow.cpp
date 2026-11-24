@@ -31,7 +31,8 @@
 #include "gui/inputdevices/InputEvents.h"               // for INPUT_DEVICE_TOUC...
 #include "gui/menus/menubar/Menubar.h"                  // for Menubar
 #include "gui/menus/menubar/ToolbarSelectionSubmenu.h"  // for ToolbarSelectionSubmenu
-#include "gui/scroll/ScrollHandling.h"                  // for ScrollHandling
+#include "gui/scroll/ScrollHandling.h"                     // for ScrollHandling
+#include "gui/scroll/VerticalScrollbarRevealController.h"  // for VerticalScrollbarRevealController
 #include "gui/sidebar/Sidebar.h"                        // for Sidebar
 #include "gui/toolbarMenubar/ToolMenuHandler.h"         // for ToolMenuHandler
 #include "gui/toolbarMenubar/model/ToolbarData.h"       // for ToolbarData
@@ -266,6 +267,7 @@ MainWindow::~MainWindow() {
     }
 
     // First, so that the selection deleted with the view does not update it, and floating listeners detach cleanly
+    this->vscrollbarReveal.reset();
     this->pointerGesture.reset();
     this->floatingTools.reset();
     this->shapeToolbox.reset();
@@ -713,6 +715,10 @@ void MainWindow::initXournalWidget() {
     gtk_box_append(GTK_BOX(get("boxContents")), winXournal);
 
     scrollHandling = std::make_unique<ScrollHandling>(GTK_SCROLLED_WINDOW(winXournal));
+    vscrollbarReveal = std::make_unique<VerticalScrollbarRevealController>(
+            GTK_SCROLLED_WINDOW(winXournal), [ctrl = this->control]() {
+                return ctrl->getZoomControl() != nullptr && ctrl->getZoomControl()->isZoomSequenceActive();
+            });
 
     this->xournal = std::make_unique<XournalView>(winXournal, control, scrollHandling.get());
 
@@ -834,10 +840,16 @@ void MainWindow::updateScrollbarSidebarPosition() {
         }
 
         gtk_widget_set_visible(gtk_scrolled_window_get_hscrollbar(scrolledWindow), !(type & SCROLLBAR_HIDE_HORIZONTAL));
-        gtk_widget_set_visible(gtk_scrolled_window_get_vscrollbar(scrolledWindow), !(type & SCROLLBAR_HIDE_VERTICAL));
 
-        gtk_scrolled_window_set_overlay_scrolling(scrolledWindow,
-                                                  !control->getSettings()->isScrollbarFadeoutDisabled());
+        if (vscrollbarReveal) {
+            vscrollbarReveal->configure((type & SCROLLBAR_HIDE_VERTICAL) != 0,
+                                        control->getSettings()->isScrollbarFadeoutDisabled());
+        } else {
+            gtk_widget_set_visible(gtk_scrolled_window_get_vscrollbar(scrolledWindow),
+                                   !(type & SCROLLBAR_HIDE_VERTICAL));
+            gtk_scrolled_window_set_overlay_scrolling(scrolledWindow,
+                                                      !control->getSettings()->isScrollbarFadeoutDisabled());
+        }
     }
 
     // Part 2: update sidebar position
