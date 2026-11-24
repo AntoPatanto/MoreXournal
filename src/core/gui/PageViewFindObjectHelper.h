@@ -22,6 +22,7 @@
 #include "control/layer/LayerController.h"
 #include "control/settings/Settings.h"
 #include "control/tools/EditSelection.h"
+#include "control/tools/SelectionHandleLogic.h"
 #include "gui/PageView.h"
 #include "model/Layer.h"
 #include "model/XojPage.h"
@@ -74,7 +75,10 @@ protected:
 
 class SelectObject: public BaseSelectObject {
 public:
-    SelectObject(XojPageView* view): BaseSelectObject(view), match(nullptr) {}
+    explicit SelectObject(XojPageView* view, xoj::handles::DeviceKind deviceKind = xoj::handles::DeviceKind::Fine):
+            BaseSelectObject(view),
+            match(nullptr),
+            actionRadius(xoj::handles::objectSelectRadiusPx(deviceKind) / view->getXournal()->getZoom()) {}
 
     ~SelectObject() override = default;
 
@@ -108,10 +112,8 @@ public:
         return false;
     }
 
-    static constexpr double ACTION_RADIUS = 5.;
-
     bool checkLayer(const Layer* l) override {
-        double minDistance = ACTION_RADIUS;
+        double minDistance = this->actionRadius;
         // Iterate starting from the front-most element
         Element::Index pos = as_signed(l->getElementsView().size());
         for (auto it = l->getElementsView().rbegin(); it < l->getElementsView().rend(); ++it) {
@@ -132,17 +134,21 @@ public:
                 }
             }
         }
-        return minDistance != ACTION_RADIUS;
+        return minDistance != this->actionRadius;
     }
 
 private:
     const Element* match;
-    Element::Index matchIndex;
+    Element::Index matchIndex{};
+    double actionRadius;
 };
 
 class PlayObject: public BaseSelectObject {
 public:
-    PlayObject(XojPageView* view): BaseSelectObject(view), playbackStatus() {}
+    explicit PlayObject(XojPageView* view, xoj::handles::DeviceKind deviceKind = xoj::handles::DeviceKind::Fine):
+            BaseSelectObject(view),
+            playbackStatus(),
+            actionRadius(xoj::handles::playObjectRadiusPx(deviceKind) / view->getXournal()->getZoom()) {}
 
     ~PlayObject() override = default;
 
@@ -157,17 +163,17 @@ public:
     bool at(double x, double y, bool multiLayer = false) { return findAt(x, y, multiLayer); }
 
 protected:
-    static constexpr double ACTION_RADIUS = 15.;
+    double actionRadius;
 
-    /// Plays every element of the layer that are closer than ACTION_RADIUS
+    /// Plays every element of the layer that are closer than actionRadius
     bool checkLayer(const Layer* l) override {
         bool found = false;
         for (auto&& e: l->getElementsView()) {
             if (auto* audio = dynamic_cast<const AudioContent*>(e); audio) {
                 // First perform a rough check to avoid expensive calls to Stroke::distanceTo()
-                if (e->intersectsArea(x - ACTION_RADIUS, y - ACTION_RADIUS, 2. * ACTION_RADIUS, 2. * ACTION_RADIUS)) {
+                if (e->intersectsArea(x - actionRadius, y - actionRadius, 2. * actionRadius, 2. * actionRadius)) {
                     double d = e->distanceTo(x, y);
-                    if (d < ACTION_RADIUS) {
+                    if (d < actionRadius) {
                         found = playElement(audio) || found;
                     }
                 }

@@ -395,14 +395,14 @@ auto XojPageView::onButtonPressEvent(const PositionInputData& pos) -> bool {
                         std::make_unique<xoj::view::PdfElementSelectionView>(sel, this, settings->getSelectionColor()));
             }
         } else if (h->getToolType() == TOOL_SELECT_OBJECT) {
-            SelectObject select(this);
+            SelectObject select(this, pos.deviceKind);
             if (pos.isShiftDown() && xournal->getSelection()) {
                 select.atAggregate(x, y);
             } else {
                 select.at(x, y);
             }
         } else if (h->getToolType() == TOOL_PLAY_OBJECT) {
-            PlayObject play(this);
+            PlayObject play(this, pos.deviceKind);
             play.at(x, y);
             if (play.playbackStatus) {
                 auto& status = *play.playbackStatus;
@@ -470,9 +470,11 @@ auto XojPageView::onButtonDoublePressEvent(const PositionInputData& pos) -> bool
         // original coordinates of the selection.
         double origx = x - (selection->getXOnView() - selection->getOriginalXOnView());
         double origy = y - (selection->getYOnView() - selection->getOriginalYOnView());
+        const double radius = xoj::handles::objectSelectRadiusPx(pos.deviceKind) / zoom;
         auto elems = selection->getElementsView();
         auto it = std::find_if(elems.begin(), elems.end(), [&](const Element* elem) {
-            return elem->intersectsArea(origx - 5, origy - 5, 5, 5) && elem->distanceTo(x, y) < 5;
+            return elem->intersectsArea(origx - radius, origy - radius, 2.0 * radius, 2.0 * radius) &&
+                   elem->distanceTo(origx, origy) < radius;
         });
         if (it != elems.end()) {
             // Enter editing mode on the selected object
@@ -629,7 +631,7 @@ void XojPageView::onTapEvent(const PositionInputData& pos) {
     bool doAction = settings->getDoActionOnStrokeFiltered();
     if (settings->getTrySelectOnStrokeFiltered()) {
         double zoom = xournal->getZoom();
-        SelectObject select(this);
+        SelectObject select(this, pos.deviceKind);
         if (pos.isShiftDown()) {
             if (select.atAggregate(pos.x / zoom, pos.y / zoom)) {
                 doAction = false;  // selection made.. no action.
@@ -784,9 +786,10 @@ auto XojPageView::onButtonReleaseEvent(const PositionInputData& pos) -> bool {
                                           .release());
         } else if (const double zoom = xournal->getZoom(); selector->userTapped(zoom)) {
             if (aggregate) {
-                SelectObject(this).atAggregate(pos.x / zoom, pos.y / zoom);
+                SelectObject(this, pos.deviceKind).atAggregate(pos.x / zoom, pos.y / zoom);
             } else {
-                SelectObject(this).at(pos.x / zoom, pos.y / zoom, this->selector->isMultiLayerSelection());
+                SelectObject(this, pos.deviceKind)
+                        .at(pos.x / zoom, pos.y / zoom, this->selector->isMultiLayerSelection());
             }
         }
         this->selector.reset();
