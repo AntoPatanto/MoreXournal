@@ -11,6 +11,7 @@
 #include "control/ToolHandler.h"                 // for ToolHandler
 #include "control/settings/Settings.h"           // for Settings
 #include "control/settings/SettingsEnums.h"      // for Button, BUTTON_ERASER
+#include "control/tools/EditSelection.h"         // for EditSelection
 #include "gui/PageView.h"                        // for XojPageView
 #include "gui/XournalView.h"                     // for XournalView
 #include "gui/XournalppCursor.h"                 // for XournalppCursor
@@ -99,6 +100,13 @@ auto StylusInputHandler::handleImpl(InputEvent const& event) -> bool {
     // Notify if pen enters/leaves widget
     if (event.type == ENTER_EVENT && !this->inputRunning) {
         this->actionEnterWindow(event);
+    }
+    if (event.type == PROXIMITY_OUT_EVENT) {
+        // Lifting the pen away without leaving the window sends no leave event
+        if (GtkXournal* xournal = this->inputContext->getXournal();
+            xournal && xournal->selection && !xournal->selection->isMoving()) {
+            xournal->selection->clearHover();
+        }
     }
     if (event.type == LEAVE_EVENT) {
         this->inputContext->getHandRecognition()->unblock();

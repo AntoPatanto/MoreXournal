@@ -67,6 +67,24 @@ auto InputEvents::translateDeviceType(GdkDevice* device, Settings* settings) -> 
     return translateDeviceType(gdk_device_get_name(device), gdk_device_get_source(device), settings);
 }
 
+auto InputEvents::translateDeviceKind(GdkInputSource source) -> xoj::handles::DeviceKind {
+    switch (source) {
+        case GDK_SOURCE_PEN:
+        case GDK_SOURCE_ERASER:
+            return xoj::handles::DeviceKind::Pen;
+        case GDK_SOURCE_TOUCHSCREEN:
+            return xoj::handles::DeviceKind::Touch;
+        case GDK_SOURCE_MOUSE:
+        case GDK_SOURCE_TOUCHPAD:
+#if (GDK_MAJOR_VERSION >= 3 && GDK_MINOR_VERSION >= 22)
+        case GDK_SOURCE_TRACKPOINT:
+#endif
+        case GDK_SOURCE_CURSOR:
+        default:
+            return xoj::handles::DeviceKind::Fine;
+    }
+}
+
 auto InputEvents::translateEvent(GdkEvent* sourceEvent, Settings* settings,
                                  const xoj::util::Point<double>& relativeOffset) -> InputEvent {
     InputEvent targetEvent{};
@@ -77,6 +95,8 @@ auto InputEvents::translateEvent(GdkEvent* sourceEvent, Settings* settings,
 
     targetEvent.device = gdk_event_get_source_device(sourceEvent);
     targetEvent.deviceClass = translateDeviceType(targetEvent.device, settings);
+    targetEvent.deviceKind = targetEvent.device ? translateDeviceKind(gdk_device_get_source(targetEvent.device)) :
+                                                  xoj::handles::DeviceKind::Fine;
 
     targetEvent.deviceName = gdk_device_get_name(targetEvent.device);
     targetEvent.deviceId = DeviceId(targetEvent.device);

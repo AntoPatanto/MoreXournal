@@ -42,8 +42,8 @@ FlyingClickableIcon::FlyingClickableIcon(MainWindow* theMainWindow, const char* 
         overlay(GTK_OVERLAY(gtk_widget_get_ancestor(mainWindow->getXournal()->getWidget(), GTK_TYPE_OVERLAY))),
         widget(gtk_image_new_from_icon_name(icon), xoj::util::adopt),
         anchor(anchorToPoint(a)) {
+    gtk_image_set_pixel_size(GTK_IMAGE(widget.get()), 16);
     gtk_widget_add_css_class(widget.get(), "flying-icon");
-    gtk_widget_add_css_class(widget.get(), "background");
 
 #if GTK_MAJOR_VERSION == 3
     // Wrap the GtkImage in a GtkEventBox so we receive events...

@@ -15,6 +15,8 @@
 #include <gdk/gdk.h>  // for GdkModifierType
 #include <glib.h>     // for guint32
 
+#include "control/tools/SelectionHandleLogic.h"  // for DeviceKind
+
 #include "DeviceId.h"
 
 class PositionInputData {
@@ -29,6 +31,7 @@ public:
     double pressure;
     guint32 timestamp;
     DeviceId deviceId;
+    xoj::handles::DeviceKind deviceKind{xoj::handles::DeviceKind::Fine};
 
     /**
      * State flags from GDKevent (Shift down etc.)

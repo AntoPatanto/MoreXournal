@@ -101,6 +101,10 @@ public:
     void deleteSelection(EditSelection* sel = nullptr);
     void repaintSelection(bool evenWithoutSelection = false);
 
+    /// Input device class of the most recent canvas press (drives handle visual sizing without hover flicker)
+    void setLastPressDeviceKind(xoj::handles::DeviceKind kind);
+    xoj::handles::DeviceKind getLastPressDeviceKind() const;
+
     TextEditor* getTextEditor() const;
     std::vector<std::unique_ptr<XojPageView>> const& getViewPages() const;
 
@@ -186,6 +190,7 @@ private:
 
     size_t currentPage = 0;
     size_t lastSelectedPage = npos;
+    xoj::handles::DeviceKind lastPressDeviceKind = xoj::handles::DeviceKind::Fine;
 
     std::unique_ptr<PdfCache> cache;
 

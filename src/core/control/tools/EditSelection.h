@@ -34,6 +34,7 @@
 #include "util/serializing/Serializable.h"   // for Serializable
 
 #include "CursorSelectionType.h"     // for CursorSelectionType, CURS...
+#include "SelectionHandleLogic.h"    // for DeviceKind, HandlePalette
 #include "SnapToGridInputHandler.h"  // for SnapToGridInputHandler
 
 class UndoRedoHandler;
@@ -271,13 +272,31 @@ public:
     /**
      * Get the cursor type for the current position (if 0 then the default cursor should be used)
      */
-    CursorSelectionType getSelectionTypeForPos(double x, double y, double zoom);
+    CursorSelectionType getSelectionTypeForPos(double x, double y, double zoom,
+                                               xoj::handles::DeviceKind device = xoj::handles::DeviceKind::Fine);
+
+    /**
+     * Update hover state for handle highlight and return the cursor selection type at (x, y)
+     */
+    CursorSelectionType updateHover(double x, double y, double zoom, xoj::handles::DeviceKind device);
+
+    /// Clear any hovered handle highlight and repaint if needed
+    void clearHover();
+
+    /// Updates the rotation matrix, which depends on the zoom
+    void updateMatrix();
 
     /**
      * Paints the selection to cr, with the given zoom factor. The coordinates of cr
      * should be relative to the provided view by getView() (use translateEvent())
      */
     void paint(cairo_t* cr, double zoom);
+
+    /// Paints only the selected elements (run before page recolouring so selected ink is recoloured)
+    void paintContents(cairo_t* cr, double zoom);
+
+    /// Paints the selection border, stem and handles (run after page recolouring so handles keep paper-aware colours)
+    void paintOverlay(cairo_t* cr, double zoom);
 
     /**
      * Gets the selection's bounding box in view coordinates. This takes document zoom
@@ -294,7 +313,8 @@ public:
     /**
      * Handles mouse input for moving and resizing, in pixel-coordinates relative to "view"
      */
-    void mouseDown(CursorSelectionType type, double x, double y);
+    void mouseDown(CursorSelectionType type, double x, double y,
+                   xoj::handles::DeviceKind device = xoj::handles::DeviceKind::Fine);
 
     /**
      * Handles mouse input for moving and resizing, in pixel-coordinates relative to "view"
@@ -321,15 +341,18 @@ public:
     InsertionOrder makeMoveEffective();
 
 private:
-    /**
-     * Draws a circular handle where you can scale the selection
-     */
-    void drawAnchorDot(cairo_t* cr, double x, double y, double zoom);
+    /// Whether the underlying page is dark (e.g. dark-recoloured or dark paper colour)
+    bool isPaperDark() const;
 
-    /**
-     * Draws a circular handle and stem where you can rotate the selection
-     */
-    void drawAnchorRotation(cairo_t* cr, double anchorX, double x, double y, double zoom);
+    /// Whether (rxView, ryView) in unrotated view pixels lies within stroke hit tolerance of a selected element
+    bool isNearSelectedStroke(double rxView, double ryView, double zoom, xoj::handles::DeviceKind device) const;
+
+    /// Compute the screen-space layout of a rectangular selection at `zoom`
+    xoj::handles::SelectionLayout computeLayout(double zoom) const;
+
+    /// Draw a single circular handle in screen space on whole pixels
+    static void drawHandle(cairo_t* cr, double rawX, double rawY, double baseDiameter, bool hovered, bool filledAccent,
+                           const xoj::handles::HandlePalette& palette);
 
     /**
      * Shape mode: the translation from the shape's coordinates to the coordinates of the current view, i.e. the
@@ -338,11 +361,14 @@ private:
     xoj::util::Point<double> getShapeOffset() const;
 
     /// Shape mode: the index of the handle under (x, y), in pixels relative to the view
-    std::optional<size_t> shapeHandleAt(const Stroke* s, double x, double y, double zoom) const;
+    std::optional<size_t> shapeHandleAt(const Stroke* s, double x, double y, double zoom,
+                                        xoj::handles::DeviceKind device) const;
 
-    CursorSelectionType getShapeSelectionTypeForPos(const Stroke* s, double x, double y, double zoom) const;
+    CursorSelectionType getShapeSelectionTypeForPos(const Stroke* s, double x, double y, double zoom,
+                                                    xoj::handles::DeviceKind device) const;
     void shapeMouseMove(double mouseX, double mouseY, bool alt, double zoom);
-    void paintShape(cairo_t* cr, const Stroke* s, double zoom);
+    void paintShapeContents(cairo_t* cr, const Stroke* s, double zoom);
+    void paintShapeOverlay(cairo_t* cr, const Stroke* s, double zoom);
 
 
     /**
@@ -362,10 +388,6 @@ private:
      */
     void translateToView(XojPageView* v);
 
-    /**
-     * Updates rotation matrix
-     */
-    void updateMatrix();
 
     /**
      * scales and shifts to update bounding boxes
@@ -419,11 +441,6 @@ private:  // DATA
     double relMousePosRotY{};
 
     /**
-     * Size of the editing handles
-     */
-    int btnWidth{8};
-
-    /**
      * The source page (form where the Elements come)
      */
     PageRef sourcePage;
@@ -469,6 +486,16 @@ private:  // HANDLER
 
     /// See setTransient()
     bool transient = false;
+
+    /// Device class that started the active drag gesture (kept until mouseUp)
+
+    /// Currently hovered handle for visual feedback (only for mouse/pen hover when not dragging)
+    CursorSelectionType hoveredHandle = CURSOR_SELECTION_NONE;
+    std::optional<size_t> hoveredShapeHandle;
+
+    /// Initial pointer offset from the logical box edge when dragging a scale handle (prevents jumps on off-center/tiny grabs)
+    double scaleGrabOffsetX = 0.0;
+    double scaleGrabOffsetY = 0.0;
 
     /**
      * Shape mode, while a handle is dragged: the index of the handle, the press and the current positions (in the

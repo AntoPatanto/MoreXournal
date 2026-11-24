@@ -411,15 +411,20 @@ label.setting-touch-indicator.pressed {
 }
 
 image.flying-icon {
-    padding: 0px;
-    margin: 1px;  /* Avoids graphical artifacts when moving those icons around... */
+    min-width: 26px;
+    min-height: 26px;
+    padding: 0;
+    margin: 6px;  /* 28 px circle + 12 px margin = 40 px GtkEventBox hit area and drop-shadow room */
+    border-radius: 50%;
+    background-color: @mx_surface;
+    background-image: none;
+    border: 1px solid @mx_line;
+    box-shadow: 0 2px 6px @mx_shadow;
+    color: @mx_text2;
 }
 
-image.flying-icon.TL {
-    border-radius: 50% 50% 0% 50%;
-}
-image.flying-icon.TR {
-    border-radius: 50% 50% 50% 0%;
+image.flying-icon:hover {
+    color: @mx_text;
 }
 
 /*

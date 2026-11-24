@@ -52,7 +52,9 @@ constexpr int HOLD_TO_SHAPE_DELAY_MAX = 3000;  ///< in ms
 /// Id of the toolbar layout in toolbar.ini selected by default
 constexpr auto DEFAULT_TOOLBAR = "MoreXournal";
 /// Version of the window layout defaults. Settings files older than this are migrated in Settings::load()
-constexpr int UI_LAYOUT_VERSION = 2;
+constexpr int UI_LAYOUT_VERSION = 3;
+/// Default selection colour (app accent #3563e9)
+constexpr Color DEFAULT_SELECTION_COLOR{0xff3563e9U};
 
 class ButtonConfig;
 class InputDevice;
