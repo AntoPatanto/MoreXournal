@@ -18,6 +18,7 @@
 #include "control/tools/CursorSelectionType.h"     // for CURSOR_SELECTION_NONE
 #include "control/tools/SnapToGridInputHandler.h"  // for SnapToGridInputHan...
 #include "control/zoom/ZoomControl.h"              // for ZoomControl
+#include "gui/EraserIndicatorLogic.h"              // for displayedPaperColor
 #include "gui/Layout.h"                            // for Layout
 #include "gui/PageView.h"                          // for XojPageView
 #include "gui/XournalView.h"                       // for XournalView
@@ -1060,11 +1061,8 @@ void EditSelection::ensureWithinVisibleArea() {
 auto EditSelection::isPaperDark() const -> bool {
     const PageRef page = this->view->getPage();
     const Settings* settings = this->view->getXournal()->getControl()->getSettings();
-    Color paper = page->getPdfPageNr() != npos ? Colors::white : page->getBackgroundColor();
-    const auto& recolorParams = settings->getRecolorParameters();
-    if (recolorParams.recolorizeMainView) {
-        paper = recolorParams.recolor.convertColor(paper);
-    }
+    const Color paper = xoj::cursor::displayedPaperColor(page->getPdfPageNr() != npos, page->getBackgroundColor(),
+                                                         settings->getRecolorParameters());
     return !paper.isLight();
 }
 

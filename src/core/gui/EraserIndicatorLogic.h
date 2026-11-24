@@ -13,6 +13,7 @@
 #include <cmath>
 
 #include "control/ToolEnums.h"
+#include "control/settings/RecolorParameters.h"
 #include "control/settings/SettingsEnums.h"
 #include "control/tools/CursorSelectionType.h"
 #include "gui/inputdevices/InputEvents.h"
@@ -41,11 +42,11 @@ enum class EraserIndicatorShape {
 
 struct EraserIndicatorGeometry {
     EraserIndicatorShape shape = EraserIndicatorShape::RoundedSquare;
-    double trueSizePx = 0.0;         ///< Square side length or circle diameter on screen in logical px
-    double cornerRadiusPx = 0.0;     ///< Corner radius for RoundedSquare; 0 for Circle
-    bool showCornerBrackets = false; ///< True when trueSizePx < MIN_VISIBLE_SIZE_PX
-    double bracketBoxSizePx = 0.0;   ///< CORNER_BRACKET_BOX_PX when showCornerBrackets is true
-    double bracketLegPx = 0.0;       ///< CORNER_BRACKET_LEG_PX when showCornerBrackets is true
+    double trueSizePx = 0.0;          ///< Square side length or circle diameter on screen in logical px
+    double cornerRadiusPx = 0.0;      ///< Corner radius for RoundedSquare; 0 for Circle
+    bool showCornerBrackets = false;  ///< True when trueSizePx < MIN_VISIBLE_SIZE_PX
+    double bracketBoxSizePx = 0.0;    ///< CORNER_BRACKET_BOX_PX when showCornerBrackets is true
+    double bracketLegPx = 0.0;        ///< CORNER_BRACKET_LEG_PX when showCornerBrackets is true
     double strokeWidthPx = STROKE_WIDTH_HOVER_PX;
     double paintExtentHalfPx = 0.0;  ///< Half-extent around the pointer needed to paint and invalidate cleanly
 };
@@ -133,6 +134,19 @@ constexpr auto computeEraserIndicatorPalette(bool darkPage, Color whiteoutFillCo
         p.pressedFill = {28.0 / 255.0, 31.0 / 255.0, 38.0 / 255.0, 0.08};
     }
     return p;
+}
+
+/// Effective displayed paper colour for a page: PDF pages render on white paper regardless of getBackgroundColor().
+inline auto displayedPaperColor(bool isPdfPage, Color backgroundColor, const RecolorParameters& recolorParams)
+        -> Color {
+    const Color paper = isPdfPage ? Colors::white : backgroundColor;
+    return recolorParams.recolorizeMainView ? Color(recolorParams.recolor.convertColor(paper)) : paper;
+}
+
+inline auto computeEraserIndicatorPaletteForPage(bool isPdfPage, Color backgroundColor,
+                                                 const RecolorParameters& recolorParams) -> EraserIndicatorPalette {
+    const Color displayedPaper = displayedPaperColor(isPdfPage, backgroundColor, recolorParams);
+    return computeEraserIndicatorPalette(isDarkColor(displayedPaper), displayedPaper);
 }
 
 struct EraserOverlayInput {
