@@ -1,4 +1,4 @@
-# Template for running Ubuntu release jobs
+# Template for running Linux release jobs (AppImage and Fedora RPM; deb is parked)
 
 on:
   workflow_call:
@@ -12,17 +12,23 @@ on:
       build_appimage:
         type: boolean
         default: false
+      publish_deb:
+        type: boolean
+        default: false
+      build_rpm:
+        type: boolean
+        default: false
       gcc_version:
         default: ''     # This means the package 'gcc'
         type: string
       extra_packages:   # List of extra packages to be installed
         type: string
         default: ''
-      container_image:  # if provided, runs in a container (docker...)
+      container_image:  # if provided, runs in a container
         required: false
         type: string
         default: ''
-      head_sha:         # SHA of the commit to build. Defaults to the head of the triggering event (cf github doc.)
+      head_sha:         # SHA of the commit to build. Defaults to the head of the triggering event
         type: string
         default: ''
       build_type:
@@ -31,19 +37,23 @@ on:
       extra_cmake_flags:
         type: string
         default: ''
-      artifact_version_suffix:  # Additional version string appended to 1.2.3+dev (for instance) in artifacts names
+      artifact_version_suffix:  # Additional version string appended to version in artifact names
         type: string
         default: ''
     outputs:
       link:
-        description: URL of the produced installer
+        description: URL of the produced Debian/tarball packages (if enabled)
         value: ${{ jobs.release-linux.outputs.link }}
       link_appimage:
         description: URL of the AppImage (if any)
         value: ${{ jobs.release-linux.outputs.link_appimage }}
+      link_rpm:
+        description: URL of the Fedora RPM (if any)
+        value: ${{ jobs.release-rpm.outputs.link_rpm }}
 
 jobs:
   release-linux:
+    if: ${{ inputs.build_appimage || inputs.publish_deb }}
     name: Create installer for ${{ inputs.displayed_name }}
     runs-on: ${{ inputs.runner }}
     outputs:
@@ -58,10 +68,10 @@ jobs:
           ref: ${{ inputs.head_sha }}
       - name: 'Install dependencies (for AppImage)'
         if: ${{ inputs.build_appimage }}
-        # Building the appimage requires extra packages (to add them to the appimage)
+        # Building the AppImage requires extra packages (bundled into the AppImage)
         uses: ./.github/actions/install_deps_ubuntu
         with:
-          gcc_version: ${{inputs.gcc_version}}
+          gcc_version: ${{ inputs.gcc_version }}
           extra_packages: >-
             ${{ inputs.extra_packages }}
             fcitx-frontend-gtk3
@@ -74,59 +84,111 @@ jobs:
         if: ${{ ! inputs.build_appimage }}
         uses: ./.github/actions/install_deps_ubuntu
         with:
-          gcc_version: ${{inputs.gcc_version}}
+          gcc_version: ${{ inputs.gcc_version }}
           extra_packages: ${{ inputs.extra_packages }}
-      - name: 'Build Xournal++'
+      - name: 'Build MoreXournal'
         uses: ./.github/actions/build
         with:
           build_type: ${{ inputs.build_type }}
           cmake_flags: >-
             -DCMAKE_INSTALL_PREFIX=/usr
-            -DCPACK_GENERATOR="TGZ;DEB"
+            -DCPACK_GENERATOR="${{ inputs.publish_deb && 'TGZ;DEB' || 'TGZ' }}"
           extra_cmake_flags: ${{ inputs.extra_cmake_flags }}
           cmake_commands: '--target package'
       - name: 'Rename assets'
-        if: ${{ inputs.artifact_version_suffix != '' }}
+        if: ${{ inputs.publish_deb && inputs.artifact_version_suffix != '' }}
         shell: bash
         run: |
-          for f in build/packages/xournalpp-*; do
-            # If $artifact_version_suffix is `-foobar`, this transforms:
-            #      * `xournalpp-2.3.4-` into `xournalpp-2.3.4-foobar-`
-            #      * `xournalpp-2.3.4~dev-` into `xournalpp-2.3.4~dev-foobar-`
-            #      * `xournalpp-2.3.4+dev-` into `xournalpp-2.3.4+dev-foobar-`
-            correct_name="$(echo "$f" | sed "s/xournalpp-\(\(\:\?\(\:\?[0-9]\+\.\)\+[0-9]\+\)\(\:\?[+~][^-]\+\)\?\)-/xournalpp-\1${{ inputs.artifact_version_suffix }}-/")"
+          for f in build/packages/morexournal-*; do
+            correct_name="$(echo "$f" | sed "s/morexournal-\(\(\:\?\(\:\?[0-9]\+\.\)\+[0-9]\+\)\(\:\?[+~][^-]\+\)\?\)-/morexournal-\1${{ inputs.artifact_version_suffix }}-/")"
             echo "moving from $f to $correct_name"
             mv "$f" "$correct_name" || exit 1
           done
       - name: 'Publish packages'
         id: publish-packages
+        if: ${{ inputs.publish_deb }}
         uses: actions/upload-artifact@v6
         with:
-          name: "Packages ${{ inputs.displayed_name }} ${{ runner.arch }}"
+          name: "MoreXournal packages ${{ inputs.displayed_name }} ${{ runner.arch }}"
           compression-level: 0
-          path: "${{github.workspace}}/build/packages"
+          path: "${{ github.workspace }}/build/packages"
           if-no-files-found: error
       - name: 'Create AppImage'
         id: build-appimage
         if: ${{ inputs.build_appimage }}
         shell: bash
         run: |
-          # Build AppImage
-          export VERSION=$(cat VERSION | sed '1q;d')
-          export ARCH=$(cat VERSION | sed '4q;d')
-          export OUTPUT="xournalpp-$VERSION${{ inputs.artifact_version_suffix }}-$ARCH.AppImage"
+          export VERSION=$(sed -n '1p' VERSION)
+          export ARCH=$(sed -n '4p' VERSION)
+          export OUTPUT="morexournal-${VERSION}${{ inputs.artifact_version_suffix }}-${ARCH}.AppImage"
           ../linux-setup/build_appimage.sh
 
-          mkdir appimage
-          mv "$OUTPUT" "$OUTPUT".zsync appimage/
-          echo "appimage-arch=$ARCH" >> "$GITHUB_OUTPUT"
+          mkdir -p appimage
+          mv "${OUTPUT}" "${OUTPUT}.zsync" appimage/
+          echo "appimage-arch=${ARCH}" >> "$GITHUB_OUTPUT"
         working-directory: ./build
       - name: 'Publish AppImage'
         id: publish-appimage
         if: ${{ inputs.build_appimage }}
         uses: actions/upload-artifact@v6
         with:
-          name: "Linux AppImage ${{ steps.build-appimage.outputs.appimage-arch }} (built on ${{ inputs.displayed_name }})"
+          name: "MoreXournal AppImage ${{ steps.build-appimage.outputs.appimage-arch }} (built on ${{ inputs.displayed_name }})"
           compression-level: 0
-          path: "${{github.workspace}}/build/appimage"
+          path: "${{ github.workspace }}/build/appimage"
+          if-no-files-found: error
+
+  release-rpm:
+    if: ${{ inputs.build_rpm }}
+    name: Create Fedora RPM
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:latest
+    outputs:
+      link_rpm: ${{ steps.publish-rpm.outputs.artifact-url }}
+    steps:
+      - name: 'Install RPM build tooling'
+        run: |
+          dnf install -y git-core rpm-build rpmdevtools 'dnf5-command(builddep)'
+      - name: 'Checkout repository'
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.head_sha }}
+          fetch-depth: 0
+      - name: 'Install RPM build dependencies'
+        run: |
+          dnf builddep -y rpm/fedora/morexournal.spec
+      - name: 'Build Fedora RPM'
+        run: |
+          set -euo pipefail
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+          TOPDIR="${GITHUB_WORKSPACE}/rpmbuild"
+          mkdir -p "${TOPDIR}"/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+
+          SPEC_VERSION="$(rpmspec -q --qf '%{version}\n' --srpm rpm/fedora/morexournal.spec | head -n 1)"
+          SHORT_SHA="$(git rev-parse --short=8 HEAD)"
+
+          git archive --format=tar.gz --prefix="morexournal-${SPEC_VERSION}/" \
+            -o "${TOPDIR}/SOURCES/morexournal-${SPEC_VERSION}.tar.gz" HEAD
+
+          rpmbuild -ba \
+            --define "_topdir ${TOPDIR}" \
+            --define "git_shortcommit ${SHORT_SHA}" \
+            rpm/fedora/morexournal.spec
+
+          mkdir -p rpm-out
+          cp "${TOPDIR}"/RPMS/*/*.rpm rpm-out/
+          rm -f rpm-out/*-debuginfo-*.rpm rpm-out/*-debugsource-*.rpm
+          ls -lh rpm-out/
+      - name: 'Verify side-by-side installation with xournalpp'
+        run: |
+          set -euo pipefail
+          dnf install -y --setopt=install_weak_deps=False xournalpp rpm-out/morexournal-*.rpm
+          morexournal --version
+      - name: 'Publish RPM'
+        id: publish-rpm
+        uses: actions/upload-artifact@v6
+        with:
+          name: "MoreXournal Fedora RPM ${{ runner.arch }}"
+          compression-level: 0
+          path: "${{ github.workspace }}/rpm-out"
           if-no-files-found: error

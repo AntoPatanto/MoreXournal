@@ -14,19 +14,18 @@ on:
         #   - extra_packages: install those extra packages via apt before building (optional)
         type: string
         default: ''
+      publish_deb:
+        type: boolean
+        default: false
+      build_rpm:
+        type: boolean
+        default: false
       windows_builds:
-        # Some JSON string of a list of items, each containing the following members
-        #   - runner: one of github's WINDOWS runners
-        #   - displayed_name
-        #   - msystem: ID of one of the msys environments https://www.msys2.org/docs/environments/
-        #   - msys_package_env: msys package "group" - inserted in package names. see e.g. https://packages.msys2.org/search?t=binpkg&q=libzip
-        #   - build_portable (optional, defaults to false)
+        # Parked for 0.1.0; left intact for future use.
         type: string
         default: ''
       macos_builds:
-        # Some JSON string of a list of items, each containing the following members
-        #   - runner: one of github's MACOS runners
-        #   - displayed_name
+        # Parked for 0.1.0; left intact for future use.
         type: string
         default: ''
       head_sha:        # SHA of the commit to build. Defaults to the head of the triggering event (cf github doc.)
@@ -46,18 +45,35 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        run: ${{fromJSON(inputs.linux_builds)}}
+        run: ${{ fromJSON(inputs.linux_builds) }}
     uses: ./.github/workflows/make-installer-linux.yml
     with:
       displayed_name: ${{ matrix.run.displayed_name }}
       gcc_version: ${{ matrix.run.gcc_version }}
       runner: ${{ matrix.run.runner }}
       build_appimage: ${{ matrix.run.build_appimage == 'true' }}
+      publish_deb: ${{ inputs.publish_deb }}
+      build_rpm: false
       extra_packages: ${{ matrix.run.extra_packages }}
       container_image: ${{ matrix.run.container_image }}
       head_sha: ${{ inputs.head_sha }}
+      build_type: ${{ inputs.build_type }}
       artifact_version_suffix: ${{ inputs.artifact_version_suffix }}
       extra_cmake_flags: ${{ matrix.run.extra_cmake_flags }}
+
+  ci-rpm:
+    name: Create installer (Fedora RPM)
+    if: ${{ inputs.build_rpm }}
+    uses: ./.github/workflows/make-installer-linux.yml
+    with:
+      displayed_name: Fedora
+      runner: ubuntu-latest
+      build_appimage: false
+      publish_deb: false
+      build_rpm: true
+      head_sha: ${{ inputs.head_sha }}
+      build_type: ${{ inputs.build_type }}
+      artifact_version_suffix: ${{ inputs.artifact_version_suffix }}
 
   ci-windows:
     name: Create installer (Windows)
@@ -65,15 +81,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        run: ${{fromJSON(inputs.windows_builds)}}
+        run: ${{ fromJSON(inputs.windows_builds) }}
     uses: ./.github/workflows/make-installer-windows.yml
     with:
       runner: ${{ matrix.run.runner }}
       displayed_name: ${{ matrix.run.displayed_name }}
       msystem: ${{ matrix.run.msystem }}
       msys_package_env: ${{ matrix.run.msys_package_env }}
-      publish_portable_version:  ${{ matrix.run.build_portable == 'true' }}
+      publish_portable_version: ${{ matrix.run.build_portable == 'true' }}
       head_sha: ${{ inputs.head_sha }}
+      build_type: ${{ inputs.build_type }}
       artifact_version_suffix: ${{ inputs.artifact_version_suffix }}
       extra_cmake_flags: ${{ matrix.run.extra_cmake_flags }}
 
@@ -83,11 +100,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        run: ${{fromJSON(inputs.macos_builds)}}
+        run: ${{ fromJSON(inputs.macos_builds) }}
     uses: ./.github/workflows/make-installer-macos.yml
     with:
       runner: ${{ matrix.run.runner }}
       displayed_name: ${{ matrix.run.displayed_name }}
       head_sha: ${{ inputs.head_sha }}
+      build_type: ${{ inputs.build_type }}
       artifact_version_suffix: ${{ inputs.artifact_version_suffix }}
       extra_cmake_flags: ${{ matrix.run.extra_cmake_flags }}
