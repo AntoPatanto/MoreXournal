@@ -118,10 +118,21 @@ void drawStrokePath(cairo_t* cr, const std::vector<Point>& pts, double zoom, dou
     cairo_restore(cr);
 }
 
+/// Disconnect the handlers connected with `data` on `w` and on every widget inside it
+void disconnectTree(GtkWidget* w, gpointer data) {
+    g_signal_handlers_disconnect_by_data(w, data);
+    if (GTK_IS_CONTAINER(w)) {
+        gtk_container_forall(
+                GTK_CONTAINER(w), +[](GtkWidget* child, gpointer d) { disconnectTree(child, d); }, data);
+    }
+}
+
 }  // namespace
 
 ShapeSettingsPanel::ShapeSettingsPanel(std::function<double()> getZoom100): getZoom100(std::move(getZoom100)) {
     rootBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    // Released in the destructor, which needs the widget tree whichever of the panel and the window goes first
+    g_object_ref_sink(rootBox);
     gtk_widget_set_name(rootBox, "shapeSettingsPanel");
 
     gtk_box_pack_start(GTK_BOX(rootBox), buildMainControls(), false, false, 0);
@@ -145,6 +156,10 @@ ShapeSettingsPanel::ShapeSettingsPanel(std::function<double()> getZoom100): getZ
 ShapeSettingsPanel::~ShapeSettingsPanel() {
     holdTimer.cancel();
     animTimer.cancel();
+    // SettingsDialog destroys the panel before its window, whose destruction can still emit signals (e.g. the pad's
+    // grab-broken-event when it is unmapped mid-stroke)
+    disconnectTree(rootBox, this);
+    g_object_unref(rootBox);
 }
 
 GtkWidget* ShapeSettingsPanel::buildMainControls() {
@@ -515,8 +530,10 @@ void ShapeSettingsPanel::onPadRealize(GtkWidget* widget, gpointer) {
         return;
     }
     GdkCursor* cursor = gdk_cursor_new_for_display(gdk_window_get_display(win), GDK_CROSSHAIR);
-    gdk_window_set_cursor(win, cursor);
-    g_object_unref(cursor);
+    if (cursor) {  // null when the cursor theme has no crosshair
+        gdk_window_set_cursor(win, cursor);
+        g_object_unref(cursor);
+    }
 }
 
 gboolean ShapeSettingsPanel::onPadDraw(GtkWidget* widget, cairo_t* cr, gpointer data) {
