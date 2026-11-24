@@ -21,9 +21,12 @@ jobs:
         env:
           codename: noble
         run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          set -euo pipefail
+          sudo install -d -m 0755 /etc/apt/keyrings
+          wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/llvm-snapshot.gpg
+          sudo chmod a+r /etc/apt/keyrings/llvm-snapshot.gpg
           for VERSION in $CLANG_FORMAT_VERSIONS; do
-            sudo apt-add-repository "deb http://apt.llvm.org/${{env.codename}}/ llvm-toolchain-${{env.codename}}-$VERSION main"
+            echo "deb [signed-by=/etc/apt/keyrings/llvm-snapshot.gpg] https://apt.llvm.org/${codename}/ llvm-toolchain-${codename}-${VERSION} main" | sudo tee "/etc/apt/sources.list.d/llvm-toolchain-${VERSION}.list" > /dev/null
           done
           sudo apt-get update
       - name: Run clang-format on modified files
