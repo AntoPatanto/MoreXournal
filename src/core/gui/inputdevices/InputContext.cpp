@@ -14,6 +14,7 @@
 #include "control/settings/Settings.h"                  // for Settings
 #include "gui/MainWindow.h"                             // for MainWindow
 #include "gui/XournalView.h"                            // for XournalView
+#include "gui/XournalppCursor.h"                        // for XournalppCursor
 #include "gui/dialog/DeviceTestingArea.h"               // for DeviceTestingArea
 #include "gui/inputdevices/GeometryToolInputHandler.h"  // for GeometryToolInputHandler
 #include "gui/inputdevices/HandRecognition.h"           // for HandRecognition
@@ -180,6 +181,22 @@ auto InputContext::handle(GdkEvent* sourceEvent) -> bool {
     if (event.type == SCROLL_EVENT) {
         // Hand over to standard GTK Scroll / Zoom handling
         return false;
+    }
+
+    if (this->view && event.deviceClass != INPUT_DEVICE_IGNORE) {
+        if (XournalppCursor* cursor = this->view->getCursor()) {
+            if (event.type == LEAVE_EVENT || event.type == PROXIMITY_OUT_EVENT) {
+                cursor->clearPointerPosition();
+            } else if (event.type == MOTION_EVENT || event.type == BUTTON_PRESS_EVENT ||
+                       event.type == BUTTON_2_PRESS_EVENT || event.type == BUTTON_3_PRESS_EVENT ||
+                       event.type == BUTTON_RELEASE_EVENT || event.type == ENTER_EVENT) {
+                const bool isUnsequencedTouchMotion =
+                        event.deviceClass == INPUT_DEVICE_TOUCHSCREEN && event.type == MOTION_EVENT && !event.sequence;
+                if (!isUnsequencedTouchMotion) {
+                    cursor->setPointerPosition(event.absolute.x, event.absolute.y);
+                }
+            }
+        }
     }
 
     // Deactivate touchscreen when a pen event occurs

@@ -1308,6 +1308,7 @@ void Control::toolLineStyleChanged() {
 
 void Control::eraserTypeChanged() {
     this->actionDB->setActionState(Action::TOOL_ERASER_TYPE, this->toolHandler->getEraserType());
+    getCursor()->updateCursor();
 }
 
 auto Control::getLineStyleToSelect() -> std::optional<string> const {
@@ -1386,6 +1387,7 @@ void Control::showSettings() {
         int horizontalSpaceAmountLeft;
         bool unlimitedScrolling;
         StylusCursorType stylusCursorType;
+        EraserVisibility eraserVisibility;
         bool highlightPosition;
         SidebarNumberingStyle sidebarStyle;
         std::optional<std::filesystem::path> colorPaletteSetting;
@@ -1400,6 +1402,7 @@ void Control::showSettings() {
             settings->getAddHorizontalSpaceAmountLeft(),
             settings->getUnlimitedScrolling(),
             settings->getStylusCursorType(),
+            settings->getEraserVisibility(),
             settings->isHighlightPosition(),
             settings->getSidebarNumberingStyle(),
             settings->getColorPaletteSetting(),
@@ -1461,7 +1464,9 @@ void Control::showSettings() {
                 }
 
                 if (settingsBeforeDialog.stylusCursorType != settings->getStylusCursorType() ||
-                    settingsBeforeDialog.highlightPosition != settings->isHighlightPosition()) {
+                    settingsBeforeDialog.eraserVisibility != settings->getEraserVisibility() ||
+                    settingsBeforeDialog.highlightPosition != settings->isHighlightPosition() ||
+                    settingsBeforeDialog.recolorParameters != settings->getRecolorParameters()) {
                     ctrl->getCursor()->updateCursor();
                 }
 

@@ -1,5 +1,6 @@
 #include "XournalppCursor.h"
 
+#include <algorithm>         // for clamp, max, min
 #include <cmath>             // for cos, sin, M_PI, NAN, fmod
 #include <cstdint>           // for uint32_t
 #include <initializer_list>  // for initializer_list
@@ -15,9 +16,14 @@
 #include "control/settings/Settings.h"       // for Settings
 #include "control/settings/SettingsEnums.h"  // for STYLUS_CURSOR_BIG, STYLU...
 #include "control/zoom/ZoomControl.h"        // for ZoomControl
+#include "gui/EraserIndicatorLogic.h"        // for computeEraserIndicatorGe...
+#include "gui/Layout.h"                      // for Layout
 #include "gui/MainWindow.h"                  // for MainWindow
+#include "gui/PageView.h"                    // for XojPageView
+#include "gui/widgets/XournalWidget.h"       // for GTK_XOURNAL
+#include "model/XojPage.h"                   // for XojPage
 #include "util/Color.h"                      // for argb_to_GdkRGBA, rgb_to_...
-#include "util/safe_casts.h"                 // for ceil_cast
+#include "util/safe_casts.h"                 // for ceil_cast, floor_cast
 
 #include "XournalView.h"  // for XournalView
 
@@ -111,11 +117,285 @@ constexpr auto DELTA_ANGLE_ARROW_HEAD = M_PI / 6.0;
 constexpr auto LENGTH_ARROW_HEAD = 0.7;
 constexpr auto RESIZE_CURSOR_HASH_PRECISION = 1000;
 
+namespace {
+
+void addRoundedRect(cairo_t* cr, double x, double y, double w, double h, double radius) {
+    if (w <= 0.0 || h <= 0.0) {
+        return;
+    }
+    const double r = std::clamp(radius, 0.0, std::min(w, h) * 0.5);
+    if (r <= 0.0) {
+        cairo_rectangle(cr, x, y, w, h);
+        return;
+    }
+    cairo_new_sub_path(cr);
+    cairo_arc(cr, x + w - r, y + r, r, -M_PI * 0.5, 0.0);
+    cairo_arc(cr, x + w - r, y + h - r, r, 0.0, M_PI * 0.5);
+    cairo_arc(cr, x + r, y + h - r, r, M_PI * 0.5, M_PI);
+    cairo_arc(cr, x + r, y + r, r, M_PI, M_PI * 1.5);
+    cairo_close_path(cr);
+}
+
+void drawCornerBrackets(cairo_t* cr, double cx, double cy, double boxSize, double leg, double strokeWidth,
+                        const xoj::cursor::EraserIndicatorPalette& palette) {
+    const double half = boxSize * 0.5;
+    cairo_new_path(cr);
+    // Top-left
+    cairo_move_to(cr, cx - half, cy - half + leg);
+    cairo_line_to(cr, cx - half, cy - half);
+    cairo_line_to(cr, cx - half + leg, cy - half);
+    // Top-right
+    cairo_move_to(cr, cx + half - leg, cy - half);
+    cairo_line_to(cr, cx + half, cy - half);
+    cairo_line_to(cr, cx + half, cy - half + leg);
+    // Bottom-right
+    cairo_move_to(cr, cx + half, cy + half - leg);
+    cairo_line_to(cr, cx + half, cy + half);
+    cairo_line_to(cr, cx + half - leg, cy + half);
+    // Bottom-left
+    cairo_move_to(cr, cx - half + leg, cy + half);
+    cairo_line_to(cr, cx - half, cy + half);
+    cairo_line_to(cr, cx - half, cy + half - leg);
+
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+    cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
+
+    // Outer halo behind brackets
+    cairo_set_source_rgba(cr, palette.halo.r, palette.halo.g, palette.halo.b, palette.halo.a);
+    cairo_set_line_width(cr, strokeWidth + 2.0 * xoj::cursor::HALO_OUTER_PX);
+    cairo_stroke_preserve(cr);
+
+    // Bracket stroke
+    cairo_set_source_rgba(cr, palette.stroke.r, palette.stroke.g, palette.stroke.b, palette.stroke.a);
+    cairo_set_line_width(cr, strokeWidth);
+    cairo_stroke(cr);
+}
+
+void queueWidgetRect(GtkWidget* widget, const GdkRectangle& rect) {
+    const int allocW = gtk_widget_get_allocated_width(widget);
+    const int allocH = gtk_widget_get_allocated_height(widget);
+    const int x1 = std::clamp(rect.x, 0, allocW);
+    const int y1 = std::clamp(rect.y, 0, allocH);
+    const int x2 = std::clamp(rect.x + rect.width, 0, allocW);
+    const int y2 = std::clamp(rect.y + rect.height, 0, allocH);
+    if (x2 > x1 && y2 > y1) {
+        gtk_widget_queue_draw_area(widget, x1, y1, x2 - x1, y2 - y1);
+    }
+}
+
+}  // namespace
+
 
 XournalppCursor::~XournalppCursor() = default;
 
 
-void XournalppCursor::setInputDeviceClass(InputDeviceClass device) { this->inputDevice = device; }
+void XournalppCursor::setInputDeviceClass(InputDeviceClass device) {
+    if (this->inputDevice == device) {
+        return;
+    }
+    this->inputDevice = device;
+    if (this->lastDrawnOverlayRect || isEraserOverlayVisible()) {
+        invalidateOverlay();
+    }
+}
+
+
+void XournalppCursor::setPointerPosition(double widgetX, double widgetY) {
+    const bool moved = !this->pointerWidgetPos || this->pointerWidgetPos->x != widgetX ||
+                       this->pointerWidgetPos->y != widgetY;
+    this->pointerWidgetPos = xoj::util::Point<double>{widgetX, widgetY};
+    if (moved && (this->lastDrawnOverlayRect || isEraserOverlayVisible())) {
+        invalidateOverlay();
+    }
+}
+
+
+void XournalppCursor::clearPointerPosition() {
+    if (!this->pointerWidgetPos) {
+        return;
+    }
+    this->pointerWidgetPos.reset();
+    if (this->lastDrawnOverlayRect) {
+        invalidateOverlay();
+    }
+}
+
+
+auto XournalppCursor::isEraserOverlayVisible() const -> bool {
+    ToolHandler* handler = control->getToolHandler();
+    if (!handler) {
+        return false;
+    }
+    xoj::cursor::EraserOverlayInput input{};
+    input.busy = this->busy;
+    input.insidePage = this->insidePage;
+    input.pointerInWidget = this->pointerWidgetPos.has_value();
+    input.selectionType = this->selectionType;
+    input.toolType = handler->getToolType();
+    input.inputDevice = this->inputDevice;
+    input.pressed = this->mouseDown;
+    input.eraserVisibility = control->getSettings()->getEraserVisibility();
+    return xoj::cursor::shouldShowEraserOverlay(input);
+}
+
+
+auto XournalppCursor::computeOverlayBounds() const -> std::optional<GdkRectangle> {
+    if (!this->pointerWidgetPos || !isEraserOverlayVisible()) {
+        return std::nullopt;
+    }
+    ToolHandler* handler = control->getToolHandler();
+    const auto geom = xoj::cursor::computeEraserIndicatorGeometry(
+            handler->getEraserType(), handler->getThickness(), control->getZoomControl()->getZoom(), this->mouseDown);
+    const double extent = geom.paintExtentHalfPx;
+    const int minX = floor_cast<int>(this->pointerWidgetPos->x - extent);
+    const int minY = floor_cast<int>(this->pointerWidgetPos->y - extent);
+    const int maxX = ceil_cast<int>(this->pointerWidgetPos->x + extent);
+    const int maxY = ceil_cast<int>(this->pointerWidgetPos->y + extent);
+    return GdkRectangle{minX, minY, maxX - minX, maxY - minY};
+}
+
+
+void XournalppCursor::invalidateOverlay() {
+    MainWindow* win = control->getWindow();
+    if (!win) {
+        return;
+    }
+    XournalView* xournal = win->getXournal();
+    if (!xournal || !xournal->getWidget()) {
+        return;
+    }
+    GtkWidget* widget = xournal->getWidget();
+    if (!gtk_widget_get_realized(widget)) {
+        return;
+    }
+
+    const auto nextRect = computeOverlayBounds();
+    if (!this->lastDrawnOverlayRect && !nextRect) {
+        return;
+    }
+    if (this->lastDrawnOverlayRect) {
+        queueWidgetRect(widget, *this->lastDrawnOverlayRect);
+    }
+    if (nextRect) {
+        queueWidgetRect(widget, *nextRect);
+    }
+}
+
+
+void XournalppCursor::paintOverlay(cairo_t* cr, GtkWidget* widget) {
+    if (!isEraserOverlayVisible() || !this->pointerWidgetPos) {
+        this->lastDrawnOverlayRect.reset();
+        return;
+    }
+
+    GtkXournal* xournal = GTK_XOURNAL(widget);
+    const double cx = this->pointerWidgetPos->x;
+    const double cy = this->pointerWidgetPos->y;
+    const double layoutX = cx + gtk_adjustment_get_value(xournal->hadjustment);
+    const double layoutY = cy + gtk_adjustment_get_value(xournal->vadjustment);
+
+    XojPageView* pv = xournal->layout ? xournal->layout->getPageViewAt(round_cast<int>(layoutX), round_cast<int>(layoutY)) :
+                                        nullptr;
+    if (!pv) {
+        this->lastDrawnOverlayRect.reset();
+        return;
+    }
+
+    ToolHandler* handler = control->getToolHandler();
+    const EraserType eraserType = handler->getEraserType();
+    const double thickness = handler->getThickness();
+    const double zoom = control->getZoomControl()->getZoom();
+
+    const auto geom = xoj::cursor::computeEraserIndicatorGeometry(eraserType, thickness, zoom, this->mouseDown);
+
+    const Color pageBg = pv->getPage()->getBackgroundColor();
+    const auto& recolorParams = control->getSettings()->getRecolorParameters();
+    const Color displayedPaper =
+            recolorParams.recolorizeMainView ? Color(recolorParams.recolor.convertColor(pageBg)) : pageBg;
+    const Color whiteoutFillColor =
+            recolorParams.recolorizeMainView ? Color(recolorParams.recolor.convertColor(Colors::white)) : Colors::white;
+    const auto palette =
+            xoj::cursor::computeEraserIndicatorPalette(xoj::cursor::isDarkColor(displayedPaper), whiteoutFillColor);
+
+    cairo_save(cr);
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+
+    if (geom.shape == xoj::cursor::EraserIndicatorShape::Circle) {
+        const double rad = geom.trueSizePx * 0.5;
+        const double sw = geom.strokeWidthPx;
+
+        if (rad > 0.0) {
+            // 90% paper-matched whiteout fill
+            cairo_arc(cr, cx, cy, rad, 0.0, 2.0 * M_PI);
+            cairo_set_source_rgba(cr, palette.whiteoutFill.r, palette.whiteoutFill.g, palette.whiteoutFill.b,
+                                  palette.whiteoutFill.a);
+            cairo_fill(cr);
+
+            // 1 px outer halo outside the dashed ring so it reads over dark ink
+            cairo_arc(cr, cx, cy, rad + (sw + xoj::cursor::HALO_OUTER_PX) * 0.5, 0.0, 2.0 * M_PI);
+            cairo_set_source_rgba(cr, palette.halo.r, palette.halo.g, palette.halo.b, palette.halo.a);
+            cairo_set_line_width(cr, xoj::cursor::HALO_OUTER_PX);
+            cairo_stroke(cr);
+
+            // Dashed 3/2 ring at the exact whiteout diameter
+            const double dashes[2] = {xoj::cursor::WHITEOUT_DASH_ON_PX, xoj::cursor::WHITEOUT_DASH_OFF_PX};
+            cairo_set_dash(cr, dashes, 2, 0.0);
+            cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
+            cairo_arc(cr, cx, cy, rad, 0.0, 2.0 * M_PI);
+            cairo_set_source_rgba(cr, palette.whiteoutRing.r, palette.whiteoutRing.g, palette.whiteoutRing.b,
+                                  palette.whiteoutRing.a);
+            cairo_set_line_width(cr, sw);
+            cairo_stroke(cr);
+            cairo_set_dash(cr, nullptr, 0, 0.0);
+        }
+
+        if (geom.showCornerBrackets) {
+            drawCornerBrackets(cr, cx, cy, geom.bracketBoxSizePx, geom.bracketLegPx, sw, palette);
+        }
+    } else {
+        const double s = geom.trueSizePx;
+        const double r = geom.cornerRadiusPx;
+        const double sw = geom.strokeWidthPx;
+
+        if (s > 0.0) {
+            if (this->mouseDown) {
+                addRoundedRect(cr, cx - s * 0.5, cy - s * 0.5, s, s, r);
+                cairo_set_source_rgba(cr, palette.pressedFill.r, palette.pressedFill.g, palette.pressedFill.b,
+                                      palette.pressedFill.a);
+                cairo_fill(cr);
+            }
+
+            const double outlineSw = (s < 4.0) ? std::min(sw, std::max(1.0, s * 0.5)) : sw;
+            const double haloOffset = (outlineSw + xoj::cursor::HALO_OUTER_PX) * 0.5;
+            const double haloHalf = s * 0.5 + haloOffset;
+
+            // 1 px outer halo strictly outside the stroke so interior ink stays unobstructed
+            addRoundedRect(cr, cx - haloHalf, cy - haloHalf, 2.0 * haloHalf, 2.0 * haloHalf, r + haloOffset);
+            cairo_set_source_rgba(cr, palette.halo.r, palette.halo.g, palette.halo.b, palette.halo.a);
+            cairo_set_line_width(cr, xoj::cursor::HALO_OUTER_PX);
+            cairo_stroke(cr);
+
+            // Hollow rounded square on the true erase boundary
+            addRoundedRect(cr, cx - s * 0.5, cy - s * 0.5, s, s, r);
+            cairo_set_source_rgba(cr, palette.stroke.r, palette.stroke.g, palette.stroke.b, palette.stroke.a);
+            cairo_set_line_width(cr, outlineSw);
+            cairo_stroke(cr);
+        }
+
+        if (geom.showCornerBrackets) {
+            drawCornerBrackets(cr, cx, cy, geom.bracketBoxSizePx, geom.bracketLegPx, sw, palette);
+        }
+    }
+
+    cairo_restore(cr);
+
+    const double extent = geom.paintExtentHalfPx;
+    const int minX = floor_cast<int>(cx - extent);
+    const int minY = floor_cast<int>(cy - extent);
+    const int maxX = ceil_cast<int>(cx + extent);
+    const int maxY = ceil_cast<int>(cy + extent);
+    this->lastDrawnOverlayRect = GdkRectangle{minX, minY, maxX - minX, maxY - minY};
+}
 
 
 // pen or hi-light cursor will be a DrawDir cursor instead
@@ -295,14 +575,9 @@ void XournalppCursor::updateCursor() {
                 }
             }
         } else if (type == TOOL_ERASER) {
-            EraserVisibility visibility = control->getSettings()->getEraserVisibility();
-            if ((this->inputDevice == INPUT_DEVICE_PEN || this->inputDevice == INPUT_DEVICE_ERASER) &&
-                (visibility == ERASER_VISIBILITY_NEVER || (visibility == ERASER_VISIBILITY_HOVER && this->mouseDown) ||
-                 (visibility == ERASER_VISIBILITY_TOUCH && !this->mouseDown))) {
-                setCursor(CRSR_BLANK_CURSOR);
-            } else {
-                cursor = getEraserCursor();
-            }
+            // The eraser indicator is drawn as a HiDPI-sharp canvas overlay in paintOverlay();
+            // hide the native pointer cursor over the page.
+            setCursor(CRSR_BLANK_CURSOR);
         } else if (type == TOOL_TEXT) {
             if (this->invisible) {
                 setCursor(CRSR_BLANK_CURSOR);
@@ -349,6 +624,10 @@ void XournalppCursor::updateCursor() {
     if (cursor != nullptr) {
         g_object_unref(cursor);
     }
+
+    if (this->lastDrawnOverlayRect || isEraserOverlayVisible()) {
+        invalidateOverlay();
+    }
 }
 
 auto XournalppCursor::getResizeCursor(double deltaAngle) -> GdkCursor* {
@@ -394,35 +673,6 @@ auto XournalppCursor::getResizeCursor(double deltaAngle) -> GdkCursor* {
     return cursor;
 }
 
-auto XournalppCursor::getEraserCursor() -> GdkCursor* {
-
-    // Eraser's size follow a quadratic increment, so the cursor will do the same
-    double cursorSize = control->getToolHandler()->getThickness() * 2.0 * control->getZoomControl()->getZoom();
-    gulong flavour = static_cast<gulong>(64 * cursorSize);
-
-    if (CRSR_ERASER == this->currentCursor && flavour == this->currentCursorFlavour) {
-        return nullptr;  // cursor already set
-    }
-    this->currentCursor = CRSR_ERASER;
-    this->currentCursorFlavour = flavour;
-
-    cairo_surface_t* surface =
-            cairo_image_surface_create(CAIRO_FORMAT_ARGB32, ceil_cast<int>(cursorSize), ceil_cast<int>(cursorSize));
-    cairo_t* cr = cairo_create(surface);
-    cairo_rectangle(cr, 0, 0, cursorSize, cursorSize);
-    cairo_set_source_rgb(cr, 1, 1, 1);
-    cairo_fill(cr);
-    cairo_rectangle(cr, 0, 0, cursorSize, cursorSize);
-    cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_stroke(cr);
-    cairo_destroy(cr);
-    GdkCursor* cursor =
-            gdk_cursor_new_from_surface(gdk_display_get_default(), surface, cursorSize / 2.0, cursorSize / 2.0);
-    cairo_surface_destroy(surface);
-    return cursor;
-}
-
-
 auto XournalppCursor::getHighlighterCursor() -> GdkCursor* {
     if (this->drawDirActive) {
         return createCustomDrawDirCursor(48, this->drawDirShift, this->drawDirCtrl);
@@ -458,31 +708,38 @@ auto XournalppCursor::createHighlighterOrPenCursor(double alpha) -> GdkCursor* {
     auto cursorType = control->getSettings()->getStylusCursorType();
     auto cursor = (cursorType == STYLUS_CURSOR_NONE) ? CRSR_BLANK_CURSOR : CRSR_PENORHIGHLIGHTER;
     bool bright = control->getSettings()->isHighlightPosition();
-    double cursorSize = std::min(90., control->getToolHandler()->getThickness() * control->getZoomControl()->getZoom());
-    int height = ceil_cast<int>(cursorSize);
-    int width = height;
+    const double cursorSize = xoj::cursor::computePenDotDiameterPx(control->getToolHandler()->getThickness(),
+                                                                   control->getZoomControl()->getZoom());
 
-    // create a hash of variables so we notice if one changes despite being the same cursor type:
-    gulong flavour = (cursorType == STYLUS_CURSOR_DOT ? 1U : 0U) | (cursorType == STYLUS_CURSOR_BIG ? 2U : 0U) |
-                     (bright ? 4U : 0U) | static_cast<gulong>(64 * alpha) << 3U |
-                     static_cast<gulong>(cursorSize) << 10U | static_cast<gulong>(uint32_t(irgb)) << 15U;
+    GtkWidget* widget = control->getWindow()->getXournal()->getWidget();
+    const int scale = std::max(1, gtk_widget_get_scale_factor(widget));
 
-    if ((cursor == this->currentCursor) && (flavour == this->currentCursorFlavour)) {
+    const PenCursorKey key{
+            cursorType,
+            bright,
+            round_cast<int>(alpha * 255.0),
+            round_cast<int>(cursorSize * 4.0),
+            static_cast<uint32_t>(irgb),
+            scale,
+    };
+
+    if (cursor == this->currentCursor && this->currentPenCursorKey == key) {
         return nullptr;
     }
     this->currentCursor = cursor;
-    this->currentCursorFlavour = flavour;
+    this->currentPenCursorKey = key;
 
+    // Leave room for the 1 px outer white halo plus antialiasing margin
+    int width = ceil_cast<int>(cursorSize + 2.0 * xoj::cursor::PEN_DOT_HALO_PX + 2.0);
+    int height = width;
     if ((cursorType == STYLUS_CURSOR_BIG) || bright) {
-        height = width = 90;
+        height = width = std::max(90, width);
     }
 
-    // We change the drawing method, now the center with the colored dot of the pen
-    // is at the center of the cairo surface, and when we load the cursor, we load it
-    // with the relative offset
-    int centerX = width / 2;
-    int centerY = height / 2;
-    cairo_surface_t* crCursor = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+    const double centerX = static_cast<double>(width) / 2.0;
+    const double centerY = static_cast<double>(height) / 2.0;
+    cairo_surface_t* crCursor = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width * scale, height * scale);
+    cairo_surface_set_device_scale(crCursor, scale, scale);
     cairo_t* cr = cairo_create(crCursor);
 
     if (cursorType == STYLUS_CURSOR_BIG) {
@@ -523,19 +780,23 @@ auto XournalppCursor::createHighlighterOrPenCursor(double alpha) -> GdkCursor* {
     }
 
     if (cursorType != STYLUS_CURSOR_NONE) {
+        // 1 px white halo at 90% strictly outside the dot so it stays visible over same-colour ink
+        // without clouding translucent highlighter dots
+        cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.90);
+        cairo_set_line_width(cr, xoj::cursor::PEN_DOT_HALO_PX);
+        cairo_arc(cr, centerX, centerY, cursorSize / 2.0 + xoj::cursor::PEN_DOT_HALO_PX / 2.0, 0, 2.0 * M_PI);
+        cairo_stroke(cr);
+
         auto drgbCopy = drgb;
         drgbCopy.alpha = alpha;
         gdk_cairo_set_source_rgba(cr, &drgbCopy);
-        cairo_arc(cr, centerX, centerY, cursorSize / 2., 0, 2. * M_PI);
+        cairo_arc(cr, centerX, centerY, cursorSize / 2.0, 0, 2.0 * M_PI);
         cairo_fill(cr);
     }
 
     cairo_destroy(cr);
-    GdkPixbuf* pixbuf = gdk_pixbuf_get_from_surface(crCursor, 0, 0, width, height);
+    GdkCursor* gdkCursor = gdk_cursor_new_from_surface(gtk_widget_get_display(widget), crCursor, centerX, centerY);
     cairo_surface_destroy(crCursor);
-    GdkCursor* gdkCursor = gdk_cursor_new_from_pixbuf(
-            gtk_widget_get_display(control->getWindow()->getXournal()->getWidget()), pixbuf, centerX, centerY);
-    g_object_unref(pixbuf);
     return gdkCursor;
 }
 
@@ -579,6 +840,7 @@ void XournalppCursor::setCursor(guint cursorID) {
     }
 
     this->currentCursor = cursorID;
+    this->currentPenCursorKey.reset();
     gdk_window_set_cursor(gtk_widget_get_window(xournal->getWidget()), cursor);
     gdk_window_set_cursor(window, cursor);
     if (cursor) {

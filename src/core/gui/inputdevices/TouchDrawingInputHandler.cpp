@@ -63,6 +63,7 @@ auto TouchDrawingInputHandler::handleImpl(InputEvent const& event) -> bool {
     if ((this->primarySequence && this->primarySequence != event.sequence) || this->secondarySequence) {
         if (!this->secondarySequence) {
             this->secondarySequence = event.sequence;
+            this->inputContext->getView()->getCursor()->setMouseDown(false);
             XojPageView* currentPage = this->getPageAtCurrentPosition(event);
 
             if (currentPage) {

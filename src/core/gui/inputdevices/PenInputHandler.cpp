@@ -170,6 +170,7 @@ auto PenInputHandler::actionStart(InputEvent const& event) -> bool {
     }
 
     XournalppCursor* cursor = xournal->view->getCursor();
+    cursor->setInsidePage(currentPage != nullptr);
     cursor->setMouseDown(true);
 
     // Forward event to page
