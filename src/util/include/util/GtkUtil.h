@@ -51,5 +51,12 @@ void setRadioButtonActionName(GtkRadioButton* btn, const char* actionNamespace, 
  * Fixes that
  */
 void fixActionableInitialSensitivity(GtkActionable* w);
+
+/**
+ * @brief Work around a GTK 3 bug (GNOME/gtk#7517) where GtkScrolledWindow's internal
+ * scrolled_window_long_press_cancelled_cb() dereferences a nullptr returned by
+ * gtk_gesture_get_last_event() during multi-touch grab-notify cancellations.
+ */
+void installScrolledWindowLongPressCrashGuard();
 #endif
 };  // namespace xoj::util::gtk

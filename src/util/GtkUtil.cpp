@@ -179,5 +179,63 @@ void fixActionableInitialSensitivity(GtkActionable* w) {
                      nullptr);
 }
 
+void installScrolledWindowLongPressCrashGuard() {
+    static gulong hookId = 0;
+    if (hookId != 0) {
+        return;
+    }
+
+    // Ensure GtkGestureLongPress class is initialized so "cancelled" can be looked up.
+    auto* klass = g_type_class_ref(GTK_TYPE_GESTURE_LONG_PRESS);
+    const guint signalId = g_signal_lookup("cancelled", GTK_TYPE_GESTURE_LONG_PRESS);
+    if (signalId != 0) {
+        hookId = g_signal_add_emission_hook(
+                signalId, 0,
+                +[](GSignalInvocationHint* ihint, guint nParamValues, const GValue* paramValues,
+                    gpointer /*userData*/) -> gboolean {
+                    if (nParamValues == 0) {
+                        return TRUE;
+                    }
+                    auto* instance = g_value_get_object(&paramValues[0]);
+                    if (!GTK_IS_GESTURE(instance)) {
+                        return TRUE;
+                    }
+                    auto* gesture = GTK_GESTURE(instance);
+                    auto* widget = gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(gesture));
+                    if (!GTK_IS_SCROLLED_WINDOW(widget)) {
+                        return TRUE;
+                    }
+
+                    // Work around GTK 3 bug (GNOME/gtk#7517): scrolled_window_long_press_cancelled_cb()
+                    // dereferences event->type without checking for nullptr after gtk_gesture_get_last_event().
+                    // That happens when a touch starts on the scrolled window and a second touch hits a child
+                    // GdkWindow (e.g. a scrollbar), updating last_sequence without inserting it into points
+                    // before grab-notify cancels the first touch.
+                    static const GQuark blockedQuark =
+                            g_quark_from_static_string("xoj-gtk-scrolled-window-long-press-blocked");
+                    const bool isBlocked = g_object_get_qdata(G_OBJECT(gesture), blockedQuark) != nullptr;
+                    GdkEventSequence* seq = gtk_gesture_get_last_updated_sequence(gesture);
+                    const bool hasNullEvent = gtk_gesture_get_last_event(gesture, seq) == nullptr;
+
+                    if (hasNullEvent && !isBlocked) {
+                        if (g_signal_handlers_block_matched(
+                                    gesture, static_cast<GSignalMatchType>(G_SIGNAL_MATCH_ID | G_SIGNAL_MATCH_DATA),
+                                    ihint->signal_id, 0, nullptr, nullptr, widget) > 0) {
+                            g_object_set_qdata(G_OBJECT(gesture), blockedQuark, GINT_TO_POINTER(1));
+                        }
+                    } else if (!hasNullEvent && isBlocked) {
+                        g_signal_handlers_unblock_matched(
+                                gesture, static_cast<GSignalMatchType>(G_SIGNAL_MATCH_ID | G_SIGNAL_MATCH_DATA),
+                                ihint->signal_id, 0, nullptr, nullptr, widget);
+                        g_object_set_qdata(G_OBJECT(gesture), blockedQuark, nullptr);
+                    }
+
+                    return TRUE;
+                },
+                nullptr, nullptr);
+    }
+    g_type_class_unref(klass);
+}
+
 #endif
 };  // namespace xoj::util::gtk

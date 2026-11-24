@@ -35,6 +35,7 @@
 #include "model/Document.h"                  // for Document
 #include "undo/EmergencySaveRestore.h"       // for EmergencySaveRestore
 #include "undo/UndoRedoHandler.h"            // for UndoRedoHandler
+#include "util/GtkUtil.h"                    // for installScrolledWindowLongPressCrashGuard
 #include "util/PathUtil.h"                   // for getConfigFolder, openFil...
 #include "util/PlaceholderString.h"          // for PlaceholderString
 #include "util/Util.h"                       // for execInUiThread
@@ -428,6 +429,9 @@ void on_open_files(GApplication* application, gpointer f, gint numFiles, gchar* 
 }
 
 void on_startup(GApplication* application, XMPtr app_data) {
+#if GTK_MAJOR_VERSION == 3
+    xoj::util::gtk::installScrolledWindowLongPressCrashGuard();
+#endif
     XournalMain::initLocalisation();
     ensure_input_model_compatibility();
     const MigrateResult migrateResult = migrateSettings();
