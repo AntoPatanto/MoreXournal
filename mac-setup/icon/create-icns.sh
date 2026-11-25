@@ -21,8 +21,8 @@ if [ -n "$rsvg_bin" ] && [ -f "$svg_icon" ]; then
   echo "Rendering macOS icon from $svg_icon using $rsvg_bin"
   "$rsvg_bin" -w 1024 -h 1024 "$svg_icon" -o "$src_png"
 else
-  echo "rsvg-convert not found; falling back to $script_dir/Icon1024.png"
-  cp "$script_dir/Icon1024.png" "$src_png"
+  echo "error: rsvg-convert or $svg_icon not found, cannot render the MoreXournal icon" >&2
+  exit 1
 fi
 
 iconset="$work_dir/MoreXournal.iconset"

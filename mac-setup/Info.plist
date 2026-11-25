@@ -189,12 +189,6 @@
     <key>NSDownloadsUbiquitousContents</key>
     <true />
 
-    <key>LSEnvironment</key>
-    <dict>
-      <key>DYLD_LIBRARY_PATH</key>
-      <string>/Applications/MoreXournal.app/Contents/Resources/lib</string>
-    </dict>
-
     <key>NSRequiresAquaSystemAppearance</key>
     <false />
   </dict>

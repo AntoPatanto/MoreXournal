@@ -102,7 +102,12 @@ Section "" SecUninstallPrevious
 	ReadRegStr $R0 SHCTX "Software\MoreXournal" ""
 	${If} $R0 != ""
 		DetailPrint "Removing previous version located at $R0"
-		ExecWait '"$R0\Uninstall.exe" /S'
+		; _?= runs the uninstaller in place and waits for it. Without it the
+		; uninstaller copies itself to %TEMP% and returns at once, racing the install.
+		ExecWait '"$R0\Uninstall.exe" /S _?=$R0'
+		; In-place uninstall leaves Uninstall.exe behind
+		Delete "$R0\Uninstall.exe"
+		RMDir "$R0"
 	${EndIf}
 SectionEnd
 
