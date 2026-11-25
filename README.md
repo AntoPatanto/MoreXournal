@@ -45,27 +45,35 @@ It is free software under GPL-2.0 and runs locally on your machine with no accou
 
 Download the latest release from the [GitHub Releases page](https://github.com/AntoPatanto/MoreXournal/releases/latest).
 
-| System                  | File                                  |
-| ----------------------- | ------------------------------------- |
-| Linux (x86_64, general) | `morexournal-0.1.0-x86_64.AppImage`   |
-| Fedora Linux (x86_64)   | `morexournal-0.1.0-1.fc45.x86_64.rpm` |
-| Source archive          | `morexournal-0.1.0.tar.gz`            |
+| System                        | File                                              |
+| ----------------------------- | ------------------------------------------------- |
+| Windows 10 and 11 (x86_64)    | `morexournal-0.1.1-windows-setup-AMD64.exe`       |
+| Windows 11 on ARM             | `morexournal-0.1.1-windows-setup-ARM64.exe`       |
+| Windows portable (no install) | `morexournal-0.1.1-windows-portable-<arch>.zip`   |
+| macOS 11+ on Apple Silicon    | `morexournal-0.1.1-macOS-arm64.dmg`               |
+| Linux (x86_64, general)       | `morexournal-0.1.1-x86_64.AppImage`               |
+| Fedora Linux (x86_64)         | `morexournal-0.1.1-1.fc45.x86_64.rpm`             |
+| Source archive                | `morexournal-0.1.1.tar.gz`                        |
 
-Prebuilt `.deb` packages, Linux ARM64 builds, macOS bundles and Windows installers are not published in `v0.1.0`, so users on those platforms should [build from source](#build-from-source) (Debian and Ubuntu x86_64 users can run the AppImage directly). Release artifacts are unsigned, and no separate checksum file is included with `v0.1.0`.
+Prebuilt `.deb` packages, Linux ARM64 builds and builds for Intel Macs are not published, so users on those platforms should [build from source](#build-from-source) (Debian and Ubuntu x86_64 users can run the AppImage directly). Release artifacts are not code signed, and no separate checksum file is included.
+
+- **Windows.** Run the installer. Because it is not signed, SmartScreen shows "Windows protected your PC": select **More info**, then **Run anyway**. The installer uses its own folder, registry keys and Start Menu entries, so an installed Xournal++ keeps working, and the components page lets you choose whether MoreXournal becomes the default app for `.xopp`, `.xopt` and `.xoj` files. The portable zip needs no installation: extract it and run `bin\morexournal-wrapper.exe`.
+
+- **macOS.** Open the `.dmg` and drag `MoreXournal.app` to Applications. The first time you open it, macOS blocks it because it is not notarized: go to **System Settings → Privacy & Security** and select **Open Anyway** next to the MoreXournal message. MoreXournal opens `.xopp`, `.xopt` and `.xoj` files, but an installed Xournal++ stays their default app until you change it in Finder with **Get Info → Open with**.
 
 - **Linux AppImage.** Make the downloaded file executable and run it:
 
   ```bash
-  chmod +x morexournal-0.1.0-x86_64.AppImage
-  ./morexournal-0.1.0-x86_64.AppImage
+  chmod +x morexournal-0.1.1-x86_64.AppImage
+  ./morexournal-0.1.1-x86_64.AppImage
   ```
 
-  Running an AppImage directly requires FUSE 2. If FUSE 2 is not installed on your system, run `./morexournal-0.1.0-x86_64.AppImage --appimage-extract-and-run` instead. Each release includes a `.AppImage.zsync` file so tools like [AppImageUpdate](https://github.com/AppImageCommunity/AppImageUpdate) can fetch binary deltas for future releases.
+  Running an AppImage directly requires FUSE 2. If FUSE 2 is not installed on your system, run `./morexournal-0.1.1-x86_64.AppImage --appimage-extract-and-run` instead. Each release includes a `.AppImage.zsync` file so tools like [AppImageUpdate](https://github.com/AppImageCommunity/AppImageUpdate) can fetch binary deltas for future releases.
 
 - **Fedora RPM.** Install the package with `dnf`, which pulls the required GTK3 and library dependencies and installs alongside `xournalpp` without file conflicts:
 
   ```bash
-  sudo dnf install ./morexournal-0.1.0-1.fc45.x86_64.rpm
+  sudo dnf install ./morexournal-0.1.1-1.fc45.x86_64.rpm
   ```
 
   The RPM is built against `fedora:latest` in CI, so if your Fedora version ships different shared library versions, use the AppImage or [build from source](#build-from-source).
