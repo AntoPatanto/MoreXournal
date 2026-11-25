@@ -90,8 +90,8 @@ void setupEnvironment() {
     const char* usedPixbufModuleFile = g_getenv("GDK_PIXBUF_MODULE_FILE");
     const char* usedXDGDataDirs = g_getenv("XDG_DATA_DIRS");
     const char* usedTypelibPath = g_getenv("GI_TYPELIB_PATH");
-    // The DYLD_LIBRARY_PATH is only read when the process is started, so it can't be set here. It is set in
-    // the Info.plist therefore, which only takes effect when running the App from Finder or using the "open" command.
+    // The DYLD_LIBRARY_PATH is only read when the process is started, so it can't be set here. In the app bundle,
+    // morexournal-wrapper sets it to Contents/Resources/lib before starting this process.
     const char* usedDYLDLibraryPath = g_getenv("DYLD_LIBRARY_PATH");
     const char* usedLuaPath = g_getenv("LUA_PATH");
     const char* usedLuaCPath = g_getenv("LUA_CPATH");

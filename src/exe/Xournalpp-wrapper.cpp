@@ -172,7 +172,9 @@ auto main(int argc, char* argv[]) -> int {
 #ifdef __APPLE__
         // Inside MoreXournal.app, let dlopen() (e.g. LuaGObject loading GTK by name) find the bundled libraries.
         // The path is derived from the executable so the app works wherever the bundle lives.
-        if (auto bundleLibs = Util::getExePath().parent_path() / "Resources" / "lib"; fs::is_directory(bundleLibs)) {
+        auto bundleLibs = Util::getExePath().parent_path() / "Resources" / "lib";
+        std::error_code ec;  // Non-throwing overload: an unreadable path must not stop the app from starting
+        if (fs::is_directory(bundleLibs, ec)) {
             g_subprocess_launcher_setenv(launcher.get(), "DYLD_LIBRARY_PATH", bundleLibs.c_str(), true);
         }
 #endif
