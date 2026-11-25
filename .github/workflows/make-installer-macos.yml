@@ -41,33 +41,39 @@ jobs:
         uses: ./.github/actions/install_deps_mac
         with:
           install_path: $HOME
-      - name: 'Build Xournal++'
+      - name: 'Build MoreXournal'
         uses: ./.github/actions/build
         with:
           build_type: ${{ inputs.build_type }}
           cmake_flags: >-
             -DCMAKE_INSTALL_PREFIX="$HOME/gtk/inst"
           extra_cmake_flags: ${{ inputs.extra_cmake_flags }}
+      - name: 'Install rsvg-convert for the app icon'
+        # The cached GTK blob does not ship rsvg-convert, which create-icns.sh needs
+        shell: bash
+        run: brew install librsvg
       - name: 'Create installer'
         id: create-installer
         shell: bash
         run: |
+          set -euo pipefail
           which pkg-config
           pkg-config --version
           (cd build && cmake --build . --target install)
-          (cd mac-setup && ./build-app.sh $HOME/gtk)                    # populates a folder mac-setup/Xournal++.app
+          (cd mac-setup && ./build-app.sh "$HOME/gtk")  # populates mac-setup/MoreXournal.app
 
-          export VERSION=$(cat build/VERSION | sed '1q;d')
-          export OUTPUT="xournalpp-$VERSION${{ inputs.artifact_version_suffix }}-macOS-${{runner.arch}}.dmg"
+          VERSION=$(sed -n '1p' build/VERSION)
+          ARCH=$(uname -m)
+          OUTPUT="morexournal-${VERSION}${{ inputs.artifact_version_suffix }}-macOS-${ARCH}.dmg"
 
-          (cd mac-setup && ./build-dmg.sh Xournal++.app $OUTPUT)  # makes an installer out of this folder
+          (cd mac-setup && ./build-dmg.sh MoreXournal.app "$OUTPUT")  # makes an installer out of this folder
 
-          echo "artifact=$OUTPUT" >> $GITHUB_OUTPUT
+          echo "artifact=$OUTPUT" >> "$GITHUB_OUTPUT"
       - name: 'Publish package'
         id: publish
         uses: actions/upload-artifact@v6
         with:
-          name: "MacOS package ${{runner.os}}-${{runner.arch}}"
+          name: "MoreXournal macOS package ${{ runner.arch }}"
           compression-level: 0
-          path: "${{github.workspace}}/mac-setup/${{ steps.create-installer.outputs.artifact }}"
+          path: "${{ github.workspace }}/mac-setup/${{ steps.create-installer.outputs.artifact }}"
           if-no-files-found: error

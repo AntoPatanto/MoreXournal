@@ -21,11 +21,9 @@ on:
         type: boolean
         default: false
       windows_builds:
-        # Parked for 0.1.0; left intact for future use.
         type: string
         default: ''
       macos_builds:
-        # Parked for 0.1.0; left intact for future use.
         type: string
         default: ''
       head_sha:        # SHA of the commit to build. Defaults to the head of the triggering event (cf github doc.)

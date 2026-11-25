@@ -103,7 +103,7 @@ def get_whitelist_not_listed():
     white_list.add("CMakeLists.txt") # false positive
     white_list.add("LICENSE") # main license file
     white_list.add("rpm/fedora/morexournal.spec") # false positive
-    white_list.add("windows-setup/xournalpp.nsi") # false positive
+    white_list.add("windows-setup/morexournal.nsi") # false positive
     white_list.add("ui/about.glade") # false positive
     white_list.add("src/exe/win32/xpp.rc.in") # false positive
     white_list.add("mac-setup/Info.plist") # false positive

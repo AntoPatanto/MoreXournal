@@ -169,6 +169,15 @@ auto main(int argc, char* argv[]) -> int {
         xoj::util::GObjectSPtr<GSubprocessLauncher> launcher(g_subprocess_launcher_new(FLAGS), xoj::util::adopt);
         g_subprocess_launcher_set_environ(launcher.get(), nullptr);  // Copies the host's environment
         g_subprocess_launcher_setenv(launcher.get(), "G_MESSAGES_DEBUG", G_LOG_DOMAIN, false);  // Print xopp debug
+#ifdef __APPLE__
+        // Inside MoreXournal.app, let dlopen() (e.g. LuaGObject loading GTK by name) find the bundled libraries.
+        // The path is derived from the executable so the app works wherever the bundle lives.
+        auto bundleLibs = Util::getExePath().parent_path() / "Resources" / "lib";
+        std::error_code ec;  // Non-throwing overload: an unreadable path must not stop the app from starting
+        if (fs::is_directory(bundleLibs, ec)) {
+            g_subprocess_launcher_setenv(launcher.get(), "DYLD_LIBRARY_PATH", bundleLibs.c_str(), true);
+        }
+#endif
 
         return xoj::util::GObjectSPtr<GSubprocess>(g_subprocess_launcher_spawnv(launcher.get(), subargv.data(), &err),
                                                    xoj::util::adopt);

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 ## Mac Setup script
 ## 1. do the build, will not be called from this script
@@ -9,7 +9,7 @@ set -e
 #
 # This script should be run from a jhbuild environment
 
-if [ -z "$UNDER_JHBUILD" ]; then
+if [ -z "${UNDER_JHBUILD:-}" ]; then
   echo 'WARNING: this command needs to be run within a jhbuild-like environment.'
   echo 'The build will proceed, but do not be surprised if it fails!'
 fi
@@ -24,7 +24,7 @@ cd "$(dirname "$0")" || exit
 
 # delete old app, if there
 echo "clean old app"
-rm -rf ./Xournal++.app
+rm -rf ./MoreXournal.app ./MoreXournal.zip
 
 echo "prepare gtk-mac-bundler"
 GTK_MAC_BUNDLER_VENV="$PWD"/gtk-mac-bundler-venv
@@ -76,12 +76,80 @@ echo "create package"
 export GTKDIR="$1/inst"
 [ ! -d "$GTKDIR" ] && echo "$GTKDIR doesn't exist!" && exit 1
 
-"$GTK_MAC_BUNDLER" xournalpp.bundle
+echo "generate macOS icon"
+./icon/create-icns.sh ./icon/morexournal.icns
+
+"$GTK_MAC_BUNDLER" morexournal.bundle
+
+echo "Verify bundled Mach-O library references"
+# gtk-mac-bundler ignores install_name_tool failures; verify every bundled
+# executable, dylib, and module only references system or existing bundle libs.
+BAD_LINKAGE=0
+while IFS= read -r -d '' bin; do
+  self_id="$(otool -D "$bin" 2>/dev/null | sed -n '2p' | awk '{$1=$1; print}' || true)"
+  otool_out="$(otool -L "$bin")"
+  while IFS= read -r dep; do
+    [ -z "$dep" ] && continue
+    if [ -n "$self_id" ] && [ "$dep" = "$self_id" ]; then
+      continue
+    fi
+    case "$dep" in
+      /System/Library/*|/usr/lib/*)
+        ;;
+      @executable_path/../*)
+        rel="${dep#@executable_path/../}"
+        if [ ! -e "./MoreXournal.app/Contents/$rel" ]; then
+          echo "error: missing bundled library $dep referenced by $bin" >&2
+          BAD_LINKAGE=1
+        fi
+        ;;
+      @loader_path/*)
+        rel="${dep#@loader_path/}"
+        if [ ! -e "$(dirname "$bin")/$rel" ]; then
+          echo "error: missing loader-relative library $dep referenced by $bin" >&2
+          BAD_LINKAGE=1
+        fi
+        ;;
+      *)
+        echo "error: non-bundled or unresolved dependency $dep referenced by $bin" >&2
+        BAD_LINKAGE=1
+        ;;
+    esac
+  done < <(printf '%s\n' "$otool_out" | awk 'NR > 1 { sub(/^[[:space:]]+/, ""); sub(/ \(.*/, ""); print }')
+done < <(find ./MoreXournal.app/Contents -type f \( -path './MoreXournal.app/Contents/MacOS/*' -o -name '*.dylib' -o -name '*.so' \) -print0)
+
+if [ "$BAD_LINKAGE" -ne 0 ]; then
+  echo "error: MoreXournal.app contains unresolved or non-bundled library references" >&2
+  exit 1
+fi
+
+APP_VERSION="${APP_VERSION:-}"
+if [ -z "$APP_VERSION" ] && [ -f ../build/VERSION ]; then
+  APP_VERSION="$(sed -n '1p' ../build/VERSION | tr -d '\r')"
+fi
+if [ -n "$APP_VERSION" ]; then
+  echo "Set Info.plist version to $APP_VERSION"
+  /usr/libexec/PlistBuddy \
+    -c "Set :CFBundleShortVersionString $APP_VERSION" \
+    -c "Set :CFBundleVersion $APP_VERSION" \
+    ./MoreXournal.app/Contents/Info.plist
+fi
 
 echo "Replace Ctrl by Meta in mainmenubar.xml"
-sed -i -e 's/Ctrl/Meta/g' ./Xournal++.app/Contents/Resources/ui/mainmenubar.xml
+sed -i '' -e 's/Ctrl/Meta/g' ./MoreXournal.app/Contents/Resources/ui/mainmenubar.xml
+
+echo "Ad-hoc sign MoreXournal.app"
+# Re-sign bundled libraries and modules first because install_name_tool
+# invalidates linker ad-hoc signatures and codesign --deep may not descend
+# into Contents/Resources/lib.
+while IFS= read -r -d '' lib; do
+  codesign --force --sign - "$lib"
+done < <(find ./MoreXournal.app/Contents -type f \( -name '*.dylib' -o -name '*.so' \) -print0)
+
+codesign --force --deep --sign - ./MoreXournal.app
+codesign --verify --deep --strict ./MoreXournal.app
 
 echo "Create zip"
-zip --filesync -r Xournal++.zip Xournal++.app
+zip --filesync -y -r MoreXournal.zip MoreXournal.app
 
 echo "finished"
