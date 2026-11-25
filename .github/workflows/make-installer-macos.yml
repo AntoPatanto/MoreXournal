@@ -48,6 +48,10 @@ jobs:
           cmake_flags: >-
             -DCMAKE_INSTALL_PREFIX="$HOME/gtk/inst"
           extra_cmake_flags: ${{ inputs.extra_cmake_flags }}
+      - name: 'Install rsvg-convert for the app icon'
+        # The cached GTK blob does not ship rsvg-convert, which create-icns.sh needs
+        shell: bash
+        run: brew install librsvg
       - name: 'Create installer'
         id: create-installer
         shell: bash
