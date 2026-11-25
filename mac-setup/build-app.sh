@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 ## Mac Setup script
 ## 1. do the build, will not be called from this script
@@ -9,7 +9,7 @@ set -e
 #
 # This script should be run from a jhbuild environment
 
-if [ -z "$UNDER_JHBUILD" ]; then
+if [ -z "${UNDER_JHBUILD:-}" ]; then
   echo 'WARNING: this command needs to be run within a jhbuild-like environment.'
   echo 'The build will proceed, but do not be surprised if it fails!'
 fi
@@ -24,7 +24,7 @@ cd "$(dirname "$0")" || exit
 
 # delete old app, if there
 echo "clean old app"
-rm -rf ./Xournal++.app
+rm -rf ./MoreXournal.app ./MoreXournal.zip
 
 echo "prepare gtk-mac-bundler"
 GTK_MAC_BUNDLER_VENV="$PWD"/gtk-mac-bundler-venv
@@ -76,12 +76,38 @@ echo "create package"
 export GTKDIR="$1/inst"
 [ ! -d "$GTKDIR" ] && echo "$GTKDIR doesn't exist!" && exit 1
 
-"$GTK_MAC_BUNDLER" xournalpp.bundle
+echo "generate macOS icon"
+./icon/create-icns.sh ./icon/morexournal.icns
+
+"$GTK_MAC_BUNDLER" morexournal.bundle
+
+APP_VERSION="${APP_VERSION:-}"
+if [ -z "$APP_VERSION" ] && [ -f ../build/VERSION ]; then
+  APP_VERSION="$(sed -n '1p' ../build/VERSION | tr -d '\r')"
+fi
+if [ -n "$APP_VERSION" ]; then
+  echo "Set Info.plist version to $APP_VERSION"
+  /usr/libexec/PlistBuddy \
+    -c "Set :CFBundleShortVersionString $APP_VERSION" \
+    -c "Set :CFBundleVersion $APP_VERSION" \
+    ./MoreXournal.app/Contents/Info.plist
+fi
 
 echo "Replace Ctrl by Meta in mainmenubar.xml"
-sed -i -e 's/Ctrl/Meta/g' ./Xournal++.app/Contents/Resources/ui/mainmenubar.xml
+sed -i '' -e 's/Ctrl/Meta/g' ./MoreXournal.app/Contents/Resources/ui/mainmenubar.xml
+
+echo "Ad-hoc sign MoreXournal.app"
+# Re-sign bundled libraries and modules first because install_name_tool
+# invalidates linker ad-hoc signatures and codesign --deep may not descend
+# into Contents/Resources/lib.
+while IFS= read -r -d '' lib; do
+  codesign --force --sign - "$lib"
+done < <(find ./MoreXournal.app/Contents -type f \( -name '*.dylib' -o -name '*.so' \) -print0)
+
+codesign --force --deep --sign - ./MoreXournal.app
+codesign --verify --deep --strict ./MoreXournal.app
 
 echo "Create zip"
-zip --filesync -r Xournal++.zip Xournal++.app
+zip --filesync -y -r MoreXournal.zip MoreXournal.app
 
 echo "finished"

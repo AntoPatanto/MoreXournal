@@ -10,8 +10,8 @@ if [ -z $1 ]; then
 else
     build_dir="$(cd $1; pwd)"
 fi
-setup_dir_name="dist"  # Same as in xournalpp.nsis
-installer_name="xournalpp-setup.exe"  # Same as in xournalpp.nsis
+setup_dir_name="dist"  # Same as in morexournal.nsi
+installer_name="morexournal-setup.exe"  # Same as in morexournal.nsi
 setup_dir="$build_dir/$setup_dir_name"
 script_dir=$(dirname $(readlink -f "$0"))
 echo "Installing to $setup_dir and making installer $build_dir/$installer_name"
@@ -31,9 +31,9 @@ echo "copy installed files"
 (cd $build_dir && cmake --install . --prefix "$setup_dir")
 
 echo "copy libraries"
-ldd "$build_dir/xournalpp.exe" | grep "${prefix}.*\.dll" -o | sort -u | xargs -I{} cp "{}" "$setup_dir"/bin/
+ldd "$build_dir/morexournal.exe" | grep "${prefix}.*\.dll" -o | sort -u | xargs -I{} cp "{}" "$setup_dir"/bin/
 # CI workaround: copy libcrypto and libssl in case they are not already copied.
-ldd "$build_dir/xournalpp.exe" | grep -E 'lib(ssl|crypto)[^\.]*\.dll' -o | sort -u | xargs -I{} cp "${prefix}/bin/{}" "$setup_dir"/bin/
+ldd "$build_dir/morexournal.exe" | grep -E 'lib(ssl|crypto)[^\.]*\.dll' -o | sort -u | xargs -I{} cp "${prefix}/bin/{}" "$setup_dir"/bin/
 
 echo "Installing GTK/Glib translations"
 # Copy system locale files
@@ -57,7 +57,7 @@ echo "copy pixbuf libs"
 cp -r "$prefix"/lib/gdk-pixbuf-2.0 "$setup_dir"/lib/
 
 echo "copy pixbuf lib dependencies"
-# These modules are loaded dynamically, so ldd on xournalpp.exe does not cover
+# These modules are loaded dynamically, so ldd on morexournal.exe does not cover
 # their dependencies. Follow indirect dependencies too (e.g. the SVG loader
 # needs librsvg, which in turn needs libunwind on ARM64).
 declare -A copied_pixbuf_dependencies
@@ -115,11 +115,11 @@ cp "$prefix"/lib/libqpdf* "$setup_dir"/lib
 echo "create installer"
 version=$(cat "$build_dir/VERSION" | sed '1!d')
 "/c/Program Files (x86)/NSIS/Bin/makensis.exe" -NOCD       \
-    -DXOURNALPP_VERSION="$version"                         \
+    -DMOREXOURNAL_VERSION="$version"                       \
     -DSETUP_DIR="$setup_dir"                               \
     -DOUTPUT_INSTALLER_FILE="$build_dir/$installer_name"   \
     -DSCRIPT_DIR="$script_dir"                             \
-    "$script_dir/xournalpp.nsi"
+    "$script_dir/morexournal.nsi" || exit 1
 
 echo "finished"
 

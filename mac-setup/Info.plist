@@ -5,41 +5,42 @@
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>
-    <string>Xournal++</string>
+    <string>????</string>
     <key>LSApplicationCategoryType</key>
     <string>public.app-category.business</string>
     <key>CFBundleIdentifier</key>
-    <string>com.github.xournalpp</string>
+    <string>io.github.antopatanto.morexournal</string>
     <key>CFBundleName</key>
-    <string>Xournal++</string>
+    <string>MoreXournal</string>
     <key>CFBundleDisplayName</key>
-    <string>Xournal++</string>
+    <string>MoreXournal</string>
 
+    <!-- Overwritten at bundle time from build/VERSION by mac-setup/build-app.sh -->
     <key>CFBundleShortVersionString</key>
-    <string>1.3.8+dev</string>
+    <string>0.1.0</string>
     <key>CFBundleVersion</key>
-    <string>1.3.8+dev.0</string>
+    <string>0.1.0</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>NSHumanReadableCopyright</key>
     <string>GPL-2.0 or newer</string>
 
     <key>LSMinimumSystemVersion</key>
-    <string>10.15</string>
+    <string>11.0</string>
 
     <key>CFBundleDevelopmentRegion</key>
     <string>en-US</string>
 
     <key>CFBundleIconFile</key>
-    <string>xournalpp.icns</string>
+    <string>morexournal.icns</string>
     <key>NSHighResolutionCapable</key>
     <true />
 
     <key>CFBundleExecutable</key>
-    <string>xournalpp-wrapper</string>
+    <string>morexournal-wrapper</string>
     <key>LSArchitecturePriority</key>
     <array>
-      <string>x86_64</string>
+      <string>arm64</string>
     </array>
     <key>NSSupportsSuddenTermination</key>
     <false />
@@ -63,15 +64,17 @@
           <string>xopp</string>
         </array>
         <key>CFBundleTypeIconFile</key>
-	        <string>xournalpp.icns</string>
+        <string>morexournal.icns</string>
         <key>CFBundleTypeName</key>
-        <string>Xournal++ Document</string>
+        <string>MoreXournal Document</string>
         <key>CFBundleTypeMIMETypes</key>
         <array>
           <string>application/x-xopp</string>
         </array>
         <key>CFBundleTypeRole</key>
         <string>Editor</string>
+        <key>LSHandlerRank</key>
+        <string>Alternate</string>
       </dict>
       <dict>
         <key>CFBundleTypeExtensions</key>
@@ -79,15 +82,17 @@
           <string>xopt</string>
         </array>
         <key>CFBundleTypeIconFile</key>
-	        <string>xournalpp.icns</string>
+        <string>morexournal.icns</string>
         <key>CFBundleTypeName</key>
-        <string>Xournal++ Template</string>
+        <string>MoreXournal Template</string>
         <key>CFBundleTypeMIMETypes</key>
         <array>
           <string>application/x-xopt</string>
         </array>
         <key>CFBundleTypeRole</key>
         <string>Editor</string>
+        <key>LSHandlerRank</key>
+        <string>Alternate</string>
       </dict>
       <dict>
         <key>CFBundleTypeExtensions</key>
@@ -95,7 +100,7 @@
           <string>xoj</string>
         </array>
         <key>CFBundleTypeIconFile</key>
-	        <string>xournalpp.icns</string>
+        <string>morexournal.icns</string>
         <key>CFBundleTypeName</key>
         <string>Xournal Document</string>
         <key>CFBundleTypeMIMETypes</key>
@@ -104,10 +109,12 @@
         </array>
         <key>CFBundleTypeRole</key>
         <string>Editor</string>
+        <key>LSHandlerRank</key>
+        <string>Alternate</string>
       </dict>
     </array>
 
-    <key>UTExportedTypeDeclarations</key>
+    <key>UTImportedTypeDeclarations</key>
     <array>
       <dict>
         <key>UTTypeIdentifier</key>
@@ -118,7 +125,7 @@
           <string>org.gnu.gnu-zip-archive</string>
         </array>
         <key>UTTypeDescription</key>
-        <string>Xournal++ Document</string>
+        <string>MoreXournal / Xournal++ Document</string>
         <key>UTTypeTagSpecification</key>
         <dict>
           <key>public.mime-type</key>
@@ -140,7 +147,7 @@
           <string>public.text</string>
         </array>
         <key>UTTypeDescription</key>
-        <string>Xournal++ Template</string>
+        <string>MoreXournal / Xournal++ Template</string>
         <key>UTTypeTagSpecification</key>
         <dict>
           <key>public.mime-type</key>
@@ -184,12 +191,10 @@
 
     <key>LSEnvironment</key>
     <dict>
-        <key>DYLD_LIBRARY_PATH</key>
-        <string>/Applications/Xournal++.app/Contents/Resources/lib</string>
+      <key>DYLD_LIBRARY_PATH</key>
+      <string>/Applications/MoreXournal.app/Contents/Resources/lib</string>
     </dict>
 
-    <key>NSHighResolutionCapable</key>
-    <true />
     <key>NSRequiresAquaSystemAppearance</key>
     <false />
   </dict>

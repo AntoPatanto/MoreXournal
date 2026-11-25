@@ -56,7 +56,7 @@ jobs:
         with:
           msystem: ${{ inputs.msystem }}
           msys_package_env: ${{ inputs.msys_package_env }}
-      - name: 'Build Xournal++'
+      - name: 'Build MoreXournal'
         uses: ./.github/actions/build
         with:
           build_type: ${{ inputs.build_type }}
@@ -72,20 +72,20 @@ jobs:
           export VERSION=$(cat VERSION | sed '1q;d')
           export ARCH=$(cat VERSION | sed '4q;d')
           export FULL_VERSION_STRING="$VERSION${{ inputs.artifact_version_suffix }}"
-          export INSTALLER_FILENAME="xournalpp-$FULL_VERSION_STRING-windows-setup-$ARCH.exe"
+          export INSTALLER_FILENAME="morexournal-$FULL_VERSION_STRING-windows-setup-$ARCH.exe"
 
-          mv xournalpp-setup.exe "$INSTALLER_FILENAME"
-          echo "artifact=$INSTALLER_FILENAME" >> $GITHUB_OUTPUT
+          mv morexournal-setup.exe "$INSTALLER_FILENAME"
+          echo "artifact=$INSTALLER_FILENAME" >> "$GITHUB_OUTPUT"
 
-          if [ ${{ inputs.publish_portable_version }} ]; then
+          if [ "${{ inputs.publish_portable_version }}" = "true" ]; then
             mkdir portable_content/
-            mv dist "portable_content/xournalpp-$FULL_VERSION_STRING-windows-portable-$ARCH"
+            mv dist "portable_content/morexournal-$FULL_VERSION_STRING-windows-portable-$ARCH"
           fi
       - name: 'Publish package'
         id: publish
         uses: actions/upload-artifact@v6
         with:
-          name: "Windows package ${{ runner.arch }} ${{ inputs.msys_package_env }}"
+          name: "MoreXournal Windows package ${{ runner.arch }} ${{ inputs.msys_package_env }}"
           path: "${{github.workspace}}/build/${{ steps.create-installer.outputs.artifact }}"
           compression-level: 0
           if-no-files-found: error
@@ -94,6 +94,6 @@ jobs:
         if: ${{ inputs.publish_portable_version }}
         uses: actions/upload-artifact@v6
         with:
-          name: "Windows package ${{ runner.arch }} ${{ inputs.msys_package_env }} (portable version)"
+          name: "MoreXournal Windows package ${{ runner.arch }} ${{ inputs.msys_package_env }} (portable version)"
           path: "${{github.workspace}}/build/portable_content"
           if-no-files-found: error
