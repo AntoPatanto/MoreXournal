@@ -81,6 +81,48 @@ echo "generate macOS icon"
 
 "$GTK_MAC_BUNDLER" morexournal.bundle
 
+echo "Verify bundled Mach-O library references"
+# gtk-mac-bundler ignores install_name_tool failures; verify every bundled
+# executable, dylib, and module only references system or existing bundle libs.
+BAD_LINKAGE=0
+while IFS= read -r -d '' bin; do
+  self_id="$(otool -D "$bin" 2>/dev/null | sed -n '2p' | awk '{$1=$1; print}' || true)"
+  otool_out="$(otool -L "$bin")"
+  while IFS= read -r dep; do
+    [ -z "$dep" ] && continue
+    if [ -n "$self_id" ] && [ "$dep" = "$self_id" ]; then
+      continue
+    fi
+    case "$dep" in
+      /System/Library/*|/usr/lib/*)
+        ;;
+      @executable_path/../*)
+        rel="${dep#@executable_path/../}"
+        if [ ! -e "./MoreXournal.app/Contents/$rel" ]; then
+          echo "error: missing bundled library $dep referenced by $bin" >&2
+          BAD_LINKAGE=1
+        fi
+        ;;
+      @loader_path/*)
+        rel="${dep#@loader_path/}"
+        if [ ! -e "$(dirname "$bin")/$rel" ]; then
+          echo "error: missing loader-relative library $dep referenced by $bin" >&2
+          BAD_LINKAGE=1
+        fi
+        ;;
+      *)
+        echo "error: non-bundled or unresolved dependency $dep referenced by $bin" >&2
+        BAD_LINKAGE=1
+        ;;
+    esac
+  done < <(printf '%s\n' "$otool_out" | awk 'NR > 1 { sub(/^[[:space:]]+/, ""); sub(/ \(.*/, ""); print }')
+done < <(find ./MoreXournal.app/Contents -type f \( -path './MoreXournal.app/Contents/MacOS/*' -o -name '*.dylib' -o -name '*.so' \) -print0)
+
+if [ "$BAD_LINKAGE" -ne 0 ]; then
+  echo "error: MoreXournal.app contains unresolved or non-bundled library references" >&2
+  exit 1
+fi
+
 APP_VERSION="${APP_VERSION:-}"
 if [ -z "$APP_VERSION" ] && [ -f ../build/VERSION ]; then
   APP_VERSION="$(sed -n '1p' ../build/VERSION | tr -d '\r')"

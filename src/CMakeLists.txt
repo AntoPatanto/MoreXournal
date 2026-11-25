@@ -114,6 +114,11 @@ if (APPLE)
   file (GLOB xournalpp-sources-osx exe/osx/*.cpp exe/osx/*.h)
   target_sources(morexournal PRIVATE ${xournalpp-sources-osx})
   target_include_directories(morexournal PRIVATE exe)
+
+  # Reserve Mach-O header padding so gtk-mac-bundler's install_name_tool can
+  # rewrite absolute and @rpath library paths into @executable_path/...
+  target_link_options(morexournal PRIVATE "-Wl,-headerpad_max_install_names")
+  target_link_options(morexournal-wrapper PRIVATE "-Wl,-headerpad_max_install_names")
 endif()
 
 if (WIN32)
