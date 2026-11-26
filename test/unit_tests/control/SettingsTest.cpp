@@ -621,7 +621,7 @@ TEST(ConfigMigrationTest, skipsEmergencySaveAndErrorLogs) {
     fs::remove_all(baseDir, ec);
 }
 
-TEST(ConfigMigrationTest, skipsBrokenSymlinksAndCleansUpTempDir) {
+TEST(ConfigMigrationTest, keepsBrokenSymlinksAndCleansUpTempDir) {
     const fs::path baseDir = fs::temp_directory_path() / "morexournal-test-config-migration-symlink";
     std::error_code ec;
     fs::remove_all(baseDir, ec);
@@ -648,8 +648,9 @@ TEST(ConfigMigrationTest, skipsBrokenSymlinksAndCleansUpTempDir) {
     EXPECT_TRUE(fs::exists(dstDir / "settings.xml"));
     EXPECT_TRUE(fs::exists(dstDir / "plugins" / "real.lua"));
     EXPECT_TRUE(fs::exists(dstDir / "plugins" / "valid-link.lua"));
-    EXPECT_EQ(fs::symlink_status(dstDir / "plugins" / "broken.lua").type(), fs::file_type::not_found);
-    EXPECT_EQ(fs::symlink_status(dstDir / "broken-top").type(), fs::file_type::not_found);
+    // Broken links are copied as links instead of aborting the migration
+    EXPECT_TRUE(fs::is_symlink(fs::symlink_status(dstDir / "plugins" / "broken.lua")));
+    EXPECT_TRUE(fs::is_symlink(fs::symlink_status(dstDir / "broken-top")));
 
     // No temporary sibling directory should remain
     for (const auto& entry: fs::directory_iterator(baseDir)) {

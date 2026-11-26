@@ -755,62 +755,6 @@ auto createTempMigrationDir(const fs::path& cleanTarget) -> fs::path {
                                std::make_error_code(std::errc::file_exists));
 }
 
-void copyMigratedEntries(const fs::path& sourceDir, const fs::path& destDir, bool skipTopLevelCrashArtifacts,
-                         std::vector<fs::path>& activeDirs) {
-    for (const auto& entry: fs::directory_iterator(sourceDir)) {
-        const fs::path& srcPath = entry.path();
-        const fs::path name = srcPath.filename();
-        if (skipTopLevelCrashArtifacts &&
-            (name == "emergencysave.xopp" || name == ERRORLOG_DIR || name == "errorlogs")) {
-            continue;
-        }
-
-        const fs::file_status symStatus = entry.symlink_status();
-        const fs::path dstPath = destDir / name;
-
-        if (fs::is_symlink(symStatus)) {
-            std::error_code targetEc;
-            const fs::file_status targetStatus = fs::status(srcPath, targetEc);
-            if (targetEc || !fs::exists(targetStatus)) {
-                g_warning("Skipping broken symlink during config migration: %s", char_cast(srcPath.u8string().c_str()));
-                continue;
-            }
-            if (fs::is_directory(targetStatus)) {
-                std::error_code canonEc;
-                fs::path targetCanon = fs::canonical(srcPath, canonEc);
-                if (canonEc || std::find(activeDirs.begin(), activeDirs.end(), targetCanon) != activeDirs.end()) {
-                    g_warning("Skipping cyclic symlink during config migration: %s",
-                              char_cast(srcPath.u8string().c_str()));
-                    continue;
-                }
-                fs::create_directory(dstPath);
-                activeDirs.push_back(std::move(targetCanon));
-                try {
-                    copyMigratedEntries(srcPath, dstPath, false, activeDirs);
-                } catch (...) {
-                    activeDirs.pop_back();
-                    throw;
-                }
-                activeDirs.pop_back();
-            } else if (fs::is_regular_file(targetStatus)) {
-                fs::copy_file(srcPath, dstPath);
-            } else {
-                g_warning("Skipping unsupported symlink target during config migration: %s",
-                          char_cast(srcPath.u8string().c_str()));
-            }
-            continue;
-        }
-
-        if (fs::is_directory(symStatus)) {
-            fs::create_directory(dstPath);
-            copyMigratedEntries(srcPath, dstPath, false, activeDirs);
-        } else if (fs::is_regular_file(symStatus)) {
-            fs::copy_file(srcPath, dstPath);
-        } else {
-            g_warning("Skipping unsupported file during config migration: %s", char_cast(srcPath.u8string().c_str()));
-        }
-    }
-}
 }  // namespace
 
 void XournalMain::copyMigratedConfigDirectory(const fs::path& sourceDir, const fs::path& targetDir) {
@@ -821,12 +765,14 @@ void XournalMain::copyMigratedConfigDirectory(const fs::path& sourceDir, const f
 
     const fs::path tempDir = createTempMigrationDir(cleanTarget);
     try {
-        std::error_code canonEc;
-        std::vector<fs::path> activeDirs;
-        if (fs::path rootCanon = fs::canonical(sourceDir, canonEc); !canonEc) {
-            activeDirs.push_back(std::move(rootCanon));
+        for (const auto& entry: fs::directory_iterator(sourceDir)) {
+            const fs::path name = entry.path().filename();
+            if (name == "emergencysave.xopp" || name == ERRORLOG_DIR || name == "errorlogs") {
+                continue;
+            }
+            // Symlinks are copied as links, so a broken one (e.g. in plugins/) does not abort the migration
+            fs::copy(entry.path(), tempDir / name, fs::copy_options::recursive | fs::copy_options::copy_symlinks);
         }
-        copyMigratedEntries(sourceDir, tempDir, true, activeDirs);
         fs::rename(tempDir, cleanTarget);
     } catch (...) {
         std::error_code cleanupEc;
