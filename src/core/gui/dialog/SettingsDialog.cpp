@@ -645,31 +645,37 @@ void SettingsDialog::load() {
     }
 
     auto viewMode = settings->getViewModes().at(PresetViewModeIds::VIEW_MODE_FULLSCREEN);
-    bool showFullscreenMenubar = viewMode.showMenubar;
     bool showFullscreenToolbar = viewMode.showToolbar;
     bool showFullscreenSidebar = viewMode.showSidebar;
+#ifndef __APPLE__
+    bool showFullscreenMenubar = viewMode.showMenubar;
+#endif
     viewMode = settings->getViewModes().at(PresetViewModeIds::VIEW_MODE_PRESENTATION);
-    bool showPresentationMenubar = viewMode.showMenubar;
     bool showPresentationToolbar = viewMode.showToolbar;
     bool showPresentationSidebar = viewMode.showSidebar;
     bool goPresentationFullscreen = viewMode.goFullscreen;
+#ifndef __APPLE__
+    bool showPresentationMenubar = viewMode.showMenubar;
+#endif
 
+#ifdef __APPLE__
+    for (const char* id: {"cbShowFullscreenMenubar", "cbShowPresentationMenubar", "vbox7", "cbUseCSD"}) {
+        GtkWidget* w = builder.get(id);
+        gtk_widget_set_no_show_all(w, true);
+        gtk_widget_hide(w);
+    }
+#else
     loadCheckbox("cbShowFullscreenMenubar", showFullscreenMenubar);
+    loadCheckbox("cbShowPresentationMenubar", showPresentationMenubar);
+    // The pinned menu bar is a property of the default view mode, not of the one in use (fullscreen, presentation)
+    loadCheckbox("cbHideMenubarStartup", settings->getViewModes().at(PresetViewModeIds::VIEW_MODE_DEFAULT).showMenubar);
+    loadCheckbox("cbUseCSD", settings->isUseClientSideDecorations());
+#endif
     loadCheckbox("cbShowFullscreenToolbar", showFullscreenToolbar);
     loadCheckbox("cbShowFullscreenSidebar", showFullscreenSidebar);
-    loadCheckbox("cbShowPresentationMenubar", showPresentationMenubar);
     loadCheckbox("cbShowPresentationToolbar", showPresentationToolbar);
     loadCheckbox("cbShowPresentationSidebar", showPresentationSidebar);
     loadCheckbox("cbPresentationGoFullscreen", goPresentationFullscreen);
-    // The pinned menu bar is a property of the default view mode, not of the one in use (fullscreen, presentation)
-    loadCheckbox("cbHideMenubarStartup", settings->getViewModes().at(PresetViewModeIds::VIEW_MODE_DEFAULT).showMenubar);
-#ifdef __APPLE__
-    GtkWidget* cbUseCSD = builder.get("cbUseCSD");
-    gtk_widget_set_no_show_all(cbUseCSD, true);
-    gtk_widget_hide(cbUseCSD);
-#else
-    loadCheckbox("cbUseCSD", settings->isUseClientSideDecorations());
-#endif
     loadCheckbox("cbShowFilepathInTitlebar", settings->isFilepathInTitlebarShown());
     loadCheckbox("cbShowPageNumberInTitlebar", settings->isPageNumberInTitlebarShown());
 
@@ -959,18 +965,28 @@ void SettingsDialog::save() {
 
     ViewMode viewModeFullscreen;
     viewModeFullscreen.goFullscreen = true;
+#ifdef __APPLE__
+    viewModeFullscreen.showMenubar = settings->getViewModes().at(PresetViewModeIds::VIEW_MODE_FULLSCREEN).showMenubar;
+#else
     viewModeFullscreen.showMenubar = getCheckbox("cbShowFullscreenMenubar");
+#endif
     viewModeFullscreen.showToolbar = getCheckbox("cbShowFullscreenToolbar");
     viewModeFullscreen.showSidebar = getCheckbox("cbShowFullscreenSidebar");
     settings->setViewMode(PresetViewModeIds::VIEW_MODE_FULLSCREEN, viewModeFullscreen);
 
     ViewMode viewModePresentation;
+#ifdef __APPLE__
+    viewModePresentation.showMenubar =
+            settings->getViewModes().at(PresetViewModeIds::VIEW_MODE_PRESENTATION).showMenubar;
+#else
     viewModePresentation.showMenubar = getCheckbox("cbShowPresentationMenubar");
+#endif
     viewModePresentation.showToolbar = getCheckbox("cbShowPresentationToolbar");
     viewModePresentation.showSidebar = getCheckbox("cbShowPresentationSidebar");
     viewModePresentation.goFullscreen = getCheckbox("cbPresentationGoFullscreen");
     settings->setViewMode(PresetViewModeIds::VIEW_MODE_PRESENTATION, viewModePresentation);
 
+#ifndef __APPLE__
     const bool alwaysShowMenubar = getCheckbox("cbHideMenubarStartup");
     bool menubarPreferenceChanged = false;
     const bool inDefaultViewMode = settings->getActiveViewMode() == PresetViewModeIds::VIEW_MODE_DEFAULT;
@@ -984,7 +1000,6 @@ void SettingsDialog::save() {
     if (inDefaultViewMode) {
         settings->setMenubarVisible(alwaysShowMenubar);
     }
-#ifndef __APPLE__
     settings->setUseClientSideDecorations(getCheckbox("cbUseCSD"));
 #endif
     settings->setFilepathInTitlebarShown(getCheckbox("cbShowFilepathInTitlebar"));
@@ -1179,9 +1194,11 @@ void SettingsDialog::save() {
 
     settings->transactionEnd();
 
+#ifndef __APPLE__
     if (menubarPreferenceChanged && inDefaultViewMode) {
         this->control->setShowMenubar(alwaysShowMenubar);
     }
+#endif
 
     this->control->getWindow()->setGtkTouchscreenScrollingForDeviceMapping();
 

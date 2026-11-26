@@ -681,6 +681,9 @@ void Control::setShowToolbar(bool enabled) {
 }
 
 void Control::setShowMenubar(bool enabled) {
+#ifdef __APPLE__
+    enabled = false;
+#endif
     win->setMenubarVisible(enabled);
     actionDB->setActionState(Action::SHOW_MENUBAR, enabled);
 }
@@ -2118,9 +2121,7 @@ void Control::updateWindowTitle() {
     }
     // Autosave writes a backup file, not the document: only a real save counts as saved
     const bool unsaved = undoRedo->isChanged();
-    std::string status = doc->getFilepath().empty() ? _("Not saved yet") :
-                         unsaved                    ? _("Unsaved changes") :
-                                                      _("Saved");
+    std::string status = doc->getFilepath().empty() ? _("Not saved yet") : unsaved ? _("Unsaved changes") : _("Saved");
     this->doc->unlock_shared();
 
     title += " - MoreXournal";

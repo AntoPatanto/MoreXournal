@@ -82,6 +82,10 @@ void Menubar::populate(const GladeSearchpath* gladeSearchPath, MainWindow* win) 
     if (!ctrl->getAudioController()) {
         removeItemsWithClass(G_MENU(menu), "audio");
     }
+#ifdef __APPLE__
+    // macOS uses the system menu bar; omit the in-window menubar toggle from all menus
+    removeItemsWithClass(G_MENU(menu), "in-window-menubar");
+#endif
 
     createSectionedMenu();
 }

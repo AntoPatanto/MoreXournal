@@ -225,12 +225,14 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
     // Always start maximized; the default size above still applies when un-maximizing
     gtk_window_maximize(GTK_WINDOW(this->window));
 
+#ifndef __APPLE__
     Util::execInUiThread([=]() {
         // Execute after the window is visible, else the check won't work
         // menubarVisible is saved from the view mode active on quit (e.g. fullscreen): start from the view mode itself
         Settings* settings = control->getSettings();
         control->setShowMenubar(settings->getViewModes().at(settings->getActiveViewMode()).showMenubar);
     });
+#endif
 
     // Drag and Drop
     g_signal_connect(this->window, "drag-data-received", G_CALLBACK(dragDataRecived), this);
@@ -339,7 +341,13 @@ void MainWindow::createWindowBox() {
     gtk_revealer_set_transition_type(GTK_REVEALER(menubarRevealer), GTK_REVEALER_TRANSITION_TYPE_SLIDE_DOWN);
     gtk_revealer_set_transition_duration(GTK_REVEALER(menubarRevealer), 120);
     gtk_box_append(GTK_BOX(box), menubarRevealer);
+#ifdef __APPLE__
+    // macOS uses the system menu bar; keep the in-window menu bar permanently hidden
+    gtk_widget_set_no_show_all(menubarRevealer, true);
+    gtk_widget_hide(menubarRevealer);
+#else
     gtk_widget_show(menubarRevealer);
+#endif
 
     gtk_widget_set_vexpand(overlay, true);
     gtk_box_append(GTK_BOX(box), overlay);
@@ -350,6 +358,7 @@ void MainWindow::createWindowBox() {
 }
 
 void MainWindow::createTopBar() {
+#ifndef __APPLE__
     menubarWidget = gtk_menu_bar_new_from_model(menubar->getModel());
     gtk_container_add(GTK_CONTAINER(menubarRevealer), menubarWidget);
     gtk_widget_show(menubarWidget);
@@ -358,6 +367,7 @@ void MainWindow::createTopBar() {
                          static_cast<MainWindow*>(self)->setMenubarTemporarilyVisible(false);
                      }),
                      this);
+#endif
 
     topBar = std::make_unique<TopBar>(control, menubar->getSectionedModel());
 
@@ -520,6 +530,13 @@ bool MainWindow::handleChromeFocusKey(GdkEventKey* event) {
 }
 
 bool MainWindow::handleMenubarKey(GdkEventKey* event) {
+#ifdef __APPLE__
+    // macOS uses the system menu bar: swallow F10 and ignore lone Alt presses
+    if (event->type == GDK_KEY_PRESS && event->keyval == GDK_KEY_F10) {
+        return true;
+    }
+    return false;
+#else
     constexpr auto BUTTONS =
             GDK_BUTTON1_MASK | GDK_BUTTON2_MASK | GDK_BUTTON3_MASK | GDK_BUTTON4_MASK | GDK_BUTTON5_MASK;
     constexpr auto OTHER_MODIFIERS =
@@ -545,6 +562,7 @@ bool MainWindow::handleMenubarKey(GdkEventKey* event) {
         altArmed = false;
     }
     return false;
+#endif
 }
 
 void MainWindow::onPagePressed() {
@@ -553,15 +571,23 @@ void MainWindow::onPagePressed() {
 }
 
 void MainWindow::setMenubarTemporarilyVisible(bool visible) {
+#ifdef __APPLE__
+    (void)visible;
+#else
     visible = visible && !menubarPinned;
     if (menubarTemporary != visible) {
         menubarTemporary = visible;
         updateMenubarReveal();
     }
+#endif
 }
 
 void MainWindow::updateMenubarReveal() {
+#ifdef __APPLE__
+    gtk_revealer_set_reveal_child(GTK_REVEALER(menubarRevealer), false);
+#else
     gtk_revealer_set_reveal_child(GTK_REVEALER(menubarRevealer), menubarPinned || menubarTemporary);
+#endif
 }
 
 void MainWindow::updateTouchMode() {
@@ -1106,7 +1132,12 @@ void MainWindow::setToolbarVisible(bool visible) {
 }
 
 void MainWindow::setMenubarVisible(bool visible) {
+#ifdef __APPLE__
+    (void)visible;
+    menubarPinned = false;
+#else
     menubarPinned = visible;
+#endif
     menubarTemporary = false;
     updateMenubarReveal();
 }
