@@ -22,7 +22,6 @@
 
 class AbstractToolItem {
 public:
-    // If you add a category, don't forget to give it a label in ToolbarCustomizeDialog.cpp.
     // Keep the enum contiguous
     enum class Category : unsigned char {
         FILES,

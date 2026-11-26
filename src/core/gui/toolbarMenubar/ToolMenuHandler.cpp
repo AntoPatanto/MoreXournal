@@ -10,7 +10,6 @@
 #include "control/settings/Settings.h"               // for Settings
 #include "gui/GladeGui.h"                            // for GladeGui
 #include "gui/GladeSearchpath.h"
-#include "gui/ToolitemDragDrop.h"  // for ToolitemDragDrop
 #include "gui/menus/popoverMenus/PageTypeSelectionPopover.h"
 #include "gui/toolbarMenubar/model/ColorPalette.h"  // for Palette
 #include "gui/toolbarMenubar/model/ToolbarData.h"   // for ToolbarData
@@ -135,8 +134,6 @@ void ToolMenuHandler::load(const ToolbarData* d, GtkWidget* toolbar, const char*
                     auto it = item->createToolItem(horizontal);
                     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(it.get()), -1);
 
-                    ToolitemDragDrop::attachMetadataColor(it.get(), dataItem.getId(), paletteIndex, item.get());
-
                     continue;
                 }
 
@@ -146,8 +143,6 @@ void ToolMenuHandler::load(const ToolbarData* d, GtkWidget* toolbar, const char*
                         count++;
                         auto it = item->createToolItem(horizontal);
                         gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(it.get()), -1);
-
-                        ToolitemDragDrop::attachMetadata(it.get(), dataItem.getId(), item.get());
 
                         found = true;
                         break;
@@ -167,17 +162,6 @@ void ToolMenuHandler::load(const ToolbarData* d, GtkWidget* toolbar, const char*
     } else {
         gtk_widget_show(toolbar);
     }
-}
-
-void ToolMenuHandler::removeColorToolItem(AbstractToolItem* it) {
-    g_return_if_fail(it != nullptr);
-    this->toolbarColorItems.erase(std::find_if(this->toolbarColorItems.begin(), this->toolbarColorItems.end(),
-                                               [it](const auto& p) { return p.get() == it; }));
-}
-
-void ToolMenuHandler::addColorToolItem(std::unique_ptr<ColorToolItem> it) {
-    g_return_if_fail(it != nullptr);
-    this->toolbarColorItems.emplace_back(std::move(it));
 }
 
 template <class tool_item, class... Args>
@@ -522,12 +506,6 @@ void ToolMenuHandler::setPageInfo(size_t currentPage, size_t pageCount, size_t p
 }
 
 auto ToolMenuHandler::getModel() -> ToolbarModel* { return this->tbModel.get(); }
-
-auto ToolMenuHandler::getControl() -> Control* { return this->control; }
-
-auto ToolMenuHandler::getToolItems() const -> const std::vector<std::unique_ptr<AbstractToolItem>>& {
-    return this->toolItems;
-}
 
 auto ToolMenuHandler::getColorToolItems() const -> const std::vector<std::unique_ptr<ColorToolItem>>& {
     return this->toolbarColorItems;

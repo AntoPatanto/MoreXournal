@@ -8,53 +8,50 @@
 #include <gio/gio.h>                // for g_cancellable_is_...
 #include <gtk/gtkcssprovider.h>     // for gtk_css_provider_...
 
-#include "control/AudioController.h"                    // for AudioController
-#include "control/Control.h"                            // for Control
-#include "control/DeviceListHelper.h"                   // for getSourceMapping
-#include "control/ScrollHandler.h"                      // for ScrollHandler
-#include "control/actions/ActionDatabase.h"             // for ActionDatabase
-#include "control/jobs/XournalScheduler.h"              // for XournalScheduler
-#include "control/layer/LayerController.h"              // for LayerController
-#include "control/settings/Settings.h"                  // for Settings
-#include "control/settings/SettingsEnums.h"             // for SCROLLBAR_HIDE_HO...
-#include "control/zoom/ZoomControl.h"                   // for ZoomControl
-#include "gui/ChromeUtil.h"                             // for classifyEvent
-#include "gui/FloatingToolbox.h"                        // for FloatingToolbox
-#include "gui/FloatingTools.h"                          // for FloatingTools
-#include "gui/GladeGui.h"                               // for GladeGui
-#include "gui/PdfFloatingToolbox.h"                     // for PdfFloatingToolbox
-#include "gui/SearchBar.h"                              // for SearchBar
-#include "gui/ShapeToolbox.h"                           // for ShapeToolbox
-#include "gui/TopBar.h"                                 // for TopBar
-#include "gui/TouchModeLogic.h"                         // for resolveTouchLayout
-#include "gui/inputdevices/InputContext.h"              // for InputContext
-#include "gui/inputdevices/InputEvents.h"               // for INPUT_DEVICE_TOUC...
-#include "gui/menus/menubar/Menubar.h"                  // for Menubar
-#include "gui/menus/menubar/ToolbarSelectionSubmenu.h"  // for ToolbarSelectionSubmenu
+#include "control/AudioController.h"                       // for AudioController
+#include "control/Control.h"                               // for Control
+#include "control/DeviceListHelper.h"                      // for getSourceMapping
+#include "control/ScrollHandler.h"                         // for ScrollHandler
+#include "control/actions/ActionDatabase.h"                // for ActionDatabase
+#include "control/jobs/XournalScheduler.h"                 // for XournalScheduler
+#include "control/layer/LayerController.h"                 // for LayerController
+#include "control/settings/Settings.h"                     // for Settings
+#include "control/settings/SettingsEnums.h"                // for SCROLLBAR_HIDE_HO...
+#include "control/zoom/ZoomControl.h"                      // for ZoomControl
+#include "gui/ChromeUtil.h"                                // for classifyEvent
+#include "gui/FloatingToolbox.h"                           // for FloatingToolbox
+#include "gui/FloatingTools.h"                             // for FloatingTools
+#include "gui/GladeGui.h"                                  // for GladeGui
+#include "gui/PdfFloatingToolbox.h"                        // for PdfFloatingToolbox
+#include "gui/SearchBar.h"                                 // for SearchBar
+#include "gui/ShapeToolbox.h"                              // for ShapeToolbox
+#include "gui/TopBar.h"                                    // for TopBar
+#include "gui/TouchModeLogic.h"                            // for resolveTouchLayout
+#include "gui/inputdevices/InputContext.h"                 // for InputContext
+#include "gui/inputdevices/InputEvents.h"                  // for INPUT_DEVICE_TOUC...
+#include "gui/menus/menubar/Menubar.h"                     // for Menubar
 #include "gui/scroll/ScrollHandling.h"                     // for ScrollHandling
 #include "gui/scroll/VerticalScrollbarRevealController.h"  // for VerticalScrollbarRevealController
-#include "gui/sidebar/Sidebar.h"                        // for Sidebar
-#include "gui/toolbarMenubar/ToolMenuHandler.h"         // for ToolMenuHandler
-#include "gui/toolbarMenubar/model/ToolbarData.h"       // for ToolbarData
-#include "gui/toolbarMenubar/model/ToolbarModel.h"      // for ToolbarModel
-#include "gui/widgets/SpinPageAdapter.h"                // for SpinPageAdapter
-#include "gui/widgets/XournalWidget.h"                  // for gtk_xournal_get_l...
-#include "util/GListView.h"                             // for GListView, GListV...
-#include "util/GtkUtil.h"                               // for getWidgetDPI
-#include "util/PathUtil.h"                              // for getConfigFile
-#include "util/StringUtils.h"                           // for char_cast
-#include "util/Util.h"                                  // for execInUiThread, npos
-#include "util/XojMsgBox.h"                             // for XojMsgBox
-#include "util/glib_casts.h"                            // for wrap_for_once_v
-#include "util/gtk4_helper.h"                           // for gtk_widget_get_width
-#include "util/i18n.h"                                  // for FS, _F
-#include "util/raii/CStringWrapper.h"                   // for OwnedCString
+#include "gui/sidebar/Sidebar.h"                           // for Sidebar
+#include "gui/toolbarMenubar/ToolMenuHandler.h"            // for ToolMenuHandler
+#include "gui/toolbarMenubar/model/ToolbarData.h"          // for ToolbarData
+#include "gui/toolbarMenubar/model/ToolbarModel.h"         // for ToolbarModel
+#include "gui/widgets/XournalWidget.h"                     // for gtk_xournal_get_l...
+#include "util/GListView.h"                                // for GListView, GListV...
+#include "util/GtkUtil.h"                                  // for getWidgetDPI
+#include "util/PathUtil.h"                                 // for getConfigFile
+#include "util/StringUtils.h"                              // for char_cast
+#include "util/Util.h"                                     // for execInUiThread, npos
+#include "util/XojMsgBox.h"                                // for XojMsgBox
+#include "util/glib_casts.h"                               // for wrap_for_once_v
+#include "util/gtk4_helper.h"                              // for gtk_widget_get_width
+#include "util/i18n.h"                                     // for FS, _F
+#include "util/raii/CStringWrapper.h"                      // for OwnedCString
 
 #include "GladeSearchpath.h"     // for GladeSearchpath
 #include "ToolbarDefinitions.h"  // for TOOLBAR_DEFINITIO...
 #include "XournalView.h"         // for XournalView
 #include "XournalppCursor.h"     // for XournalppCursor
-#include "config-dev.h"          // for TOOLBAR_CONFIG
 #include "filesystem.h"          // for path, exists
 
 #ifdef __APPLE__
@@ -1122,23 +1119,7 @@ void MainWindow::onSelectionChanged() {
 
 auto MainWindow::getSelectedToolbar() const -> ToolbarData* { return this->selectedToolbar; }
 
-auto MainWindow::getToolbarWidgets() const -> const ToolbarWidgetArray& { return toolbarWidgets; }
-
-auto MainWindow::getToolbarName(GtkToolbar* toolbar) const -> const char* {
-    for (size_t i = 0; i < TOOLBAR_DEFINITIONS_LEN; i++) {
-        if (static_cast<void*>(this->toolbarWidgets[i].get()) == static_cast<void*>(toolbar)) {
-            return TOOLBAR_DEFINITIONS[i].propName;
-        }
-    }
-
-    return "";
-}
-
 void MainWindow::setDynamicallyGeneratedSubmenuDisabled(bool disabled) { menubar->setDisabled(disabled); }
-
-void MainWindow::updateToolbarMenu() {
-    menubar->getToolbarSelectionSubmenu().update(toolbar.get(), this->selectedToolbar);
-}
 
 void MainWindow::migrateSelectedToolbar() {
     Settings* settings = control->getSettings();
@@ -1173,8 +1154,6 @@ void MainWindow::setDocumentTitle(const std::string& name, const std::string& st
 auto MainWindow::getMenubar() const -> Menubar* { return menubar.get(); }
 
 void MainWindow::show(GtkWindow* parent) { gtk_widget_show(this->window); }
-
-auto MainWindow::getToolbarModel() const -> ToolbarModel* { return this->toolbar->getModel(); }
 
 auto MainWindow::getToolMenuHandler() const -> ToolMenuHandler* { return this->toolbar.get(); }
 

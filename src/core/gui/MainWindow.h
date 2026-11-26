@@ -30,12 +30,10 @@
 
 class Control;
 class Layout;
-class SpinPageAdapter;
 class ScrollHandling;
 class VerticalScrollbarRevealController;
 class ToolMenuHandler;
 class ToolbarData;
-class ToolbarModel;
 class XournalView;
 class PdfFloatingToolbox;
 class ShapeToolbox;
@@ -112,12 +110,10 @@ public:
 
     void updateScrollbarSidebarPosition();
 
-    ToolbarModel* getToolbarModel() const;
     ToolMenuHandler* getToolMenuHandler() const;
 
     void setDynamicallyGeneratedSubmenuDisabled(bool disabled);
 
-    void updateToolbarMenu();
     void updateColorscheme();
 
     /// Re-evaluates the touch chrome layout from Settings::getTouchMode() (e.g. after Preferences closes)
@@ -125,9 +121,6 @@ public:
     /// Updates touch chrome layout from a press/touch event (when TouchMode::AUTO is active)
     void onPointerInput(const GdkEvent* event);
     bool isTouchLayout() const;
-
-    const ToolbarWidgetArray& getToolbarWidgets() const;
-    const char* getToolbarName(GtkToolbar* toolbar) const;
 
     Layout* getLayout() const;
 

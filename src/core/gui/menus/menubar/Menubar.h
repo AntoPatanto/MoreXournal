@@ -26,7 +26,6 @@ class GladeSearchpath;
 class MainWindow;
 
 class RecentDocumentsSubmenu;
-class ToolbarSelectionSubmenu;
 class PageTypeSubmenu;
 class PluginsSubmenu;
 
@@ -41,7 +40,6 @@ public:
     inline GMenuModel* getModel() const { return menu; }
     /// Main menu model for the top bar button: inline document items, category submenus, preferences, help, quit
     inline GMenuModel* getSectionedModel() const { return G_MENU_MODEL(sectionedMenu.get()); }
-    inline ToolbarSelectionSubmenu& getToolbarSelectionSubmenu() const { return *toolbarSelectionSubmenu; }
     inline PageTypeSubmenu& getPageTypeSubmenu() const { return *pageTypeSubmenu; }
 
     void setDisabled(bool disabled);
@@ -67,7 +65,6 @@ private:
 
     // Dynamically created submenus -- also add to forEachSubmenu() below
     std::unique_ptr<RecentDocumentsSubmenu> recentDocumentsSubmenu;
-    std::unique_ptr<ToolbarSelectionSubmenu> toolbarSelectionSubmenu;
     std::unique_ptr<PageTypeSubmenu> pageTypeSubmenu;
 #ifdef ENABLE_PLUGINS
     std::unique_ptr<PluginsSubmenu> pluginsSubmenu;
@@ -76,7 +73,6 @@ private:
     template <class Fun>
     void forEachSubmenu(Fun&& fun) {
         fun(*recentDocumentsSubmenu);
-        fun(*toolbarSelectionSubmenu);
         fun(*pageTypeSubmenu);
 #ifdef ENABLE_PLUGINS
         fun(*pluginsSubmenu);
