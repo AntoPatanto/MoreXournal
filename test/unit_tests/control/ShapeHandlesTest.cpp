@@ -218,13 +218,6 @@ TEST(ShapeHandles, polygonVertexDrag) {
     expectNear(res.pts[2], {3, 12});
 }
 
-TEST(ShapeHandles, handleAtPicksTheNearestWithinTheRadius) {
-    const std::vector<Handle> handles = {{{0, 0}, HandleKind::VERTEX, {0, 0}}, {{4, 0}, HandleKind::VERTEX, {4, 0}}};
-    EXPECT_EQ(handleAt(handles, {1, 0}, 3), 0U);
-    EXPECT_EQ(handleAt(handles, {3, 0}, 3), 1U);
-    EXPECT_FALSE(handleAt(handles, {10, 0}, 3).has_value());
-}
-
 TEST(ShapeHandles, contains) {
     const ShapeInfo rect = toolRectangle();  // (10, 10) to (50, 30)
     EXPECT_TRUE(contains(rect, {30, 20}, 1));

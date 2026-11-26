@@ -62,9 +62,6 @@ constexpr double hitRadiusPx(DeviceKind dev) {
     return 12.0;
 }
 
-/// Hit target diameter in screen px
-constexpr double hitDiameterPx(DeviceKind dev) { return 2.0 * hitRadiusPx(dev); }
-
 /// Half-width of the resize edge bands in screen px
 constexpr double edgeBandHalfWidthPx(DeviceKind dev) {
     switch (dev) {

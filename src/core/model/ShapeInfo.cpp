@@ -14,19 +14,6 @@ static double cross(const Vec& u, const Vec& v) { return u.x * v.y - u.y * v.x; 
 
 bool ShapeInfo::operator==(const ShapeInfo& other) const { return type == other.type && pts == other.pts; }
 
-size_t ShapeInfo::controlPointCount(ShapeType type) {
-    switch (type) {
-        case ShapeType::LINE:
-            return 2;
-        case ShapeType::RECTANGLE:
-        case ShapeType::ELLIPSE:
-            return 3;
-        case ShapeType::POLYGON:
-        default:
-            return 0;
-    }
-}
-
 auto ShapeInfo::generatePoints() const -> std::vector<Point> {
     std::vector<Point> res;
     switch (type) {

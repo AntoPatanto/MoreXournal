@@ -56,9 +56,6 @@ struct ShapeInfo {
 
     bool operator==(const ShapeInfo& other) const;
 
-    /// @return The number of control points a shape of this type needs, or 0 for a polygon (variable count)
-    static size_t controlPointCount(ShapeType type);
-
     /**
      * @brief The points of the stroke drawing this shape, without pressure.
      * Line: 2 points. Polygon and rectangle: the vertices, closed by a copy of the first one. Ellipse: 4n + 1 points
