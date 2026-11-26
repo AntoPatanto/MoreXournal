@@ -124,6 +124,15 @@ SectionEnd
 	WriteRegStr SHCTX "Software\Classes\Applications\morexournal.exe\SupportedTypes" "${EXT}" ""
 !macroend
 
+!macro UnregisterExt EXT PROGID
+	Push $R0
+	ReadRegStr $R0 SHCTX "Software\Classes\${EXT}" ""
+	StrCmp $R0 "${PROGID}" 0 +2
+		DeleteRegValue SHCTX "Software\Classes\${EXT}" ""
+	DeleteRegValue SHCTX "Software\Classes\${EXT}\OpenWithProgIds" "${PROGID}"
+	Pop $R0
+!macroend
+
 !macro AddProgId PROGID CMD DESC
 	; Define ProgId. See https://docs.microsoft.com/en-us/windows/win32/shell/fa-progids
 	WriteRegStr SHCTX "Software\Classes\${PROGID}" "" "${DESC}"
@@ -310,22 +319,27 @@ Section "Uninstall"
 		SetShellVarContext current
 	${ENDIF}
 
+	; Clean up start menu before deleting the registry key that stores the folder name
+	!insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
+	Delete "$SMPROGRAMS\$StartMenuFolder\MoreXournal.lnk"
+	Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk"
+	RMDir "$SMPROGRAMS\$StartMenuFolder"
+
 	; Remove registry keys
 	DeleteRegKey SHCTX "Software\MoreXournal"
 	DeleteRegKey SHCTX "Software\Classes\Applications\morexournal.exe"
 	DeleteRegKey SHCTX "Software\Microsoft\Windows\CurrentVersion\App Paths\morexournal.exe"
 	DeleteRegKey SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\MoreXournal"
 
+	!insertmacro UnregisterExt ".xopp" "MoreXournal.File"
+	!insertmacro UnregisterExt ".xopt" "MoreXournal.Template"
+	!insertmacro UnregisterExt ".xoj" "MoreXournal.Xournal"
+	!insertmacro UnregisterExt ".pdf" "MoreXournal.AnnotatePdf"
+
 	!insertmacro DeleteProgId "MoreXournal.File"
 	!insertmacro DeleteProgId "MoreXournal.Template"
 	!insertmacro DeleteProgId "MoreXournal.Xournal"
 	!insertmacro DeleteProgId "MoreXournal.AnnotatePdf"
-
-	; Clean up start menu
-	!insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
-	Delete "$SMPROGRAMS\$StartMenuFolder\MoreXournal.lnk"
-	Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk"
-	RMDir "$SMPROGRAMS\$StartMenuFolder"
 
 	; Remove files
 	RMDir /r "$INSTDIR\bin"
@@ -336,5 +350,5 @@ Section "Uninstall"
 	RMDir "$INSTDIR"
 
 	!insertmacro RefreshShellIconDelete "$SMPROGRAMS\$StartMenuFolder\MoreXournal.lnk"
-	!insertmacro RefreshShellIcons
+	System::Call 'shell32::SHChangeNotify(i ${SHCNE_ASSOCCHANGED}, i ${SHCNF_IDLIST}, i 0, i 0)'
 SectionEnd
