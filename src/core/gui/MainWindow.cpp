@@ -1145,13 +1145,8 @@ void MainWindow::migrateSelectedToolbar() {
     if (!settings->consumePendingToolbarMigration()) {
         return;
     }
-    // Settings from before the top bar: a predefined layout is replaced by the default one, custom layouts stay
-    const auto& toolbars = toolbar->getModel()->getToolbars();
-    auto it = std::find_if(toolbars.begin(), toolbars.end(),
-                           [&](const auto& d) { return d->getId() == settings->getSelectedToolbar(); });
-    if (it == toolbars.end() || (*it)->isPredefined()) {
-        settings->setSelectedToolbar(DEFAULT_TOOLBAR);
-    }
+    // Settings from before the top bar: always switch to the default layout (custom toolbar.ini stays on disk)
+    settings->setSelectedToolbar(DEFAULT_TOOLBAR);
 }
 
 void MainWindow::createToolbar() {
