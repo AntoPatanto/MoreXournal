@@ -20,8 +20,6 @@ class Point;
 
 namespace xoj::util {
 struct Matrix;
-template <class T>
-class Rectangle;
 }  // namespace xoj::util
 
 class ShapeType {
@@ -74,10 +72,12 @@ struct ShapeInfo {
     [[nodiscard]] Range outlineRange() const;
 
     /**
-     * @brief Check that the outline matches the snapping box of a stroke, i.e. that the stroke's points draw this
-     * shape. The tolerance is max(0.5, 1% of the box's diagonal) on each side.
+     * @brief Check that the stroke's points draw this shape within tolerance.
+     * For lines, rectangles and polygons the points must match generatePoints() point by point; for ellipses
+     * (which may use non-uniform sampling or keep a pre-transform point count) every point must lie on the
+     * ellipse and trace one full closed loop covering its bounds.
      */
-    [[nodiscard]] bool matchesBounds(const xoj::util::Rectangle<double>& snappedBounds) const;
+    [[nodiscard]] bool matchesPoints(const std::vector<Point>& strokePoints) const;
 
     /// Control points as x0 y0 x1 y1 ...
     [[nodiscard]] std::vector<double> toDoubles() const;

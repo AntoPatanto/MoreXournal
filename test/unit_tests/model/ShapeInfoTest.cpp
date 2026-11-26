@@ -19,7 +19,6 @@
 #include "model/Stroke.h"
 #include "util/Color.h"
 #include "util/Matrix.h"
-#include "util/Rectangle.h"
 
 using xoj::util::Matrix;
 using Vec = xoj::util::Point<double>;
@@ -144,17 +143,67 @@ TEST(ShapeInfo, validity) {
     EXPECT_EQ(info->toDoubles(), (std::vector<double>{0, 0, 3, 4, 5, 0}));
 }
 
-TEST(ShapeInfo, outlineMatchesBounds) {
+TEST(ShapeInfo, matchesPointsAcceptsValidAndRejectsSameBoundsMismatch) {
     const auto e = tiltedEllipse();
+    const auto ePts = e.generatePoints();
     Range rg;
-    for (const auto& p: e.generatePoints()) {
+    for (const auto& p: ePts) {
         rg.addPoint(p.x, p.y);
     }
     const Range outline = e.outlineRange();
     EXPECT_NEAR(outline.minX, rg.minX, 0.05);
     EXPECT_NEAR(outline.maxY, rg.maxY, 0.05);
-    EXPECT_TRUE(e.matchesBounds(xoj::util::Rectangle<double>(rg.minX, rg.minY, rg.getWidth(), rg.getHeight())));
-    EXPECT_FALSE(e.matchesBounds(xoj::util::Rectangle<double>(rg.minX + 5, rg.minY, rg.getWidth(), rg.getHeight())));
+    EXPECT_TRUE(e.matchesPoints(ePts));
+
+    // Shifted ellipse points fail
+    std::vector<Point> shiftedEllipse = ePts;
+    for (auto& p: shiftedEllipse) {
+        p.x += 5.0;
+    }
+    EXPECT_FALSE(e.matchesPoints(shiftedEllipse));
+
+    // Valid line, rectangle and polygon match their generated points
+    const ShapeInfo line{ShapeType::LINE, {{10, 20}, {110, 70}}};
+    EXPECT_TRUE(line.matchesPoints(line.generatePoints()));
+    const ShapeInfo rect = rotatedRectangle();
+    EXPECT_TRUE(rect.matchesPoints(rect.generatePoints()));
+    const ShapeInfo tri{ShapeType::POLYGON, {{0, 0}, {40, 0}, {10, 30}}};
+    EXPECT_TRUE(tri.matchesPoints(tri.generatePoints()));
+
+    // A curve with the exact same bounding box as the line must be rejected
+    const std::vector<Point> curveSameBounds = {{10, 20}, {35, 65}, {80, 25}, {110, 70}};
+    EXPECT_FALSE(line.matchesPoints(curveSameBounds));
+
+    // Opposite diagonal with the exact same bounding box and point count as the line must be rejected
+    const std::vector<Point> otherDiagonal = {{10, 70}, {110, 20}};
+    EXPECT_FALSE(line.matchesPoints(otherDiagonal));
+
+    // A crossed bowtie with the exact same bounding box and point count as an axis-aligned rectangle must be rejected
+    const ShapeInfo axisRect{ShapeType::RECTANGLE, {{100, 100}, {200, 100}, {100, 150}}};
+    const std::vector<Point> bowtie = {{100, 100}, {200, 150}, {200, 100}, {100, 150}, {100, 100}};
+    EXPECT_FALSE(axisRect.matchesPoints(bowtie));
+
+    // A rectangle or curve with the exact same bounding box as an ellipse must be rejected
+    const ShapeInfo axisEllipse{ShapeType::ELLIPSE, {{300, 300}, {350, 300}, {300, 330}}};
+    const std::vector<Point> ellipseBoxRect = {{250, 270}, {350, 270}, {350, 330}, {250, 330}, {250, 270}};
+    EXPECT_FALSE(axisEllipse.matchesPoints(ellipseBoxRect));
+
+    // A multi-point zig-zag touching the ellipse's bounding box must be rejected
+    std::vector<Point> zigZag;
+    for (int i = 0; i <= 16; i++) {
+        const double t = static_cast<double>(i) / 16.0;
+        zigZag.emplace_back(250.0 + 100.0 * t, (i % 2 == 0) ? 270.0 : 330.0);
+    }
+    EXPECT_FALSE(axisEllipse.matchesPoints(zigZag));
+
+    // An ellipse with a different point count (e.g. from EllipseHandler or after scaling) is still accepted
+    std::vector<Point> coarseEllipse;
+    constexpr int N = 32;
+    for (int i = 0; i <= N; i++) {
+        const double t = 2.0 * M_PI * static_cast<double>(i) / static_cast<double>(N);
+        coarseEllipse.emplace_back(300.0 + 50.0 * std::cos(t), 300.0 + 30.0 * std::sin(t));
+    }
+    EXPECT_TRUE(axisEllipse.matchesPoints(coarseEllipse));
 }
 
 TEST(ShapeInfo, transformKeepsShapeAndPointsConsistent) {
@@ -198,7 +247,7 @@ TEST(ShapeInfo, strokeAffineOperationsTransformTheShape) {
         } else {
             expectSamePoints(s->getPointVector(), s->getShape()->generatePoints());
         }
-        EXPECT_TRUE(s->getShape()->matchesBounds(s->getSnappedBounds()));
+        EXPECT_TRUE(s->getShape()->matchesPoints(s->getPointVector()));
     }
 }
 
