@@ -249,6 +249,10 @@ double PenInputHandler::filterPressure(PositionInputData const& pos, XojPageView
 }
 
 bool PenInputHandler::isCurrentTapSelection(InputEvent const& event) const {
+    if (const EditSelection* selection = inputContext->getView()->getSelection(); selection && selection->isMoving()) {
+        return false;
+    }
+
     if (!inputContext->getToolHandler()->supportsTapFilter()) {
         return false;
     }
@@ -431,10 +435,11 @@ auto PenInputHandler::actionEnd(InputEvent const& event) -> bool {
 
     this->inputStartedOutsidePageArea = false;
 
-    bool cancelAction = isCurrentTapSelection(event);
+    const bool selectionMoving = selection && selection->isMoving();
+    bool cancelAction = !selectionMoving && isCurrentTapSelection(event);
 
     // Holding shift (with selections) also does not imply drawing
-    if (toolHandler->supportsTapFilter()) {
+    if (!selectionMoving && toolHandler->supportsTapFilter()) {
         if (inputContext->getSettings()->getStrokeFilterEnabled()) {
             cancelAction |= (event.state & GDK_SHIFT_MASK) && xournal->selection != nullptr;
         }
