@@ -415,7 +415,6 @@ void EditSelectionContents::updateContent(Rectangle<double> bounds, Rectangle<do
         undo->addUndoAction(std::make_unique<RotateUndoAction>(
                 this->sourcePage, &this->selected, snappedBounds.x + snappedBounds.width / 2,
                 snappedBounds.y + snappedBounds.height / 2, rotation - this->lastRotation));
-        this->rotation = 0;             // reset rotation for next usage
         this->lastRotation = rotation;  // undo one rotation at a time.
     }
     if (scale) {
