@@ -622,6 +622,9 @@ TEST(ConfigMigrationTest, skipsEmergencySaveAndErrorLogs) {
 }
 
 TEST(ConfigMigrationTest, keepsBrokenSymlinksAndCleansUpTempDir) {
+#ifdef _WIN32
+    GTEST_SKIP() << "Links are followed on Windows, where creating symlinks needs extra privileges";
+#endif
     const fs::path baseDir = fs::temp_directory_path() / "morexournal-test-config-migration-symlink";
     std::error_code ec;
     fs::remove_all(baseDir, ec);
@@ -699,6 +702,8 @@ TEST(ConfigMigrationTest, resetsMissingOrXournalppLatexTemplatePath) {
 
     EXPECT_TRUE(XournalMain::shouldResetLatexTemplatePath(fs::path{}));
     EXPECT_TRUE(XournalMain::shouldResetLatexTemplatePath(baseDir / "nonexistent" / "default_template.tex"));
+    // A custom template that is missing (e.g. on an unmounted drive) is kept
+    EXPECT_FALSE(XournalMain::shouldResetLatexTemplatePath(baseDir / "nonexistent" / "my_template.tex"));
     EXPECT_TRUE(XournalMain::shouldResetLatexTemplatePath(xoppShareTemplate));
     EXPECT_TRUE(XournalMain::shouldResetLatexTemplatePath(xoppMacTemplate));
     EXPECT_FALSE(XournalMain::shouldResetLatexTemplatePath(customTemplate));

@@ -770,8 +770,13 @@ void XournalMain::copyMigratedConfigDirectory(const fs::path& sourceDir, const f
             if (name == "emergencysave.xopp" || name == ERRORLOG_DIR || name == "errorlogs") {
                 continue;
             }
+#ifdef _WIN32
+            // Creating symlinks needs extra privileges on Windows, so links are followed there
+            fs::copy(entry.path(), tempDir / name, fs::copy_options::recursive);
+#else
             // Symlinks are copied as links, so a broken one (e.g. in plugins/) does not abort the migration
             fs::copy(entry.path(), tempDir / name, fs::copy_options::recursive | fs::copy_options::copy_symlinks);
+#endif
         }
         fs::rename(tempDir, cleanTarget);
     } catch (...) {
@@ -824,9 +829,11 @@ auto XournalMain::shouldResetLatexTemplatePath(const fs::path& templatePath) -> 
     if (templatePath.empty()) {
         return true;
     }
-    std::error_code ec;
-    if (!fs::is_regular_file(templatePath, ec) || ec) {
+    if (pointsIntoXournalppDataDir(templatePath)) {
         return true;
     }
-    return pointsIntoXournalppDataDir(templatePath);
+    // A missing bundled template means the app moved (e.g. a new AppImage mount path). A missing custom template
+    // may sit on a drive that is not mounted yet, so it is kept.
+    std::error_code ec;
+    return templatePath.filename() == "default_template.tex" && !fs::is_regular_file(templatePath, ec);
 }
