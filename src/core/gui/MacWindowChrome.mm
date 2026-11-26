@@ -8,7 +8,10 @@
 #ifdef GDK_WINDOWING_QUARTZ
 #import <AppKit/AppKit.h>
 #include <gdk/gdkquartz.h>
+// The header has no G_BEGIN_DECLS; AppKit and gdk.h are already included above, so only its own declarations get C linkage
+extern "C" {
 #include <gdk/quartz/gdkquartz-cocoa-access.h>  // gdk_quartz_window_get_nswindow (Objective-C only)
+}
 
 namespace {
 constexpr const char* kChromeObserverKey = "mx-mac-window-chrome-observer";
