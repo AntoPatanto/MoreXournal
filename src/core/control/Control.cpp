@@ -345,6 +345,15 @@ auto Control::autosaveCallback(Control* control) -> bool {
         return true;
     }
 
+    if (control->win) {
+        if (const EditSelection* sel = control->win->getXournal()->getSelection();
+            sel && sel->isTransient() && sel->isMoving()) {
+            // Defer autosave while the user is actively dragging a transient selection
+            return true;
+        }
+    }
+    control->dismissTransientSelection();
+
     auto* job = new AutosaveJob(control);
     control->scheduler->addJob(job, JOB_PRIORITY_NONE);
     job->unref();
