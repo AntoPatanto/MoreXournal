@@ -18,7 +18,7 @@
 
 class MainWindow;
 
-enum FloatingToolBoxState { recalcSize = 0, configuration, noChange };
+enum FloatingToolBoxState { recalcSize = 0, noChange };
 
 /************************
  * FloatingToolbox:
@@ -36,12 +36,6 @@ public:
 public:
     /// Show the toolbox at the provided coordinates (in widget-coordinates).
     void show(int x, int y);
-
-    /**
-     * showForConfiguration
-     * i.e. appear in fixed position in top left, extra space and do not hide automatically.
-     */
-    void showForConfiguration();
 
     void hide();
 
@@ -66,11 +60,6 @@ private:
      * ... but hide some labels depending on conditions.
      */
     void show();
-
-    /**
-     * check if user has assigned a button to activate, or has put tools in the FloatingToolbox.
-     */
-    bool floatingToolboxActivated();
 
     /**
      * Whether there are items in the toolbox.

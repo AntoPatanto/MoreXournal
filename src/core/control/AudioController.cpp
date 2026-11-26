@@ -7,17 +7,16 @@
 
 #include <glib.h>  // for g_get_monotonic_time
 
-#include "audio/AudioPlayer.h"                   // for AudioPlayer
-#include "audio/AudioRecorder.h"                 // for AudioRecorder
-#include "audio/DeviceInfo.h"                    // for DeviceInfo
-#include "control/Control.h"                     // for Control
-#include "control/actions/ActionDatabase.h"      // for ActionDatabase
-#include "control/settings/Settings.h"           // for Settings
-#include "gui/MainWindow.h"                      // for MainWindow
-#include "gui/toolbarMenubar/ToolMenuHandler.h"  // for ToolMenuHandler
-#include "util/XojMsgBox.h"                      // for XojMsgBox
-#include "util/i18n.h"                           // for _
-#include "util/safe_casts.h"                     // for as_signed
+#include "audio/AudioPlayer.h"               // for AudioPlayer
+#include "audio/AudioRecorder.h"             // for AudioRecorder
+#include "audio/DeviceInfo.h"                // for DeviceInfo
+#include "control/Control.h"                 // for Control
+#include "control/actions/ActionDatabase.h"  // for ActionDatabase
+#include "control/settings/Settings.h"       // for Settings
+#include "gui/MainWindow.h"                  // for MainWindow
+#include "util/XojMsgBox.h"                  // for XojMsgBox
+#include "util/i18n.h"                       // for _
+#include "util/safe_casts.h"                 // for as_signed
 
 using std::string;
 using std::vector;

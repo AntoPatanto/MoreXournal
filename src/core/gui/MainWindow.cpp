@@ -30,14 +30,12 @@
 #include "gui/inputdevices/InputContext.h"                 // for InputContext
 #include "gui/inputdevices/InputEvents.h"                  // for INPUT_DEVICE_TOUC...
 #include "gui/menus/menubar/Menubar.h"                     // for Menubar
-#include "gui/menus/menubar/ToolbarSelectionSubmenu.h"     // for ToolbarSelectionSubmenu
 #include "gui/scroll/ScrollHandling.h"                     // for ScrollHandling
 #include "gui/scroll/VerticalScrollbarRevealController.h"  // for VerticalScrollbarRevealController
 #include "gui/sidebar/Sidebar.h"                           // for Sidebar
 #include "gui/toolbarMenubar/ToolMenuHandler.h"            // for ToolMenuHandler
 #include "gui/toolbarMenubar/model/ToolbarData.h"          // for ToolbarData
 #include "gui/toolbarMenubar/model/ToolbarModel.h"         // for ToolbarModel
-#include "gui/widgets/SpinPageAdapter.h"                   // for SpinPageAdapter
 #include "gui/widgets/XournalWidget.h"                     // for gtk_xournal_get_l...
 #include "util/GListView.h"                                // for GListView, GListV...
 #include "util/GtkUtil.h"                                  // for getWidgetDPI
@@ -54,7 +52,6 @@
 #include "ToolbarDefinitions.h"  // for TOOLBAR_DEFINITIO...
 #include "XournalView.h"         // for XournalView
 #include "XournalppCursor.h"     // for XournalppCursor
-#include "config-dev.h"          // for TOOLBAR_CONFIG
 #include "filesystem.h"          // for path, exists
 
 #ifdef __APPLE__
@@ -1228,23 +1225,7 @@ void MainWindow::onSelectionChanged() {
 
 auto MainWindow::getSelectedToolbar() const -> ToolbarData* { return this->selectedToolbar; }
 
-auto MainWindow::getToolbarWidgets() const -> const ToolbarWidgetArray& { return toolbarWidgets; }
-
-auto MainWindow::getToolbarName(GtkToolbar* toolbar) const -> const char* {
-    for (size_t i = 0; i < TOOLBAR_DEFINITIONS_LEN; i++) {
-        if (static_cast<void*>(this->toolbarWidgets[i].get()) == static_cast<void*>(toolbar)) {
-            return TOOLBAR_DEFINITIONS[i].propName;
-        }
-    }
-
-    return "";
-}
-
 void MainWindow::setDynamicallyGeneratedSubmenuDisabled(bool disabled) { menubar->setDisabled(disabled); }
-
-void MainWindow::updateToolbarMenu() {
-    menubar->getToolbarSelectionSubmenu().update(toolbar.get(), this->selectedToolbar);
-}
 
 void MainWindow::migrateSelectedToolbar() {
     Settings* settings = control->getSettings();
@@ -1279,8 +1260,6 @@ void MainWindow::setDocumentTitle(const std::string& name, const std::string& st
 auto MainWindow::getMenubar() const -> Menubar* { return menubar.get(); }
 
 void MainWindow::show(GtkWindow* parent) { gtk_widget_show(this->window); }
-
-auto MainWindow::getToolbarModel() const -> ToolbarModel* { return this->toolbar->getModel(); }
 
 auto MainWindow::getToolMenuHandler() const -> ToolMenuHandler* { return this->toolbar.get(); }
 

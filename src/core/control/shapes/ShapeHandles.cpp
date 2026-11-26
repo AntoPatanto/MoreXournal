@@ -198,19 +198,6 @@ ShapeInfo rotate(const ShapeInfo& info, Vec c, double angle) {
     return res;
 }
 
-std::optional<size_t> handleAt(const std::vector<Handle>& handles, Vec p, double radius) {
-    std::optional<size_t> best;
-    double bestDistance = radius;
-    for (size_t i = 0; i < handles.size(); i++) {
-        const double dist = norm(handles[i].pos - p);
-        if (dist <= bestDistance) {
-            best = i;
-            bestDistance = dist;
-        }
-    }
-    return best;
-}
-
 bool contains(const ShapeInfo& info, Vec p, double tolerance) {
     const std::vector<Point> outline = info.generatePoints();
     if (outline.empty()) {
