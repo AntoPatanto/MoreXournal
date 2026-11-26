@@ -7,13 +7,14 @@ on:
       - 'po/morexournal.pot'
       - 'po/*.po'
 
+permissions:
+  contents: read
+
 jobs:
   check-translations:
     if: startsWith(github.head_ref, 'l10n-')
     name: Check translations
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v6
       - name: 'Install dependencies'

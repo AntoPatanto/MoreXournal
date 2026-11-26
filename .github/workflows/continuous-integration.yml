@@ -9,6 +9,9 @@ on:
       - 'po/morexournal.pot'
       - 'po/*.po'
 
+permissions:
+  contents: read
+
 env:
   build-targets-json: '.github/available-build-targets.json'
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)

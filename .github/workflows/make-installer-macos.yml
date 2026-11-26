@@ -26,6 +26,9 @@ on:
         description: URL of the produced installer
         value: ${{ jobs.release-macos.outputs.link }}
 
+permissions:
+  contents: read
+
 jobs:
   release-macos:
     name: Create installer for ${{ inputs.displayed_name }}
