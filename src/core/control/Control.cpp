@@ -2001,6 +2001,8 @@ void Control::askToAnnotatePdf() {
 }
 
 void Control::print() {
+    this->clearSelectionEndText();
+
     this->doc->lock_shared();
     PrintHandler::print(this->doc, getCurrentPageNo(), this->getGtkWindow());
     this->doc->unlock_shared();
