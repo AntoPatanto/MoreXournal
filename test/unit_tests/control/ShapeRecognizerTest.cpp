@@ -11,15 +11,13 @@
 
 #include <cmath>   // for cos, sin, hypot, M_PI
 #include <memory>  // for unique_ptr
-#include <utility>  // for pair
-#include <vector>   // for vector
+#include <vector>  // for vector
 
 #include <gtest/gtest.h>
 
 #include "control/shaperecognizer/ShapeRecognizer.h"
 #include "control/shaperecognizer/ShapeSensitivityLogic.h"
 #include "model/Point.h"
-#include "model/ShapeInfo.h"
 #include "model/Stroke.h"
 
 namespace {
@@ -122,48 +120,30 @@ TEST(ShapeRecognizerTest, strokeBelowMinSizeIsNotRecognized) {
     EXPECT_NE(reco2.recognizePatterns(stroke.get(), 10.0), nullptr);
 }
 
-TEST(ShapeRecognizerTest, recognizedStrokesCarryTheirShape) {
+TEST(ShapeRecognizerTest, recognizedStrokesArePlainStrokes) {
     ShapeRecognizer reco;
 
     auto line = reco.recognizePatterns(makePolyline({Point(10, 10), Point(210, 120)}, 0.5).get(), MIN_SIZE);
     ASSERT_NE(line, nullptr);
-    ASSERT_TRUE(line->getShape());
-    EXPECT_EQ(line->getShape()->type, ShapeType::LINE);
+    EXPECT_FALSE(line->getShape());
 
     ShapeRecognizer reco2;
     auto rect = reco2.recognizePatterns(
             makePolyline({Point(0, 0), Point(200, 0), Point(200, 100), Point(0, 100), Point(0, 0)}, 0.5).get(),
             MIN_SIZE);
     ASSERT_NE(rect, nullptr);
-    ASSERT_TRUE(rect->getShape());
-    EXPECT_EQ(rect->getShape()->type, ShapeType::RECTANGLE);
+    EXPECT_FALSE(rect->getShape());
 
     ShapeRecognizer reco3;
     auto triangle = reco3.recognizePatterns(
             makePolyline({Point(0, 0), Point(200, 0), Point(100, 150), Point(0, 0)}, 0.5).get(), MIN_SIZE);
     ASSERT_NE(triangle, nullptr);
-    ASSERT_TRUE(triangle->getShape());
-    EXPECT_EQ(triangle->getShape()->type, ShapeType::POLYGON);
-    EXPECT_EQ(triangle->getShape()->pts.size(), 3U);
+    EXPECT_FALSE(triangle->getShape());
 
     ShapeRecognizer reco4;
     auto circle = reco4.recognizePatterns(makeCircle(100, 100, 60, 1.0).get(), MIN_SIZE);
     ASSERT_NE(circle, nullptr);
-    ASSERT_TRUE(circle->getShape());
-    EXPECT_EQ(circle->getShape()->type, ShapeType::ELLIPSE);
-
-    // The points draw the attached shape
-    for (const auto* s: {line.get(), rect.get(), triangle.get(), circle.get()}) {
-        EXPECT_TRUE(s->getShape()->matchesBounds(s->getSnappedBounds()));
-    }
-    for (const auto& [p, q]: {std::pair{rect->getPointVector(), rect->getShape()->generatePoints()},
-                              std::pair{triangle->getPointVector(), triangle->getShape()->generatePoints()}}) {
-        ASSERT_EQ(p.size(), q.size());
-        for (size_t i = 0; i < p.size(); i++) {
-            EXPECT_NEAR(p[i].x, q[i].x, 1e-6);
-            EXPECT_NEAR(p[i].y, q[i].y, 1e-6);
-        }
-    }
+    EXPECT_FALSE(circle->getShape());
 }
 
 TEST(ShapeRecognizerTest, wobblyLineRespondsToStrictAndTolerantParams) {

@@ -23,7 +23,6 @@
 #include "gui/SearchBar.h"
 #include "gui/XournalView.h"
 #include "gui/dialog/RenameLayerDialog.h"
-#include "gui/toolbarMenubar/ToolMenuHandler.h"
 #include "model/Document.h"
 #include "model/Font.h"
 #include "model/StrokeStyle.h"
@@ -389,11 +388,13 @@ struct ActionProperties<Action::SET_COLUMNS_OR_ROWS> {
 
 template <>
 struct ActionProperties<Action::MANAGE_TOOLBAR> {
-    static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->manageToolbars(); }
+    // Legacy action kept as a no-op for plugin compatibility
+    static void callback(GSimpleAction*, GVariant*, Control*) {}
 };
 template <>
 struct ActionProperties<Action::CUSTOMIZE_TOOLBAR> {
-    static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->customizeToolbars(); }
+    // Legacy action kept as a no-op for plugin compatibility
+    static void callback(GSimpleAction*, GVariant*, Control*) {}
 };
 template <>
 struct ActionProperties<Action::SHOW_MENUBAR> {

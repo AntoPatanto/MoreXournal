@@ -34,13 +34,9 @@ private:
 public:
     const std::vector<std::unique_ptr<ToolbarData>>& getToolbars() const;
     bool parse(fs::path const& filepath, bool predefined, const Palette& colorPalette);
-    ToolbarData* add(std::unique_ptr<ToolbarData> data);
-    void remove(ToolbarData* data);
-    void save(const fs::path& filepath) const;
-    bool existsId(const std::string& id) const;
-    void initCopyNameId(ToolbarData* data);
 
 private:
+    ToolbarData* add(std::unique_ptr<ToolbarData> data);
     void parseGroup(GKeyFile* config, const char* group, bool predefined, const Palette& colorPalette);
 
 private:

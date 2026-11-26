@@ -215,8 +215,6 @@ void StrokeHandler::onButtonReleaseEvent(const PositionInputData& pos, double zo
         auto recognized = reco.recognizePatterns(stroke.get(), control->getSettings()->getStrokeRecognizerMinSize());
 
         if (recognized) {
-            // Automatically recognized shapes become plain strokes
-            recognized->clearShape();
             // strokeRecognizerDetected handles the repainting and the deletion of the views.
             strokeRecognizerDetected(std::move(recognized), layer);
             return;
@@ -348,8 +346,6 @@ void StrokeHandler::tryConvertToShape() {
     } else if (control->getSettings()->getSnapRecognizedShapesEnabled()) {
         snapRecognizedBoundsToGrid(*recognized);
     }
-    // Hold-to-shape produces a plain stroke (selected transiently on release) rather than a shape object
-    recognized->clearShape();
 
     // Flush stabilizer lag and ensure at least two points before saving the freehand stroke for undo
     stabilizer->finalizeStroke();

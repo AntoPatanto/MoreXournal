@@ -192,6 +192,32 @@ TEST(EraserIndicatorLogicTest, testPdfPageAndColoredPaperPalette) {
     EXPECT_DOUBLE_EQ(creamPal.whiteoutFill.b, 1.0);
 }
 
+TEST(EraserIndicatorLogicTest, testIsPaperDarkUsesLuminanceForColoredPages) {
+    RecolorParameters noRecolor{};
+    noRecolor.recolorizeMainView = false;
+
+    // Bright green (Rec. 709 luma 0.7152) and yellow (0.9278) are light pages even though R+G+B for pure green is 255
+    const Color green{0xff00ff00U};
+    const Color yellow{0xffffff00U};
+    EXPECT_FALSE(isPaperDark(/*isPdfPage=*/false, green, noRecolor));
+    EXPECT_FALSE(computeEraserIndicatorPaletteForPage(/*isPdfPage=*/false, green, noRecolor).darkPage);
+    EXPECT_FALSE(isPaperDark(/*isPdfPage=*/false, yellow, noRecolor));
+
+    // Saturated red (0.2126) and blue (0.0722) are dark pages
+    const Color red{0xffff0000U};
+    const Color blue{0xff0000ffU};
+    EXPECT_TRUE(isPaperDark(/*isPdfPage=*/false, red, noRecolor));
+    EXPECT_TRUE(isPaperDark(/*isPdfPage=*/false, blue, noRecolor));
+
+    // PDF pages render on white paper unless recolored
+    EXPECT_FALSE(isPaperDark(/*isPdfPage=*/true, Colors::black, noRecolor));
+
+    RecolorParameters darkRecolor{};
+    darkRecolor.recolorizeMainView = true;
+    darkRecolor.recolor = Recolor(ColorU8{30, 32, 39}, ColorU8{230, 232, 240});
+    EXPECT_TRUE(isPaperDark(/*isPdfPage=*/true, Colors::black, darkRecolor));
+}
+
 TEST(EraserIndicatorLogicTest, testVisibilityAcrossDevicesAndStates) {
     EraserOverlayInput base{};
     base.insidePage = true;

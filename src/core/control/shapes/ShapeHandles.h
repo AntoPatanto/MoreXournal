@@ -8,9 +8,8 @@
 
 #pragma once
 
-#include <cstddef>   // for size_t
-#include <optional>  // for optional
-#include <vector>    // for vector
+#include <cstddef>  // for size_t
+#include <vector>   // for vector
 
 #include "model/ShapeInfo.h"  // for ShapeInfo
 #include "util/Point.h"       // for Point
@@ -57,9 +56,6 @@ ShapeInfo dragHandle(const ShapeInfo& base, size_t index, Vec target, double min
 
 /// The shape rotated by `angle` (radians, same orientation as xoj::util::Matrix::ROTATION) around `c`
 ShapeInfo rotate(const ShapeInfo& info, Vec c, double angle);
-
-/// @return The index of the handle nearest to p within `radius`, if any
-std::optional<size_t> handleAt(const std::vector<Handle>& handles, Vec p, double radius);
 
 /**
  * @brief Whether p grabs the shape: inside a closed shape, or within `tolerance` of its outline.

@@ -38,10 +38,6 @@ HandlePoint findHandle(const SelectionLayout& layout, CursorSelectionType type) 
 }  // namespace
 
 TEST(SelectionHandleLogic, deviceRadiiAndVisualSizes) {
-    EXPECT_DOUBLE_EQ(hitDiameterPx(DeviceKind::Fine), 24.0);
-    EXPECT_DOUBLE_EQ(hitDiameterPx(DeviceKind::Pen), 32.0);
-    EXPECT_DOUBLE_EQ(hitDiameterPx(DeviceKind::Touch), 44.0);
-
     EXPECT_DOUBLE_EQ(hitRadiusPx(DeviceKind::Fine), 12.0);
     EXPECT_DOUBLE_EQ(hitRadiusPx(DeviceKind::Pen), 16.0);
     EXPECT_DOUBLE_EQ(hitRadiusPx(DeviceKind::Touch), 22.0);

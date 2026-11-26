@@ -59,17 +59,6 @@
     box-shadow: none;
 }
 
-/* Add additional padding and a border to make editing toolbars easier. */
-toolbar.editing {
-	padding-top: 4px;
-	padding-bottom: 4px;
-
-	border: 4px dashed orange;
-	border-radius: 3px;
-
-	box-shadow: inset -2px -2px 8px orange;
-}
-
 /*Fix ugly Background drop down button
  *
  * We need to select the button beside two labels or we will affect

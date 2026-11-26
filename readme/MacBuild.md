@@ -237,12 +237,6 @@ jhbuild -m xournalpp.modules build meta-xournalpp-deps
 
 ### Last step: build Xournal++ and package it as .app
 
-From the `mac-setup` directory, this can be done completely automatically using:
-```sh
-./complete-build.sh "$HOME"/gtk
-```
-
-Or manually with:
 ```sh
 # from the top-level folder
 

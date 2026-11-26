@@ -36,12 +36,6 @@ public:
      * Adds a new item and return the ID of the item
      */
     int addItem(std::string item);
-    bool removeItemById(int id);
-
-    /**
-     * Insert a new item and return the ID of the item
-     */
-    int insertItem(std::string item, int position);
 
     const ToolbarItemVector& getItems() const;
 
