@@ -36,6 +36,9 @@ on:
         type: string
         default: ''
 
+permissions:
+  contents: read
+
 jobs:
   ci-ubuntu:
     name: Create installer (Linux)

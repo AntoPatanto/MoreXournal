@@ -11,6 +11,8 @@ on:
       - 'src/core/plugin/luapi_application.h'
       - 'plugins/luapi_application.def.lua'
 
+permissions:
+  contents: read
 
 jobs:
   Test_Lua_definition:

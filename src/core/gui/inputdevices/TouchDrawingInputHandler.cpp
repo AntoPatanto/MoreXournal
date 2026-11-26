@@ -13,6 +13,7 @@
 #include "control/settings/ButtonConfig.h"     // for ButtonConfig
 #include "control/settings/Settings.h"         // for Settings
 #include "control/settings/SettingsEnums.h"    // for BUTTON_TOUCH, Button
+#include "control/tools/EditSelection.h"       // for EditSelection
 #include "gui/MainWindow.h"                    // for MainWindow
 #include "gui/PageView.h"                      // for XojPageView
 #include "gui/XournalView.h"                   // for XournalView
@@ -64,6 +65,11 @@ auto TouchDrawingInputHandler::handleImpl(InputEvent const& event) -> bool {
         if (!this->secondarySequence) {
             this->secondarySequence = event.sequence;
             this->inputContext->getView()->getCursor()->setMouseDown(false);
+            if (EditSelection* selection = this->inputContext->getView()->getSelection();
+                selection && selection->isMoving()) {
+                selection->mouseUp();
+                this->lastActionEndTimeStamp = event.timestamp;
+            }
             XojPageView* currentPage = this->getPageAtCurrentPosition(event);
 
             if (currentPage) {

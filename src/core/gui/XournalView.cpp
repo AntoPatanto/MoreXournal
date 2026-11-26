@@ -171,6 +171,9 @@ auto XournalView::onKeyPressEvent(const KeyEvent& event) -> bool {
 
     if (auto* selection = getSelection(); selection) {
         if (keyval == GDK_KEY_Escape) {
+            if (selection->isMoving()) {
+                selection->mouseUp();
+            }
             clearSelection();
             return true;
         }
