@@ -8,6 +8,7 @@
 #ifdef GDK_WINDOWING_QUARTZ
 #import <AppKit/AppKit.h>
 #include <gdk/gdkquartz.h>
+#include <gdk/quartz/gdkquartz-cocoa-access.h>  // gdk_quartz_window_get_nswindow (Objective-C only)
 
 namespace {
 constexpr const char* kChromeObserverKey = "mx-mac-window-chrome-observer";
