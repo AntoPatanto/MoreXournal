@@ -1,6 +1,5 @@
 #include "MacWindowChrome.h"
 
-#include <algorithm>
 #include <cmath>
 
 #include <glib.h>
@@ -124,15 +123,13 @@ constexpr const char* kChromeObserverKey = "mx-mac-window-chrome-observer";
     const CGFloat barHeight = _barHeight;
 
     // Expand the container vertically so traffic lights centred in a 48/56 pt bar are not clipped below AppKit's
-    // default 28 pt title bar, and limit its width to the traffic-light cluster so clicks on GTK top-bar widgets
-    // hit the content view directly.
-    const CGFloat zoomWidth = NSWidth(zoomBtn.frame) > 0.0 ? NSWidth(zoomBtn.frame) : 14.0;
-    const CGFloat clusterWidth =
-            std::min(NSWidth(themeFrame.bounds), kLeftInset + 2.0 * _buttonSpacing + zoomWidth + 8.0);
+    // default 28 pt title bar. It keeps the full window width: a narrower title bar view draws its own rounded top
+    // corner next to the zoom button. Clicks still reach GTK, because GDK takes mouse events before AppKit does.
+    const CGFloat windowWidth = NSWidth(themeFrame.bounds);
 
     NSRect containerFrame = titlebarContainer.frame;
     containerFrame.origin.x = 0.0;
-    containerFrame.size.width = clusterWidth;
+    containerFrame.size.width = windowWidth;
     containerFrame.size.height = barHeight;
     containerFrame.origin.y = themeFrame.isFlipped ? 0.0 : (NSHeight(themeFrame.bounds) - barHeight);
     titlebarContainer.frame = containerFrame;
@@ -140,7 +137,7 @@ constexpr const char* kChromeObserverKey = "mx-mac-window-chrome-observer";
     NSRect titlebarFrame = titlebarView.frame;
     titlebarFrame.origin.x = 0.0;
     titlebarFrame.origin.y = 0.0;
-    titlebarFrame.size.width = clusterWidth;
+    titlebarFrame.size.width = windowWidth;
     titlebarFrame.size.height = barHeight;
     titlebarView.frame = titlebarFrame;
 
@@ -179,6 +176,70 @@ void destroyObserver(gpointer data) {
 void onWindowDestroy(GtkWidget* window, gpointer) {
     g_object_set_data(G_OBJECT(window), kChromeObserverKey, nullptr);
 }
+
+/// True for windows that configureUnifiedTitlebar() set up, outside of macOS fullscreen.
+bool hasUnifiedTitlebar(NSWindow* window) {
+    return window != nil && window.titlebarAppearsTransparent &&
+           (window.styleMask & NSWindowStyleMaskFullSizeContentView) != 0 &&
+           (window.styleMask & NSWindowStyleMaskFullScreen) == 0;
+}
+
+bool isOverTrafficLight(NSEvent* event) {
+    NSWindow* window = event.window;
+    if (!hasUnifiedTitlebar(window)) {
+        return false;
+    }
+    for (NSWindowButton kind: {NSWindowCloseButton, NSWindowMiniaturizeButton, NSWindowZoomButton}) {
+        NSButton* button = [window standardWindowButton:kind];
+        if (button != nil && !button.hidden &&
+            NSPointInRect([button convertPoint:event.locationInWindow fromView:nil], button.bounds)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * GDK reads mouse events before AppKit and keeps every one that lands in its content view. With a full-size content
+ * view that includes the title bar, so the traffic lights never saw a click. This global filter hands presses on the
+ * traffic lights, and the release and drags of such a press, back to AppKit (GDK_FILTER_REMOVE makes GDK call
+ * [NSApp sendEvent:]). It also hands over the hover events of AppKit's own tracking areas, which show the button
+ * symbols.
+ */
+GdkFilterReturn forwardTrafficLightEvents(GdkXEvent* xevent, GdkEvent*, gpointer) {
+    static bool pressForwarded = false;
+    auto* event = static_cast<NSEvent*>(xevent);
+    switch (event.type) {
+        case NSEventTypeLeftMouseDown:
+        case NSEventTypeRightMouseDown:
+        case NSEventTypeOtherMouseDown:
+            pressForwarded = isOverTrafficLight(event);
+            return pressForwarded ? GDK_FILTER_REMOVE : GDK_FILTER_CONTINUE;
+        case NSEventTypeLeftMouseUp:
+        case NSEventTypeRightMouseUp:
+        case NSEventTypeOtherMouseUp:
+            if (pressForwarded) {
+                pressForwarded = false;
+                return GDK_FILTER_REMOVE;
+            }
+            return GDK_FILTER_CONTINUE;
+        case NSEventTypeLeftMouseDragged:
+        case NSEventTypeRightMouseDragged:
+        case NSEventTypeOtherMouseDragged:
+            return pressForwarded ? GDK_FILTER_REMOVE : GDK_FILTER_CONTINUE;
+        case NSEventTypeMouseEntered:
+        case NSEventTypeMouseExited: {
+            NSWindow* window = event.window;
+            NSTrackingArea* area = event.trackingArea;
+            if (hasUnifiedTitlebar(window) && area != nil && area.owner != window.contentView) {
+                return GDK_FILTER_REMOVE;
+            }
+            return GDK_FILTER_CONTINUE;
+        }
+        default:
+            return GDK_FILTER_CONTINUE;
+    }
+}
 }  // namespace
 #endif  // GDK_WINDOWING_QUARTZ
 
@@ -215,6 +276,12 @@ void configureUnifiedTitlebar(GtkWidget* window, int topBarHeight) {
             [[MxMacChromeObserver alloc] initWithWindow:nsWindow barHeight:static_cast<CGFloat>(topBarHeight)];
     g_object_set_data_full(G_OBJECT(window), kChromeObserverKey, observer, destroyObserver);
     g_signal_connect(window, "destroy", G_CALLBACK(onWindowDestroy), nullptr);
+
+    static bool filterInstalled = false;
+    if (!filterInstalled) {
+        gdk_window_add_filter(nullptr, forwardTrafficLightEvents, nullptr);
+        filterInstalled = true;
+    }
 
     [observer layoutTrafficLights];
     [observer scheduleLayoutTrafficLights];

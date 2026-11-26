@@ -175,6 +175,12 @@ menu,
 	padding: 4px;
 }
 
+/* A menu opens in its own popup window, whose decoration keeps Adwaita's 5px radius. On macOS the space between
+   that radius and the menu's 10px one is filled, so match the two. */
+.csd.popup decoration {
+	border-radius: 10px;
+}
+
 menu menuitem,
 .menu menuitem,
 .context-menu menuitem {
