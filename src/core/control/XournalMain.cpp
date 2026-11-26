@@ -14,7 +14,9 @@
 #include <sstream>       // for stringstream
 #include <stdexcept>     // for runtime_error
 #include <string>        // for string, basic_string
+#include <string_view>   // for string_view
 #include <system_error>  // for error_code, errc, make_error_code
+#include <utility>       // for move
 #include <vector>        // for vector
 
 #include <gio/gio.h>      // for GApplication, G_APPLICATION
@@ -360,6 +362,14 @@ auto findResourcePath(const fs::path& searchFile) -> fs::path {
     return {};
 }
 
+auto defaultLatexTemplatePath() -> fs::path {
+    fs::path resourcesDir = findResourcePath("resources/");
+    if (resourcesDir.empty()) {
+        resourcesDir = Util::getDataPath() / "resources";
+    }
+    return resourcesDir / "default_template.tex";
+}
+
 void initResourcePath(GladeSearchpath* gladePath, const gchar* relativePathAndFile, bool failIfNotFound) {
     auto uiPath = findResourcePath(relativePathAndFile);  // i.e.  relativePathAndFile = "ui/about.glade"
 
@@ -448,10 +458,13 @@ void on_startup(GApplication* application, XMPtr app_data) {
     app_data->control = std::make_unique<Control>(application, app_data->gladePath.get());
 
     auto& globalLatexTemplatePath = app_data->control->getSettings()->latexSettings.globalTemplatePath;
-    if (globalLatexTemplatePath.empty()) {
-        globalLatexTemplatePath = findResourcePath("resources/") / "default_template.tex";
-        g_message("Using default latex template in %s", globalLatexTemplatePath.string().c_str());
-        app_data->control->getSettings()->save();
+    if (XournalMain::shouldResetLatexTemplatePath(globalLatexTemplatePath)) {
+        fs::path defaultPath = defaultLatexTemplatePath();
+        if (globalLatexTemplatePath != defaultPath) {
+            globalLatexTemplatePath = std::move(defaultPath);
+            g_message("Using default latex template in %s", char_cast(globalLatexTemplatePath.u8string().c_str()));
+            app_data->control->getSettings()->save();
+        }
     }
 
     app_data->win = std::make_unique<MainWindow>(app_data->gladePath.get(), app_data->control.get(),
@@ -824,4 +837,50 @@ void XournalMain::copyMigratedConfigDirectory(const fs::path& sourceDir, const f
         }
         throw;
     }
+}
+
+namespace {
+auto toAsciiLower(std::string_view sv) -> std::string {
+    std::string out;
+    out.reserve(sv.size());
+    for (char c: sv) {
+        out.push_back((c >= 'A' && c <= 'Z') ? static_cast<char>(c - 'A' + 'a') : c);
+    }
+    return out;
+}
+
+auto pointsIntoXournalppDataDir(const fs::path& templatePath) -> bool {
+    std::vector<std::string> parts;
+    for (const auto& part: templatePath) {
+        const auto u8 = part.u8string();
+        parts.push_back(toAsciiLower(char_cast(u8)));
+    }
+    for (size_t i = 0; i < parts.size(); ++i) {
+        // Linux, Windows, Flatpak, AppImage: .../share/xournalpp/...
+        if (parts[i] == "share" && i + 1 < parts.size() && parts[i + 1] == "xournalpp") {
+            return true;
+        }
+        // macOS app bundle: .../Xournal++.app/...
+        if (parts[i] == "xournal++.app" || parts[i] == "xournalpp.app") {
+            return true;
+        }
+        // Relative or source-tree Xournal++ resources: .../xournalpp/resources/...
+        if ((parts[i] == "xournalpp" || parts[i] == "xournal++") && i + 1 < parts.size() &&
+            parts[i + 1] == "resources") {
+            return true;
+        }
+    }
+    return false;
+}
+}  // namespace
+
+auto XournalMain::shouldResetLatexTemplatePath(const fs::path& templatePath) -> bool {
+    if (templatePath.empty()) {
+        return true;
+    }
+    std::error_code ec;
+    if (!fs::is_regular_file(templatePath, ec) || ec) {
+        return true;
+    }
+    return pointsIntoXournalppDataDir(templatePath);
 }

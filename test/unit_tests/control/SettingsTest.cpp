@@ -679,3 +679,29 @@ TEST(ConfigMigrationTest, removesTempDirAndLeavesTargetAbsentOnFailure) {
 
     fs::remove_all(baseDir, ec);
 }
+
+TEST(ConfigMigrationTest, resetsMissingOrXournalppLatexTemplatePath) {
+    const fs::path baseDir = fs::temp_directory_path() / "morexournal-test-latex-template-migration";
+    std::error_code ec;
+    fs::remove_all(baseDir, ec);
+
+    const fs::path customTemplate = baseDir / "custom" / "my_template.tex";
+    const fs::path mxTemplate = baseDir / "share" / "morexournal" / "resources" / "default_template.tex";
+    const fs::path xoppShareTemplate = baseDir / "share" / "xournalpp" / "resources" / "default_template.tex";
+    const fs::path xoppMacTemplate =
+            baseDir / "Xournal++.app" / "Contents" / "Resources" / "resources" / "default_template.tex";
+
+    for (const fs::path& p: {customTemplate, mxTemplate, xoppShareTemplate, xoppMacTemplate}) {
+        fs::create_directories(p.parent_path());
+        std::ofstream(p) << "\\documentclass{standalone}\n";
+    }
+
+    EXPECT_TRUE(XournalMain::shouldResetLatexTemplatePath(fs::path{}));
+    EXPECT_TRUE(XournalMain::shouldResetLatexTemplatePath(baseDir / "nonexistent" / "default_template.tex"));
+    EXPECT_TRUE(XournalMain::shouldResetLatexTemplatePath(xoppShareTemplate));
+    EXPECT_TRUE(XournalMain::shouldResetLatexTemplatePath(xoppMacTemplate));
+    EXPECT_FALSE(XournalMain::shouldResetLatexTemplatePath(customTemplate));
+    EXPECT_FALSE(XournalMain::shouldResetLatexTemplatePath(mxTemplate));
+
+    fs::remove_all(baseDir, ec);
+}
