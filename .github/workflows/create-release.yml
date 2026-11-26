@@ -70,9 +70,23 @@ jobs:
             }
             core.setOutput('macos_builds', JSON.stringify(macosTargets))
 
+            const cmake = fs.readFileSync('CMakeLists.txt', 'utf8')
+            const match = cmake.match(/^\s+VERSION\s+([0-9]+\.[0-9]+\.[0-9]+)/m)
+            if (!match) {
+              core.setFailed('Could not parse project VERSION from CMakeLists.txt')
+              return
+            }
+            const cmakeVersion = match[1]
+
             if (context.eventName === 'push' && process.env.GITHUB_REF_TYPE === 'tag') {
               const tag = process.env.GITHUB_REF_NAME
               const version = tag.substring(1) // Remove leading 'v'
+              if (version !== cmakeVersion) {
+                core.setFailed(
+                  `Release tag '${tag}' (version ${version}) does not match CMakeLists.txt project VERSION (${cmakeVersion}). Bump CMakeLists.txt before tagging.`
+                )
+                return
+              }
               const release_name = "MoreXournal " + version
               core.setOutput('tag', tag)
               core.setOutput('version', version)
@@ -82,13 +96,7 @@ jobs:
               core.setOutput('release-name', release_name)
               console.log("Building artifacts for release " + release_name)
             } else if (context.eventName === 'workflow_dispatch') {
-              const cmake = fs.readFileSync('CMakeLists.txt', 'utf8')
-              const match = cmake.match(/^\s+VERSION\s+([0-9]+\.[0-9]+\.[0-9]+)/m)
-              if (!match) {
-                core.setFailed('Could not parse project VERSION from CMakeLists.txt')
-                return
-              }
-              const version = match[1]
+              const version = cmakeVersion
               const now = new Date()
               const suffix = "-snapshot-" + now.toISOString().slice(0, 10).replace(/-/g, "")
               core.setOutput('version', version)
