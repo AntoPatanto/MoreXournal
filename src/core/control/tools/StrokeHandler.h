@@ -143,6 +143,8 @@ private:
     Point lastRawPos;
     /// Once converted, the shape is final: further motion is ignored and the stroke is not finalized
     bool convertedToShape = false;
+    /// Original freehand stroke saved on hold-to-shape conversion, moved into RecognizerUndoAction on release
+    std::unique_ptr<Stroke> originalStroke;
 
     friend class StrokeStabilizer::Active;
 

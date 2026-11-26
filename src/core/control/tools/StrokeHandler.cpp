@@ -140,6 +140,8 @@ void StrokeHandler::drawSegmentTo(const Point& point) {
 
 void StrokeHandler::onSequenceCancelEvent() {
     holdTimer.cancel();
+    convertedToShape = false;
+    originalStroke.reset();
     if (this->stroke) {
         this->viewPool->dispatchAndClear(xoj::view::StrokeToolView::CANCELLATION_REQUEST,
                                          Range(this->stroke->getBoundingBox()));
@@ -188,7 +190,8 @@ void StrokeHandler::onButtonReleaseEvent(const PositionInputData& pos, double zo
     Layer* layer = page->getSelectedLayer();
 
     UndoRedoHandler* undo = control->getUndoRedoHandler();
-    undo->addUndoAction(std::make_unique<InsertUndoAction>(page, layer, stroke.get()));
+    Stroke* insertedForUndo = convertedToShape ? originalStroke.get() : stroke.get();
+    undo->addUndoAction(std::make_unique<InsertUndoAction>(page, layer, insertedForUndo));
 
     Settings* settings = control->getSettings();
     if (settings->getEmptyLastPageAppend() == EmptyLastPageAppendType::OnDrawOfLastPage) {
@@ -221,6 +224,10 @@ void StrokeHandler::onButtonReleaseEvent(const PositionInputData& pos, double zo
     }
 
     auto ptr = stroke.get();
+    if (convertedToShape) {
+        xoj_assert(originalStroke);
+        undo->addUndoAction(std::make_unique<RecognizerUndoAction>(page, layer, std::move(originalStroke), ptr));
+    }
     Document* doc = control->getDocument();
     doc->lock();
     layer->addElement(std::move(stroke));
@@ -344,7 +351,16 @@ void StrokeHandler::tryConvertToShape() {
     // Hold-to-shape produces a plain stroke (selected transiently on release) rather than a shape object
     recognized->clearShape();
 
+    // Flush stabilizer lag and ensure at least two points before saving the freehand stroke for undo
+    stabilizer->finalizeStroke();
+    if (auto const& pv = stroke->getPointVector(); pv.size() == 1) {
+        const Point pt = pv.front();
+        stroke->addPoint(pt);
+    }
+    stroke->freeUnusedPointItems();
+
     Range dirtyRange = Range(stroke->getBoundingBox()).unite(Range(recognized->getBoundingBox()));
+    originalStroke = std::move(stroke);
     stroke = std::move(recognized);
     convertedToShape = true;
 
@@ -371,6 +387,7 @@ void StrokeHandler::onButtonPressEvent(const PositionInputData& pos, double zoom
     stabilizer->initialize(this, zoom, pos);
 
     convertedToShape = false;
+    originalStroke.reset();
 
     ToolHandler* h = control->getToolHandler();
     Settings* settings = control->getSettings();

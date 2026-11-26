@@ -1,20 +1,23 @@
 #include "XournalMain.h"
 
-#include <algorithm>  // for copy, sort, max
-#include <array>      // for array
-#include <chrono>     // for time_point, duration, hours...
-#include <clocale>    // for setlocale, LC_NUMERIC
-#include <cstdio>     // for printf
-#include <cstdlib>    // for exit, size_t
-#include <exception>  // for exception
-#include <iostream>   // for operator<<, endl, basic_...
-#include <locale>     // for locale
-#include <memory>     // for unique_ptr, allocator
-#include <optional>   // for optional, nullopt
-#include <sstream>    // for stringstream
-#include <stdexcept>  // for runtime_error
-#include <string>     // for string, basic_string
-#include <vector>     // for vector
+#include <algorithm>     // for copy, sort, max
+#include <array>         // for array
+#include <chrono>        // for time_point, duration, hours...
+#include <clocale>       // for setlocale, LC_NUMERIC
+#include <cstdio>        // for printf
+#include <cstdlib>       // for exit, size_t
+#include <exception>     // for exception
+#include <iostream>      // for operator<<, endl, basic_...
+#include <locale>        // for locale
+#include <memory>        // for unique_ptr, allocator
+#include <optional>      // for optional, nullopt
+#include <sstream>       // for stringstream
+#include <stdexcept>     // for runtime_error
+#include <string>        // for string, basic_string
+#include <string_view>   // for string_view
+#include <system_error>  // for error_code, errc, make_error_code
+#include <utility>       // for move
+#include <vector>        // for vector
 
 #include <gio/gio.h>      // for GApplication, G_APPLICATION
 #include <glib-object.h>  // for G_CALLBACK, g_signal_con...
@@ -38,6 +41,7 @@
 #include "util/GtkUtil.h"                    // for installScrolledWindowLongPressCrashGuard
 #include "util/PathUtil.h"                   // for getConfigFolder, openFil...
 #include "util/PlaceholderString.h"          // for PlaceholderString
+#include "util/StringUtils.h"                // for char_cast
 #include "util/Util.h"                       // for execInUiThread
 #include "util/VersionInfo.h"                // for getVersionInfo
 #include "util/XojMsgBox.h"                  // for XojMsgBox
@@ -358,6 +362,14 @@ auto findResourcePath(const fs::path& searchFile) -> fs::path {
     return {};
 }
 
+auto defaultLatexTemplatePath() -> fs::path {
+    fs::path resourcesDir = findResourcePath("resources/");
+    if (resourcesDir.empty()) {
+        resourcesDir = Util::getDataPath() / "resources";
+    }
+    return resourcesDir / "default_template.tex";
+}
+
 void initResourcePath(GladeSearchpath* gladePath, const gchar* relativePathAndFile, bool failIfNotFound) {
     auto uiPath = findResourcePath(relativePathAndFile);  // i.e.  relativePathAndFile = "ui/about.glade"
 
@@ -446,10 +458,13 @@ void on_startup(GApplication* application, XMPtr app_data) {
     app_data->control = std::make_unique<Control>(application, app_data->gladePath.get());
 
     auto& globalLatexTemplatePath = app_data->control->getSettings()->latexSettings.globalTemplatePath;
-    if (globalLatexTemplatePath.empty()) {
-        globalLatexTemplatePath = findResourcePath("resources/") / "default_template.tex";
-        g_message("Using default latex template in %s", globalLatexTemplatePath.string().c_str());
-        app_data->control->getSettings()->save();
+    if (XournalMain::shouldResetLatexTemplatePath(globalLatexTemplatePath)) {
+        fs::path defaultPath = defaultLatexTemplatePath();
+        if (globalLatexTemplatePath != defaultPath) {
+            globalLatexTemplatePath = std::move(defaultPath);
+            g_message("Using default latex template in %s", char_cast(globalLatexTemplatePath.u8string().c_str()));
+            app_data->control->getSettings()->save();
+        }
     }
 
     app_data->win = std::make_unique<MainWindow>(app_data->gladePath.get(), app_data->control.get(),
@@ -716,13 +731,109 @@ auto XournalMain::run(int argc, char** argv) -> int {
     return rv;
 }
 
-void XournalMain::copyMigratedConfigDirectory(const fs::path& sourceDir, const fs::path& targetDir) {
-    fs::create_directories(targetDir);
-    for (const auto& entry: fs::directory_iterator(sourceDir)) {
-        const fs::path name = entry.path().filename();
-        if (name == "emergencysave.xopp" || name == ERRORLOG_DIR || name == "errorlogs") {
-            continue;
-        }
-        fs::copy(entry.path(), targetDir / name, fs::copy_options::recursive);
+namespace {
+auto createTempMigrationDir(const fs::path& cleanTarget) -> fs::path {
+    const fs::path parent = cleanTarget.parent_path();
+    if (!parent.empty()) {
+        fs::create_directories(parent);
     }
+
+    const fs::path baseName = cleanTarget.filename();
+    for (int attempt = 0; attempt < 32; ++attempt) {
+        char suffix[17];
+        std::snprintf(suffix, sizeof(suffix), "%08x%08x", static_cast<unsigned int>(g_random_int()),
+                      static_cast<unsigned int>(g_random_int()));
+        fs::path tempName = baseName;
+        tempName += ".migrating-";
+        tempName += suffix;
+        const fs::path candidate = parent.empty() ? tempName : (parent / tempName);
+        if (fs::create_directory(candidate)) {
+            return candidate;
+        }
+    }
+    throw fs::filesystem_error("Failed to create temporary migration directory", cleanTarget,
+                               std::make_error_code(std::errc::file_exists));
+}
+
+}  // namespace
+
+void XournalMain::copyMigratedConfigDirectory(const fs::path& sourceDir, const fs::path& targetDir) {
+    fs::path cleanTarget = targetDir;
+    while (cleanTarget.filename().empty() && cleanTarget != cleanTarget.parent_path()) {
+        cleanTarget = cleanTarget.parent_path();
+    }
+
+    const fs::path tempDir = createTempMigrationDir(cleanTarget);
+    try {
+        for (const auto& entry: fs::directory_iterator(sourceDir)) {
+            const fs::path name = entry.path().filename();
+            if (name == "emergencysave.xopp" || name == ERRORLOG_DIR || name == "errorlogs") {
+                continue;
+            }
+#ifdef _WIN32
+            // Creating symlinks needs extra privileges on Windows, so links are followed there
+            fs::copy(entry.path(), tempDir / name, fs::copy_options::recursive);
+#else
+            // Symlinks are copied as links, so a broken one (e.g. in plugins/) does not abort the migration
+            fs::copy(entry.path(), tempDir / name, fs::copy_options::recursive | fs::copy_options::copy_symlinks);
+#endif
+        }
+        fs::rename(tempDir, cleanTarget);
+    } catch (...) {
+        std::error_code cleanupEc;
+        fs::remove_all(tempDir, cleanupEc);
+        if (cleanupEc) {
+            g_warning("Failed to remove temporary migration directory %s: %s", char_cast(tempDir.u8string().c_str()),
+                      cleanupEc.message().c_str());
+        }
+        throw;
+    }
+}
+
+namespace {
+auto toAsciiLower(std::string_view sv) -> std::string {
+    std::string out;
+    out.reserve(sv.size());
+    for (char c: sv) {
+        out.push_back((c >= 'A' && c <= 'Z') ? static_cast<char>(c - 'A' + 'a') : c);
+    }
+    return out;
+}
+
+auto pointsIntoXournalppDataDir(const fs::path& templatePath) -> bool {
+    std::vector<std::string> parts;
+    for (const auto& part: templatePath) {
+        const auto u8 = part.u8string();
+        parts.push_back(toAsciiLower(char_cast(u8)));
+    }
+    for (size_t i = 0; i < parts.size(); ++i) {
+        // Linux, Windows, Flatpak, AppImage: .../share/xournalpp/...
+        if (parts[i] == "share" && i + 1 < parts.size() && parts[i + 1] == "xournalpp") {
+            return true;
+        }
+        // macOS app bundle: .../Xournal++.app/...
+        if (parts[i] == "xournal++.app" || parts[i] == "xournalpp.app") {
+            return true;
+        }
+        // Relative or source-tree Xournal++ resources: .../xournalpp/resources/...
+        if ((parts[i] == "xournalpp" || parts[i] == "xournal++") && i + 1 < parts.size() &&
+            parts[i + 1] == "resources") {
+            return true;
+        }
+    }
+    return false;
+}
+}  // namespace
+
+auto XournalMain::shouldResetLatexTemplatePath(const fs::path& templatePath) -> bool {
+    if (templatePath.empty()) {
+        return true;
+    }
+    if (pointsIntoXournalppDataDir(templatePath)) {
+        return true;
+    }
+    // A missing bundled template means the app moved (e.g. a new AppImage mount path). A missing custom template
+    // may sit on a drive that is not mounted yet, so it is kept.
+    std::error_code ec;
+    return templatePath.filename() == "default_template.tex" && !fs::is_regular_file(templatePath, ec);
 }
