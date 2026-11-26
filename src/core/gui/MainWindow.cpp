@@ -8,47 +8,47 @@
 #include <gio/gio.h>                // for g_cancellable_is_...
 #include <gtk/gtkcssprovider.h>     // for gtk_css_provider_...
 
-#include "control/AudioController.h"                    // for AudioController
-#include "control/Control.h"                            // for Control
-#include "control/DeviceListHelper.h"                   // for getSourceMapping
-#include "control/ScrollHandler.h"                      // for ScrollHandler
-#include "control/actions/ActionDatabase.h"             // for ActionDatabase
-#include "control/jobs/XournalScheduler.h"              // for XournalScheduler
-#include "control/layer/LayerController.h"              // for LayerController
-#include "control/settings/Settings.h"                  // for Settings
-#include "control/settings/SettingsEnums.h"             // for SCROLLBAR_HIDE_HO...
-#include "control/zoom/ZoomControl.h"                   // for ZoomControl
-#include "gui/ChromeUtil.h"                             // for classifyEvent
-#include "gui/FloatingToolbox.h"                        // for FloatingToolbox
-#include "gui/FloatingTools.h"                          // for FloatingTools
-#include "gui/GladeGui.h"                               // for GladeGui
-#include "gui/PdfFloatingToolbox.h"                     // for PdfFloatingToolbox
-#include "gui/SearchBar.h"                              // for SearchBar
-#include "gui/ShapeToolbox.h"                           // for ShapeToolbox
-#include "gui/TopBar.h"                                 // for TopBar
-#include "gui/TouchModeLogic.h"                         // for resolveTouchLayout
-#include "gui/inputdevices/InputContext.h"              // for InputContext
-#include "gui/inputdevices/InputEvents.h"               // for INPUT_DEVICE_TOUC...
-#include "gui/menus/menubar/Menubar.h"                  // for Menubar
-#include "gui/menus/menubar/ToolbarSelectionSubmenu.h"  // for ToolbarSelectionSubmenu
+#include "control/AudioController.h"                       // for AudioController
+#include "control/Control.h"                               // for Control
+#include "control/DeviceListHelper.h"                      // for getSourceMapping
+#include "control/ScrollHandler.h"                         // for ScrollHandler
+#include "control/actions/ActionDatabase.h"                // for ActionDatabase
+#include "control/jobs/XournalScheduler.h"                 // for XournalScheduler
+#include "control/layer/LayerController.h"                 // for LayerController
+#include "control/settings/Settings.h"                     // for Settings
+#include "control/settings/SettingsEnums.h"                // for SCROLLBAR_HIDE_HO...
+#include "control/zoom/ZoomControl.h"                      // for ZoomControl
+#include "gui/ChromeUtil.h"                                // for classifyEvent
+#include "gui/FloatingToolbox.h"                           // for FloatingToolbox
+#include "gui/FloatingTools.h"                             // for FloatingTools
+#include "gui/GladeGui.h"                                  // for GladeGui
+#include "gui/PdfFloatingToolbox.h"                        // for PdfFloatingToolbox
+#include "gui/SearchBar.h"                                 // for SearchBar
+#include "gui/ShapeToolbox.h"                              // for ShapeToolbox
+#include "gui/TopBar.h"                                    // for TopBar
+#include "gui/TouchModeLogic.h"                            // for resolveTouchLayout
+#include "gui/inputdevices/InputContext.h"                 // for InputContext
+#include "gui/inputdevices/InputEvents.h"                  // for INPUT_DEVICE_TOUC...
+#include "gui/menus/menubar/Menubar.h"                     // for Menubar
+#include "gui/menus/menubar/ToolbarSelectionSubmenu.h"     // for ToolbarSelectionSubmenu
 #include "gui/scroll/ScrollHandling.h"                     // for ScrollHandling
 #include "gui/scroll/VerticalScrollbarRevealController.h"  // for VerticalScrollbarRevealController
-#include "gui/sidebar/Sidebar.h"                        // for Sidebar
-#include "gui/toolbarMenubar/ToolMenuHandler.h"         // for ToolMenuHandler
-#include "gui/toolbarMenubar/model/ToolbarData.h"       // for ToolbarData
-#include "gui/toolbarMenubar/model/ToolbarModel.h"      // for ToolbarModel
-#include "gui/widgets/SpinPageAdapter.h"                // for SpinPageAdapter
-#include "gui/widgets/XournalWidget.h"                  // for gtk_xournal_get_l...
-#include "util/GListView.h"                             // for GListView, GListV...
-#include "util/GtkUtil.h"                               // for getWidgetDPI
-#include "util/PathUtil.h"                              // for getConfigFile
-#include "util/StringUtils.h"                           // for char_cast
-#include "util/Util.h"                                  // for execInUiThread, npos
-#include "util/XojMsgBox.h"                             // for XojMsgBox
-#include "util/glib_casts.h"                            // for wrap_for_once_v
-#include "util/gtk4_helper.h"                           // for gtk_widget_get_width
-#include "util/i18n.h"                                  // for FS, _F
-#include "util/raii/CStringWrapper.h"                   // for OwnedCString
+#include "gui/sidebar/Sidebar.h"                           // for Sidebar
+#include "gui/toolbarMenubar/ToolMenuHandler.h"            // for ToolMenuHandler
+#include "gui/toolbarMenubar/model/ToolbarData.h"          // for ToolbarData
+#include "gui/toolbarMenubar/model/ToolbarModel.h"         // for ToolbarModel
+#include "gui/widgets/SpinPageAdapter.h"                   // for SpinPageAdapter
+#include "gui/widgets/XournalWidget.h"                     // for gtk_xournal_get_l...
+#include "util/GListView.h"                                // for GListView, GListV...
+#include "util/GtkUtil.h"                                  // for getWidgetDPI
+#include "util/PathUtil.h"                                 // for getConfigFile
+#include "util/StringUtils.h"                              // for char_cast
+#include "util/Util.h"                                     // for execInUiThread, npos
+#include "util/XojMsgBox.h"                                // for XojMsgBox
+#include "util/glib_casts.h"                               // for wrap_for_once_v
+#include "util/gtk4_helper.h"                              // for gtk_widget_get_width
+#include "util/i18n.h"                                     // for FS, _F
+#include "util/raii/CStringWrapper.h"                      // for OwnedCString
 
 #include "GladeSearchpath.h"     // for GladeSearchpath
 #include "ToolbarDefinitions.h"  // for TOOLBAR_DEFINITIO...
@@ -62,6 +62,7 @@
 #define Point Point_CF
 #include <CoreFoundation/CoreFoundation.h>
 #undef Point
+#include "gui/MacWindowChrome.h"
 #endif
 
 using std::string;
@@ -173,6 +174,15 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
                 return false;
             }),
             this);
+#ifdef __APPLE__
+    if (xoj::gui::mac::useUnifiedTitlebar()) {
+        g_signal_connect_after(this->window, "realize", G_CALLBACK(+[](GtkWidget* widget, gpointer self) {
+                                   auto* win = static_cast<MainWindow*>(self);
+                                   xoj::gui::mac::configureUnifiedTitlebar(widget, win->isTouchLayout() ? 56 : 48);
+                               }),
+                               this);
+    }
+#endif
     g_signal_connect(this->window, "size-allocate", G_CALLBACK(+[](GtkWidget*, GtkAllocation* alloc, gpointer self) {
                          if (alloc->width <= 1) {
                              return;
@@ -284,6 +294,11 @@ MainWindow::~MainWindow() {
     if (menubarWidget) {
         g_signal_handlers_disconnect_by_data(menubarWidget, this);
     }
+#ifdef __APPLE__
+    if (inlineBarEventBox) {
+        g_signal_handlers_disconnect_by_data(inlineBarEventBox, this);
+    }
+#endif
 }
 
 void MainWindow::createWindowBox() {
@@ -298,7 +313,24 @@ void MainWindow::createWindowBox() {
     inlineBar = gtk_header_bar_new();
     gtk_style_context_add_class(gtk_widget_get_style_context(inlineBar), "mx-topbar");
     gtk_widget_set_no_show_all(inlineBar, true);
+#ifdef __APPLE__
+    if (xoj::gui::mac::useUnifiedTitlebar()) {
+        // GtkHeaderBar has no GdkWindow of its own; an input-only event box behind its children catches
+        // primary clicks on empty bar space for native window dragging and double-click zoom.
+        inlineBarEventBox = gtk_event_box_new();
+        gtk_event_box_set_visible_window(GTK_EVENT_BOX(inlineBarEventBox), false);
+        gtk_event_box_set_above_child(GTK_EVENT_BOX(inlineBarEventBox), false);
+        gtk_widget_add_events(inlineBarEventBox, GDK_BUTTON_PRESS_MASK);
+        g_signal_connect(inlineBarEventBox, "button-press-event", G_CALLBACK(onInlineBarButtonPress), this);
+        gtk_container_add(GTK_CONTAINER(inlineBarEventBox), inlineBar);
+        gtk_box_append(GTK_BOX(box), inlineBarEventBox);
+        gtk_widget_show(inlineBarEventBox);
+    } else {
+        gtk_box_append(GTK_BOX(box), inlineBar);
+    }
+#else
     gtk_box_append(GTK_BOX(box), inlineBar);
+#endif
 
     // The menu bar is always in the window but stays hidden unless pinned or shown with Alt.
     // The GtkApplicationWindow menu bar stays off: gtk_application_set_menubar() is only kept for the accelerators.
@@ -329,6 +361,7 @@ void MainWindow::createTopBar() {
 
     topBar = std::make_unique<TopBar>(control, menubar->getSectionedModel());
 
+#ifndef __APPLE__
     if (control->getSettings()->isUseClientSideDecorations()) {
         // Must happen before the window is realized
         titlebar = gtk_header_bar_new();
@@ -337,6 +370,7 @@ void MainWindow::createTopBar() {
         gtk_widget_show(titlebar);
         gtk_window_set_titlebar(GTK_WINDOW(this->window), titlebar);
     }
+#endif
     placeTopBar(false);
 
     topBar->setPageInfo(pageNumber, pageCount);
@@ -350,8 +384,44 @@ void MainWindow::placeTopBar(bool fullscreen) {
     // GTK hides the title bar while fullscreen
     const bool useInline = fullscreen || titlebar == nullptr;
     gtk_widget_set_visible(inlineBar, useInline);
+#ifdef __APPLE__
+    if (xoj::gui::mac::useUnifiedTitlebar()) {
+        GtkStyleContext* ctx = gtk_widget_get_style_context(inlineBar);
+        if (fullscreen) {
+            gtk_style_context_remove_class(ctx, "mx-macos-traffic-lights");
+        } else {
+            gtk_style_context_add_class(ctx, "mx-macos-traffic-lights");
+        }
+    }
+#endif
     topBar->attachTo(GTK_HEADER_BAR(useInline ? inlineBar : titlebar));
 }
+
+#ifdef __APPLE__
+auto MainWindow::onInlineBarButtonPress(GtkWidget* widget, GdkEventButton* event, MainWindow* self) -> gboolean {
+    if (event->button != GDK_BUTTON_PRIMARY) {
+        return false;
+    }
+    if (gtk_get_event_widget(reinterpret_cast<GdkEvent*>(event)) != widget) {
+        return false;
+    }
+    // Leave clicks over the traffic-light inset untouched when not fullscreen
+    if (gtk_style_context_has_class(gtk_widget_get_style_context(self->inlineBar), "mx-macos-traffic-lights") &&
+        event->x < 80.0) {
+        return false;
+    }
+    if (event->type == GDK_2BUTTON_PRESS) {
+        xoj::gui::mac::zoomWindow(self->window);
+        return true;
+    }
+    if (event->type == GDK_BUTTON_PRESS) {
+        gtk_window_begin_move_drag(GTK_WINDOW(self->window), static_cast<gint>(event->button),
+                                   static_cast<gint>(event->x_root), static_cast<gint>(event->y_root), event->time);
+        return true;
+    }
+    return false;
+}
+#endif
 
 auto MainWindow::onKeyEvent(GtkWidget* window, GdkEventKey* event, MainWindow* self) -> gboolean {
     if (self->handleMenubarKey(event)) {
@@ -545,6 +615,11 @@ void MainWindow::setTouchLayout(bool touch) {
     if (this->shapeToolbox) {
         this->shapeToolbox->setTouchLayout(touch);
     }
+#ifdef __APPLE__
+    if (xoj::gui::mac::useUnifiedTitlebar()) {
+        xoj::gui::mac::updateTopBarHeight(this->window, touch ? 56 : 48);
+    }
+#endif
 }
 
 struct ThemeProperties {

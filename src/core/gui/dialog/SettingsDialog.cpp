@@ -31,13 +31,13 @@
 #include "util/safe_casts.h"                        // for round_cast
 #include "util/utf8_view.h"                         // for utf8
 
-#include "ButtonConfigGui.h"       // for ButtonConfigGui
-#include "DeviceTestingArea.h"     // for DeviceTestingArea
-#include "LanguageConfigGui.h"     // for LanguageConfigGui
-#include "LatexSettingsPanel.h"    // for LatexSettingsPanel
-#include "ShapeSettingsPanel.h"    // for ShapeSettingsPanel
-#include "XojOpenDlg.h"            // for showSelectFolderDialog
-#include "filesystem.h"            // for is_directory
+#include "ButtonConfigGui.h"     // for ButtonConfigGui
+#include "DeviceTestingArea.h"   // for DeviceTestingArea
+#include "LanguageConfigGui.h"   // for LanguageConfigGui
+#include "LatexSettingsPanel.h"  // for LatexSettingsPanel
+#include "ShapeSettingsPanel.h"  // for ShapeSettingsPanel
+#include "XojOpenDlg.h"          // for showSelectFolderDialog
+#include "filesystem.h"          // for is_directory
 
 class GladeSearchpath;
 
@@ -145,11 +145,11 @@ SettingsDialog::SettingsDialog(GladeSearchpath* gladeSearchPath, Settings* setti
                              }),
                              this);
 
-    g_signal_connect_swapped(builder.get("cbHoldToShapeEnabled"), "toggled", G_CALLBACK(+[](SettingsDialog* self) {
-                                 self->shapeSettingsPanel->setHoldControlsSensitive(
-                                         self->getCheckbox("cbHoldToShapeEnabled"));
-                             }),
-                             this);
+    g_signal_connect_swapped(
+            builder.get("cbHoldToShapeEnabled"), "toggled", G_CALLBACK(+[](SettingsDialog* self) {
+                self->shapeSettingsPanel->setHoldControlsSensitive(self->getCheckbox("cbHoldToShapeEnabled"));
+            }),
+            this);
 
     g_signal_connect_swapped(builder.get("cbStrokeFilterEnabled"), "toggled", G_CALLBACK(+[](SettingsDialog* self) {
                                  self->enableWithCheckbox("cbStrokeFilterEnabled", "spStrokeIgnoreTime");
@@ -663,7 +663,13 @@ void SettingsDialog::load() {
     loadCheckbox("cbPresentationGoFullscreen", goPresentationFullscreen);
     // The pinned menu bar is a property of the default view mode, not of the one in use (fullscreen, presentation)
     loadCheckbox("cbHideMenubarStartup", settings->getViewModes().at(PresetViewModeIds::VIEW_MODE_DEFAULT).showMenubar);
+#ifdef __APPLE__
+    GtkWidget* cbUseCSD = builder.get("cbUseCSD");
+    gtk_widget_set_no_show_all(cbUseCSD, true);
+    gtk_widget_hide(cbUseCSD);
+#else
     loadCheckbox("cbUseCSD", settings->isUseClientSideDecorations());
+#endif
     loadCheckbox("cbShowFilepathInTitlebar", settings->isFilepathInTitlebarShown());
     loadCheckbox("cbShowPageNumberInTitlebar", settings->isPageNumberInTitlebarShown());
 
@@ -978,7 +984,9 @@ void SettingsDialog::save() {
     if (inDefaultViewMode) {
         settings->setMenubarVisible(alwaysShowMenubar);
     }
+#ifndef __APPLE__
     settings->setUseClientSideDecorations(getCheckbox("cbUseCSD"));
+#endif
     settings->setFilepathInTitlebarShown(getCheckbox("cbShowFilepathInTitlebar"));
     settings->setPageNumberInTitlebarShown(getCheckbox("cbShowPageNumberInTitlebar"));
 

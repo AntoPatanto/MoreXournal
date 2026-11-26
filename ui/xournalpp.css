@@ -445,6 +445,10 @@ headerbar.mx-topbar {
 	box-shadow: none;
 }
 
+headerbar.mx-topbar.mx-macos-traffic-lights {
+	padding-left: 80px;
+}
+
 window.mx-touch headerbar.mx-topbar {
 	min-height: 56px;
 }
