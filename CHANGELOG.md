@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.1.1 (2026-11-25)
+
+First release with Windows and macOS builds. The application itself is unchanged from 0.1.0.
+
+### Added
+
+* Windows installers and portable zip archives for x86_64 and ARM64. The installer uses its own folder, registry keys, Start Menu entries and file types, so it installs next to Xournal++ without changing or removing it, and it can make MoreXournal the default app for `.xopp`, `.xopt` and `.xoj` files (#25)
+* macOS disk image (`.dmg`) for Apple Silicon Macs running macOS 11 or later. `MoreXournal.app` registers the Xournal++ file types without taking them over from an installed Xournal++, and it runs from any folder, including straight from the disk image (#25)
+
+### Installing the unsigned builds
+
+The Windows and macOS builds are not code signed, so both systems warn before the first launch:
+
+* **Windows**: when SmartScreen shows "Windows protected your PC", select "More info" and then "Run anyway".
+* **macOS**: open `MoreXournal.app` once, then go to System Settings → Privacy & Security and select "Open Anyway" next to the MoreXournal message.
+
 ## 0.1.0 (2026-11-24)
 
 First public release of MoreXournal, based on Xournal++ 1.3.8 at upstream commit `fd54c74c8`.
