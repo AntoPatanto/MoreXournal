@@ -163,6 +163,7 @@ auto XojMsgBox::askPluginQuestion(const std::string& pluginName, const std::stri
 
     if (defaultWindow != nullptr) {
         gtk_window_set_transient_for(GTK_WINDOW(dialog), defaultWindow);
+        gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER_ON_PARENT);
     }
 
     GValue val = G_VALUE_INIT;
@@ -191,6 +192,10 @@ void XojMsgBox::replaceFileQuestion(GtkWindow* win, fs::path file,
     if (!fs::exists(file)) {
         writeTofile(file);
         return;
+    }
+
+    if (win == nullptr) {
+        win = defaultWindow;
     }
 
     GtkWidget* dialog = gtk_message_dialog_new(

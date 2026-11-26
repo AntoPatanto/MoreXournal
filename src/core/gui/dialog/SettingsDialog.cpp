@@ -47,6 +47,35 @@ using std::vector;
 constexpr auto UI_FILE = "settings.glade";
 constexpr auto UI_DIALOG_NAME = "settingsDialog";
 
+namespace {
+void capSettingsDialogDefaultSize(GtkWindow* dialog, GtkWindow* parent) {
+    constexpr int DEFAULT_WIDTH = 1024;
+    constexpr int DEFAULT_HEIGHT = 740;
+    constexpr int WORKAREA_MARGIN_X = 40;
+    constexpr int WORKAREA_MARGIN_Y = 80;
+    constexpr int MIN_CAPPED_WIDTH = 600;
+    constexpr int MIN_CAPPED_HEIGHT = 480;
+
+    int width = DEFAULT_WIDTH;
+    int height = DEFAULT_HEIGHT;
+    if (parent != nullptr) {
+        if (GdkWindow* parentWin = gtk_widget_get_window(GTK_WIDGET(parent))) {
+            GdkDisplay* display = gdk_window_get_display(parentWin);
+            GdkMonitor* monitor = display ? gdk_display_get_monitor_at_window(display, parentWin) : nullptr;
+            if (monitor != nullptr) {
+                GdkRectangle workarea{};
+                gdk_monitor_get_workarea(monitor, &workarea);
+                if (workarea.width > 0 && workarea.height > 0) {
+                    width = std::min(width, std::max(MIN_CAPPED_WIDTH, workarea.width - WORKAREA_MARGIN_X));
+                    height = std::min(height, std::max(MIN_CAPPED_HEIGHT, workarea.height - WORKAREA_MARGIN_Y));
+                }
+            }
+        }
+    }
+    gtk_window_set_default_size(dialog, width, height);
+}
+}  // namespace
+
 SettingsDialog::SettingsDialog(GladeSearchpath* gladeSearchPath, Settings* settings, Control* control,
                                const std::vector<fs::path>& paletteDirectories, std::function<void()> callback):
         settings(settings),
@@ -81,8 +110,12 @@ SettingsDialog::SettingsDialog(GladeSearchpath* gladeSearchPath, Settings* setti
     });
     gtk_box_append(GTK_BOX(builder.get("boxShapeSettingsPanel")), shapeSettingsPanel->getPanel());
 
+    gtk_widget_set_vexpand(this->latexPanel.getPanel(), true);
     gtk_box_append(GTK_BOX(builder.get("latexTabBox")), this->latexPanel.getPanel());
+    gtk_widget_set_vexpand(this->paletteTab.getPanel(), true);
     gtk_box_append(GTK_BOX(builder.get("paletteTabBox")), this->paletteTab.getPanel());
+
+    capSettingsDialogDefaultSize(this->window.get(), this->control ? this->control->getGtkWindow() : nullptr);
 
     g_signal_connect(GTK_RANGE(builder.get("zoomCallibSlider")), "value-changed",
                      G_CALLBACK(+[](GtkRange* range, gpointer self) {
