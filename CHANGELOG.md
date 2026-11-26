@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.1.2 (2026-11-26)
+
+Bug fixes from a review of the code added since Xournal++ 1.3.8.
+
+### Fixed
+
+* Printing right after drawing a shape left that shape out of the printout (#31)
+* An autosave that ran while the last shape was still selected left that shape out of the recovery file (#31)
+* Undo after hold-to-shape now brings back the original freehand stroke instead of removing it (#31)
+* A broken symbolic link in `~/.config/xournalpp` no longer stops the settings migration halfway, and a failed migration no longer leaves a half-copied `~/.config/morexournal` (#31)
+* Users who had a custom Xournal++ toolbar layout no longer keep the old toolbar above the top bar after migrating (#31)
+* A LaTeX template path that pointed into Xournal++, or to a bundled template that moved, is reset to MoreXournal's default template (#31)
+* A selection no longer stays attached to the pointer after a quick tap with the tap filter on, or after a second finger lands during a drag (#30)
+* Pressing Esc while moving, resizing or rotating a selection now keeps the change undoable (#30)
+* Selection handles and the eraser cursor now agree on whether a coloured page is dark (#33)
+* Shapes in hand-edited files are accepted as editable only if their points match the stored shape (#33)
+* The Windows uninstaller now removes the `.xopp`, `.xopt` and `.xoj` associations and "Open with" entries it created, so those files open again with Xournal++ if it is installed, and it removes Start Menu shortcuts from a custom folder (#28)
+
+### Removed
+
+* The leftover toolbar customization dialogs from Xournal++, which no menu could open anymore (#33)
+
 ## 0.1.1 (2026-11-25)
 
 First release with Windows and macOS builds. The application itself is unchanged from 0.1.0.
