@@ -189,7 +189,8 @@ bool isOverTrafficLight(NSEvent* event) {
     if (!hasUnifiedTitlebar(window)) {
         return false;
     }
-    for (NSWindowButton kind: {NSWindowCloseButton, NSWindowMiniaturizeButton, NSWindowZoomButton}) {
+    constexpr NSWindowButton kinds[] = {NSWindowCloseButton, NSWindowMiniaturizeButton, NSWindowZoomButton};
+    for (NSWindowButton kind: kinds) {
         NSButton* button = [window standardWindowButton:kind];
         if (button != nil && !button.hidden &&
             NSPointInRect([button convertPoint:event.locationInWindow fromView:nil], button.bounds)) {
@@ -199,43 +200,40 @@ bool isOverTrafficLight(NSEvent* event) {
     return false;
 }
 
+bool isPointerGrabbed() {
+    GdkDisplay* display = gdk_display_get_default();
+    GdkSeat* seat = display != nullptr ? gdk_display_get_default_seat(display) : nullptr;
+    GdkDevice* pointer = seat != nullptr ? gdk_seat_get_pointer(seat) : nullptr;
+    return pointer != nullptr && gdk_display_device_is_grabbed(display, pointer);
+}
+
 /**
  * GDK reads mouse events before AppKit and keeps every one that lands in its content view. With a full-size content
- * view that includes the title bar, so the traffic lights never saw a click. This global filter hands presses on the
- * traffic lights, and the release and drags of such a press, back to AppKit (GDK_FILTER_REMOVE makes GDK call
- * [NSApp sendEvent:]). It also hands over the hover events of AppKit's own tracking areas, which show the button
- * symbols.
+ * view that includes the title bar, so the traffic lights never saw a click. This global filter hands left presses on
+ * the traffic lights, and the drags and release of such a press, back to AppKit (GDK_FILTER_REMOVE makes GDK call
+ * [NSApp sendEvent:]). While a GTK menu holds the pointer grab, the press stays with GTK, so the click closes the menu
+ * first, as it does on a native title bar. Hover events need nothing here: GDK already leaves AppKit's own tracking
+ * areas to AppKit.
  */
 GdkFilterReturn forwardTrafficLightEvents(GdkXEvent* xevent, GdkEvent*, gpointer) {
+    // The button's own tracking loop usually takes the release, so the next press or plain motion resets this
     static bool pressForwarded = false;
     auto* event = static_cast<NSEvent*>(xevent);
     switch (event.type) {
         case NSEventTypeLeftMouseDown:
-        case NSEventTypeRightMouseDown:
-        case NSEventTypeOtherMouseDown:
-            pressForwarded = isOverTrafficLight(event);
+            pressForwarded = isOverTrafficLight(event) && !isPointerGrabbed();
+            return pressForwarded ? GDK_FILTER_REMOVE : GDK_FILTER_CONTINUE;
+        case NSEventTypeLeftMouseDragged:
             return pressForwarded ? GDK_FILTER_REMOVE : GDK_FILTER_CONTINUE;
         case NSEventTypeLeftMouseUp:
-        case NSEventTypeRightMouseUp:
-        case NSEventTypeOtherMouseUp:
             if (pressForwarded) {
                 pressForwarded = false;
                 return GDK_FILTER_REMOVE;
             }
             return GDK_FILTER_CONTINUE;
-        case NSEventTypeLeftMouseDragged:
-        case NSEventTypeRightMouseDragged:
-        case NSEventTypeOtherMouseDragged:
-            return pressForwarded ? GDK_FILTER_REMOVE : GDK_FILTER_CONTINUE;
-        case NSEventTypeMouseEntered:
-        case NSEventTypeMouseExited: {
-            NSWindow* window = event.window;
-            NSTrackingArea* area = event.trackingArea;
-            if (hasUnifiedTitlebar(window) && area != nil && area.owner != window.contentView) {
-                return GDK_FILTER_REMOVE;
-            }
+        case NSEventTypeMouseMoved:
+            pressForwarded = false;
             return GDK_FILTER_CONTINUE;
-        }
         default:
             return GDK_FILTER_CONTINUE;
     }
