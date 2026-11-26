@@ -39,6 +39,9 @@ on:
         description: URL of the portable version (if produced)
         value: ${{ jobs.release-windows.outputs.link_portable }}
 
+permissions:
+  contents: read
+
 jobs:
   release-windows:
     name: Create installer for ${{ inputs.displayed_name }}
