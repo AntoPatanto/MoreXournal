@@ -620,3 +620,62 @@ TEST(ConfigMigrationTest, skipsEmergencySaveAndErrorLogs) {
 
     fs::remove_all(baseDir, ec);
 }
+
+TEST(ConfigMigrationTest, skipsBrokenSymlinksAndCleansUpTempDir) {
+    const fs::path baseDir = fs::temp_directory_path() / "morexournal-test-config-migration-symlink";
+    std::error_code ec;
+    fs::remove_all(baseDir, ec);
+    const fs::path srcDir = baseDir / "xournalpp";
+    const fs::path dstDir = baseDir / "morexournal";
+
+    fs::create_directories(srcDir / "plugins");
+    {
+        std::ofstream(srcDir / "settings.xml") << "<settings/>";
+        std::ofstream(srcDir / "plugins" / "real.lua") << "-- plugin\n";
+    }
+
+    std::error_code symlinkEc;
+    fs::create_symlink(srcDir / "missing-target", srcDir / "plugins" / "broken.lua", symlinkEc);
+    if (symlinkEc) {
+        fs::remove_all(baseDir, ec);
+        GTEST_SKIP() << "Symlinks are not supported in this environment: " << symlinkEc.message();
+    }
+    fs::create_symlink(srcDir / "missing-top", srcDir / "broken-top");
+    fs::create_symlink(srcDir / "plugins" / "real.lua", srcDir / "plugins" / "valid-link.lua");
+
+    EXPECT_NO_THROW(XournalMain::copyMigratedConfigDirectory(srcDir, dstDir));
+
+    EXPECT_TRUE(fs::exists(dstDir / "settings.xml"));
+    EXPECT_TRUE(fs::exists(dstDir / "plugins" / "real.lua"));
+    EXPECT_TRUE(fs::exists(dstDir / "plugins" / "valid-link.lua"));
+    EXPECT_EQ(fs::symlink_status(dstDir / "plugins" / "broken.lua").type(), fs::file_type::not_found);
+    EXPECT_EQ(fs::symlink_status(dstDir / "broken-top").type(), fs::file_type::not_found);
+
+    // No temporary sibling directory should remain
+    for (const auto& entry: fs::directory_iterator(baseDir)) {
+        const auto name = entry.path().filename().u8string();
+        EXPECT_EQ(name.find(u8".migrating-"), std::u8string::npos);
+    }
+
+    fs::remove_all(baseDir, ec);
+}
+
+TEST(ConfigMigrationTest, removesTempDirAndLeavesTargetAbsentOnFailure) {
+    const fs::path baseDir = fs::temp_directory_path() / "morexournal-test-config-migration-failure";
+    std::error_code ec;
+    fs::remove_all(baseDir, ec);
+    fs::create_directories(baseDir);
+
+    const fs::path missingSrc = baseDir / "does-not-exist";
+    const fs::path dstDir = baseDir / "morexournal";
+
+    EXPECT_THROW(XournalMain::copyMigratedConfigDirectory(missingSrc, dstDir), fs::filesystem_error);
+    EXPECT_FALSE(fs::exists(dstDir));
+
+    for (const auto& entry: fs::directory_iterator(baseDir)) {
+        const auto name = entry.path().filename().u8string();
+        EXPECT_EQ(name.find(u8".migrating-"), std::u8string::npos);
+    }
+
+    fs::remove_all(baseDir, ec);
+}
