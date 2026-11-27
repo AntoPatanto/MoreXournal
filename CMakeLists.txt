@@ -21,7 +21,7 @@ endif()
 ## Project related Variables
 ## Also update changelog in debian folder!
 project(morexournal
-        VERSION 0.1.1
+        VERSION 0.1.2
         DESCRIPTION "MoreXournal - hand note-taking program based on Xournal++"
         HOMEPAGE_URL "https://github.com/AntoPatanto/MoreXournal"
         LANGUAGES CXX C)

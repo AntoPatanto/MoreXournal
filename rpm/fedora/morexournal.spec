@@ -3,7 +3,7 @@
 %undefine __cmake_in_source_build
 
 Name:           morexournal
-Version:        0.1.1
+Version:        0.1.2
 Release:        1%{?dist}
 Summary:        Handwriting note-taking software with PDF annotation support
 
@@ -91,6 +91,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/io.github.anto
 %{_metainfodir}/io.github.antopatanto.morexournal.appdata.xml
 
 %changelog
+* Fri Nov 27 2026 MoreXournal maintainers <https://github.com/AntoPatanto/MoreXournal/issues> - 0.1.2-1
+- Update to 0.1.2
+
 * Wed Nov 25 2026 MoreXournal maintainers <https://github.com/AntoPatanto/MoreXournal/issues> - 0.1.1-1
 - Update to 0.1.1
 
