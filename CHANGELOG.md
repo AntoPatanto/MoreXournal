@@ -16,6 +16,7 @@ Bug fixes from a review of the code added since Xournal++ 1.3.8, and a native ti
 * On macOS, dialogs open centred on the main window instead of in the top-left corner of the screen (#32)
 * Menus no longer show light corners in dark mode on macOS (#32)
 * The Preferences dialog fits on a 1024×768 screen, so Save and Cancel stay visible (#32)
+* The Linux AppImage no longer quits at startup on systems with no input method configured. It no longer bundles the uim input method, which needs files from the host system (#35)
 * Printing right after drawing a shape left that shape out of the printout (#31)
 * An autosave that ran while the last shape was still selected left that shape out of the recovery file (#31)
 * Undo after hold-to-shape now brings back the original freehand stroke instead of removing it (#31)
