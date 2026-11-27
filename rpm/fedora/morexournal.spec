@@ -91,7 +91,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/io.github.anto
 %{_metainfodir}/io.github.antopatanto.morexournal.appdata.xml
 
 %changelog
-* Thu Nov 26 2026 MoreXournal maintainers <https://github.com/AntoPatanto/MoreXournal/issues> - 0.1.2-1
+* Fri Nov 27 2026 MoreXournal maintainers <https://github.com/AntoPatanto/MoreXournal/issues> - 0.1.2-1
 - Update to 0.1.2
 
 * Wed Nov 25 2026 MoreXournal maintainers <https://github.com/AntoPatanto/MoreXournal/issues> - 0.1.1-1
