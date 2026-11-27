@@ -30,13 +30,13 @@
 #include "util/safe_casts.h"                        // for round_cast
 #include "util/utf8_view.h"                         // for utf8
 
-#include "ButtonConfigGui.h"       // for ButtonConfigGui
-#include "DeviceTestingArea.h"     // for DeviceTestingArea
-#include "LanguageConfigGui.h"     // for LanguageConfigGui
-#include "LatexSettingsPanel.h"    // for LatexSettingsPanel
-#include "ShapeSettingsPanel.h"    // for ShapeSettingsPanel
-#include "XojOpenDlg.h"            // for showSelectFolderDialog
-#include "filesystem.h"            // for is_directory
+#include "ButtonConfigGui.h"     // for ButtonConfigGui
+#include "DeviceTestingArea.h"   // for DeviceTestingArea
+#include "LanguageConfigGui.h"   // for LanguageConfigGui
+#include "LatexSettingsPanel.h"  // for LatexSettingsPanel
+#include "ShapeSettingsPanel.h"  // for ShapeSettingsPanel
+#include "XojOpenDlg.h"          // for showSelectFolderDialog
+#include "filesystem.h"          // for is_directory
 
 class GladeSearchpath;
 
@@ -45,6 +45,35 @@ using std::vector;
 
 constexpr auto UI_FILE = "settings.glade";
 constexpr auto UI_DIALOG_NAME = "settingsDialog";
+
+namespace {
+void capSettingsDialogDefaultSize(GtkWindow* dialog, GtkWindow* parent) {
+    constexpr int DEFAULT_WIDTH = 1024;
+    constexpr int DEFAULT_HEIGHT = 740;
+    constexpr int WORKAREA_MARGIN_X = 40;
+    constexpr int WORKAREA_MARGIN_Y = 80;
+    constexpr int MIN_CAPPED_WIDTH = 600;
+    constexpr int MIN_CAPPED_HEIGHT = 480;
+
+    int width = DEFAULT_WIDTH;
+    int height = DEFAULT_HEIGHT;
+    if (parent != nullptr) {
+        if (GdkWindow* parentWin = gtk_widget_get_window(GTK_WIDGET(parent))) {
+            GdkDisplay* display = gdk_window_get_display(parentWin);
+            GdkMonitor* monitor = display ? gdk_display_get_monitor_at_window(display, parentWin) : nullptr;
+            if (monitor != nullptr) {
+                GdkRectangle workarea{};
+                gdk_monitor_get_workarea(monitor, &workarea);
+                if (workarea.width > 0 && workarea.height > 0) {
+                    width = std::min(width, std::max(MIN_CAPPED_WIDTH, workarea.width - WORKAREA_MARGIN_X));
+                    height = std::min(height, std::max(MIN_CAPPED_HEIGHT, workarea.height - WORKAREA_MARGIN_Y));
+                }
+            }
+        }
+    }
+    gtk_window_set_default_size(dialog, width, height);
+}
+}  // namespace
 
 SettingsDialog::SettingsDialog(GladeSearchpath* gladeSearchPath, Settings* settings, Control* control,
                                const std::vector<fs::path>& paletteDirectories, std::function<void()> callback):
@@ -80,8 +109,12 @@ SettingsDialog::SettingsDialog(GladeSearchpath* gladeSearchPath, Settings* setti
     });
     gtk_box_append(GTK_BOX(builder.get("boxShapeSettingsPanel")), shapeSettingsPanel->getPanel());
 
+    gtk_widget_set_vexpand(this->latexPanel.getPanel(), true);
     gtk_box_append(GTK_BOX(builder.get("latexTabBox")), this->latexPanel.getPanel());
+    gtk_widget_set_vexpand(this->paletteTab.getPanel(), true);
     gtk_box_append(GTK_BOX(builder.get("paletteTabBox")), this->paletteTab.getPanel());
+
+    capSettingsDialogDefaultSize(this->window.get(), this->control ? this->control->getGtkWindow() : nullptr);
 
     g_signal_connect(GTK_RANGE(builder.get("zoomCallibSlider")), "value-changed",
                      G_CALLBACK(+[](GtkRange* range, gpointer self) {
@@ -144,11 +177,11 @@ SettingsDialog::SettingsDialog(GladeSearchpath* gladeSearchPath, Settings* setti
                              }),
                              this);
 
-    g_signal_connect_swapped(builder.get("cbHoldToShapeEnabled"), "toggled", G_CALLBACK(+[](SettingsDialog* self) {
-                                 self->shapeSettingsPanel->setHoldControlsSensitive(
-                                         self->getCheckbox("cbHoldToShapeEnabled"));
-                             }),
-                             this);
+    g_signal_connect_swapped(
+            builder.get("cbHoldToShapeEnabled"), "toggled", G_CALLBACK(+[](SettingsDialog* self) {
+                self->shapeSettingsPanel->setHoldControlsSensitive(self->getCheckbox("cbHoldToShapeEnabled"));
+            }),
+            this);
 
     g_signal_connect_swapped(builder.get("cbStrokeFilterEnabled"), "toggled", G_CALLBACK(+[](SettingsDialog* self) {
                                  self->enableWithCheckbox("cbStrokeFilterEnabled", "spStrokeIgnoreTime");
@@ -644,25 +677,37 @@ void SettingsDialog::load() {
     }
 
     auto viewMode = settings->getViewModes().at(PresetViewModeIds::VIEW_MODE_FULLSCREEN);
-    bool showFullscreenMenubar = viewMode.showMenubar;
     bool showFullscreenToolbar = viewMode.showToolbar;
     bool showFullscreenSidebar = viewMode.showSidebar;
+#ifndef __APPLE__
+    bool showFullscreenMenubar = viewMode.showMenubar;
+#endif
     viewMode = settings->getViewModes().at(PresetViewModeIds::VIEW_MODE_PRESENTATION);
-    bool showPresentationMenubar = viewMode.showMenubar;
     bool showPresentationToolbar = viewMode.showToolbar;
     bool showPresentationSidebar = viewMode.showSidebar;
     bool goPresentationFullscreen = viewMode.goFullscreen;
+#ifndef __APPLE__
+    bool showPresentationMenubar = viewMode.showMenubar;
+#endif
 
+#ifdef __APPLE__
+    for (const char* id: {"cbShowFullscreenMenubar", "cbShowPresentationMenubar", "vbox7", "cbUseCSD"}) {
+        GtkWidget* w = builder.get(id);
+        gtk_widget_set_no_show_all(w, true);
+        gtk_widget_hide(w);
+    }
+#else
     loadCheckbox("cbShowFullscreenMenubar", showFullscreenMenubar);
-    loadCheckbox("cbShowFullscreenToolbar", showFullscreenToolbar);
-    loadCheckbox("cbShowFullscreenSidebar", showFullscreenSidebar);
     loadCheckbox("cbShowPresentationMenubar", showPresentationMenubar);
-    loadCheckbox("cbShowPresentationToolbar", showPresentationToolbar);
-    loadCheckbox("cbShowPresentationSidebar", showPresentationSidebar);
-    loadCheckbox("cbPresentationGoFullscreen", goPresentationFullscreen);
     // The pinned menu bar is a property of the default view mode, not of the one in use (fullscreen, presentation)
     loadCheckbox("cbHideMenubarStartup", settings->getViewModes().at(PresetViewModeIds::VIEW_MODE_DEFAULT).showMenubar);
     loadCheckbox("cbUseCSD", settings->isUseClientSideDecorations());
+#endif
+    loadCheckbox("cbShowFullscreenToolbar", showFullscreenToolbar);
+    loadCheckbox("cbShowFullscreenSidebar", showFullscreenSidebar);
+    loadCheckbox("cbShowPresentationToolbar", showPresentationToolbar);
+    loadCheckbox("cbShowPresentationSidebar", showPresentationSidebar);
+    loadCheckbox("cbPresentationGoFullscreen", goPresentationFullscreen);
     loadCheckbox("cbShowFilepathInTitlebar", settings->isFilepathInTitlebarShown());
     loadCheckbox("cbShowPageNumberInTitlebar", settings->isPageNumberInTitlebarShown());
 
@@ -952,18 +997,28 @@ void SettingsDialog::save() {
 
     ViewMode viewModeFullscreen;
     viewModeFullscreen.goFullscreen = true;
+#ifdef __APPLE__
+    viewModeFullscreen.showMenubar = settings->getViewModes().at(PresetViewModeIds::VIEW_MODE_FULLSCREEN).showMenubar;
+#else
     viewModeFullscreen.showMenubar = getCheckbox("cbShowFullscreenMenubar");
+#endif
     viewModeFullscreen.showToolbar = getCheckbox("cbShowFullscreenToolbar");
     viewModeFullscreen.showSidebar = getCheckbox("cbShowFullscreenSidebar");
     settings->setViewMode(PresetViewModeIds::VIEW_MODE_FULLSCREEN, viewModeFullscreen);
 
     ViewMode viewModePresentation;
+#ifdef __APPLE__
+    viewModePresentation.showMenubar =
+            settings->getViewModes().at(PresetViewModeIds::VIEW_MODE_PRESENTATION).showMenubar;
+#else
     viewModePresentation.showMenubar = getCheckbox("cbShowPresentationMenubar");
+#endif
     viewModePresentation.showToolbar = getCheckbox("cbShowPresentationToolbar");
     viewModePresentation.showSidebar = getCheckbox("cbShowPresentationSidebar");
     viewModePresentation.goFullscreen = getCheckbox("cbPresentationGoFullscreen");
     settings->setViewMode(PresetViewModeIds::VIEW_MODE_PRESENTATION, viewModePresentation);
 
+#ifndef __APPLE__
     const bool alwaysShowMenubar = getCheckbox("cbHideMenubarStartup");
     bool menubarPreferenceChanged = false;
     const bool inDefaultViewMode = settings->getActiveViewMode() == PresetViewModeIds::VIEW_MODE_DEFAULT;
@@ -978,6 +1033,7 @@ void SettingsDialog::save() {
         settings->setMenubarVisible(alwaysShowMenubar);
     }
     settings->setUseClientSideDecorations(getCheckbox("cbUseCSD"));
+#endif
     settings->setFilepathInTitlebarShown(getCheckbox("cbShowFilepathInTitlebar"));
     settings->setPageNumberInTitlebarShown(getCheckbox("cbShowPageNumberInTitlebar"));
 
@@ -1170,9 +1226,11 @@ void SettingsDialog::save() {
 
     settings->transactionEnd();
 
+#ifndef __APPLE__
     if (menubarPreferenceChanged && inDefaultViewMode) {
         this->control->setShowMenubar(alwaysShowMenubar);
     }
+#endif
 
     this->control->getWindow()->setGtkTouchscreenScrollingForDeviceMapping();
 

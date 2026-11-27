@@ -519,12 +519,14 @@ void on_startup(GApplication* application, XMPtr app_data) {
             [ctrl = app_data->control.get(), app = GTK_APPLICATION(application)](bool) {
                 ctrl->getScheduler()->start();
 
-                checkForEmergencySave(ctrl);
+                gtk_application_add_window(app, ctrl->getGtkWindow());
 
                 // There is a timing issue with the layout
                 // This fixes it, see #405
-                Util::execInUiThread([ctrl]() { ctrl->getWindow()->getXournal()->layoutPages(); });
-                gtk_application_add_window(app, ctrl->getGtkWindow());
+                Util::execInUiThread([ctrl]() {
+                    ctrl->getWindow()->getXournal()->layoutPages();
+                    checkForEmergencySave(ctrl);
+                });
             });
 }
 
