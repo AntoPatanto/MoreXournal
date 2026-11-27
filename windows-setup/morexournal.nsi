@@ -148,23 +148,13 @@ SectionEnd
 	DeleteRegKey SHCTX "Software\Classes\${PROGID}"
 !macroend
 
+; Only SHCNE_ASSOCCHANGED with null items is sent. The old per-shortcut
+; SHCNE_CREATE/SHCNE_DELETE calls wrote "i 0x1000 | 0x1": the System plugin
+; keeps only the last number, so the shell got SHCNF_PATHA (0x1) with a UTF-16
+; path and crashed in windows.storage.dll. Explorer already watches the Start
+; Menu folders, so those calls were not needed.
 !define SHCNE_ASSOCCHANGED 0x08000000
-!define SHCNE_CREATE 0x2
-!define SHCNE_DELETE 0x4
-
 !define SHCNF_IDLIST 0x0
-!define SHCNF_PATH 0x1
-!define SHCNF_FLUSH 0x1000
-
-!macro RefreshShellIconCreate FILEPATH
-	DetailPrint "Refreshing shell icon create ${FILEPATH}"
-	System::Call 'shell32::SHChangeNotify(i ${SHCNE_CREATE}, i ${SHCNF_FLUSH} | ${SHCNF_PATH}, w "${FILEPATH}", i 0)'
-!macroend
-
-!macro RefreshShellIconDelete FILEPATH
-	DetailPrint "Refreshing shell icon delete ${FILEPATH}"
-	System::Call 'shell32::SHChangeNotify(i ${SHCNE_DELETE}, i ${SHCNF_FLUSH} | ${SHCNF_PATH}, w "${FILEPATH}", i 0)'
-!macroend
 
 ;-------------------------------
 ; Installer Sections
@@ -280,8 +270,6 @@ Section "MoreXournal" SecMoreXournal
 		CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
 		CreateShortcut "$SMPROGRAMS\$StartMenuFolder\MoreXournal.lnk" '"$INSTDIR\bin\morexournal-wrapper.exe"'
 		CreateShortcut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" '"$INSTDIR\Uninstall.exe"'
-
-		!insertmacro RefreshShellIconCreate "$SMPROGRAMS\$StartMenuFolder\MoreXournal.lnk"
 	!insertmacro MUI_STARTMENU_WRITE_END
 
 	!insertmacro RefreshShellIcons
@@ -349,6 +337,5 @@ Section "Uninstall"
 	Delete "$INSTDIR\Uninstall.exe"
 	RMDir "$INSTDIR"
 
-	!insertmacro RefreshShellIconDelete "$SMPROGRAMS\$StartMenuFolder\MoreXournal.lnk"
 	System::Call 'shell32::SHChangeNotify(i ${SHCNE_ASSOCCHANGED}, i ${SHCNF_IDLIST}, i 0, i 0)'
 SectionEnd
