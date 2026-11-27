@@ -35,7 +35,6 @@ class ToolButton;
 class ToolHandler;
 class ToolPageLayer;
 class ToolPageSpinner;
-class PageTypeMenu;
 class SpinPageAdapter;
 class ZoomControl;
 class Control;
@@ -91,17 +90,9 @@ public:
 
     void setPageInfo(size_t currentPage, size_t pageCount, size_t pdfpage);
 
-    [[maybe_unused]] void removeColorToolItem(AbstractToolItem* it);
-    void addColorToolItem(std::unique_ptr<ColorToolItem> it);
-
     ToolbarModel* getModel();
 
-    const std::vector<std::unique_ptr<AbstractToolItem>>& getToolItems() const;
     const std::vector<std::unique_ptr<ColorToolItem>>& getColorToolItems() const;
-
-    Control* getControl();
-
-    void hideAudioMenuItems();
 
     std::string iconName(const char* icon);
 
@@ -111,9 +102,6 @@ public:
 private:
     template <class tool_item, class... Args>
     tool_item& emplaceItem(Args&&... args);
-
-    void initPenToolItem();
-    void initEraserToolItem();
 
 private:
     std::vector<std::unique_ptr<ColorToolItem>> toolbarColorItems;
@@ -130,13 +118,10 @@ private:
 
     std::unique_ptr<ToolbarModel> tbModel;
 
-    PageTypeMenu* newPageType = nullptr;
     PageBackgroundChangeController* pageBackgroundChangeController = nullptr;
     IconNameHelper iconNameHelper;
 
     std::unique_ptr<PageTypeSelectionPopover> pageTypeSelectionPopup;
     std::unique_ptr<StylePopoverFactory> penLineStylePopover;
     std::unique_ptr<StylePopoverFactory> eraserTypePopover;
-
-    xoj::util::GObjectSPtr<GSimpleAction> gAction;
 };

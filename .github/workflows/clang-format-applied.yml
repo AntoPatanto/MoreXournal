@@ -7,9 +7,12 @@ on:
       - 'src/**.h'
       - 'test/**.cpp'
 
+permissions:
+  contents: read
+
 jobs:
   clang-format-checking:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       CLANG_FORMAT_VERSIONS: "22 21 20 19"
     steps:
@@ -43,7 +46,7 @@ jobs:
 
           for VERSION in $CLANG_FORMAT_VERSIONS; do
             echo "Installing clang-format-$VERSION"
-            sudo apt-get install -y clang-format-$VERSION
+            sudo apt-get install -y "clang-format-$VERSION" || { echo "clang-format-$VERSION unavailable, trying next version"; continue; }
             echo "Testing $(clang-format-$VERSION --version)"
             # A bug in llvm's .deb packages makes git-clang-format-$VERSION call clang-format instead of clang-format-$VERSION
             # The --binary option gives a workaround

@@ -46,7 +46,6 @@ class Sidebar;
 class GladeSearchpath;
 class MetadataManager;
 class XournalppCursor;
-class ToolbarDragDropHandler;
 class MetadataEntry;
 class MetadataCallbackData;
 class PageBackgroundChangeController;
@@ -191,8 +190,6 @@ public:
     void setViewLayoutR2L(bool r2l);
     void setViewLayoutB2T(bool b2t);
 
-    void manageToolbars();
-    void customizeToolbars();
     void setFullscreen(bool enabled);
     void setShowSidebar(bool enabled);
     void setShowToolbar(bool enabled);
@@ -504,8 +501,6 @@ private:
     ToolHandler* toolHandler;
 
     ScrollHandler* scrollHandler;
-
-    ToolbarDragDropHandler* dragDropHandler = nullptr;
 
     GApplication* gtkApp = nullptr;
 

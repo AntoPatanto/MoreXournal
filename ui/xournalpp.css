@@ -59,17 +59,6 @@
     box-shadow: none;
 }
 
-/* Add additional padding and a border to make editing toolbars easier. */
-toolbar.editing {
-	padding-top: 4px;
-	padding-bottom: 4px;
-
-	border: 4px dashed orange;
-	border-radius: 3px;
-
-	box-shadow: inset -2px -2px 8px orange;
-}
-
 /*Fix ugly Background drop down button
  *
  * We need to select the button beside two labels or we will affect
@@ -173,6 +162,12 @@ menu,
 	border: 1px solid @mx_line;
 	border-radius: 10px;
 	padding: 4px;
+}
+
+/* A menu opens in its own popup window, whose decoration keeps Adwaita's 5px radius. On macOS the space between
+   that radius and the menu's 10px one is filled, so match the two. */
+.csd.popup decoration {
+	border-radius: 10px;
 }
 
 menu menuitem,
@@ -443,6 +438,10 @@ headerbar.mx-topbar {
 	color: @mx_text;
 	border-bottom: 1px solid @mx_line;
 	box-shadow: none;
+}
+
+headerbar.mx-topbar.mx-macos-traffic-lights {
+	padding-left: 80px;
 }
 
 window.mx-touch headerbar.mx-topbar {

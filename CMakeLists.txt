@@ -21,7 +21,7 @@ endif()
 ## Project related Variables
 ## Also update changelog in debian folder!
 project(morexournal
-        VERSION 0.1.0
+        VERSION 0.1.2
         DESCRIPTION "MoreXournal - hand note-taking program based on Xournal++"
         HOMEPAGE_URL "https://github.com/AntoPatanto/MoreXournal"
         LANGUAGES CXX C)
@@ -38,6 +38,12 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/find" "${PROJECT_SOURCE_DIR}/
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+if(APPLE)
+    enable_language(OBJCXX)
+    set(CMAKE_OBJCXX_STANDARD 20)
+    set(CMAKE_OBJCXX_STANDARD_REQUIRED ON)
+    set(CMAKE_OBJCXX_EXTENSIONS OFF)
+endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # enable clang tidy to use correct includes
 set_directory_properties(PROPERTIES EP_BASE "${PROJECT_BINARY_DIR}/external")
 

@@ -620,3 +620,94 @@ TEST(ConfigMigrationTest, skipsEmergencySaveAndErrorLogs) {
 
     fs::remove_all(baseDir, ec);
 }
+
+TEST(ConfigMigrationTest, keepsBrokenSymlinksAndCleansUpTempDir) {
+#ifdef _WIN32
+    GTEST_SKIP() << "Links are followed on Windows, where creating symlinks needs extra privileges";
+#endif
+    const fs::path baseDir = fs::temp_directory_path() / "morexournal-test-config-migration-symlink";
+    std::error_code ec;
+    fs::remove_all(baseDir, ec);
+    const fs::path srcDir = baseDir / "xournalpp";
+    const fs::path dstDir = baseDir / "morexournal";
+
+    fs::create_directories(srcDir / "plugins");
+    {
+        std::ofstream(srcDir / "settings.xml") << "<settings/>";
+        std::ofstream(srcDir / "plugins" / "real.lua") << "-- plugin\n";
+    }
+
+    std::error_code symlinkEc;
+    fs::create_symlink(srcDir / "missing-target", srcDir / "plugins" / "broken.lua", symlinkEc);
+    if (symlinkEc) {
+        fs::remove_all(baseDir, ec);
+        GTEST_SKIP() << "Symlinks are not supported in this environment: " << symlinkEc.message();
+    }
+    fs::create_symlink(srcDir / "missing-top", srcDir / "broken-top");
+    fs::create_symlink(srcDir / "plugins" / "real.lua", srcDir / "plugins" / "valid-link.lua");
+
+    EXPECT_NO_THROW(XournalMain::copyMigratedConfigDirectory(srcDir, dstDir));
+
+    EXPECT_TRUE(fs::exists(dstDir / "settings.xml"));
+    EXPECT_TRUE(fs::exists(dstDir / "plugins" / "real.lua"));
+    EXPECT_TRUE(fs::exists(dstDir / "plugins" / "valid-link.lua"));
+    // Broken links are copied as links instead of aborting the migration
+    EXPECT_TRUE(fs::is_symlink(fs::symlink_status(dstDir / "plugins" / "broken.lua")));
+    EXPECT_TRUE(fs::is_symlink(fs::symlink_status(dstDir / "broken-top")));
+
+    // No temporary sibling directory should remain
+    for (const auto& entry: fs::directory_iterator(baseDir)) {
+        const auto name = entry.path().filename().u8string();
+        EXPECT_EQ(name.find(u8".migrating-"), std::u8string::npos);
+    }
+
+    fs::remove_all(baseDir, ec);
+}
+
+TEST(ConfigMigrationTest, removesTempDirAndLeavesTargetAbsentOnFailure) {
+    const fs::path baseDir = fs::temp_directory_path() / "morexournal-test-config-migration-failure";
+    std::error_code ec;
+    fs::remove_all(baseDir, ec);
+    fs::create_directories(baseDir);
+
+    const fs::path missingSrc = baseDir / "does-not-exist";
+    const fs::path dstDir = baseDir / "morexournal";
+
+    EXPECT_THROW(XournalMain::copyMigratedConfigDirectory(missingSrc, dstDir), fs::filesystem_error);
+    EXPECT_FALSE(fs::exists(dstDir));
+
+    for (const auto& entry: fs::directory_iterator(baseDir)) {
+        const auto name = entry.path().filename().u8string();
+        EXPECT_EQ(name.find(u8".migrating-"), std::u8string::npos);
+    }
+
+    fs::remove_all(baseDir, ec);
+}
+
+TEST(ConfigMigrationTest, resetsMissingOrXournalppLatexTemplatePath) {
+    const fs::path baseDir = fs::temp_directory_path() / "morexournal-test-latex-template-migration";
+    std::error_code ec;
+    fs::remove_all(baseDir, ec);
+
+    const fs::path customTemplate = baseDir / "custom" / "my_template.tex";
+    const fs::path mxTemplate = baseDir / "share" / "morexournal" / "resources" / "default_template.tex";
+    const fs::path xoppShareTemplate = baseDir / "share" / "xournalpp" / "resources" / "default_template.tex";
+    const fs::path xoppMacTemplate =
+            baseDir / "Xournal++.app" / "Contents" / "Resources" / "resources" / "default_template.tex";
+
+    for (const fs::path& p: {customTemplate, mxTemplate, xoppShareTemplate, xoppMacTemplate}) {
+        fs::create_directories(p.parent_path());
+        std::ofstream(p) << "\\documentclass{standalone}\n";
+    }
+
+    EXPECT_TRUE(XournalMain::shouldResetLatexTemplatePath(fs::path{}));
+    EXPECT_TRUE(XournalMain::shouldResetLatexTemplatePath(baseDir / "nonexistent" / "default_template.tex"));
+    // A custom template that is missing (e.g. on an unmounted drive) is kept
+    EXPECT_FALSE(XournalMain::shouldResetLatexTemplatePath(baseDir / "nonexistent" / "my_template.tex"));
+    EXPECT_TRUE(XournalMain::shouldResetLatexTemplatePath(xoppShareTemplate));
+    EXPECT_TRUE(XournalMain::shouldResetLatexTemplatePath(xoppMacTemplate));
+    EXPECT_FALSE(XournalMain::shouldResetLatexTemplatePath(customTemplate));
+    EXPECT_FALSE(XournalMain::shouldResetLatexTemplatePath(mxTemplate));
+
+    fs::remove_all(baseDir, ec);
+}

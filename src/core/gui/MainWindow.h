@@ -30,12 +30,10 @@
 
 class Control;
 class Layout;
-class SpinPageAdapter;
 class ScrollHandling;
 class VerticalScrollbarRevealController;
 class ToolMenuHandler;
 class ToolbarData;
-class ToolbarModel;
 class XournalView;
 class PdfFloatingToolbox;
 class ShapeToolbox;
@@ -112,12 +110,10 @@ public:
 
     void updateScrollbarSidebarPosition();
 
-    ToolbarModel* getToolbarModel() const;
     ToolMenuHandler* getToolMenuHandler() const;
 
     void setDynamicallyGeneratedSubmenuDisabled(bool disabled);
 
-    void updateToolbarMenu();
     void updateColorscheme();
 
     /// Re-evaluates the touch chrome layout from Settings::getTouchMode() (e.g. after Preferences closes)
@@ -125,9 +121,6 @@ public:
     /// Updates touch chrome layout from a press/touch event (when TouchMode::AUTO is active)
     void onPointerInput(const GdkEvent* event);
     bool isTouchLayout() const;
-
-    const ToolbarWidgetArray& getToolbarWidgets() const;
-    const char* getToolbarName(GtkToolbar* toolbar) const;
 
     Layout* getLayout() const;
 
@@ -186,6 +179,9 @@ private:
     void placeTopBar(bool fullscreen);
 
     static gboolean onKeyEvent(GtkWidget* window, GdkEventKey* event, MainWindow* self);
+#ifdef __APPLE__
+    static gboolean onInlineBarButtonPress(GtkWidget* widget, GdkEventButton* event, MainWindow* self);
+#endif
     /// @return true if the event was used to hide the menu bar and must not go further
     bool handleMenubarKey(GdkEventKey* event);
     /// Cycles keyboard focus across top bar -> tool pill -> floating layer/zoom -> page (F6 / Shift+F6)
@@ -224,8 +220,11 @@ private:
     int pendingAllocatedWidth = 0;
     guint resizeIdleId = 0;
 
-    GtkWidget* titlebar = nullptr;         ///< Header bar used as window title bar, owned by the window
-    GtkWidget* inlineBar = nullptr;        ///< Header bar at the top of the content, owned by the window
+    GtkWidget* titlebar = nullptr;   ///< Header bar used as window title bar, owned by the window
+    GtkWidget* inlineBar = nullptr;  ///< Header bar at the top of the content, owned by the window
+#ifdef __APPLE__
+    GtkWidget* inlineBarEventBox = nullptr;  ///< Input-only event box behind inlineBar for window drag and zoom
+#endif
     GtkWidget* menubarRevealer = nullptr;  ///< Owned by the window
     GtkWidget* menubarWidget = nullptr;    ///< Owned by menubarRevealer
 

@@ -355,7 +355,7 @@ void LoadHandler::finalizeStroke() {
         if (shape) {
             if (!shape->isValid() || this->stroke->hasPressure()) {
                 g_warning("LoadHandler: Ignoring invalid shape on a stroke");
-            } else if (!shape->matchesBounds(this->stroke->getSnappedBounds())) {
+            } else if (!shape->matchesPoints(this->stroke->getPointVector())) {
                 g_warning("LoadHandler: Ignoring shape that does not match the stroke's points");
             } else {
                 this->stroke->attachShape(std::move(*shape));

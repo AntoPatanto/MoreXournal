@@ -3,6 +3,9 @@ name: Create and cache MacOS dependency blobs
 on:
   workflow_dispatch:  # trigger from Github's Action tab (or via API)
 
+permissions:
+  contents: read
+
 env:
   build-targets-json: '.github/available-build-targets.json'
 
@@ -12,8 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       macos_builds: ${{ steps.parse.outputs.macos_builds }}
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v6
         with:  # Get the build targets **from the master branch**

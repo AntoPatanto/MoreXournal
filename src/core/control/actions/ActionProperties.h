@@ -23,7 +23,6 @@
 #include "gui/SearchBar.h"
 #include "gui/XournalView.h"
 #include "gui/dialog/RenameLayerDialog.h"
-#include "gui/toolbarMenubar/ToolMenuHandler.h"
 #include "model/Document.h"
 #include "model/Font.h"
 #include "model/StrokeStyle.h"
@@ -304,7 +303,11 @@ struct ActionProperties<Action::PRESENTATION_MODE> {
 template <>
 struct ActionProperties<Action::FULLSCREEN> {
     using state_type = bool;
+#ifdef __APPLE__
+    static constexpr const char* accelerators[] = {"<Primary><Control>f", "F11", nullptr};
+#else
     static constexpr const char* accelerators[] = {"F11", nullptr};
+#endif
     static constexpr state_type initialState(Control*) { return false; }
     static void callback(GSimpleAction* ga, GVariant* p, Control* ctrl) {
         g_simple_action_set_state(ga, p);
@@ -389,20 +392,34 @@ struct ActionProperties<Action::SET_COLUMNS_OR_ROWS> {
 
 template <>
 struct ActionProperties<Action::MANAGE_TOOLBAR> {
-    static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->manageToolbars(); }
+    // Legacy action kept as a no-op for plugin compatibility
+    static void callback(GSimpleAction*, GVariant*, Control*) {}
 };
 template <>
 struct ActionProperties<Action::CUSTOMIZE_TOOLBAR> {
-    static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->customizeToolbars(); }
+    // Legacy action kept as a no-op for plugin compatibility
+    static void callback(GSimpleAction*, GVariant*, Control*) {}
 };
 template <>
 struct ActionProperties<Action::SHOW_MENUBAR> {
     using state_type = bool;
     static state_type initialState(Control* ctrl) {
+#ifdef __APPLE__
+        (void)ctrl;
+        return false;
+#else
         Settings* settings = ctrl->getSettings();
         return settings->getViewModes().at(settings->getActiveViewMode()).showMenubar;
+#endif
     }
-    static void callback(GSimpleAction*, GVariant* p, Control* ctrl) { ctrl->setShowMenubar(g_variant_get_boolean(p)); }
+    static void callback(GSimpleAction*, GVariant* p, Control* ctrl) {
+#ifdef __APPLE__
+        (void)p;
+        ctrl->setShowMenubar(false);
+#else
+        ctrl->setShowMenubar(g_variant_get_boolean(p));
+#endif
+    }
 };
 
 
@@ -594,14 +611,10 @@ struct ActionProperties<Action::SELECT_TOOL> {
     using state_type = ToolType;
     using parameter_type = state_type;
     static constexpr std::pair<ToolType, const char*> targetedAccelerators[] = {
-            {TOOL_PEN, "<Ctrl><Shift>p"},
-            {TOOL_ERASER, "<Ctrl><Shift>e"},
-            {TOOL_HIGHLIGHTER, "<Ctrl><Shift>h"},
-            {TOOL_TEXT, "<Ctrl><Shift>t"},
-            {TOOL_IMAGE, "<Ctrl><Shift>i"},
-            {TOOL_SELECT_RECT, "<Ctrl><Shift>r"},
-            {TOOL_SELECT_REGION, "<Ctrl><Shift>g"},
-            {TOOL_SELECT_OBJECT, "<Ctrl><Shift>o"},
+            {TOOL_PEN, "<Ctrl><Shift>p"},           {TOOL_ERASER, "<Ctrl><Shift>e"},
+            {TOOL_HIGHLIGHTER, "<Ctrl><Shift>h"},   {TOOL_TEXT, "<Ctrl><Shift>t"},
+            {TOOL_IMAGE, "<Ctrl><Shift>i"},         {TOOL_SELECT_RECT, "<Ctrl><Shift>r"},
+            {TOOL_SELECT_REGION, "<Ctrl><Shift>g"}, {TOOL_SELECT_OBJECT, "<Ctrl><Shift>o"},
             {TOOL_HAND, "<Ctrl><Shift>a"},
     };
     static state_type initialState(Control* ctrl) { return ctrl->getToolHandler()->getActiveTool()->getToolType(); }

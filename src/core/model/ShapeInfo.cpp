@@ -1,11 +1,10 @@
 #include "ShapeInfo.h"
 
 #include <algorithm>  // for all_of, max, min
-#include <cmath>      // for ceil, cos, hypot, isfinite, sin, sqrt, M_PI
+#include <cmath>      // for abs, atan2, ceil, cos, hypot, isfinite, sin, M_PI
 
-#include "model/Point.h"     // for Point
-#include "util/Matrix.h"     // for Matrix
-#include "util/Rectangle.h"  // for Rectangle
+#include "model/Point.h"  // for Point
+#include "util/Matrix.h"  // for Matrix
 
 using xoj::util::Matrix;
 using Vec = xoj::util::Point<double>;
@@ -13,19 +12,6 @@ using Vec = xoj::util::Point<double>;
 static double cross(const Vec& u, const Vec& v) { return u.x * v.y - u.y * v.x; }
 
 bool ShapeInfo::operator==(const ShapeInfo& other) const { return type == other.type && pts == other.pts; }
-
-size_t ShapeInfo::controlPointCount(ShapeType type) {
-    switch (type) {
-        case ShapeType::LINE:
-            return 2;
-        case ShapeType::RECTANGLE:
-        case ShapeType::ELLIPSE:
-            return 3;
-        case ShapeType::POLYGON:
-        default:
-            return 0;
-    }
-}
 
 auto ShapeInfo::generatePoints() const -> std::vector<Point> {
     std::vector<Point> res;
@@ -121,17 +107,102 @@ auto ShapeInfo::outlineRange() const -> Range {
     return rg;
 }
 
-bool ShapeInfo::matchesBounds(const xoj::util::Rectangle<double>& snappedBounds) const {
+bool ShapeInfo::matchesPoints(const std::vector<Point>& strokePoints) const {
+    if (!isValid() || strokePoints.size() < 2) {
+        return false;
+    }
+
     const Range outline = outlineRange();
     if (!outline.isValid()) {
         return false;
     }
-    const double tolerance = std::max(0.5, 0.01 * std::hypot(snappedBounds.width, snappedBounds.height));
-    const double maxX = snappedBounds.x + snappedBounds.width;
-    const double maxY = snappedBounds.y + snappedBounds.height;
-    return std::abs(outline.minX - snappedBounds.x) <= tolerance &&
-           std::abs(outline.minY - snappedBounds.y) <= tolerance && std::abs(outline.maxX - maxX) <= tolerance &&
-           std::abs(outline.maxY - maxY) <= tolerance;
+    const double tolerance = std::max(0.5, 0.01 * std::hypot(outline.getWidth(), outline.getHeight()));
+
+    Range strokeRange;
+    for (const auto& p: strokePoints) {
+        if (!std::isfinite(p.x) || !std::isfinite(p.y)) {
+            return false;
+        }
+        strokeRange.addPoint(p.x, p.y);
+    }
+    if (std::abs(outline.minX - strokeRange.minX) > tolerance ||
+        std::abs(outline.minY - strokeRange.minY) > tolerance ||
+        std::abs(outline.maxX - strokeRange.maxX) > tolerance ||
+        std::abs(outline.maxY - strokeRange.maxY) > tolerance) {
+        return false;
+    }
+
+    if (type == ShapeType::ELLIPSE) {
+        // Ellipses drawn by EllipseHandler use non-uniform angular spacing and keep their original point count
+        // across affine transforms, so check closure, curve distance, step size and full-loop winding in the
+        // normalized (a, b) frame.
+        constexpr size_t MIN_ELLIPSE_POINTS = 9;
+        if (strokePoints.size() < MIN_ELLIPSE_POINTS) {
+            return false;
+        }
+        if (std::hypot(strokePoints.front().x - strokePoints.back().x, strokePoints.front().y - strokePoints.back().y) >
+            tolerance) {
+            return false;
+        }
+
+        const Vec& c = pts[0];
+        const Vec a = pts[1] - c;
+        const Vec b = pts[2] - c;
+        const double det = cross(a, b);
+        const double minSemiAxis = std::min(std::hypot(a.x, a.y), std::hypot(b.x, b.y));
+
+        auto wrapDelta = [](double d) {
+            if (d > M_PI) {
+                d -= 2.0 * M_PI;
+            } else if (d < -M_PI) {
+                d += 2.0 * M_PI;
+            }
+            return d;
+        };
+
+        double firstAngle = 0.0;
+        double prevAngle = 0.0;
+        double totalAngle = 0.0;
+        for (size_t i = 0; i < strokePoints.size(); i++) {
+            const double dx = strokePoints[i].x - c.x;
+            const double dy = strokePoints[i].y - c.y;
+            const double u = (dx * b.y - dy * b.x) / det;
+            const double v = (a.x * dy - a.y * dx) / det;
+            const double r = std::hypot(u, v);
+            const double radialDist = (r > 1e-9) ? (std::abs(r - 1.0) / r) * std::hypot(dx, dy) : minSemiAxis;
+            if (!std::isfinite(radialDist) || radialDist > tolerance) {
+                return false;
+            }
+            const double angle = std::atan2(v, u);
+            if (i == 0) {
+                firstAngle = angle;
+            } else {
+                const double delta = wrapDelta(angle - prevAngle);
+                if (std::abs(delta) >= 0.5 * M_PI) {
+                    return false;
+                }
+                totalAngle += delta;
+            }
+            prevAngle = angle;
+        }
+        const double closeDelta = wrapDelta(firstAngle - prevAngle);
+        if (std::abs(closeDelta) >= 0.5 * M_PI) {
+            return false;
+        }
+        totalAngle += closeDelta;
+        return std::abs(std::abs(totalAngle) - 2.0 * M_PI) <= 0.1;
+    }
+
+    const std::vector<Point> expected = generatePoints();
+    if (strokePoints.size() != expected.size()) {
+        return false;
+    }
+    for (size_t i = 0; i < expected.size(); i++) {
+        if (std::hypot(strokePoints[i].x - expected[i].x, strokePoints[i].y - expected[i].y) > tolerance) {
+            return false;
+        }
+    }
+    return true;
 }
 
 auto ShapeInfo::toDoubles() const -> std::vector<double> {

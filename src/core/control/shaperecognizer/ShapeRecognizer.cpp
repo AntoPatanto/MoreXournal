@@ -1,12 +1,11 @@
 #include "ShapeRecognizer.h"
 
-#include <cmath>             // for fabs, M_PI
-#include <initializer_list>  // for initializer_list
-#include <iterator>          // for begin, next
-#include <memory>            // for allocator...
-#include <span>              // for span
-#include <utility>           // for move
-#include <vector>            // for vector
+#include <cmath>     // for fabs, M_PI
+#include <iterator>  // for begin, next
+#include <memory>    // for allocator...
+#include <span>      // for span
+#include <utility>   // for move
+#include <vector>    // for vector
 
 #include <glib.h>  // for g_message
 
@@ -14,7 +13,6 @@
 #include "control/shaperecognizer/ShapeRecognizerConfig.h"  // for RDEBUG
 #include "control/shaperecognizer/ShapeSensitivityLogic.h"  // for formatFixed
 #include "model/Point.h"                                    // for Point
-#include "model/ShapeInfo.h"                                // for ShapeInfo, ShapeType
 #include "model/Stroke.h"                                   // for Stroke
 #include "util/i18n.h"                                      // for _F, FS, _
 #include "util/safe_casts.h"                                // for as_unsigned
@@ -35,17 +33,6 @@ void ShapeRecognizer::resetRecognizer() {
     RDEBUG("reset");
     this->queue = {};
     this->queueLength = 0;
-}
-
-/// Attach a shape whose control points are the given points of the stroke
-static void attachShapeIfValid(Stroke& s, ShapeType type, std::initializer_list<size_t> indices) {
-    ShapeInfo info{type, {}};
-    for (size_t i: indices) {
-        info.pts.emplace_back(s.getPoint(i).getPosition());
-    }
-    if (info.isValid()) {
-        s.attachShape(std::move(info));
-    }
 }
 
 inline double dist2(const Point& P, const Point& Q) {
@@ -121,9 +108,6 @@ auto ShapeRecognizer::tryTriangle(ShapeRecognizerDiagnostics* diagnostics) -> st
     }
 
     s->addPoint(s->getPoint(0));
-
-    // After the last addPoint(), which drops the shape
-    attachShapeIfValid(*s, ShapeType::POLYGON, {0, 1, 2});
 
     if (diagnostics) {
         diagnostics->shape = RecognizedShapeKind::Triangle;
@@ -212,9 +196,6 @@ auto ShapeRecognizer::tryRectangle(ShapeRecognizerDiagnostics* diagnostics) -> s
     }
 
     s->addPoint(s->getPoint(0));
-
-    // The edges are exactly perpendicular: the corners are c0, c1, c1 + c3 - c0, c3
-    attachShapeIfValid(*s, ShapeType::RECTANGLE, {0, 1, 3});
 
     if (diagnostics) {
         diagnostics->shape = RecognizedShapeKind::Rectangle;
@@ -514,8 +495,6 @@ auto ShapeRecognizer::recognizePatterns(Stroke* stroke, double strokeMinSize, Sh
                         s->addPoint(Point(points.back().x, points.back().y));
                     }
                 }
-
-                attachShapeIfValid(*s, ShapeType::LINE, {0, 1});
 
                 if (diagnostics) {
                     diagnostics->shape = RecognizedShapeKind::Line;

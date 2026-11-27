@@ -284,6 +284,11 @@
      <attribute name="action">win.presentation-mode</attribute>
      <attribute name="accel">F5</attribute>
     </item>
+    <item>
+     <attribute name="label" translatable="yes">_Fullscreen</attribute>
+     <attribute name="action">win.fullscreen</attribute>
+     <!-- Fullscreen accelerators are defined in control/actions/ActionProperties.h -->
+    </item>
    </section>
    <section>
     <submenu>
@@ -428,6 +433,7 @@
      <attribute name="label" translatable="yes">Show Menubar</attribute>
      <attribute name="action">win.show-menubar</attribute>
      <attribute name="accel">F10</attribute>
+     <attribute name="class">in-window-menubar</attribute>
     </item>
     <item>
      <attribute name="label" translatable="yes">Show Toolbars</attribute>

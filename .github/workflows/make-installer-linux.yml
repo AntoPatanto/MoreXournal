@@ -51,6 +51,9 @@ on:
         description: URL of the Fedora RPM (if any)
         value: ${{ jobs.release-rpm.outputs.link_rpm }}
 
+permissions:
+  contents: read
+
 jobs:
   release-linux:
     if: ${{ inputs.build_appimage || inputs.publish_deb }}
@@ -72,14 +75,14 @@ jobs:
         uses: ./.github/actions/install_deps_ubuntu
         with:
           gcc_version: ${{ inputs.gcc_version }}
+          # uim is left out because its GTK immodule requires host files under /usr/share/uim
+          # and exits the app on startup when GTK selects it by locale fallback.
           extra_packages: >-
             ${{ inputs.extra_packages }}
             fcitx-frontend-gtk3
             fcitx5-frontend-gtk3
             gcin-gtk3-immodule
             ibus-gtk3
-            uim-data
-            uim-gtk3-immodule
       - name: 'Install dependencies (no AppImage)'
         if: ${{ ! inputs.build_appimage }}
         uses: ./.github/actions/install_deps_ubuntu

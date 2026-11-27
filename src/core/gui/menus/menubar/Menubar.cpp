@@ -13,7 +13,6 @@
 #include "PageTypeSubmenu.h"
 #include "PluginsSubmenu.h"
 #include "RecentDocumentsSubmenu.h"
-#include "ToolbarSelectionSubmenu.h"
 #include "config-features.h"  // for ENABLE_PLUGINS
 
 constexpr auto MENU_XML_FILE = "mainmenubar.xml";
@@ -68,8 +67,6 @@ void Menubar::populate(const GladeSearchpath* gladeSearchPath, MainWindow* win) 
     Control* ctrl = win->getControl();
 
     recentDocumentsSubmenu = std::make_unique<RecentDocumentsSubmenu>(ctrl, GTK_APPLICATION_WINDOW(win->getWindow()));
-    toolbarSelectionSubmenu =
-            std::make_unique<ToolbarSelectionSubmenu>(win, ctrl->getSettings(), win->getToolMenuHandler());
     pageTypeSubmenu = std::make_unique<PageTypeSubmenu>(ctrl->getPageTypes(), ctrl->getPageBackgroundChangeController(),
                                                         ctrl->getSettings(), GTK_APPLICATION_WINDOW(win->getWindow()));
 #ifdef ENABLE_PLUGINS
@@ -82,6 +79,10 @@ void Menubar::populate(const GladeSearchpath* gladeSearchPath, MainWindow* win) 
     if (!ctrl->getAudioController()) {
         removeItemsWithClass(G_MENU(menu), "audio");
     }
+#ifdef __APPLE__
+    // macOS uses the system menu bar; omit the in-window menubar toggle from all menus
+    removeItemsWithClass(G_MENU(menu), "in-window-menubar");
+#endif
 
     createSectionedMenu();
 }

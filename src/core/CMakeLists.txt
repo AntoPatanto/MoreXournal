@@ -3,6 +3,11 @@ cmake_policy(VERSION 3.12)
 
 file(GLOB_RECURSE xournalpp_sources *.cpp *.h)
 
+if(APPLE)
+    file(GLOB_RECURSE xournalpp_osx_sources *.mm)
+    list(APPEND xournalpp_sources ${xournalpp_osx_sources})
+endif()
+
 if(NOT ENABLE_AUDIO)
     list(FILTER xournalpp_sources EXCLUDE REGEX "${PROJECT_SOURCE_DIR}/src/core/audio/.*" )
     list(FILTER xournalpp_sources EXCLUDE REGEX "${PROJECT_SOURCE_DIR}/src/core/control/AudioController.cpp" )
@@ -16,5 +21,9 @@ target_link_libraries(xournalpp-core
         PRIVATE xoj::util ${xournalpp_LDFLAGS}
         PUBLIC xoj::defaults xoj::external_modules
         )
+if(APPLE)
+    find_library(APPKIT_FRAMEWORK AppKit REQUIRED)
+    target_link_libraries(xournalpp-core PRIVATE ${APPKIT_FRAMEWORK})
+endif()
 target_include_directories(xournalpp-core PUBLIC ${xournalpp_include_dirs})
 add_library(xoj::core ALIAS xournalpp-core)
