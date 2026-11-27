@@ -59,6 +59,7 @@
 #define Point Point_CF
 #include <CoreFoundation/CoreFoundation.h>
 #undef Point
+#include "gui/MacWindowChrome.h"
 #endif
 
 using std::string;
@@ -170,6 +171,15 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
                 return false;
             }),
             this);
+#ifdef __APPLE__
+    if (xoj::gui::mac::useUnifiedTitlebar()) {
+        g_signal_connect_after(this->window, "realize", G_CALLBACK(+[](GtkWidget* widget, gpointer self) {
+                                   auto* win = static_cast<MainWindow*>(self);
+                                   xoj::gui::mac::configureUnifiedTitlebar(widget, win->isTouchLayout() ? 56 : 48);
+                               }),
+                               this);
+    }
+#endif
     g_signal_connect(this->window, "size-allocate", G_CALLBACK(+[](GtkWidget*, GtkAllocation* alloc, gpointer self) {
                          if (alloc->width <= 1) {
                              return;
@@ -212,12 +222,14 @@ MainWindow::MainWindow(GladeSearchpath* gladeSearchPath, Control* control, GtkAp
     // Always start maximized; the default size above still applies when un-maximizing
     gtk_window_maximize(GTK_WINDOW(this->window));
 
+#ifndef __APPLE__
     Util::execInUiThread([=]() {
         // Execute after the window is visible, else the check won't work
         // menubarVisible is saved from the view mode active on quit (e.g. fullscreen): start from the view mode itself
         Settings* settings = control->getSettings();
         control->setShowMenubar(settings->getViewModes().at(settings->getActiveViewMode()).showMenubar);
     });
+#endif
 
     // Drag and Drop
     g_signal_connect(this->window, "drag-data-received", G_CALLBACK(dragDataRecived), this);
@@ -281,6 +293,11 @@ MainWindow::~MainWindow() {
     if (menubarWidget) {
         g_signal_handlers_disconnect_by_data(menubarWidget, this);
     }
+#ifdef __APPLE__
+    if (inlineBarEventBox) {
+        g_signal_handlers_disconnect_by_data(inlineBarEventBox, this);
+    }
+#endif
 }
 
 void MainWindow::createWindowBox() {
@@ -295,7 +312,24 @@ void MainWindow::createWindowBox() {
     inlineBar = gtk_header_bar_new();
     gtk_style_context_add_class(gtk_widget_get_style_context(inlineBar), "mx-topbar");
     gtk_widget_set_no_show_all(inlineBar, true);
+#ifdef __APPLE__
+    if (xoj::gui::mac::useUnifiedTitlebar()) {
+        // GtkHeaderBar has no GdkWindow of its own; an input-only event box behind its children catches
+        // primary clicks on empty bar space for native window dragging and double-click zoom.
+        inlineBarEventBox = gtk_event_box_new();
+        gtk_event_box_set_visible_window(GTK_EVENT_BOX(inlineBarEventBox), false);
+        gtk_event_box_set_above_child(GTK_EVENT_BOX(inlineBarEventBox), false);
+        gtk_widget_add_events(inlineBarEventBox, GDK_BUTTON_PRESS_MASK);
+        g_signal_connect(inlineBarEventBox, "button-press-event", G_CALLBACK(onInlineBarButtonPress), this);
+        gtk_container_add(GTK_CONTAINER(inlineBarEventBox), inlineBar);
+        gtk_box_append(GTK_BOX(box), inlineBarEventBox);
+        gtk_widget_show(inlineBarEventBox);
+    } else {
+        gtk_box_append(GTK_BOX(box), inlineBar);
+    }
+#else
     gtk_box_append(GTK_BOX(box), inlineBar);
+#endif
 
     // The menu bar is always in the window but stays hidden unless pinned or shown with Alt.
     // The GtkApplicationWindow menu bar stays off: gtk_application_set_menubar() is only kept for the accelerators.
@@ -304,7 +338,13 @@ void MainWindow::createWindowBox() {
     gtk_revealer_set_transition_type(GTK_REVEALER(menubarRevealer), GTK_REVEALER_TRANSITION_TYPE_SLIDE_DOWN);
     gtk_revealer_set_transition_duration(GTK_REVEALER(menubarRevealer), 120);
     gtk_box_append(GTK_BOX(box), menubarRevealer);
+#ifdef __APPLE__
+    // macOS uses the system menu bar; keep the in-window menu bar permanently hidden
+    gtk_widget_set_no_show_all(menubarRevealer, true);
+    gtk_widget_hide(menubarRevealer);
+#else
     gtk_widget_show(menubarRevealer);
+#endif
 
     gtk_widget_set_vexpand(overlay, true);
     gtk_box_append(GTK_BOX(box), overlay);
@@ -315,6 +355,7 @@ void MainWindow::createWindowBox() {
 }
 
 void MainWindow::createTopBar() {
+#ifndef __APPLE__
     menubarWidget = gtk_menu_bar_new_from_model(menubar->getModel());
     gtk_container_add(GTK_CONTAINER(menubarRevealer), menubarWidget);
     gtk_widget_show(menubarWidget);
@@ -323,9 +364,11 @@ void MainWindow::createTopBar() {
                          static_cast<MainWindow*>(self)->setMenubarTemporarilyVisible(false);
                      }),
                      this);
+#endif
 
     topBar = std::make_unique<TopBar>(control, menubar->getSectionedModel());
 
+#ifndef __APPLE__
     if (control->getSettings()->isUseClientSideDecorations()) {
         // Must happen before the window is realized
         titlebar = gtk_header_bar_new();
@@ -334,6 +377,7 @@ void MainWindow::createTopBar() {
         gtk_widget_show(titlebar);
         gtk_window_set_titlebar(GTK_WINDOW(this->window), titlebar);
     }
+#endif
     placeTopBar(false);
 
     topBar->setPageInfo(pageNumber, pageCount);
@@ -347,8 +391,44 @@ void MainWindow::placeTopBar(bool fullscreen) {
     // GTK hides the title bar while fullscreen
     const bool useInline = fullscreen || titlebar == nullptr;
     gtk_widget_set_visible(inlineBar, useInline);
+#ifdef __APPLE__
+    if (xoj::gui::mac::useUnifiedTitlebar()) {
+        GtkStyleContext* ctx = gtk_widget_get_style_context(inlineBar);
+        if (fullscreen) {
+            gtk_style_context_remove_class(ctx, "mx-macos-traffic-lights");
+        } else {
+            gtk_style_context_add_class(ctx, "mx-macos-traffic-lights");
+        }
+    }
+#endif
     topBar->attachTo(GTK_HEADER_BAR(useInline ? inlineBar : titlebar));
 }
+
+#ifdef __APPLE__
+auto MainWindow::onInlineBarButtonPress(GtkWidget* widget, GdkEventButton* event, MainWindow* self) -> gboolean {
+    if (event->button != GDK_BUTTON_PRIMARY) {
+        return false;
+    }
+    if (gtk_get_event_widget(reinterpret_cast<GdkEvent*>(event)) != widget) {
+        return false;
+    }
+    // Leave clicks over the traffic-light inset untouched when not fullscreen
+    if (gtk_style_context_has_class(gtk_widget_get_style_context(self->inlineBar), "mx-macos-traffic-lights") &&
+        event->x < 80.0) {
+        return false;
+    }
+    if (event->type == GDK_2BUTTON_PRESS) {
+        xoj::gui::mac::zoomWindow(self->window);
+        return true;
+    }
+    if (event->type == GDK_BUTTON_PRESS) {
+        gtk_window_begin_move_drag(GTK_WINDOW(self->window), static_cast<gint>(event->button),
+                                   static_cast<gint>(event->x_root), static_cast<gint>(event->y_root), event->time);
+        return true;
+    }
+    return false;
+}
+#endif
 
 auto MainWindow::onKeyEvent(GtkWidget* window, GdkEventKey* event, MainWindow* self) -> gboolean {
     if (self->handleMenubarKey(event)) {
@@ -447,6 +527,13 @@ bool MainWindow::handleChromeFocusKey(GdkEventKey* event) {
 }
 
 bool MainWindow::handleMenubarKey(GdkEventKey* event) {
+#ifdef __APPLE__
+    // macOS uses the system menu bar: swallow F10 and ignore lone Alt presses
+    if (event->type == GDK_KEY_PRESS && event->keyval == GDK_KEY_F10) {
+        return true;
+    }
+    return false;
+#else
     constexpr auto BUTTONS =
             GDK_BUTTON1_MASK | GDK_BUTTON2_MASK | GDK_BUTTON3_MASK | GDK_BUTTON4_MASK | GDK_BUTTON5_MASK;
     constexpr auto OTHER_MODIFIERS =
@@ -472,6 +559,7 @@ bool MainWindow::handleMenubarKey(GdkEventKey* event) {
         altArmed = false;
     }
     return false;
+#endif
 }
 
 void MainWindow::onPagePressed() {
@@ -480,15 +568,23 @@ void MainWindow::onPagePressed() {
 }
 
 void MainWindow::setMenubarTemporarilyVisible(bool visible) {
+#ifdef __APPLE__
+    (void)visible;
+#else
     visible = visible && !menubarPinned;
     if (menubarTemporary != visible) {
         menubarTemporary = visible;
         updateMenubarReveal();
     }
+#endif
 }
 
 void MainWindow::updateMenubarReveal() {
+#ifdef __APPLE__
+    gtk_revealer_set_reveal_child(GTK_REVEALER(menubarRevealer), false);
+#else
     gtk_revealer_set_reveal_child(GTK_REVEALER(menubarRevealer), menubarPinned || menubarTemporary);
+#endif
 }
 
 void MainWindow::updateTouchMode() {
@@ -542,6 +638,11 @@ void MainWindow::setTouchLayout(bool touch) {
     if (this->shapeToolbox) {
         this->shapeToolbox->setTouchLayout(touch);
     }
+#ifdef __APPLE__
+    if (xoj::gui::mac::useUnifiedTitlebar()) {
+        xoj::gui::mac::updateTopBarHeight(this->window, touch ? 56 : 48);
+    }
+#endif
 }
 
 struct ThemeProperties {
@@ -1028,7 +1129,12 @@ void MainWindow::setToolbarVisible(bool visible) {
 }
 
 void MainWindow::setMenubarVisible(bool visible) {
+#ifdef __APPLE__
+    (void)visible;
+    menubarPinned = false;
+#else
     menubarPinned = visible;
+#endif
     menubarTemporary = false;
     updateMenubarReveal();
 }

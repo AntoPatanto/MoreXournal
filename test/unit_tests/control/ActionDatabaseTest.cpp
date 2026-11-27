@@ -242,7 +242,6 @@ TEST(ActionDatabaseTest, testMenubarCategoriesAndRemovedItems) {
     for (const char* removed: {"win.undo",
                                "win.redo",
                                "win.delete",
-                               "win.fullscreen",
                                "win.show-sidebar",
                                "win.zoom-in",
                                "win.zoom-out",
@@ -277,10 +276,9 @@ TEST(ActionDatabaseTest, testMenubarCategoriesAndRemovedItems) {
     }
 
     // Removed select-tool targets
-    for (ToolType removedTool:
-         {TOOL_PEN, TOOL_ERASER, TOOL_HIGHLIGHTER, TOOL_TEXT, TOOL_IMAGE, TOOL_SELECT_RECT, TOOL_SELECT_REGION,
-          TOOL_SELECT_MULTILAYER_RECT, TOOL_SELECT_MULTILAYER_REGION, TOOL_SELECT_OBJECT, TOOL_PLAY_OBJECT,
-          TOOL_HAND}) {
+    for (ToolType removedTool: {TOOL_PEN, TOOL_ERASER, TOOL_HIGHLIGHTER, TOOL_TEXT, TOOL_IMAGE, TOOL_SELECT_RECT,
+                                TOOL_SELECT_REGION, TOOL_SELECT_MULTILAYER_RECT, TOOL_SELECT_MULTILAYER_REGION,
+                                TOOL_SELECT_OBJECT, TOOL_PLAY_OBJECT, TOOL_HAND}) {
         EXPECT_EQ(uint64Targets.count({"win.select-tool", static_cast<uint64_t>(removedTool)}), 0U)
                 << "Removed tool target still present in menu: " << removedTool;
     }
@@ -299,6 +297,9 @@ TEST(ActionDatabaseTest, testMenubarCategoriesAndRemovedItems) {
         EXPECT_EQ(uint64Targets.count({"win.tool-eraser-size", static_cast<uint64_t>(removedSize)}), 0U)
                 << "Removed eraser size still present in menu: " << removedSize;
     }
+
+    // Fullscreen stays in View (so macOS View menu exposes Ctrl+Cmd+F)
+    EXPECT_EQ(actions.count("win.fullscreen"), 1U);
 
     // Shape Recognizer and Automatic shapes stay in Tools
     EXPECT_EQ(actions.count("win.tool-draw-shape-recognizer"), 1U);
@@ -386,6 +387,9 @@ TEST(ActionDatabaseTest, testMainMenuStructureAndLiveLinks) {
 TEST(ActionDatabaseTest, testMovedAcceleratorsDefined) {
     EXPECT_TRUE(actionHasAccel<Action::DELETE>("Delete"));
     EXPECT_TRUE(actionHasAccel<Action::FULLSCREEN>("F11"));
+#ifdef __APPLE__
+    EXPECT_TRUE(actionHasAccel<Action::FULLSCREEN>("<Primary><Control>f"));
+#endif
     EXPECT_TRUE(actionHasAccel<Action::SHOW_SIDEBAR>("F12"));
     EXPECT_TRUE(actionHasAccel<Action::GOTO_PREVIOUS>("<Ctrl>Page_Up"));
     EXPECT_TRUE(actionHasAccel<Action::GOTO_PAGE>("<Ctrl>g"));
@@ -402,14 +406,10 @@ TEST(ActionDatabaseTest, testMovedAcceleratorsDefined) {
     EXPECT_TRUE(actionHasAccel<Action::SELECT_FONT>("<Ctrl><Shift>f"));
 
     const std::pair<ToolType, std::string> expectedToolAccels[] = {
-            {TOOL_PEN, "<Ctrl><Shift>p"},
-            {TOOL_ERASER, "<Ctrl><Shift>e"},
-            {TOOL_HIGHLIGHTER, "<Ctrl><Shift>h"},
-            {TOOL_TEXT, "<Ctrl><Shift>t"},
-            {TOOL_IMAGE, "<Ctrl><Shift>i"},
-            {TOOL_SELECT_RECT, "<Ctrl><Shift>r"},
-            {TOOL_SELECT_REGION, "<Ctrl><Shift>g"},
-            {TOOL_SELECT_OBJECT, "<Ctrl><Shift>o"},
+            {TOOL_PEN, "<Ctrl><Shift>p"},           {TOOL_ERASER, "<Ctrl><Shift>e"},
+            {TOOL_HIGHLIGHTER, "<Ctrl><Shift>h"},   {TOOL_TEXT, "<Ctrl><Shift>t"},
+            {TOOL_IMAGE, "<Ctrl><Shift>i"},         {TOOL_SELECT_RECT, "<Ctrl><Shift>r"},
+            {TOOL_SELECT_REGION, "<Ctrl><Shift>g"}, {TOOL_SELECT_OBJECT, "<Ctrl><Shift>o"},
             {TOOL_HAND, "<Ctrl><Shift>a"},
     };
     const auto& actual = ActionProperties<Action::SELECT_TOOL>::targetedAccelerators;

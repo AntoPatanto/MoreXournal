@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <memory>
 
 #include <gtk/gtk.h>
@@ -45,6 +46,38 @@ public:
 #if GTK_MAJOR_VERSION == 3
         gtk_window_set_position(popup->getWindow(), GTK_WIN_POS_CENTER_ON_PARENT);
         gtk_widget_show(GTK_WIDGET(popup->getWindow()));
+#ifdef __APPLE__
+        // On the GTK 3 Quartz backend GTK_WIN_POS_CENTER_ON_PARENT can place dialogs at (0, 0);
+        // explicitly centre over the mapped parent window and clamp inside its monitor workarea.
+        if (parent != nullptr && gtk_widget_get_mapped(GTK_WIDGET(parent))) {
+            gint px = 0;
+            gint py = 0;
+            gint pw = 0;
+            gint ph = 0;
+            gint dw = 0;
+            gint dh = 0;
+            gtk_window_get_position(parent, &px, &py);
+            gtk_window_get_size(parent, &pw, &ph);
+            gtk_window_get_size(popup->getWindow(), &dw, &dh);
+            if (pw > 0 && ph > 0 && dw > 0 && dh > 0) {
+                gint x = px + (pw - dw) / 2;
+                gint y = py + (ph - dh) / 2;
+                if (GdkWindow* parentGdk = gtk_widget_get_window(GTK_WIDGET(parent))) {
+                    GdkDisplay* display = gdk_window_get_display(parentGdk);
+                    GdkMonitor* monitor = display ? gdk_display_get_monitor_at_window(display, parentGdk) : nullptr;
+                    if (monitor != nullptr) {
+                        GdkRectangle wa{};
+                        gdk_monitor_get_workarea(monitor, &wa);
+                        if (wa.width > 0 && wa.height > 0) {
+                            x = std::clamp(x, wa.x, std::max(wa.x, wa.x + wa.width - dw));
+                            y = std::clamp(y, wa.y, std::max(wa.y, wa.y + wa.height - dh));
+                        }
+                    }
+                }
+                gtk_window_move(popup->getWindow(), x, y);
+            }
+        }
+#endif
         g_signal_connect(popup->getWindow(), "delete-event",
                          G_CALLBACK(+[](GtkWidget*, GdkEvent*, gpointer popup) -> gboolean {
                              delete reinterpret_cast<PopupType*>(popup);
