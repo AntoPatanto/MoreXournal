@@ -27,9 +27,11 @@ struct PendingMainCall {
     std::atomic<bool> completed{false};
 };
 
-auto readHttpRequestFromStream(GInputStream* in, GCancellable* cancellable, HttpRequest& outRequest,
-                               HttpResponse& outError) -> bool {
-    std::string raw;
+// Reads up to the end of the headers and parses them. The body is read separately, after the request has
+// passed the Host, Origin and token checks, so an unauthenticated client can't make the server allocate or wait
+// for a body of up to MAX_HTTP_BODY_BYTES.
+auto readHttpHeadersFromStream(GInputStream* in, GCancellable* cancellable, std::string& raw,
+                               HttpHeaderParseResult& outParsed, HttpResponse& outError) -> bool {
     raw.reserve(2048);
     char chunk[4096];
     GError* err = nullptr;
@@ -52,23 +54,29 @@ auto readHttpRequestFromStream(GInputStream* in, GCancellable* cancellable, Http
         }
     }
 
-    auto parsed = parseHttpHeaders(raw);
-    if (!parsed.ok) {
-        outError = makeJsonErrorResponse(parsed.errorStatus, "", parsed.errorMessage);
+    outParsed = parseHttpHeaders(raw);
+    if (!outParsed.ok) {
+        outError = makeJsonErrorResponse(outParsed.errorStatus, "", outParsed.errorMessage);
         return false;
     }
+    return true;
+}
 
-    outRequest = std::move(parsed.request);
-    outRequest.body.reserve(parsed.contentLength);
+// Reads the body announced by Content-Length, starting with the bytes that arrived together with the headers.
+auto readHttpBodyFromStream(GInputStream* in, GCancellable* cancellable, const std::string& raw,
+                            const HttpHeaderParseResult& parsed, HttpRequest& request) -> bool {
+    char chunk[4096];
+    GError* err = nullptr;
+    request.body.reserve(parsed.contentLength);
 
     if (raw.size() > parsed.headerEndOffset) {
         size_t alreadyRead = raw.size() - parsed.headerEndOffset;
         size_t toCopy = std::min(alreadyRead, parsed.contentLength);
-        outRequest.body.append(raw.data() + parsed.headerEndOffset, toCopy);
+        request.body.append(raw.data() + parsed.headerEndOffset, toCopy);
     }
 
-    while (outRequest.body.size() < parsed.contentLength) {
-        size_t remaining = parsed.contentLength - outRequest.body.size();
+    while (request.body.size() < parsed.contentLength) {
+        size_t remaining = parsed.contentLength - request.body.size();
         size_t want = std::min(remaining, sizeof(chunk));
         gssize n = g_input_stream_read(in, chunk, want, cancellable, &err);
         if (n <= 0) {
@@ -77,9 +85,8 @@ auto readHttpRequestFromStream(GInputStream* in, GCancellable* cancellable, Http
             }
             return false;
         }
-        outRequest.body.append(chunk, static_cast<size_t>(n));
+        request.body.append(chunk, static_cast<size_t>(n));
     }
-
     return true;
 }
 
@@ -350,11 +357,12 @@ void McpServer::handleConnection(const std::shared_ptr<SharedState>& state, GSoc
     GInputStream* in = g_io_stream_get_input_stream(G_IO_STREAM(connection));
     GOutputStream* out = g_io_stream_get_output_stream(G_IO_STREAM(connection));
 
-    HttpRequest req;
+    std::string raw;
+    HttpHeaderParseResult parsed;
     HttpResponse parseErr;
     parseErr.status = 0;
 
-    if (!readHttpRequestFromStream(in, state->cancellable, req, parseErr)) {
+    if (!readHttpHeadersFromStream(in, state->cancellable, raw, parsed, parseErr)) {
         if (parseErr.status != 0 && !state->stopped.load()) {
             writeHttpResponseToStream(out, state->cancellable, parseErr);
         }
@@ -369,8 +377,13 @@ void McpServer::handleConnection(const std::shared_ptr<SharedState>& state, GSoc
         currentAllowEdits = state->allowEdits;
     }
 
+    HttpRequest req = std::move(parsed.request);
     if (auto errResp = validateHttpRequest(req, currentToken); errResp.has_value()) {
         writeHttpResponseToStream(out, state->cancellable, *errResp);
+        return;
+    }
+
+    if (!readHttpBodyFromStream(in, state->cancellable, raw, parsed, req)) {
         return;
     }
 

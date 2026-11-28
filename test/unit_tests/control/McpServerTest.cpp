@@ -520,6 +520,25 @@ TEST(McpServerLiveTest, loopbackSocketRequestAuthAndTokenRotation) {
     EXPECT_FALSE(server.isRunning());
 }
 
+TEST(McpServerLiveTest, rejectsUnauthenticatedRequestBeforeReadingBody) {
+    McpServer server([](const std::string&, const nlohmann::json&) { return ToolCallResult::text("unused"); },
+                     "0.1.2-test");
+    ASSERT_TRUE(server.start(0, generateToken(), false)) << server.getLastError();
+    const uint16_t port = server.getBoundPort();
+    const std::string host = "127.0.0.1:" + std::to_string(port);
+
+    // Announce an 8 MB body but send none and no token. The server must answer 401 from the headers alone
+    // instead of allocating the body and waiting for it.
+    std::string headersOnly = "POST /mcp HTTP/1.1\r\nHost: " + host + "\r\nContent-Length: 8000000\r\n\r\n";
+    auto start = std::chrono::steady_clock::now();
+    std::string resp = sendRawHttp(port, headersOnly);
+    auto elapsed = std::chrono::steady_clock::now() - start;
+
+    EXPECT_EQ(extractHttpStatus(resp), 401);
+    EXPECT_LT(elapsed, std::chrono::seconds(3));
+    server.stop();
+}
+
 TEST(McpSettingsTest, saveAndLoadRoundTrip) {
     fs::path tmpDir = fs::temp_directory_path() / ("morexournal-mcp-settings-test-" + generateToken().substr(3, 12));
     fs::create_directories(tmpDir);
