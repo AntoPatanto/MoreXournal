@@ -31,7 +31,8 @@ public:
     void load(const LatexSettings& settings);
     void save(LatexSettings& settings);
 
-    inline GtkWidget* getPanel() const { return GTK_WIDGET(panel); }
+    inline GtkWidget* getPanel() const { return panel; }
+    GtkWidget* getRowWidget(const char* id);
 
 private:
     void checkDeps();
@@ -45,11 +46,11 @@ private:
     void setTemplateFile(fs::path p);
 
     Builder builder;
-    GtkScrolledWindow* panel;
+    GtkWidget* panel;
 
-    GtkCheckButton* cbAutoDepCheck;
+    GtkSwitch* cbAutoDepCheck;
     GtkWidget* sourceViewThemeSelector;
-    GtkCheckButton* cbUseSystemFont;
+    GtkSwitch* cbUseSystemFont;
 
     GtkButton* templateFileButton;
     fs::path latexTemplateFile;

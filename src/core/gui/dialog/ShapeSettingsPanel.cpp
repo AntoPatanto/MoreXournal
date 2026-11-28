@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <string>
+#include <string_view>
 #include <utility>
 
 #include "control/settings/Settings.h"
@@ -22,22 +23,50 @@ void removeCssClass(GtkWidget* widget, const char* cssClass) {
     gtk_style_context_remove_class(gtk_widget_get_style_context(widget), cssClass);
 }
 
-GtkWidget* makeRowLabel(const char* title, const char* hint) {
-    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 1);
+GtkWidget* makeRowLabel(const char* title, const char* hint, GtkWidget** depHintOut = nullptr,
+                        const char* depHintText = nullptr) {
+    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
     gtk_widget_set_valign(box, GTK_ALIGN_CENTER);
+    gtk_widget_set_hexpand(box, true);
 
     GtkWidget* lblTitle = gtk_label_new(title);
     gtk_label_set_xalign(GTK_LABEL(lblTitle), 0.0f);
+    gtk_label_set_line_wrap(GTK_LABEL(lblTitle), true);
+    addCssClass(lblTitle, "mx-prefs-row-title");
     gtk_box_pack_start(GTK_BOX(box), lblTitle, false, false, 0);
 
     if (hint && *hint) {
         GtkWidget* lblHint = gtk_label_new(hint);
         gtk_label_set_xalign(GTK_LABEL(lblHint), 0.0f);
-        addCssClass(lblHint, "mx-shape-hint");
+        gtk_label_set_line_wrap(GTK_LABEL(lblHint), true);
+        addCssClass(lblHint, "mx-prefs-row-sub");
         gtk_box_pack_start(GTK_BOX(box), lblHint, false, false, 0);
     }
 
+    if (depHintOut && depHintText) {
+        GtkWidget* depLbl = gtk_label_new(depHintText);
+        gtk_label_set_xalign(GTK_LABEL(depLbl), 0.0f);
+        gtk_label_set_line_wrap(GTK_LABEL(depLbl), true);
+        gtk_widget_set_no_show_all(depLbl, true);
+        gtk_widget_hide(depLbl);
+        addCssClass(depLbl, "mx-prefs-row-sub");
+        gtk_box_pack_start(GTK_BOX(box), depLbl, false, false, 0);
+        *depHintOut = depLbl;
+    }
+
     return box;
+}
+
+GtkWidget* makeRowSeparator() {
+    GtkWidget* sep = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
+    addCssClass(sep, "mx-prefs-row-sep");
+    return sep;
+}
+
+GtkWidget* makePrefsRow(GtkOrientation orientation = GTK_ORIENTATION_HORIZONTAL, int spacing = 16) {
+    GtkWidget* row = gtk_box_new(orientation, spacing);
+    addCssClass(row, "mx-prefs-row");
+    return row;
 }
 
 GtkLabel* makeValueLabel(int widthChars = 8) {
@@ -122,34 +151,36 @@ void drawStrokePath(cairo_t* cr, const std::vector<Point>& pts, double zoom, dou
 void disconnectTree(GtkWidget* w, gpointer data) {
     g_signal_handlers_disconnect_by_data(w, data);
     if (GTK_IS_CONTAINER(w)) {
-        gtk_container_forall(
-                GTK_CONTAINER(w), +[](GtkWidget* child, gpointer d) { disconnectTree(child, d); }, data);
+        gtk_container_forall(GTK_CONTAINER(w), +[](GtkWidget* child, gpointer d) { disconnectTree(child, d); }, data);
     }
 }
 
 }  // namespace
 
 ShapeSettingsPanel::ShapeSettingsPanel(std::function<double()> getZoom100): getZoom100(std::move(getZoom100)) {
-    rootBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    rootBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     // Released in the destructor, which needs the widget tree whichever of the panel and the window goes first
     g_object_ref_sink(rootBox);
     gtk_widget_set_name(rootBox, "shapeSettingsPanel");
 
     gtk_box_pack_start(GTK_BOX(rootBox), buildMainControls(), false, false, 0);
-    gtk_box_pack_start(GTK_BOX(rootBox), buildAdvancedExpander(), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(rootBox), makeRowSeparator(), false, false, 0);
 
-    // Restore defaults row
-    GtkWidget* resetRow = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-    GtkWidget* resetBtn = gtk_button_new_with_label(_("Restore defaults"));
-    gtk_widget_set_name(resetBtn, "btnRestoreShapeDefaults");
-    g_signal_connect_swapped(resetBtn, "clicked",
-                             G_CALLBACK(+[](ShapeSettingsPanel* self) { self->onRestoreDefaults(); }), this);
-    gtk_box_pack_end(GTK_BOX(resetRow), resetBtn, false, false, 0);
-    gtk_box_pack_start(GTK_BOX(rootBox), resetRow, false, false, 0);
+    padRow = makePrefsRow(GTK_ORIENTATION_VERTICAL, 8);
+    GtkWidget* padTitle = gtk_label_new(_("Try it"));
+    gtk_label_set_xalign(GTK_LABEL(padTitle), 0.0f);
+    addCssClass(padTitle, "mx-prefs-row-title");
+    gtk_box_pack_start(GTK_BOX(padRow), padTitle, false, false, 0);
+    gtk_box_pack_start(GTK_BOX(padRow), buildTestPad(), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(rootBox), padRow, false, false, 0);
 
-    gtk_box_pack_start(GTK_BOX(rootBox), buildTestPad(), false, false, 0);
+    advancedCard = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    g_object_ref_sink(advancedCard);
+    addCssClass(advancedCard, "mx-prefs-card");
+    gtk_box_pack_start(GTK_BOX(advancedCard), buildAdvancedExpander(), false, false, 0);
 
     gtk_widget_show_all(rootBox);
+    gtk_widget_show_all(advancedCard);
     updateCustomBadge();
 }
 
@@ -159,45 +190,102 @@ ShapeSettingsPanel::~ShapeSettingsPanel() {
     // SettingsDialog destroys the panel before its window, whose destruction can still emit signals (e.g. the pad's
     // grab-broken-event when it is unmapped mid-stroke)
     disconnectTree(rootBox, this);
+    disconnectTree(advancedCard, this);
     g_object_unref(rootBox);
+    g_object_unref(advancedCard);
+}
+
+GtkWidget* ShapeSettingsPanel::getRowWidget(const char* id) const {
+    std::string_view key(id ? id : "");
+    if (key == "shape-delay") {
+        return delayRow;
+    }
+    if (key == "shape-jitter") {
+        return jitterRow;
+    }
+    if (key == "shape-sens") {
+        return sensitivityRow;
+    }
+    if (key == "shape-min") {
+        return minSizeRow;
+    }
+    if (key == "shape-pad") {
+        return padRow;
+    }
+    if (key == "shapeadv-line") {
+        return advRowWidgets[0];
+    }
+    if (key == "shapeadv-circle") {
+        return advRowWidgets[2];
+    }
+    if (key == "shapeadv-rect") {
+        return advRowWidgets[4];
+    }
+    if (key == "shapeadv-open") {
+        return advRowWidgets[5];
+    }
+    if (key == "shapeadv-reset") {
+        return resetRow;
+    }
+    return rootBox;
 }
 
 GtkWidget* ShapeSettingsPanel::buildMainControls() {
-    GtkWidget* grid = gtk_grid_new();
-    gtk_grid_set_row_spacing(GTK_GRID(grid), 8);
-    gtk_grid_set_column_spacing(GTK_GRID(grid), 12);
+    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 
-    // Row 0: Delay
-    delayLabelBox = makeRowLabel(_("Delay"), _("How long to hold the pen still"));
+    const char* holdDepHint = _("Turn on “Turn strokes into shapes when you hold still” to change this.");
+
+    // Row 0: Hold time
+    delayRow = makePrefsRow();
+    GtkWidget* delayLbl = makeRowLabel(_("Hold time"), nullptr, &delayDepHint, holdDepHint);
+    GtkWidget* delayCtl = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+    gtk_widget_set_valign(delayCtl, GTK_ALIGN_CENTER);
     delayScale = makeScale(HOLD_TO_SHAPE_DELAY_MIN, HOLD_TO_SHAPE_DELAY_MAX, 50.0, 250.0, 400.0, 0);
     gtk_widget_set_name(GTK_WIDGET(delayScale), "scaleHoldToShapeDelay");
-    delayValueLabel = makeValueLabel();
+    gtk_widget_set_size_request(GTK_WIDGET(delayScale), 180, -1);
+    delayValueLabel = makeValueLabel(7);
     g_signal_connect_swapped(delayScale, "value-changed",
                              G_CALLBACK(+[](ShapeSettingsPanel* self) { self->updateMainValueLabels(); }), this);
-    gtk_grid_attach(GTK_GRID(grid), delayLabelBox, 0, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(delayScale), 1, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(delayValueLabel), 2, 0, 1, 1);
+    gtk_box_pack_start(GTK_BOX(delayCtl), GTK_WIDGET(delayScale), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(delayCtl), GTK_WIDGET(delayValueLabel), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(delayRow), delayLbl, true, true, 0);
+    gtk_box_pack_end(GTK_BOX(delayRow), delayCtl, false, false, 0);
+    gtk_box_pack_start(GTK_BOX(box), delayRow, false, false, 0);
 
-    // Row 1: Jitter allowed
-    jitterLabelBox = makeRowLabel(_("Jitter allowed"), _("Movement that does not reset the delay"));
+    gtk_box_pack_start(GTK_BOX(box), makeRowSeparator(), false, false, 0);
+
+    // Row 1: Allowed movement while holding
+    jitterRow = makePrefsRow();
+    GtkWidget* jitterLbl = makeRowLabel(_("Allowed movement while holding"), nullptr, &jitterDepHint, holdDepHint);
+    GtkWidget* jitterCtl = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+    gtk_widget_set_valign(jitterCtl, GTK_ALIGN_CENTER);
     jitterScale = makeScale(xoj::shapes::HOLD_TOLERANCE_PX_RANGE.min(), xoj::shapes::HOLD_TOLERANCE_PX_RANGE.max(), 1.0,
                             5.0, xoj::shapes::HOLD_TOLERANCE_PX_RANGE.def, 0);
     gtk_widget_set_name(GTK_WIDGET(jitterScale), "scaleHoldToShapeTolerance");
-    jitterValueLabel = makeValueLabel();
+    gtk_widget_set_size_request(GTK_WIDGET(jitterScale), 180, -1);
+    jitterValueLabel = makeValueLabel(7);
     g_signal_connect_swapped(jitterScale, "value-changed",
                              G_CALLBACK(+[](ShapeSettingsPanel* self) { self->updateMainValueLabels(); }), this);
-    gtk_grid_attach(GTK_GRID(grid), jitterLabelBox, 0, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(jitterScale), 1, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(jitterValueLabel), 2, 1, 1, 1);
+    gtk_box_pack_start(GTK_BOX(jitterCtl), GTK_WIDGET(jitterScale), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(jitterCtl), GTK_WIDGET(jitterValueLabel), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(jitterRow), jitterLbl, true, true, 0);
+    gtk_box_pack_end(GTK_BOX(jitterRow), jitterCtl, false, false, 0);
+    gtk_box_pack_start(GTK_BOX(box), jitterRow, false, false, 0);
 
-    // Row 2: Sensitivity (with end labels Strict / Tolerant, mark at default 50, and Custom badge)
-    GtkWidget* sensLabelBox = makeRowLabel(_("Sensitivity"), _("All shapes together"));
+    gtk_box_pack_start(GTK_BOX(box), makeRowSeparator(), false, false, 0);
+
+    // Row 2: Recognition (with end labels Strict / Tolerant, mark at default 50, and Custom badge)
+    sensitivityRow = makePrefsRow();
+    GtkWidget* sensLabelBox = makeRowLabel(_("Recognition"), _("All shapes together"));
+
+    GtkWidget* sensCtl = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+    gtk_widget_set_valign(sensCtl, GTK_ALIGN_CENTER);
 
     GtkWidget* sensSliderBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
-    gtk_widget_set_hexpand(sensSliderBox, true);
     sensitivityScale = makeScale(xoj::shapes::SHAPE_SENSITIVITY_MIN, xoj::shapes::SHAPE_SENSITIVITY_MAX, 1.0, 10.0,
                                  xoj::shapes::SHAPE_SENSITIVITY_DEFAULT, 0);
     gtk_widget_set_name(GTK_WIDGET(sensitivityScale), "scaleShapeSensitivity");
+    gtk_widget_set_size_request(GTK_WIDGET(sensitivityScale), 180, -1);
     g_signal_connect_swapped(sensitivityScale, "value-changed",
                              G_CALLBACK(+[](ShapeSettingsPanel* self) { self->onSensitivityChanged(); }), this);
     gtk_box_pack_start(GTK_BOX(sensSliderBox), GTK_WIDGET(sensitivityScale), false, false, 0);
@@ -215,7 +303,7 @@ GtkWidget* ShapeSettingsPanel::buildMainControls() {
 
     GtkWidget* sensValBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
     gtk_widget_set_valign(sensValBox, GTK_ALIGN_CENTER);
-    sensitivityValueLabel = makeValueLabel();
+    sensitivityValueLabel = makeValueLabel(7);
     gtk_box_pack_start(GTK_BOX(sensValBox), GTK_WIDGET(sensitivityValueLabel), false, false, 0);
 
     GtkWidget* customLbl = gtk_label_new(C_("shape sensitivity", "Custom"));
@@ -226,35 +314,53 @@ GtkWidget* ShapeSettingsPanel::buildMainControls() {
     customBadgeLabel = GTK_LABEL(customLbl);
     gtk_box_pack_start(GTK_BOX(sensValBox), customLbl, false, false, 0);
 
-    gtk_grid_attach(GTK_GRID(grid), sensLabelBox, 0, 2, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), sensSliderBox, 1, 2, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), sensValBox, 2, 2, 1, 1);
+    gtk_box_pack_start(GTK_BOX(sensCtl), sensSliderBox, false, false, 0);
+    gtk_box_pack_start(GTK_BOX(sensCtl), sensValBox, false, false, 0);
+    gtk_box_pack_start(GTK_BOX(sensitivityRow), sensLabelBox, true, true, 0);
+    gtk_box_pack_end(GTK_BOX(sensitivityRow), sensCtl, false, false, 0);
+    gtk_box_pack_start(GTK_BOX(box), sensitivityRow, false, false, 0);
 
-    // Row 3: Minimum size
-    GtkWidget* minSizeLabelBox = makeRowLabel(_("Minimum size"), _("Smaller strokes stay freehand"));
+    gtk_box_pack_start(GTK_BOX(box), makeRowSeparator(), false, false, 0);
+
+    // Row 3: Smaller strokes stay freehand
+    minSizeRow = makePrefsRow();
+    GtkWidget* minSizeLabelBox = makeRowLabel(_("Smaller strokes stay freehand"), nullptr);
+    GtkWidget* minSizeCtl = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+    gtk_widget_set_valign(minSizeCtl, GTK_ALIGN_CENTER);
     minSizeScale = makeScale(xoj::shapes::STROKE_MIN_SIZE_RANGE.min(), xoj::shapes::STROKE_MIN_SIZE_RANGE.max(), 5.0,
                              15.0, xoj::shapes::STROKE_MIN_SIZE_RANGE.def, 0);
     gtk_widget_set_name(GTK_WIDGET(minSizeScale), "scaleStrokeRecognizerMinSize");
-    minSizeValueLabel = makeValueLabel();
+    gtk_widget_set_size_request(GTK_WIDGET(minSizeScale), 180, -1);
+    minSizeValueLabel = makeValueLabel(7);
     g_signal_connect_swapped(minSizeScale, "value-changed",
                              G_CALLBACK(+[](ShapeSettingsPanel* self) { self->updateMainValueLabels(); }), this);
-    gtk_grid_attach(GTK_GRID(grid), minSizeLabelBox, 0, 3, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(minSizeScale), 1, 3, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(minSizeValueLabel), 2, 3, 1, 1);
+    gtk_box_pack_start(GTK_BOX(minSizeCtl), GTK_WIDGET(minSizeScale), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(minSizeCtl), GTK_WIDGET(minSizeValueLabel), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(minSizeRow), minSizeLabelBox, true, true, 0);
+    gtk_box_pack_end(GTK_BOX(minSizeRow), minSizeCtl, false, false, 0);
+    gtk_box_pack_start(GTK_BOX(box), minSizeRow, false, false, 0);
 
-    return grid;
+    return box;
 }
 
 GtkWidget* ShapeSettingsPanel::buildAdvancedExpander() {
-    advancedExpander = gtk_expander_new(_("Advanced"));
+    advancedExpander = gtk_expander_new(nullptr);
     gtk_widget_set_name(advancedExpander, "expShapeAdvanced");
+    addCssClass(advancedExpander, "mx-prefs-expander");
     gtk_expander_set_expanded(GTK_EXPANDER(advancedExpander), false);
 
-    GtkWidget* grid = gtk_grid_new();
-    gtk_grid_set_row_spacing(GTK_GRID(grid), 6);
-    gtk_grid_set_column_spacing(GTK_GRID(grid), 12);
-    gtk_widget_set_margin_top(grid, 6);
-    gtk_widget_set_margin_start(grid, 12);
+    GtkWidget* headerBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+    GtkWidget* headerTitle = gtk_label_new(_("Shape recognition thresholds"));
+    gtk_label_set_xalign(GTK_LABEL(headerTitle), 0.0f);
+    addCssClass(headerTitle, "mx-prefs-row-title");
+    GtkWidget* headerSub = gtk_label_new(_("Fine-tune how strict recognition is for each shape."));
+    gtk_label_set_xalign(GTK_LABEL(headerSub), 0.0f);
+    addCssClass(headerSub, "mx-prefs-row-sub");
+    gtk_box_pack_start(GTK_BOX(headerBox), headerTitle, false, false, 0);
+    gtk_box_pack_start(GTK_BOX(headerBox), headerSub, false, false, 0);
+    gtk_expander_set_label_widget(GTK_EXPANDER(advancedExpander), headerBox);
+
+    GtkWidget* listBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 
     struct Spec {
         const char* name;
@@ -268,46 +374,70 @@ GtkWidget* ShapeSettingsPanel::buildAdvancedExpander() {
     };
 
     const std::array<Spec, 8> specs = {{
-            {"scaleShapeLineMaxDet", _("Line: straightness"), xoj::shapes::LINE_MAX_DET_RANGE, 0.001, 0.005, 3, "",
+            {"scaleShapeLineMaxDet", _("Line straightness"), xoj::shapes::LINE_MAX_DET_RANGE, 0.001, 0.005, 3, "",
              &ShapeRecognizerParams::lineMaxDet},
-            {"scaleShapeSegmentMaxDet", _("Polygon sides: straightness"), xoj::shapes::SEGMENT_MAX_DET_RANGE, 0.001,
+            {"scaleShapeSegmentMaxDet", _("Polygon sides straightness"), xoj::shapes::SEGMENT_MAX_DET_RANGE, 0.001,
              0.01, 3, "", &ShapeRecognizerParams::segmentMaxDet},
-            {"scaleShapeCircleMinDet", _("Circle: roundness"), xoj::shapes::CIRCLE_MIN_DET_RANGE, 0.001, 0.01, 3, "",
+            {"scaleShapeCircleMinDet", _("Circle roundness"), xoj::shapes::CIRCLE_MIN_DET_RANGE, 0.001, 0.01, 3, "",
              &ShapeRecognizerParams::circleMinDet},
-            {"scaleShapeCircleMaxScore", _("Circle: radius error"), xoj::shapes::CIRCLE_MAX_SCORE_RANGE, 0.001, 0.01, 3,
+            {"scaleShapeCircleMaxScore", _("Circle radius error"), xoj::shapes::CIRCLE_MAX_SCORE_RANGE, 0.001, 0.01, 3,
              "", &ShapeRecognizerParams::circleMaxScore},
-            {"scaleShapeRectAngleTol", _("Rectangle: corner angle"), xoj::shapes::RECTANGLE_ANGLE_TOLERANCE_DEG_RANGE,
+            {"scaleShapeRectAngleTol", _("Rectangle corner angle"), xoj::shapes::RECTANGLE_ANGLE_TOLERANCE_DEG_RANGE,
              1.0, 3.0, 0, "°", &ShapeRecognizerParams::rectangleAngleToleranceDeg},
-            {"scaleShapeRectLinearTol", _("Rectangle: open corners"), xoj::shapes::RECTANGLE_LINEAR_TOLERANCE_RANGE,
-             0.01, 0.05, 2, "", &ShapeRecognizerParams::rectangleLinearTolerance},
-            {"scaleShapeTriLinearTol", _("Triangle: open corners"), xoj::shapes::TRIANGLE_LINEAR_TOLERANCE_RANGE, 0.01,
-             0.05, 2, "", &ShapeRecognizerParams::triangleLinearTolerance},
+            {"scaleShapeRectLinearTol", _("Open corners allowed (rectangle)"),
+             xoj::shapes::RECTANGLE_LINEAR_TOLERANCE_RANGE, 0.01, 0.05, 2, "",
+             &ShapeRecognizerParams::rectangleLinearTolerance},
+            {"scaleShapeTriLinearTol", _("Open corners allowed (triangle)"),
+             xoj::shapes::TRIANGLE_LINEAR_TOLERANCE_RANGE, 0.01, 0.05, 2, "",
+             &ShapeRecognizerParams::triangleLinearTolerance},
             {"scaleShapeSlantTol", _("Straighten near-axis angle"), xoj::shapes::SLANT_TOLERANCE_DEG_RANGE, 1.0, 3.0, 0,
              "°", &ShapeRecognizerParams::slantToleranceDeg},
     }};
 
     for (size_t i = 0; i < specs.size(); i++) {
         const auto& s = specs[i];
-        GtkWidget* lbl = gtk_label_new(s.label);
-        gtk_label_set_xalign(GTK_LABEL(lbl), 0.0f);
-        gtk_widget_set_valign(lbl, GTK_ALIGN_CENTER);
+        gtk_box_pack_start(GTK_BOX(listBox), makeRowSeparator(), false, false, 0);
+
+        GtkWidget* row = makePrefsRow();
+        GtkWidget* lbl = makeRowLabel(s.label, nullptr);
+
+        GtkWidget* ctl = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+        gtk_widget_set_valign(ctl, GTK_ALIGN_CENTER);
 
         // Keep round-digits = -1 so values written by paramsForSensitivity() keep full precision.
         GtkScale* scale = makeScale(s.range.min(), s.range.max(), s.step, s.page, s.range.def, -1);
         gtk_widget_set_name(GTK_WIDGET(scale), s.name);
-        GtkLabel* valLbl = makeValueLabel();
+        gtk_widget_set_size_request(GTK_WIDGET(scale), 170, -1);
+        GtkLabel* valLbl = makeValueLabel(6);
 
         g_signal_connect_swapped(scale, "value-changed",
                                  G_CALLBACK(+[](ShapeSettingsPanel* self) { self->onAdvancedParamChanged(); }), this);
 
-        gtk_grid_attach(GTK_GRID(grid), lbl, 0, static_cast<gint>(i), 1, 1);
-        gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(scale), 1, static_cast<gint>(i), 1, 1);
-        gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(valLbl), 2, static_cast<gint>(i), 1, 1);
+        gtk_box_pack_start(GTK_BOX(ctl), GTK_WIDGET(scale), false, false, 0);
+        gtk_box_pack_start(GTK_BOX(ctl), GTK_WIDGET(valLbl), false, false, 0);
+        gtk_box_pack_start(GTK_BOX(row), lbl, true, true, 0);
+        gtk_box_pack_end(GTK_BOX(row), ctl, false, false, 0);
+        gtk_box_pack_start(GTK_BOX(listBox), row, false, false, 0);
 
         advRows[i] = AdvRow{scale, valLbl, s.decimals, s.suffix, s.member};
+        advRowWidgets[i] = row;
     }
 
-    gtk_container_add(GTK_CONTAINER(advancedExpander), grid);
+    gtk_box_pack_start(GTK_BOX(listBox), makeRowSeparator(), false, false, 0);
+
+    // Restore defaults row inside expander
+    resetRow = makePrefsRow();
+    GtkWidget* resetLbl = makeRowLabel(_("Restore the default thresholds"), nullptr);
+    GtkWidget* resetBtn = gtk_button_new_with_label(_("Restore defaults"));
+    gtk_widget_set_name(resetBtn, "btnRestoreShapeDefaults");
+    gtk_widget_set_valign(resetBtn, GTK_ALIGN_CENTER);
+    g_signal_connect_swapped(resetBtn, "clicked",
+                             G_CALLBACK(+[](ShapeSettingsPanel* self) { self->onRestoreDefaults(); }), this);
+    gtk_box_pack_start(GTK_BOX(resetRow), resetLbl, true, true, 0);
+    gtk_box_pack_end(GTK_BOX(resetRow), resetBtn, false, false, 0);
+    gtk_box_pack_start(GTK_BOX(listBox), resetRow, false, false, 0);
+
+    gtk_container_add(GTK_CONTAINER(advancedExpander), listBox);
     return advancedExpander;
 }
 
@@ -356,7 +486,8 @@ GtkWidget* ShapeSettingsPanel::buildTestPad() {
     GtkWidget* diagBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
     addCssClass(diagBox, "mx-shape-diag");
 
-    GtkWidget* resLbl = gtk_label_new(_("Draw a line, triangle, rectangle or circle and hold still at the end without lifting."));
+    GtkWidget* resLbl =
+            gtk_label_new(_("Draw a line, triangle, rectangle or circle and hold still at the end without lifting."));
     gtk_widget_set_name(resLbl, "lblShapeDiagResult");
     gtk_label_set_xalign(GTK_LABEL(resLbl), 0.0f);
     gtk_label_set_line_wrap(GTK_LABEL(resLbl), true);
@@ -389,8 +520,8 @@ void ShapeSettingsPanel::load(const Settings& settings) {
     gtk_range_set_value(GTK_RANGE(minSizeScale), settings.getStrokeRecognizerMinSize());
 
     applyParamsToAdvancedSliders(settings.getShapeRecognizerParams());
-    customThresholds = !xoj::shapes::matchesSensitivity(settings.getShapeRecognizerParams(),
-                                                        settings.getShapeSensitivity());
+    customThresholds =
+            !xoj::shapes::matchesSensitivity(settings.getShapeRecognizerParams(), settings.getShapeSensitivity());
 
     updatingSliders = false;
 
@@ -408,12 +539,10 @@ void ShapeSettingsPanel::save(Settings& settings) const {
 }
 
 void ShapeSettingsPanel::setHoldControlsSensitive(bool sensitive) {
-    gtk_widget_set_sensitive(delayLabelBox, sensitive);
-    gtk_widget_set_sensitive(GTK_WIDGET(delayScale), sensitive);
-    gtk_widget_set_sensitive(GTK_WIDGET(delayValueLabel), sensitive);
-    gtk_widget_set_sensitive(jitterLabelBox, sensitive);
-    gtk_widget_set_sensitive(GTK_WIDGET(jitterScale), sensitive);
-    gtk_widget_set_sensitive(GTK_WIDGET(jitterValueLabel), sensitive);
+    gtk_widget_set_sensitive(delayRow, sensitive);
+    gtk_widget_set_sensitive(jitterRow, sensitive);
+    gtk_widget_set_visible(delayDepHint, !sensitive);
+    gtk_widget_set_visible(jitterDepHint, !sensitive);
 }
 
 ShapeRecognizerParams ShapeSettingsPanel::currentParams() const {
@@ -491,8 +620,7 @@ void ShapeSettingsPanel::applyParamsToAdvancedSliders(const ShapeRecognizerParam
 
 void ShapeSettingsPanel::updateMainValueLabels() {
     gtk_label_set_text(delayValueLabel, (std::to_string(currentDelayMs()) + " ms").c_str());
-    gtk_label_set_text(jitterValueLabel,
-                       (xoj::shapes::formatFixed(currentHoldTolerancePx(), 0) + " px").c_str());
+    gtk_label_set_text(jitterValueLabel, (xoj::shapes::formatFixed(currentHoldTolerancePx(), 0) + " px").c_str());
     gtk_label_set_text(minSizeValueLabel, (xoj::shapes::formatFixed(currentMinSizePt(), 0) + " pt").c_str());
 
     const int sens = currentSensitivity();

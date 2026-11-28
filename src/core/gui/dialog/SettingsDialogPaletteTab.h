@@ -22,7 +22,7 @@ private:
     GtkLabel* colorPaletteExplainLabel;
     GtkListBox* paletteListBox;
     Builder builder;
-    GtkScrolledWindow* panel;
+    GtkWidget* panel;
 
     void setAllPaletteFilePaths(const std::vector<fs::path>& paletteDirectories);
     void renderColorPaletteExplainLabel() const;
