@@ -247,6 +247,11 @@ SettingsDialog::SettingsDialog(GladeSearchpath* gladeSearchPath, Settings* setti
                          static_cast<SettingsDialog*>(self)->onNavRowSelected(row);
                      }),
                      this);
+    // Clicking the page that is already selected emits no row-selected, but must still leave the search results.
+    g_signal_connect(navList, "row-activated", G_CALLBACK(+[](GtkListBox*, GtkListBoxRow* row, gpointer self) {
+                         static_cast<SettingsDialog*>(self)->onNavRowSelected(row);
+                     }),
+                     this);
     g_signal_connect_swapped(searchEntry, "search-changed",
                              G_CALLBACK(+[](SettingsDialog* self) { self->onSearchChanged(); }), this);
 
