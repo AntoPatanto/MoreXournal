@@ -95,6 +95,15 @@ McpSettingsPanel::McpSettingsPanel(Control* control): control(control) {
 McpSettingsPanel::~McpSettingsPanel() {
     clientRefreshTimer.cancel();
     copiedHideTimer.cancel();
+    // SettingsDialog destroys this panel before its window, and destroying the window can still emit notify
+    // signals (a GtkStack changes its visible child while its children are removed). Disconnect every handler
+    // bound to this object so none of them runs on a freed panel.
+    for (gpointer widget: {static_cast<gpointer>(enabledSwitch), static_cast<gpointer>(allowEditsSwitch),
+                           static_cast<gpointer>(showTokenBtn), static_cast<gpointer>(setupStack)}) {
+        if (widget) {
+            g_signal_handlers_disconnect_by_data(widget, this);
+        }
+    }
 }
 
 GtkWidget* McpSettingsPanel::buildMainSwitchesGroup() {
@@ -396,6 +405,11 @@ void McpSettingsPanel::updateStatusLine() {
             gtk_style_context_add_class(dotCtx, "mx-mcp-dot-err");
             gtk_style_context_add_class(lblCtx, "mx-mcp-error");
             gtk_label_set_text(statusLabel, err.c_str());
+            return;
+        }
+        if (!server->isRunning()) {
+            // The server only starts when the dialog is saved, so don't claim it is listening yet.
+            gtk_label_set_text(statusLabel, _("On after you press Save. No AI tool can connect yet."));
             return;
         }
     }
