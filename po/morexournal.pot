@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the xournalpp package.
+# This file is distributed under the same license as the morexournal package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: xournalpp 1.3.7+dev\n"
+"Project-Id-Version: morexournal 0.1.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-23 09:50+0000\n"
+"POT-Creation-Date: 2026-11-28 17:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,65 +17,56 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../src/core/control/AudioController.cpp:120
+#: ../src/core/control/AudioController.cpp:119
 msgid ""
 "Audio folder not set or invalid! Recording won't work!\n"
 "Please set the recording folder under \"Preferences > Audio recording\""
 msgstr ""
 
-#: ../src/core/control/Control.cpp:235
+#: ../src/core/control/Control.cpp:236
+#, c++-format
 msgid "Filesystem error: {1}"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:247
+#: ../src/core/control/Control.cpp:248
+#, c++-format
 msgid "Could not remove old autosave file \"{1}\": {2}"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:588
-msgid "You deleted the active toolbar. Falling back to the default toolbar."
-msgstr ""
-
-#: ../src/core/control/Control.cpp:608
+#: ../src/core/control/Control.cpp:300
 msgid ""
-"The Toolbarconfiguration \"{1}\" is predefined, would you create a copy to "
-"edit?"
+"Initialization of audio devices failed. You can disable audio support in "
+"Settings->Audio"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:611 ../src/core/control/Control.cpp:1663
-msgid "Yes"
-msgstr ""
-
-#: ../src/core/control/Control.cpp:611 ../src/core/control/Control.cpp:1663
-msgid "No"
-msgstr ""
-
-#: ../src/core/control/Control.cpp:839 ../src/core/control/Control.cpp:1897
-#: ../src/core/control/Control.cpp:2225
+#: ../src/core/control/Control.cpp:815 ../src/core/control/Control.cpp:1884
+#: ../src/core/control/Control.cpp:2264
 msgid "Cancel"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:840
+#: ../src/core/control/Control.cpp:816
 msgid "Insert after current page"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:841
+#: ../src/core/control/Control.cpp:817
 msgid "Insert at end"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:844
+#: ../src/core/control/Control.cpp:820
 msgid "_Journal"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:844
+#: ../src/core/control/Control.cpp:820
 msgid "Paper B_ackground"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:845
+#: ../src/core/control/Control.cpp:821
 #: ../src/core/control/pagetype/PageTypeHandler.cpp:43
 msgid "With PDF background"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:848
+#: ../src/core/control/Control.cpp:824
+#, c++-format
 msgid ""
 "Your current document does not contain PDF Page no {1}\n"
 "Would you like to insert this page?\n"
@@ -83,35 +74,40 @@ msgid ""
 "Tip: You can select {2} to insert a PDF page."
 msgstr ""
 
-#: ../src/core/control/Control.cpp:891
+#: ../src/core/control/Control.cpp:867
 msgid ""
 "No pdf pages available to append. You may need to reopen the document first."
 msgstr ""
 
-#: ../src/core/control/Control.cpp:905
+#: ../src/core/control/Control.cpp:881
 msgid "Unable to retrieve pdf page."
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1519
+#: ../src/core/control/Control.cpp:1506
+#, c++-format
 msgid ""
 "Do not open Autosave files. They may will be overwritten!\n"
 "Copy the files to another folder.\n"
 "Files from Folder {1} cannot be opened."
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1539
+#: ../src/core/control/Control.cpp:1526
+#, c++-format
 msgid "file: {1}"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1582
+#: ../src/core/control/Control.cpp:1569
+#, c++-format
 msgid "<i>Above error repeated {1} times</i>"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1594
+#: ../src/core/control/Control.cpp:1581
+#, c++-format
 msgid "<i>&lt;{1} more lines of error messages&gt;</i>"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1633
+#: ../src/core/control/Control.cpp:1620
+#, c++-format
 msgid ""
 "Error opening file \"{1}\".\n"
 "\n"
@@ -119,7 +115,8 @@ msgid ""
 "<b>{3}</b>"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1647
+#: ../src/core/control/Control.cpp:1634
+#, c++-format
 msgid ""
 "There were some errors while loading the file. Some information might have "
 "been lost. Do not overwrite your old file unless you are sure everything you "
@@ -129,112 +126,141 @@ msgid ""
 "<tt>{1}</tt>"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1665
+#: ../src/core/control/Control.cpp:1650
+msgid "Yes"
+msgstr ""
+
+#: ../src/core/control/Control.cpp:1650
+msgid "No"
+msgstr ""
+
+#: ../src/core/control/Control.cpp:1652
 msgid "File version mismatch"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1666
+#: ../src/core/control/Control.cpp:1653
 msgid ""
 "The file being loaded has a file format version newer than the one currently "
 "supported by this version of Xournal++, so it may not load properly. Open "
 "anyways?"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1689
+#: ../src/core/control/Control.cpp:1676
+#, c++-format
 msgid ""
 "Error reading PDF file \"{1}\"\n"
 "{2}"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1710
+#: ../src/core/control/Control.cpp:1697
+#, c++-format
 msgid "Error reading PNG file \"{1}\""
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1745
+#: ../src/core/control/Control.cpp:1732
+#, c++-format
 msgid "Error reading template file \"{1}\""
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1764
+#: ../src/core/control/Control.cpp:1751
+#, c++-format
 msgid "Failed to determine if path exists \"{1}\": {2}"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1765
+#: ../src/core/control/Control.cpp:1752
+#, c++-format
 msgid ""
 "That file does not exist:\n"
 "\"{1}\""
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1877
+#: ../src/core/control/Control.cpp:1864
 msgid ""
 "The attached background file could not be found. It might have been moved, "
 "renamed or deleted."
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1880
+#: ../src/core/control/Control.cpp:1867
+#, c++-format
 msgid ""
 "The background file \"{1}\" could not be found. It might have been moved, "
 "renamed or deleted.\n"
 "It was last seen at: \"{2}\""
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1890
+#: ../src/core/control/Control.cpp:1877
+#, c++-format
 msgid ""
 "\n"
 "Proposed replacement file: \"{1}\""
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1895
+#: ../src/core/control/Control.cpp:1882
 msgid "Select another PDF"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1896
+#: ../src/core/control/Control.cpp:1883
 msgid "Remove PDF Background"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1900
+#: ../src/core/control/Control.cpp:1887
 msgid "Use proposed PDF"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:1903
+#: ../src/core/control/Control.cpp:1890
 msgid "Missing PDF background file"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:2032
+#: ../src/core/control/Control.cpp:2021
 msgid "Select font"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:2051
+#: ../src/core/control/Control.cpp:2040
 #: ../src/core/gui/toolbarMenubar/ColorSelectorToolItem.cpp:57
 msgid "Select color"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:2076
+#: ../src/core/control/Control.cpp:2065 ../src/core/control/Control.cpp:2079
 msgid "Unsaved Document"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:2218
+#: ../src/core/control/Control.cpp:2085
+msgid "Not saved yet"
+msgstr ""
+
+#: ../src/core/control/Control.cpp:2085
+msgid "Unsaved changes"
+msgstr ""
+
+#: ../src/core/control/Control.cpp:2085
+msgid "Saved"
+msgstr ""
+
+#: ../src/core/control/Control.cpp:2257
 msgid "Document file was removed."
 msgstr ""
 
-#: ../src/core/control/Control.cpp:2218
+#: ../src/core/control/Control.cpp:2257
 msgid "This document is not saved yet."
 msgstr ""
 
-#: ../src/core/control/Control.cpp:2220
+#: ../src/core/control/Control.cpp:2259
 msgid "Save As..."
 msgstr ""
 
-#: ../src/core/control/Control.cpp:2220 ../src/core/control/jobs/SaveJob.cpp:25
-#: ../src/core/gui/dialog/XojSaveDlg.cpp:85
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:282
+#: ../src/core/control/Control.cpp:2259 ../src/core/control/jobs/SaveJob.cpp:25
+#: ../src/core/gui/dialog/PageTemplateDialog.cpp:136
+#: ../src/core/gui/dialog/XojSaveDlg.cpp:73
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:266
 msgid "Save"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:2223
+#: ../src/core/control/Control.cpp:2262
 msgid "Discard"
 msgstr ""
 
-#: ../src/core/control/Control.cpp:2312
+#: ../src/core/control/Control.cpp:2342
+#, c++-format
 msgid "Creating Gtk demo subprocess failed: {1} (exit code: {2})"
 msgstr ""
 
@@ -274,20 +300,21 @@ msgstr ""
 msgid "tablet pad"
 msgstr ""
 
-#: ../src/core/control/ExportHelper.cpp:63
+#: ../src/core/control/ExportHelper.cpp:64
 msgid "Image file successfully created"
 msgstr ""
 
-#: ../src/core/control/ExportHelper.cpp:76
-#: ../src/core/control/jobs/BaseExportJob.cpp:40
+#: ../src/core/control/ExportHelper.cpp:77
+#: ../src/core/control/jobs/BaseExportJob.cpp:25
 msgid "Do not overwrite the background PDF! This will cause errors!"
 msgstr ""
 
-#: ../src/core/control/ExportHelper.cpp:80
+#: ../src/core/control/ExportHelper.cpp:81
+#, c++-format
 msgid "The check for overwriting the background failed with: {1}"
 msgstr ""
 
-#: ../src/core/control/ExportHelper.cpp:100
+#: ../src/core/control/ExportHelper.cpp:101
 msgid "PDF file successfully created"
 msgstr ""
 
@@ -305,10 +332,12 @@ msgid ""
 msgstr ""
 
 #: ../src/core/control/LatexController.cpp:183
+#, c++-format
 msgid "Latex generation encountered an error: {1} (exit code: {2})"
 msgstr ""
 
 #: ../src/core/control/LatexController.cpp:244
+#, c++-format
 msgid "Could not load LaTeX PDF file: {1}"
 msgstr ""
 
@@ -317,9 +346,10 @@ msgid "Could not load LaTeX PDF file"
 msgstr ""
 
 #: ../src/core/control/PageBackgroundChangeController.cpp:111
-#: ../src/core/control/XournalMain.cpp:227
+#: ../src/core/control/XournalMain.cpp:240
 #: ../src/core/control/xojfile/LoadHandler.cpp:262
 #: ../src/core/control/xojfile/LoadHandler.cpp:281
+#, c++-format
 msgid "Error reading PDF: {1}"
 msgstr ""
 
@@ -335,57 +365,66 @@ msgid "PDF background missing"
 msgstr ""
 
 #: ../src/core/control/PrintHandler.cpp:122
+#, c++-format
 msgid "Running print operation failed with {1}"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:120
+#: ../src/core/control/XournalMain.cpp:132
+#, c++-format
 msgid "Failed to delete file: {1}"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:122
+#: ../src/core/control/XournalMain.cpp:134
 msgid "Please delete the file manually"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:134
+#: ../src/core/control/XournalMain.cpp:146
 msgid ""
-"Xournal++ crashed last time. Would you like to restore the last edited file?"
+"MoreXournal crashed last time. Would you like to restore the last edited "
+"file?"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:137
+#: ../src/core/control/XournalMain.cpp:149
 msgid "Recovery file detected"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:138
+#: ../src/core/control/XournalMain.cpp:150
 msgid "Delete file"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:138
+#: ../src/core/control/XournalMain.cpp:151
 msgid "Restore file"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:158
+#: ../src/core/control/XournalMain.cpp:171
+#, c++-format
 msgid ""
 "The background file \"{1}\" could not be found. It might have been moved, "
 "renamed or deleted."
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:173
+#: ../src/core/control/XournalMain.cpp:186
+#, c++-format
 msgid "Error loading document: {1}"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:206
+#: ../src/core/control/XournalMain.cpp:219
+#, c++-format
 msgid "Error exporting image: {1}"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:235
+#: ../src/core/control/XournalMain.cpp:248
+#, c++-format
 msgid "Error saving document: {1}"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:265
+#: ../src/core/control/XournalMain.cpp:278
+#, c++-format
 msgid "Error exporting PDF: {1}"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:371
+#: ../src/core/control/XournalMain.cpp:392
+#, c++-format
 msgid ""
 "<span foreground='red' size='x-large'>Missing the needed UI file:\n"
 "<b>{1}</b></span>\n"
@@ -395,66 +434,69 @@ msgid ""
 "  Not in {2}"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:376
+#: ../src/core/control/XournalMain.cpp:397
 msgid ""
 "\n"
 "\n"
 "Will now attempt to run without this file."
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:398
-#: ../src/core/control/XournalMain.cpp:459
+#: ../src/core/control/XournalMain.cpp:419
+#: ../src/core/control/XournalMain.cpp:488
 msgid ""
 "Sorry, Xournal++ can only open one file at once.\n"
 "Others are ignored."
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:409
+#: ../src/core/control/XournalMain.cpp:430
+#, c++-format
 msgid "File {1} does not exist."
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:413
+#: ../src/core/control/XournalMain.cpp:434
+#, c++-format
 msgid ""
 "Filesystem error: {1}\n"
 "Sorry, Xournal++ cannot open the file: {2}\n"
 "Consider copying the file to a local directory."
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:616
+#: ../src/core/control/XournalMain.cpp:646
 msgid "Jump to Page (first Page: 1)"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:620
+#: ../src/core/control/XournalMain.cpp:650
 msgid "Get version of xournalpp"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:622
+#: ../src/core/control/XournalMain.cpp:652
 msgid "Disable audio for this session"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:624
+#: ../src/core/control/XournalMain.cpp:654
 msgid ""
 "Open PDF in attach mode\n"
 "                                       Ignored if no PDF file is specified."
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:628
+#: ../src/core/control/XournalMain.cpp:658
 msgid "Save xopp-file with the background PDF specified as FILE"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:633
+#: ../src/core/control/XournalMain.cpp:663
+#, c++-format
 msgid ""
 "Use the provided backend for PDF exports.\n"
 "                                       Available backends: {1}\n"
-"                                       No effect without -p/--create-pdf=foo."
-"pdf"
+"                                       No effect without -p/--create-"
+"pdf=foo.pdf"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:642
+#: ../src/core/control/XournalMain.cpp:672
 msgid "Export FILE as PDF"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:645
+#: ../src/core/control/XournalMain.cpp:675
 msgid ""
 "Export FILE as image files (one per page)\n"
 "                                       Guess the output format from the "
@@ -462,7 +504,7 @@ msgid ""
 "                                       Supported formats: .png, .svg"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:651
+#: ../src/core/control/XournalMain.cpp:681
 msgid ""
 "Export without background\n"
 "                                       The exported file has transparent or "
@@ -471,14 +513,14 @@ msgid ""
 "supports\n"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:656
+#: ../src/core/control/XournalMain.cpp:686
 msgid ""
 "Export without ruling\n"
 "                                       The exported file has no paper "
 "ruling\n"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:661
+#: ../src/core/control/XournalMain.cpp:691
 msgid ""
 "Export layers progressively\n"
 "                                       In PDF export, Render layers "
@@ -491,126 +533,102 @@ msgid ""
 "for a presentation.\n"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:670
+#: ../src/core/control/XournalMain.cpp:700
 msgid ""
 "Only export the pages specified by RANGE (e.g. \"2-3,5,7-\")\n"
-"                                       No effect without -p/--create-pdf or -"
-"i/--create-img"
+"                                       No effect without -p/--create-pdf or "
+"-i/--create-img"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:675
+#: ../src/core/control/XournalMain.cpp:705
 msgid ""
 "Only export the layers specified by RANGE (e.g. \"2-3,5,7-\")\n"
-"                                       No effect without -p/--create-pdf or -"
-"i/--create-img"
+"                                       No effect without -p/--create-pdf or "
+"-i/--create-img"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:679
+#: ../src/core/control/XournalMain.cpp:709
 msgid ""
 "Set DPI for PNG exports. Default is 300\n"
-"                                       No effect without -i/--create-img=foo."
-"png"
+"                                       No effect without -i/--create-"
+"img=foo.png"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:683
+#: ../src/core/control/XournalMain.cpp:713
 msgid ""
 "Set page width for PNG exports\n"
-"                                       No effect without -i/--create-img=foo."
-"png\n"
+"                                       No effect without -i/--create-"
+"img=foo.png\n"
 "                                       Ignored if --export-png-dpi is used"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:688
+#: ../src/core/control/XournalMain.cpp:718
 msgid ""
 "Set page height for PNG exports\n"
-"                                       No effect without -i/--create-img=foo."
-"png\n"
+"                                       No effect without -i/--create-"
+"img=foo.png\n"
 "                                       Ignored if --export-png-dpi or --"
 "export-png-width is used"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:696
+#: ../src/core/control/XournalMain.cpp:726
 msgid "Advanced export options"
 msgstr ""
 
-#: ../src/core/control/XournalMain.cpp:697
+#: ../src/core/control/XournalMain.cpp:727
 msgid "Display advanced export options"
 msgstr ""
 
 #: ../src/core/control/jobs/AutosaveJob.cpp:21
+#, c++-format
 msgid "Error while autosaving: {1}"
 msgstr ""
 
 #: ../src/core/control/jobs/AutosaveJob.cpp:46
+#, c++-format
 msgid "Autosaving to {1}"
 msgstr ""
 
 #: ../src/core/control/jobs/AutosaveJob.cpp:73
+#, c++-format
 msgid "Could not rename autosave file from \"{1}\" to \"{2}\": {3}"
 msgstr ""
 
-#: ../src/core/control/jobs/BaseExportJob.cpp:46
+#: ../src/core/control/jobs/BaseExportJob.cpp:31
 msgid "The check for overwriting the background failed with:\n"
 msgstr ""
 
-#: ../src/core/control/jobs/BaseExportJob.cpp:78
-msgid "Export File"
-msgstr ""
-
-#: ../src/core/control/jobs/BaseExportJob.cpp:78
-#: ../src/core/gui/dialog/DeviceTestingArea.cpp:181
-msgid "Export"
-msgstr ""
-
-#: ../src/core/control/jobs/BaseExportJob.cpp:94
+#: ../src/core/control/jobs/BaseExportJob.cpp:44
+#, c++-format
 msgid ""
 "Failed to resolve path with the following error:\n"
 "{1}"
 msgstr ""
 
-#: ../src/core/control/jobs/CustomExportJob.cpp:27
+#: ../src/core/control/jobs/CustomExportJob.cpp:21
 msgid "Custom Export"
 msgstr ""
 
-#: ../src/core/control/jobs/CustomExportJob.cpp:29
-#: ../src/core/control/jobs/PdfExportJob.cpp:20
-#: ../src/core/gui/dialog/FileChooserFiltersHelper.cpp:31
-msgid "PDF files"
-msgstr ""
-
-#: ../src/core/control/jobs/CustomExportJob.cpp:30
-#: ../src/core/gui/dialog/FileChooserFiltersHelper.cpp:36
-msgid "PNG graphics"
-msgstr ""
-
-#: ../src/core/control/jobs/CustomExportJob.cpp:31
-#: ../src/core/gui/dialog/FileChooserFiltersHelper.cpp:35
-msgid "SVG graphics"
-msgstr ""
-
-#: ../src/core/control/jobs/CustomExportJob.cpp:32
-msgid "Xournal (Compatibility)"
-msgstr ""
-
-#: ../src/core/control/jobs/CustomExportJob.cpp:132
-#: ../src/core/control/jobs/SaveJob.cpp:139
+#: ../src/core/control/jobs/CustomExportJob.cpp:52
+#: ../src/core/control/jobs/SaveJob.cpp:138
+#, c++-format
 msgid "Save file error: {1}"
 msgstr ""
 
-#: ../src/core/control/jobs/ImageExport.cpp:110
+#: ../src/core/control/jobs/ImageExport.cpp:112
 msgid "Unsupported graphics format: "
 msgstr ""
 
-#: ../src/core/control/jobs/ImageExport.cpp:169
-msgid "Error save image #1"
-msgstr ""
-
-#: ../src/core/control/jobs/ImageExport.cpp:178
+#: ../src/core/control/jobs/ImageExport.cpp:172
 msgid ""
 "Error while exporting the pdf background: I cannot find the pdf page number "
 msgstr ""
 
-#: ../src/core/control/jobs/ImageExport.cpp:202
+#: ../src/core/control/jobs/ImageExport.cpp:211
+msgid "Error save image #1"
+msgstr ""
+
+#: ../src/core/control/jobs/ImageExport.cpp:219
 msgid "Error save image #2"
 msgstr ""
 
@@ -618,15 +636,18 @@ msgstr ""
 msgid "PDF Export"
 msgstr ""
 
-#: ../src/core/control/jobs/SaveJob.cpp:123
+#: ../src/core/control/jobs/SaveJob.cpp:122
+#, c++-format
 msgid "Save file error, can't backup: {1}"
 msgstr ""
 
 #: ../src/core/control/latex/LatexGenerator.cpp:108
+#, c++-format
 msgid "Failed to parse LaTeX generator command: {1}"
 msgstr ""
 
 #: ../src/core/control/latex/LatexGenerator.cpp:114
+#, c++-format
 msgid ""
 "Failed to find LaTeX generator program in PATH: {1}\n"
 "\n"
@@ -637,18 +658,22 @@ msgid ""
 msgstr ""
 
 #: ../src/core/control/latex/LatexGenerator.cpp:119
+#, c++-format
 msgid "Failed to find LaTeX generator program in PATH: {1}"
 msgstr ""
 
 #: ../src/core/control/latex/LatexGenerator.cpp:127
+#, c++-format
 msgid "Could not save .tex file: {1}"
 msgstr ""
 
 #: ../src/core/control/latex/LatexGenerator.cpp:142
+#, c++-format
 msgid "Could not start {1}: {2} (exit code: {3})"
 msgstr ""
 
 #: ../src/core/control/layer/LayerController.cpp:424
+#, c++-format
 msgid "Layer {1}"
 msgstr ""
 
@@ -689,31 +714,93 @@ msgid "Isometric Graph"
 msgstr ""
 
 #: ../src/core/control/pagetype/PageTypeHandler.cpp:44
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:401
+#: ../src/core/gui/TopBar.cpp:530
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:385
 msgid "Image"
 msgstr ""
 
-#: ../src/core/control/settings/Settings.cpp:155
+#: ../src/core/control/settings/Settings.cpp:183
 msgid "%F-Note-%H-%M"
 msgstr ""
 
-#: ../src/core/control/settings/Settings.cpp:156
+#: ../src/core/control/settings/Settings.cpp:184
 msgid "%{name}_annotated"
 msgstr ""
 
-#: ../src/core/control/tools/EditSelection.cpp:446
+#: ../src/core/control/shaperecognizer/CircleRecognizer.cpp:83
+#, c++-format
+msgid "Not a circle: radius error {1} (limit {2})"
+msgstr ""
+
+#: ../src/core/control/shaperecognizer/CircleRecognizer.cpp:88
+#, c++-format
+msgid "Not a circle: roundness {1} (minimum {2})"
+msgstr ""
+
+#: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:94
+#, c++-format
+msgid "Not a triangle: a corner is open by {1} pt (limit {2} pt)"
+msgstr ""
+
+#: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:142
+#, c++-format
+msgid "Not a rectangle: a corner is off 90° by {1}° (limit {2}°)"
+msgstr ""
+
+#: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:167
+#, c++-format
+msgid "Not a rectangle: a corner is open by {1} pt (limit {2} pt)"
+msgstr ""
+
+#: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:378
+#, c++-format
+msgid "Stroke too small: {1} pt (minimum {2} pt)"
+msgstr ""
+
+#: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:382
+msgid "Stroke has too few points"
+msgstr ""
+
+#: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:413
+#, c++-format
+msgid "Found 1 straight side (det {1}, limit {2})"
+msgstr ""
+
+#: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:416
+#, c++-format
+msgid "Found {1} straight sides (det {2}, limit {3})"
+msgstr ""
+
+#: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:506
+#, c++-format
+msgid "Not a line: curvature {1} (limit {2})"
+msgstr ""
+
+#: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:512
+msgid "No group of straight sides found (maximum 4)"
+msgstr ""
+
+#: ../src/core/control/shapes/ShapeEditController.cpp:78
+msgid "Edit shape"
+msgstr ""
+
+#: ../src/core/control/shapes/ShapeEditController.cpp:86
+msgid "Convert shape to stroke"
+msgstr ""
+
+#: ../src/core/control/tools/EditSelection.cpp:473
 msgid "Arrange"
 msgstr ""
 
-#: ../src/core/control/tools/EditSelection.cpp:461
+#: ../src/core/control/tools/EditSelection.cpp:488
 msgid "Bring forward"
 msgstr ""
 
-#: ../src/core/control/tools/EditSelection.cpp:472
+#: ../src/core/control/tools/EditSelection.cpp:499
 msgid "Send backward"
 msgstr ""
 
-#: ../src/core/control/tools/EditSelection.cpp:479
+#: ../src/core/control/tools/EditSelection.cpp:506
 msgid "Send to back"
 msgstr ""
 
@@ -728,14 +815,16 @@ msgstr ""
 
 #: ../src/core/control/xojfile/LoadHandler.cpp:124
 #: ../src/core/control/xojfile/LoadHandler.cpp:141
-#: ../src/core/control/xojfile/LoadHandler.cpp:734
-#: ../src/core/control/xojfile/LoadHandler.cpp:748
+#: ../src/core/control/xojfile/LoadHandler.cpp:749
+#: ../src/core/control/xojfile/LoadHandler.cpp:763
+#, c++-format
 msgid "Could not open attachment: {1}. Error message: {2}"
 msgstr ""
 
 #: ../src/core/control/xojfile/LoadHandler.cpp:133
-#: ../src/core/control/xojfile/LoadHandler.cpp:740
-#: ../src/core/control/xojfile/LoadHandler.cpp:758
+#: ../src/core/control/xojfile/LoadHandler.cpp:755
+#: ../src/core/control/xojfile/LoadHandler.cpp:773
+#, c++-format
 msgid ""
 "Could not open attachment: {1}. Error message: No valid file size provided"
 msgstr ""
@@ -745,140 +834,186 @@ msgid "Unable to create temporary file for audio attachment"
 msgstr ""
 
 #: ../src/core/control/xojfile/LoadHandler.cpp:163
+#, c++-format
 msgid "Could not open attachment: {1}. Error message: Could not read file"
 msgstr ""
 
 #: ../src/core/control/xojfile/LoadHandler.cpp:170
+#, c++-format
 msgid ""
 "Could not open attachment: {1}. Error message: Could not write temporary file"
 msgstr ""
 
 #: ../src/core/control/xojfile/LoadHandler.cpp:203
 #: ../src/core/control/xojfile/LoadHandler.cpp:228
+#, c++-format
 msgid "Could not read image: {1}. Error message: {2}"
 msgstr ""
 
 #: ../src/core/control/xojfile/LoadHandler.cpp:238
+#, c++-format
 msgid ""
 "Cloned pixmap page background on page {1} references inexistent page {2}"
 msgstr ""
 
-#: ../src/core/control/xojfile/LoadHandler.cpp:555
+#: ../src/core/control/xojfile/LoadHandler.cpp:570
+#, c++-format
 msgid ""
 "The file \"{1}\" is no valid .xopp file (Mimetype missing). Error message: "
 "{2}"
 msgstr ""
 
-#: ../src/core/control/xojfile/LoadHandler.cpp:562
+#: ../src/core/control/xojfile/LoadHandler.cpp:577
+#, c++-format
 msgid "The file \"{1}\" is no valid .xopp file (Mimetype wrong): \"{2}\""
 msgstr ""
 
-#: ../src/core/control/xojfile/LoadHandler.cpp:570
+#: ../src/core/control/xojfile/LoadHandler.cpp:585
+#, c++-format
 msgid ""
 "The file \"{1}\" is no valid .xopp file (Version missing). Error message: {2}"
 msgstr ""
 
-#: ../src/core/control/xojfile/LoadHandler.cpp:583
+#: ../src/core/control/xojfile/LoadHandler.cpp:598
+#, c++-format
 msgid ""
 "The file \"{1}\" is not a valid .xopp file (Version string corrupted): "
 "\"{2}\""
 msgstr ""
 
-#: ../src/core/control/xojfile/LoadHandler.cpp:592
+#: ../src/core/control/xojfile/LoadHandler.cpp:607
+#, c++-format
 msgid "Could not open file: \"{1}\""
 msgstr ""
 
-#: ../src/core/control/xojfile/LoadHandler.cpp:608
+#: ../src/core/control/xojfile/LoadHandler.cpp:623
+#, c++-format
 msgid "XML Parser error: {1}"
 msgstr ""
 
-#: ../src/core/control/xojfile/LoadHandler.cpp:618
+#: ../src/core/control/xojfile/LoadHandler.cpp:633
 msgid "Failed to read from compressed file"
 msgstr ""
 
-#: ../src/core/control/xojfile/LoadHandler.cpp:627
+#: ../src/core/control/xojfile/LoadHandler.cpp:642
 msgid "Invalid XML data read"
 msgstr ""
 
-#: ../src/core/control/xojfile/LoadHandler.cpp:641
+#: ../src/core/control/xojfile/LoadHandler.cpp:656
 msgid ""
 "Document is not complete.\n"
 "We have tried recovering the data that could be read, but the last element "
 "may have been discarded, and the end of the file is likely missing."
 msgstr ""
 
-#: ../src/core/control/xojfile/LoadHandler.cpp:648
+#: ../src/core/control/xojfile/LoadHandler.cpp:663
 msgid "Document is corrupted (no document tag found in file)"
 msgstr ""
 
-#: ../src/core/control/xojfile/LoadHandler.cpp:651
+#: ../src/core/control/xojfile/LoadHandler.cpp:666
 msgid "Document is corrupted (no pages found in file)"
 msgstr ""
 
-#: ../src/core/control/xojfile/LoadHandler.cpp:791
+#: ../src/core/control/xojfile/LoadHandler.cpp:806
+#, c++-format
 msgid "Requested temporary file was not found for attachment {1}"
 msgstr ""
 
-#: ../src/core/control/xojfile/SaveHandler.cpp:327
+#: ../src/core/control/xojfile/SaveHandler.cpp:337
+#, c++-format
 msgid "Could not write background \"{1}\", {2}"
 msgstr ""
 
-#: ../src/core/control/xojfile/SaveHandler.cpp:434
+#: ../src/core/control/xojfile/SaveHandler.cpp:444
+#, c++-format
 msgid "Could not write background \"{1}\". Continuing anyway."
 msgstr ""
 
-#: ../src/core/control/xojfile/XmlParser.cpp:126
+#: ../src/core/control/xojfile/XmlParser.cpp:150
+#, c++-format
 msgid "Ignoring unexpected {1} tag inside unrecognized document structure"
 msgstr ""
 
-#: ../src/core/control/xojfile/XmlParser.cpp:131
+#: ../src/core/control/xojfile/XmlParser.cpp:155
+#, c++-format
 msgid "Ignoring unexpected {1} tag under {2}"
 msgstr ""
 
-#: ../src/core/control/xojfile/XmlParser.cpp:180
+#: ../src/core/control/xojfile/XmlParser.cpp:204
+#, c++-format
 msgid "Unexpected text in {1} node: \"{2}\""
 msgstr ""
 
-#: ../src/core/control/xojfile/XmlParser.cpp:278
+#: ../src/core/control/xojfile/XmlParser.cpp:302
 msgid "Attribute \"type\" not found in background tag. Ignoring tag"
 msgstr ""
 
-#: ../src/core/control/xojfile/XmlParser.cpp:317
+#: ../src/core/control/xojfile/XmlParser.cpp:341
 msgid ""
 "Domain \"clone\" is invalid for PDF backgrounds. Using \"absolute\" instead"
 msgstr ""
 
-#: ../src/core/control/xojfile/XmlParser.cpp:327
+#: ../src/core/control/xojfile/XmlParser.cpp:351
 msgid "PDF background filename is empty"
 msgstr ""
 
-#: ../src/core/control/xojfile/XmlParser.cpp:347
+#: ../src/core/control/xojfile/XmlParser.cpp:371
+#, c++-format
 msgid "Discarding unused audio timestamp element. Filename: {1}"
 msgstr ""
 
-#: ../src/core/control/xojfile/XmlParser.cpp:424
+#: ../src/core/control/xojfile/XmlParser.cpp:455
 msgid ""
 "Found stroke that contains an odd number of valid coordinates. Discarding "
 "the last value"
 msgstr ""
 
-#: ../src/core/control/xojfile/XmlParser.cpp:435
+#: ../src/core/control/xojfile/XmlParser.cpp:466
+#, c++-format
 msgid ""
 "Found stroke with more coordinates than pressure points: {1}, expected {2}. "
 "Shrinking stroke to match pressure point count"
 msgstr ""
 
-#: ../src/core/control/xojfile/XmlParser.cpp:441
+#: ../src/core/control/xojfile/XmlParser.cpp:472
+#, c++-format
 msgid ""
 "Found stroke with too many pressure points: {1}, expected {2}. Discarding "
 "remaining pressure points"
 msgstr ""
 
-#: ../src/core/control/xojfile/XmlParser.cpp:576
+#: ../src/core/control/xojfile/XmlParser.cpp:607
+#, c++-format
 msgid "Ignoring attachment tag under {1}"
 msgstr ""
 
+#: ../src/core/gui/FloatingTools.cpp:98
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:311
+msgid "Zoom out"
+msgstr ""
+
+#: ../src/core/gui/FloatingTools.cpp:107
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1088
+msgid "Zoom"
+msgstr ""
+
+#: ../src/core/gui/FloatingTools.cpp:129
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:314
+msgid "Zoom to 100%"
+msgstr ""
+
+#: ../src/core/gui/FloatingTools.cpp:142
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:312
+msgid "Zoom in"
+msgstr ""
+
+#: ../src/core/gui/FloatingTools.cpp:146
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:313
+msgid "Zoom fit to screen"
+msgstr ""
+
 #: ../src/core/gui/GladeGui.cpp:25
+#, c++-format
 msgid "Error loading glade file \"{1}\" (try to load \"{2}\")"
 msgstr ""
 
@@ -887,20 +1022,22 @@ msgid "Double click to edit. CTRL + click to open."
 msgstr ""
 
 #: ../src/core/gui/PageView.cpp:410
+#, c++-format
 msgid "Unable to play audio recording {1}"
 msgstr ""
 
-#: ../src/core/gui/PageView.cpp:991
+#: ../src/core/gui/PageView.cpp:1002
 #: ../src/core/gui/sidebar/previews/base/SidebarPreviewBaseEntry.cpp:83
-#: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:145
+#: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:146
 msgid "Loading..."
 msgstr ""
 
-#: ../src/core/gui/PageView.cpp:1048
+#: ../src/core/gui/PageView.cpp:1059
+#, c++-format
 msgid "Scroll to page {1}"
 msgstr ""
 
-#: ../src/core/gui/PageView.cpp:1050
+#: ../src/core/gui/PageView.cpp:1061
 msgid "Add missing page"
 msgstr ""
 
@@ -918,15 +1055,404 @@ msgid "Text not found"
 msgstr ""
 
 #: ../src/core/gui/SearchBar.cpp:144
+#, c++-format
 msgid "Text found once on page {1}"
 msgstr ""
 
 #: ../src/core/gui/SearchBar.cpp:145
+#, c++-format
 msgid "Text found {1} times on page {2} ({3} of {1})"
 msgstr ""
 
 #: ../src/core/gui/SearchBar.cpp:150
 msgid "Text not found, searched on all pages"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:50 ../src/core/gui/ToolPill.cpp:669
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:490
+msgid "Very Fine"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:51 ../src/core/gui/ToolPill.cpp:530
+#: ../src/core/gui/ToolPill.cpp:670
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:491
+msgid "Fine"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:52 ../src/core/gui/ToolPill.cpp:532
+#: ../src/core/gui/ToolPill.cpp:671
+#: ../src/core/gui/dialog/ButtonConfigGui.cpp:36
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:493
+msgid "Medium"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:53 ../src/core/gui/ToolPill.cpp:534
+#: ../src/core/gui/ToolPill.cpp:672
+#: ../src/core/gui/dialog/ButtonConfigGui.cpp:38
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:494
+msgid "Thick"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:54 ../src/core/gui/ToolPill.cpp:673
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:496
+msgid "Very Thick"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:320 ../src/core/gui/ShapeToolbox.cpp:325
+#: ../src/core/gui/ShapeToolbox.cpp:695
+msgid "Stroke color"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:331 ../src/core/gui/ShapeToolbox.cpp:425
+msgid "Custom…"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:343 ../src/core/gui/ShapeToolbox.cpp:348
+#: ../src/core/gui/ToolPill.cpp:651 ../src/core/gui/ToolPill.cpp:664
+msgid "Thickness"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:390 ../src/core/gui/ToolPill.cpp:724
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:486
+msgid "Fill"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:402
+msgid "Fill color and opacity"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:419 ../src/core/gui/ShapeToolbox.cpp:764
+#: ../src/core/gui/dialog/SelectOpacityDialog.cpp:33
+#: ../src/core/gui/dialog/SelectOpacityDialog.cpp:37
+msgid "Fill color"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:429
+msgid "Opacity"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:459 ../src/core/gui/ToolPill.cpp:705
+msgctxt "line style"
+msgid "Solid"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:459 ../src/core/gui/ToolPill.cpp:706
+msgctxt "line style"
+msgid "Dashed"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:460 ../src/core/gui/ToolPill.cpp:707
+msgctxt "line style"
+msgid "Dash-dot"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:460 ../src/core/gui/ToolPill.cpp:708
+msgctxt "line style"
+msgid "Dotted"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:475 ../src/core/gui/ToolPill.cpp:502
+msgid "Duplicate"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:478 ../src/core/gui/ToolPill.cpp:512
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:289
+#: ../src/core/undo/DeleteUndoAction.cpp:74
+msgid "Delete"
+msgstr ""
+
+#: ../src/core/gui/ShapeToolbox.cpp:486
+msgid "Convert to stroke"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:252
+#: ../src/core/gui/dialog/ButtonConfigGui.cpp:133
+#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:34
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:401
+msgid "Draw Rectangle"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:253
+#: ../src/core/gui/dialog/ButtonConfigGui.cpp:135
+#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:35
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:402
+msgid "Draw Ellipse"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:254
+#: ../src/core/gui/dialog/ButtonConfigGui.cpp:137
+#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:36
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:403
+msgid "Draw Arrow"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:255
+#: ../src/core/gui/dialog/ButtonConfigGui.cpp:139
+#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:38
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:405
+msgid "Draw Double Arrow"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:256
+#: ../src/core/gui/dialog/ButtonConfigGui.cpp:131
+#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:39
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:408
+msgid "Draw Line"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:257
+#: ../src/core/gui/dialog/ButtonConfigGui.cpp:145
+#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:42
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:409
+msgid "Draw Spline"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:258
+#: ../src/core/gui/dialog/ButtonConfigGui.cpp:141
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:407
+msgid "Draw Coordinate System"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:465
+msgid "Lasso"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:467 ../src/core/gui/ToolPill.cpp:955
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:123
+msgid "Rectangle"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:469
+msgid "Object"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:474
+msgid "More selection tools"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:485
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:417
+#: ../src/core/gui/toolbarMenubar/ToolSelectCombocontrol.cpp:16
+msgid "Select Multi-Layer Region"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:486
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:420
+#: ../src/core/gui/toolbarMenubar/ToolSelectCombocontrol.cpp:14
+msgid "Select Multi-Layer Rectangle"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:488
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:426
+#: ../src/core/gui/toolbarMenubar/ToolSelectCombocontrol.cpp:19
+msgid "Play Object"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:519
+msgid "Standard"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:521
+msgid "Whiteout"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:524
+msgid "Whole stroke"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:613
+msgid "More colors"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:617
+msgid "Colors"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:633
+msgid "Custom color…"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:650
+msgid "Thickness and line style, shared with the pen"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:697
+msgid "Line style"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:756
+msgid "Fill opacity"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:814
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:432
+msgid "Align text to the left"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:818
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:434
+msgid "Center text"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:822
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:436
+msgid "Align text to the right"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:826
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:430
+msgid "Justify text"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:834
+msgid "Insert image from file"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:837
+msgid "Insert image…"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:888
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:285
+#: ../src/core/undo/AddUndoAction.cpp:72
+msgid "Paste"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:892
+msgid "or tap the page"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:904
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1726
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1729
+msgid "LaTeX"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:905
+msgid "Tap where to insert the formula"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:909
+msgid "Link"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:910
+msgid "Tap where to insert the link"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:914
+#: ../src/core/gui/dialog/ButtonConfigGui.cpp:86
+msgid "Vertical space"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:915
+msgid "Drag down to make room"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:920
+msgid "PDF text selection"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:933
+msgid "Return to default tool"
+msgstr ""
+
+#: ../src/core/gui/ToolPill.cpp:952
+msgid "Linear"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:426 ../src/core/gui/TopBar.cpp:843
+msgid "Main menu"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:524 ../src/core/gui/dialog/ButtonConfigGui.cpp:79
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1271
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:356
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:481
+msgid "Pen"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:525 ../src/core/gui/dialog/ButtonConfigGui.cpp:81
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:379
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:482
+msgid "Highlighter"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:526 ../src/core/gui/dialog/ButtonConfigGui.cpp:80
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:365
+msgid "Eraser"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:527
+msgid "Select"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:528
+msgid "Shapes"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:529 ../src/core/gui/dialog/ButtonConfigGui.cpp:82
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:381
+msgid "Text"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:531 ../src/core/gui/dialog/ButtonConfigGui.cpp:91
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:427
+msgid "Hand"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:580
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:277
+#: ../src/core/undo/UndoRedoHandler.cpp:179
+msgid "Undo"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:582
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:280
+#: ../src/core/undo/UndoRedoHandler.cpp:191
+msgid "Redo"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:591 ../src/core/gui/TopBar.cpp:857
+#: ../src/core/gui/dialog/SettingsDialog.cpp:945
+msgid "Page sidebar"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:598 ../src/core/gui/TopBar.cpp:646
+#: ../src/core/gui/TopBar.cpp:858
+msgid "Previous page"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:599 ../src/core/gui/TopBar.cpp:616
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:324
+msgid "Go to page"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:606 ../src/core/gui/TopBar.cpp:648
+#: ../src/core/gui/TopBar.cpp:859
+msgid "Next page"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:651 ../src/core/gui/TopBar.cpp:860
+msgid "Go to page…"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:663 ../src/core/gui/TopBar.cpp:865
+msgid "New page"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:667 ../src/core/gui/TopBar.cpp:868
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1223
+msgid "Fullscreen"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:677
+msgid "More"
+msgstr ""
+
+#: ../src/core/gui/TopBar.cpp:840
+#, c++-format
+msgid "Main menu: {1}, {2}"
 msgstr ""
 
 #: ../src/core/gui/dialog/AboutDialog.cpp:41
@@ -965,48 +1491,16 @@ msgstr ""
 msgid "Thin"
 msgstr ""
 
-#: ../src/core/gui/dialog/ButtonConfigGui.cpp:36
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:509
-msgid "Medium"
-msgstr ""
-
-#: ../src/core/gui/dialog/ButtonConfigGui.cpp:38
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:510
-msgid "Thick"
-msgstr ""
-
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:40
 msgid "Very thick"
 msgstr ""
 
-#: ../src/core/gui/dialog/ButtonConfigGui.cpp:57
+#: ../src/core/gui/dialog/ButtonConfigGui.cpp:58
 msgid "No device"
 msgstr ""
 
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:78
 msgid "Tool - don't change"
-msgstr ""
-
-#: ../src/core/gui/dialog/ButtonConfigGui.cpp:79
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:372
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:497
-msgid "Pen"
-msgstr ""
-
-#: ../src/core/gui/dialog/ButtonConfigGui.cpp:80
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:381
-msgid "Eraser"
-msgstr ""
-
-#: ../src/core/gui/dialog/ButtonConfigGui.cpp:81
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:395
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:498
-msgid "Highlighter"
-msgstr ""
-
-#: ../src/core/gui/dialog/ButtonConfigGui.cpp:82
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:397
-msgid "Text"
 msgstr ""
 
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:83
@@ -1020,10 +1514,6 @@ msgstr ""
 
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:85
 msgid "Laser Pointer - Highlighter"
-msgstr ""
-
-#: ../src/core/gui/dialog/ButtonConfigGui.cpp:86
-msgid "Vertical space"
 msgstr ""
 
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:87
@@ -1040,11 +1530,6 @@ msgstr ""
 
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:90
 msgid "Select multi layer rect"
-msgstr ""
-
-#: ../src/core/gui/dialog/ButtonConfigGui.cpp:91
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:443
-msgid "Hand"
 msgstr ""
 
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:92
@@ -1075,100 +1560,61 @@ msgstr ""
 msgid "Normal drawing"
 msgstr ""
 
-#: ../src/core/gui/dialog/ButtonConfigGui.cpp:131
-#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:39
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:424
-msgid "Draw Line"
-msgstr ""
-
-#: ../src/core/gui/dialog/ButtonConfigGui.cpp:133
-#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:34
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:417
-msgid "Draw Rectangle"
-msgstr ""
-
-#: ../src/core/gui/dialog/ButtonConfigGui.cpp:135
-#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:35
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:418
-msgid "Draw Ellipse"
-msgstr ""
-
-#: ../src/core/gui/dialog/ButtonConfigGui.cpp:137
-#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:36
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:419
-msgid "Draw Arrow"
-msgstr ""
-
-#: ../src/core/gui/dialog/ButtonConfigGui.cpp:139
-#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:38
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:421
-msgid "Draw Double Arrow"
-msgstr ""
-
-#: ../src/core/gui/dialog/ButtonConfigGui.cpp:141
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:423
-msgid "Draw Coordinate System"
-msgstr ""
-
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:143
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:416
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:400
 #: ../src/core/undo/RecognizerUndoAction.cpp:61
 msgid "Shape Recognizer"
 msgstr ""
 
-#: ../src/core/gui/dialog/ButtonConfigGui.cpp:145
-#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:42
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:425
-msgid "Draw Spline"
-msgstr ""
-
-#: ../src/core/gui/dialog/DeviceTestingArea.cpp:181
+#: ../src/core/gui/dialog/DeviceTestingArea.cpp:175
 msgid "Export Logs"
 msgstr ""
 
+#: ../src/core/gui/dialog/DeviceTestingArea.cpp:175
+#: ../src/core/gui/dialog/XojSaveDlg.cpp:81
+msgid "Export"
+msgstr ""
+
 #: ../src/core/gui/dialog/ExtEdLatexDialog.cpp:115
+#, c++-format
 msgid "Failed to parse external editor command: {1}"
 msgstr ""
 
 #: ../src/core/gui/dialog/ExtEdLatexDialog.cpp:131
+#, c++-format
 msgid "Could not spawn editor: {1}"
 msgstr ""
 
 #: ../src/core/gui/dialog/ExtEdLatexDialog.cpp:162
+#, c++-format
 msgid "Could not wait for editor: {1}"
 msgstr ""
 
 #: ../src/core/gui/dialog/ExtEdLatexDialog.cpp:171
+#, c++-format
 msgid "Editor exited with bad status {1}"
 msgstr ""
 
-#: ../src/core/gui/dialog/FileChooserFiltersHelper.cpp:15
+#: ../src/core/gui/dialog/FileChooserFiltersHelper.cpp:8
 msgid "All files"
 msgstr ""
 
-#: ../src/core/gui/dialog/FileChooserFiltersHelper.cpp:22
-#: ../src/core/gui/dialog/XojOpenDlg.cpp:203
+#: ../src/core/gui/dialog/FileChooserFiltersHelper.cpp:15
+#: ../src/core/gui/dialog/XojOpenDlg.cpp:200
 msgid "Supported files"
 msgstr ""
 
-#: ../src/core/gui/dialog/FileChooserFiltersHelper.cpp:32
-msgid "Xournal files"
-msgstr ""
-
-#: ../src/core/gui/dialog/FileChooserFiltersHelper.cpp:33
-msgid "Xournal++ files"
-msgstr ""
-
-#: ../src/core/gui/dialog/FileChooserFiltersHelper.cpp:34
-#: ../src/core/gui/dialog/PageTemplateDialog.cpp:120
-msgid "Xournal++ template"
-msgstr ""
-
-#: ../src/core/gui/dialog/FileChooserFiltersHelper.cpp:40
+#: ../src/core/gui/dialog/FileChooserFiltersHelper.cpp:44
 msgid "Image files"
 msgstr ""
 
+#: ../src/core/gui/dialog/FileChooserFiltersHelper.cpp:51
+msgid "Latex files"
+msgstr ""
+
 #: ../src/core/gui/dialog/FormatDialog.cpp:50
+#: ../src/core/gui/dialog/PageTemplateDialog.cpp:94
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1474
 #: ../src/core/gui/menus/popoverMenus/PageTypeSelectionPopover.cpp:163
 msgid "Custom"
 msgstr ""
@@ -1181,47 +1627,179 @@ msgstr ""
 msgid "Previously selected language not available anymore!"
 msgstr ""
 
-#: ../src/core/gui/dialog/LatexSettingsPanel.cpp:56
-msgid "LaTeX editor theme:"
+#: ../src/core/gui/dialog/LatexSettingsPanel.cpp:65
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1740
+msgid "Editor theme"
 msgstr ""
 
-#: ../src/core/gui/dialog/LatexSettingsPanel.cpp:66
+#: ../src/core/gui/dialog/LatexSettingsPanel.cpp:75
 msgid ""
-"GtkSourceView was disabled when building Xournal++! Some options will not be "
-"available."
+"GtkSourceView was disabled when building MoreXournal. Some editor options "
+"are unavailable."
 msgstr ""
 
-#: ../src/core/gui/dialog/LatexSettingsPanel.cpp:158
+#: ../src/core/gui/dialog/LatexSettingsPanel.cpp:162
+#, c++-format
 msgid "Unable to open global template file at {1}. Does it exist?"
 msgstr ""
 
-#: ../src/core/gui/dialog/LatexSettingsPanel.cpp:169
+#: ../src/core/gui/dialog/LatexSettingsPanel.cpp:173
 msgid "Sample LaTeX file generated successfully."
 msgstr ""
 
-#: ../src/core/gui/dialog/LatexSettingsPanel.cpp:171
+#: ../src/core/gui/dialog/LatexSettingsPanel.cpp:175
+#, c++-format
 msgid "Error: {1}. Please check the contents of {2}"
 msgstr ""
 
-#: ../src/core/gui/dialog/LatexSettingsPanel.cpp:182
+#: ../src/core/gui/dialog/LatexSettingsPanel.cpp:186
+#, c++-format
 msgid ""
 "Error: {1} is not a regular file. Please check your LaTeX template file "
 "settings. "
 msgstr ""
 
-#: ../src/core/gui/dialog/PageTemplateDialog.cpp:116
-#: ../src/core/gui/dialog/XojSaveDlg.cpp:84
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:70
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1766
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1772
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1775
+msgid "AI assistants"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:72
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1770
+msgid ""
+"Let AI tools on this computer, such as Claude Code or Codex, see the open "
+"document through the Model Context Protocol (MCP). Nothing leaves this "
+"computer unless the AI tool itself sends it."
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:81
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1779
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1781
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1784
+msgid "Connection"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:88
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1786
+msgid "Set up an assistant"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:142
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1773
+msgid "Allow AI assistants to connect"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:149
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:423
+msgid "Off. No AI tool can connect."
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:169
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1775
+msgid "Allow edits"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:171
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1776
+msgid ""
+"Assistants can add text, strokes, shapes and pages. Each change is one undo "
+"step, and assistants can't delete what you wrote."
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:191
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1779
+msgid "Address"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:202
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1781
+msgid "Access token"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:210
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:453
+msgid "Show"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:214
+msgid "New token"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:223
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1782
+msgid ""
+"A new token disconnects every AI tool until you paste the new setup command."
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:230
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1784
+msgid "Connected now"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:244
+msgid "Claude Code"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:244
+msgid "Codex"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:244
+msgid "Claude Desktop"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:273
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:460
+msgid "Run once in a terminal:"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:276
+msgid "Copied"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:280
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:284
+msgid "Copy"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:438
+msgid "On after you press Save. No AI tool can connect yet."
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:444
+msgid "On. Listening on this computer only (127.0.0.1)."
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:450
+msgid "Hide"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:463
+msgid "Add to ~/.codex/config.toml:"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:467
+msgid "Add to claude_desktop_config.json (uses the bundled stdio bridge):"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:488
+msgid "None yet"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:500
+msgid "connected just now"
+msgstr ""
+
+#: ../src/core/gui/dialog/McpSettingsPanel.cpp:502
+#, c++-format
+msgid "connected {1} min ago"
+msgstr ""
+
+#: ../src/core/gui/dialog/PageTemplateDialog.cpp:135
+#: ../src/core/gui/dialog/XojSaveDlg.cpp:72
 msgid "Save File"
-msgstr ""
-
-#: ../src/core/gui/dialog/PageTemplateDialog.cpp:116
-#: ../src/core/gui/dialog/XojOpenDlg.cpp:80
-#: ../src/core/gui/dialog/XojSaveDlg.cpp:19
-msgid "_Cancel"
-msgstr ""
-
-#: ../src/core/gui/dialog/PageTemplateDialog.cpp:117
-msgid "_Save"
 msgstr ""
 
 #: ../src/core/gui/dialog/PluginDialogEntry.cpp:28
@@ -1244,11 +1822,6 @@ msgstr ""
 msgid "Highlighter Options"
 msgstr ""
 
-#: ../src/core/gui/dialog/SelectOpacityDialog.cpp:33
-#: ../src/core/gui/dialog/SelectOpacityDialog.cpp:37
-msgid "Fill color"
-msgstr ""
-
 #: ../src/core/gui/dialog/SelectOpacityDialog.cpp:36
 msgid "Pen Options"
 msgstr ""
@@ -1262,20 +1835,1525 @@ msgid "PDF Text Marker"
 msgstr ""
 
 #: ../src/core/gui/dialog/SelectOpacityDialog.cpp:49
+#, c++-format
 msgid ""
 "<b>{1}</b>\n"
 "{2}{3}"
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:277
-msgid ""
-"Enable pressure sensitivity or pressure inference to change this setting!"
+#: ../src/core/gui/dialog/SettingsDialog.cpp:107
+msgid "Input"
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:281
+#: ../src/core/gui/dialog/SettingsDialog.cpp:107
+msgid "Features"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:154
 msgid ""
-"Filter input pressure. Multiply the pressure by the pressure multiplier. If "
-"less than the minimum, use the minimum pressure."
+"%{name}\tFilename of the PDF background (if any)\n"
+"%{file}\t\tSaved filename of the document\n"
+"%a\t\tAbbreviated weekday name (e.g. Thu)\n"
+"%A\t\tFull weekday name (e.g. Thursday)\n"
+"%b\t\tAbbreviated month name (e.g. Aug)\n"
+"%B\t\tFull month name (e.g. August)\n"
+"%c\t\tDate and time representation\n"
+"%d\t\tDay of the month (01-31)\n"
+"%F\t\tDate representation (e.g. 2026-11-28)\n"
+"%H\t\tHour in 24h format (00-23)\n"
+"%I\t\tHour in 12h format (01-12)\n"
+"%j\t\tDay of the year (001-366)\n"
+"%m\t\tMonth as a decimal number (01-12)\n"
+"%M\t\tMinute (00-59)\n"
+"%p\t\tAM or PM designation\n"
+"%S\t\tSecond (00-61)\n"
+"%U\t\tWeek number, Sunday first (00-53)\n"
+"%w\t\tWeekday as decimal, Sunday = 0 (0-6)\n"
+"%W\t\tWeek number, Monday first (00-53)\n"
+"%x\t\tLocale date representation\n"
+"%X\t\tLocale time representation\n"
+"%y\t\tYear, last two digits (00-99)\n"
+"%Y\t\tYear (e.g. 2026)\n"
+"%Z\t\tTimezone name or abbreviation\n"
+"%%\t\tLiteral %\n"
+"\n"
+"Illegal characters are replaced with \"_\"."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:398
+msgid "Select folder for audio recordings"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:576
+msgid "Restart needed"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:802
+msgid "General"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:806
+msgid "Language"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:810
+#: ../src/core/gui/dialog/SettingsDialog.cpp:812
+msgid "Interface language"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:811
+#: ../src/core/gui/dialog/SettingsDialog.cpp:813
+#: ../src/core/gui/dialog/SettingsDialog.cpp:873
+#: ../src/core/gui/dialog/SettingsDialog.cpp:875
+#: ../src/core/gui/dialog/SettingsDialog.cpp:878
+#: ../src/core/gui/dialog/SettingsDialog.cpp:880
+#: ../src/core/gui/dialog/SettingsDialog.cpp:919
+#: ../src/core/gui/dialog/SettingsDialog.cpp:921
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1502
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1504
+msgid "Takes effect after a restart."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:818
+msgid "Autosave"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:821
+#: ../src/core/gui/dialog/SettingsDialog.cpp:824
+msgid "Save a backup copy automatically"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:822
+#: ../src/core/gui/dialog/SettingsDialog.cpp:825
+msgid ""
+"Saved next to the document as .autosave.xopp. Unsaved documents go to the "
+"configuration folder."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:828
+#: ../src/core/gui/dialog/SettingsDialog.cpp:830
+msgid "Interval"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:829
+msgid "min"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:829
+msgid "Turn on “Save a backup copy automatically” to change this."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:836
+msgid "Default file names"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:840
+#: ../src/core/gui/dialog/SettingsDialog.cpp:841
+msgid "New documents"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:840
+#: ../src/core/gui/dialog/SettingsDialog.cpp:842
+msgid "Example: 2026-11-28-Note-09-15"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:844
+#: ../src/core/gui/dialog/SettingsDialog.cpp:846
+msgid "Annotated PDF export"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:845
+#: ../src/core/gui/dialog/SettingsDialog.cpp:847
+msgid "Example: lecture-07_annotated.pdf"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:850
+#: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:169
+msgid "Show all"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:853
+#: ../src/core/gui/dialog/SettingsDialog.cpp:855
+msgid "Placeholders"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:854
+#: ../src/core/gui/dialog/SettingsDialog.cpp:856
+msgid "%F date, %H hour, %M minute, %{name} PDF name and more"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:861
+msgid "Appearance"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:865
+#: ../src/core/gui/dialog/SettingsDialog.cpp:868
+#: ../src/core/gui/dialog/SettingsDialog.cpp:869
+msgid "Theme"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:868
+msgid "System"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:868
+msgid "Light"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:868
+msgid "Dark"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:872
+msgid "Color"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:872
+msgid "Lucide"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:872
+#: ../src/core/gui/dialog/SettingsDialog.cpp:874
+msgid "Icon style"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:877
+#: ../src/core/gui/dialog/SettingsDialog.cpp:879
+msgid "Use system icons when available"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:882
+#: ../src/core/gui/dialog/SettingsDialog.cpp:883
+msgid "Shadow behind pages"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:889
+msgid "Touch mode"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:892
+msgid "Automatic"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:892
+msgid "Off"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:892
+msgid "On"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:892
+#: ../src/core/gui/dialog/SettingsDialog.cpp:894
+msgid "Larger controls for fingers"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:893
+#: ../src/core/gui/dialog/SettingsDialog.cpp:895
+msgid ""
+"Automatic switches on with finger touch and mouse. The pen keeps the current "
+"layout."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:901
+msgid "Window"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:904
+#: ../src/core/gui/dialog/SettingsDialog.cpp:906
+msgid "Always show the menu bar"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:905
+#: ../src/core/gui/dialog/SettingsDialog.cpp:907
+msgid "Otherwise press Alt to show it. F10 toggles it."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:910
+#: ../src/core/gui/dialog/SettingsDialog.cpp:911
+msgid "File path in the title"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:914
+#: ../src/core/gui/dialog/SettingsDialog.cpp:915
+msgid "Page number in the title"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:919
+#: ../src/core/gui/dialog/SettingsDialog.cpp:920
+msgid "Tools in the title bar"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:931
+msgid "Left-handed layout"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:934
+#: ../src/core/gui/dialog/SettingsDialog.cpp:935
+msgid "Page sidebar on the right"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:938
+#: ../src/core/gui/dialog/SettingsDialog.cpp:940
+msgid "Vertical scrollbar on the left"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:950
+msgid "None"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:950
+msgid "Below preview"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:950
+msgid "Circle background"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:950
+msgid "Square background"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:950
+#: ../src/core/gui/dialog/SettingsDialog.cpp:951
+msgid "Page numbers"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:957
+msgid "Scrollbars"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:960
+#: ../src/core/gui/dialog/SettingsDialog.cpp:962
+msgid "Hide the horizontal scrollbar"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:964
+#: ../src/core/gui/dialog/SettingsDialog.cpp:966
+msgid "Hide the vertical scrollbar"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:968
+#: ../src/core/gui/dialog/SettingsDialog.cpp:970
+msgid "Keep scrollbars visible"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:969
+#: ../src/core/gui/dialog/SettingsDialog.cpp:971
+msgid "Turns off fading out when you stop scrolling."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:976
+msgid "Interface colors"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:979
+#: ../src/core/gui/dialog/SettingsDialog.cpp:981
+msgid "Current page and selection border"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:983
+#: ../src/core/gui/dialog/SettingsDialog.cpp:984
+msgid "Background between pages"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:987
+#: ../src/core/gui/dialog/SettingsDialog.cpp:988
+msgid "Selection"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:987
+#: ../src/core/gui/dialog/SettingsDialog.cpp:989
+msgid "Selected text and strokes."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:991
+#: ../src/core/gui/dialog/SettingsDialog.cpp:992
+msgid "Active selection"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:991
+#: ../src/core/gui/dialog/SettingsDialog.cpp:993
+msgid "Current search result."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:998
+msgid "Recolor pages"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:999
+msgid ""
+"Recoloring makes pages follow a dark theme. It can slow down moving "
+"selections."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1001
+msgid "Turn on “Recolor the pages” to change this."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1003
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1004
+msgid "Recolor the pages"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1008
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1010
+msgid "Recolor sidebar previews"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1012
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1013
+msgid "Light areas become"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1016
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1017
+msgid "Dark areas become"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1023
+msgid "Pen cursor"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1027
+msgid "No icon"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1027
+msgid "Small dot icon"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1027
+msgid "Big pen icon"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1027
+msgid "System cursor"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1028
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1029
+msgid "Cursor"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1032
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1036
+msgid "Highlight the cursor position"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1033
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1036
+msgid "Useful for screen recordings and presentations."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1034
+msgid "Choose “Small dot icon” or “Big pen icon” for Cursor to change this."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1039
+msgid "Turn on “Highlight the cursor position” to change this."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1040
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1041
+msgid "Circle color"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1045
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1046
+msgid "Radius"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1045
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1049
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1124
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1129
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1140
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1145
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1978
+msgid "px"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1049
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1050
+msgid "Border width"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1053
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1054
+msgid "Border color"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1060
+msgid "Color palette"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1065
+msgid "Palette"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1066
+msgid "Colors shown in the tool pill and the color menu."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1069
+msgid "Open folder"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1076
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1078
+msgid "Add your own palettes"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1077
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1079
+msgid "Put .gpl files in the palettes folder."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1084
+msgid "Pages and zoom"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1092
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1093
+msgid "Ctrl + scroll step"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1097
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1098
+msgid "Zoom in/out step"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1101
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1103
+msgid "Fit the page when opening a document"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1108
+msgid "Space around pages"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1109
+msgid "Extra space lets you scroll a page edge to the middle of the screen."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1112
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1113
+msgid "Unlimited scrolling"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1116
+msgid "Available when “Unlimited scrolling” is off."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1118
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1119
+msgid "Extra space left and right"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1122
+msgid ""
+"Turn on “Extra space left and right” while “Unlimited scrolling” is off."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1124
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1125
+msgid "Left space"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1129
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1130
+msgid "Right space"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1134
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1135
+msgid "Extra space above and below"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1138
+msgid ""
+"Turn on “Extra space above and below” while “Unlimited scrolling” is off."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1140
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1141
+msgid "Space above"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1145
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1146
+msgid "Space below"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1152
+msgid "New pages"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1156
+msgid "When scrolling past the last page"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1158
+msgid "When drawing on the last page"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1159
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1336
+msgid "Never"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1169
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1171
+msgid "Add a blank page at the end"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1169
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1172
+msgid "Not for PDF documents."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1177
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:301
+msgid "Paired pages"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1180
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1182
+msgid "First page offset"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1181
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1183
+msgid "Usually 0 or 1. Use 1 to start a book with a single right-hand page."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1189
+msgid "Resizing"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1192
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1194
+msgid "Keep line width when resizing"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1199
+msgid "Snapping"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1202
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1203
+msgid "Grid size"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1207
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1208
+msgid "Grid snapping tolerance"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1212
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1213
+msgid "Rotation snapping tolerance"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1216
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1217
+msgid "Snap recognized shapes"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1226
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1227
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1252
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1253
+msgid "Show the menu bar"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1230
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1231
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1256
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1257
+msgid "Show the top bar"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1234
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1235
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1260
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1261
+msgid "Show the page sidebar"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1245
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:303
+msgid "Presentation mode"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1248
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1249
+msgid "Go fullscreen"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1275
+msgid "Pressure"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1278
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1280
+msgid "Pressure sensitivity"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1279
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1281
+msgid "Line width follows how hard you press."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1283
+msgid ""
+"Turn on “Pressure sensitivity” or “Guess pressure from speed” to change this."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1285
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1286
+msgid "Minimum pressure"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1290
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1291
+msgid "Pressure multiplier"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1294
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1296
+msgid "Guess pressure from speed"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1295
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1297
+msgid "Used when the device reports no pressure, such as a mouse."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1303
+msgid "Pen buttons"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1305
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1439
+msgid ""
+"The tool is used while the button is held. Releasing it brings back the "
+"previous tool."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1311
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1312
+msgid "Side button 1"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1311
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1313
+msgid "Usually the one closer to the tip"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1318
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1319
+msgid "Side button 2"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1318
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1320
+msgid "Usually the one farther from the tip"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1325
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1326
+msgid "Eraser end"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1332
+msgid "Eraser cursor"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1336
+msgid "Always"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1336
+msgid "When floating"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1336
+msgid "When touching"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1337
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1339
+msgid "Show the pen's eraser on the page"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1344
+msgid "Stroke smoothing"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1346
+msgid ""
+"Smoothing reduces shaky lines. Higher values add more lag between the pen "
+"and the line."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1357
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1358
+msgid "Averaging"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1362
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1363
+msgid "Buffer size"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1366
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1368
+msgid "Gaussian σ"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1367
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1369
+msgid "Higher values smooth more and add more lag between cursor and tip."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1380
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1381
+msgid "Preprocessor"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1385
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1386
+msgid "Deadzone radius"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1389
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1390
+msgid "Cusp detection"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1393
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1395
+msgid "Drag"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1394
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1396
+msgid "Too small causes oscillations; too high disables stabilization."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1399
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1401
+msgid "Mass"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1400
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1402
+msgid "Higher mass adds more inertia and stabilization."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1406
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1410
+msgid "Finish the stroke at the pen position"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1407
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1411
+msgid "Fills the gap smoothing can leave at the end of a stroke."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1408
+msgid "Choose an averaging method or preprocessor to change this."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1417
+msgid "Stroke start fix"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1419
+msgid ""
+"Some pens draw a stray mark at the start of each stroke. Ignoring the first "
+"events removes it."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1422
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1424
+msgid "Ignore the first events of each stroke"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1428
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1430
+msgid "Events to ignore"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1429
+msgid "Turn on “Ignore the first events of each stroke” to change this."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1436
+msgid "Mouse"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1438
+msgid "Mouse buttons"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1450
+msgid "Left button"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1451
+msgid "Middle button"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1452
+msgid "Right button"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1453
+msgid "Back button"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1454
+msgid "Forward button"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1458
+msgid "Touch"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1462
+msgid "Palm rejection"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1464
+msgid ""
+"If your hardware has no palm rejection, MoreXournal can turn off touch while "
+"the pen is near the screen."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1468
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1470
+msgid "Turn off touch while the pen is near"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1473
+msgid "Turn on “Turn off touch while the pen is near” to change this."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1474
+msgid "Autodetect"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1474
+msgid "X11"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1475
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1476
+msgid "Method"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1480
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1482
+msgid "Turn touch back on after"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1480
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1718
+msgid "s"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1487
+msgid "Finger drawing"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1490
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1492
+msgid "Draw with your finger"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1491
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1493
+msgid "Otherwise one finger scrolls the page."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1498
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1501
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1503
+msgid "Pinch to zoom"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1508
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1510
+msgid "Start zooming after"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1508
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1511
+msgid "How much farther apart the two fingers must move."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1509
+msgid "Turn on “Pinch to zoom” to change this."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1516
+msgid "Touch scrolling"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1520
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1523
+msgid "Turn off GTK inertial scrolling"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1521
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1524
+msgid ""
+"Works around scrolling bugs on some systems. Takes effect after a restart."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1530
+msgid "Touchscreen device"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1532
+msgid ""
+"You can configure a device not identified by GTK as a touchscreen to behave "
+"as if it were one."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1538
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1539
+msgid "Device action"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1545
+#: ../src/core/gui/menus/menubar/Menubar.cpp:198
+msgid "Tools"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1549
+msgid "Automatic shapes"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1551
+msgid ""
+"Hold the pen still at the end of a stroke to turn it into a line, triangle, "
+"rectangle or circle."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1554
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1556
+msgid "Turn strokes into shapes when you hold still"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1564
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:240
+msgid "Hold time"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1567
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:259
+msgid "Allowed movement while holding"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1569
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:279
+msgid "Recognition"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1572
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:327
+msgid "Smaller strokes stay freehand"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1574
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:170
+msgid "Try it"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1581
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:353
+msgid "Shape recognition thresholds"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1583
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:377
+msgid "Line straightness"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1585
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:381
+msgid "Circle roundness"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1587
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:385
+msgid "Rectangle corner angle"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1589
+msgid "Open corners allowed"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1592
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:430
+msgid "Restore the default thresholds"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1598
+msgid "Tap action"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1600
+msgid ""
+"A short tap with a drawing tool can select an object or open the floating "
+"toolbox instead of drawing a dot."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1603
+msgid "Turn on “Treat short taps as an action” to change this."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1605
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1607
+msgid "Treat short taps as an action"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1610
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1613
+msgid "Try to select an object first"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1615
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1618
+msgid "Show the floating toolbox"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1620
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1622
+msgid "Time limit"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1621
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1631
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1655
+msgid "ms"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1626
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1627
+msgid "Length limit"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1626
+msgid "mm"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1631
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1632
+msgid "Frequency limit"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1638
+msgid "Default tool"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1639
+msgid "The tool and settings the Default tool button selects."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1644
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1645
+msgid "Tool"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1651
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:480
+msgid "Laser pointer"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1655
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1656
+msgid "Fade out after"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1663
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1668
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1671
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1673
+msgid "Audio recording"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1664
+msgid "Turn on “Audio recording” to change this."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1672
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1674
+msgid "Record audio linked to your strokes. Takes effect after a restart."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1680
+msgid "Recording"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1683
+#: ../src/core/gui/dialog/SettingsDialog.cpp:3180
+#: ../src/core/gui/dialog/XojOpenDlg.cpp:82
+msgid "Select folder"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1687
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1688
+msgid "Save recordings in"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1691
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1692
+msgid "Microphone"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1696
+msgid "16000 Hz"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1696
+msgid "44100 Hz"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1696
+msgid "96000 Hz"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1696
+msgid "192000 Hz"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1697
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1698
+msgid "Sample rate"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1702
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1703
+msgid "Gain"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1709
+msgid "Playback"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1710
+msgid "Changes take effect on new recordings and playbacks."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1713
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1714
+msgid "Speakers"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1718
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1719
+msgid "Skip forward and back by"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1730
+msgid "Generation command"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1733
+msgid "Check LaTeX is installed before running"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1734
+msgid "Template file"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1736
+msgid "Default formula"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1739
+msgid "Formula editor"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1742
+msgid "Line numbers"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1744
+msgid "Syntax highlighting"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1746
+msgid "Auto-indent"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1748
+msgid "Wrap long lines"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1750
+#: ../src/core/gui/toolbarMenubar/FontButton.cpp:47
+#: ../src/core/gui/toolbarMenubar/FontButton.cpp:96
+msgid "Font"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1753
+msgid "External LaTeX editor"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1754
+msgid "Edit formulas in another program"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1756
+msgid "Editor command"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1758
+msgid "Temporary file extension"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1761
+msgid "Insert the formula when the editor closes"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1793
+msgid "Advanced"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1794
+msgid ""
+"Settings most people never need to change. Use them to fix a device that is "
+"not detected correctly, tune performance, or try experimental behavior."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1799
+msgid "Input devices"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1801
+msgid ""
+"Choose how each device behaves. Use this when a pen or touchscreen is not "
+"detected correctly."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1813
+msgid "Input devices and testing area"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1814
+msgid "Change device classes, emulate tip contact, or inspect input logs."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1820
+msgid "Drawing input"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1823
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1825
+msgid "Keep drawing past the window edge"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1830
+msgid "Custom palm rejection commands"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1832
+msgid ""
+"Used with the Custom method. They run on the interface thread, so they must "
+"return quickly."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1835
+msgid ""
+"Turn on “Turn off touch while the pen is near” and select the Custom method "
+"to change this."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1837
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1839
+msgid "Command to turn touch on"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1838
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1843
+msgid "Test"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1842
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1845
+msgid "Command to turn touch off"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1850
+msgid "Text tool"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1853
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1854
+msgid "Tab inserts spaces"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1859
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1860
+msgid "Spaces per Tab"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1859
+msgid "Turn on “Tab inserts spaces” to change this."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1866
+msgid "Opening documents"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1869
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1871
+msgid "Reopen the last document at startup"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1874
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1877
+msgid "Open the matching notes when opening a PDF"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1875
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1878
+msgid "If lecture.pdf has a lecture.xopp next to it, open the notes instead."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1884
+msgid "Edge scrolling"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1885
+msgid "Scrolls the page when you drag a selection to the window edge."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1889
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1890
+msgid "Base speed"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1893
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1895
+msgid "Maximum speed-up"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1901
+msgid "Page preloading"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1905
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1906
+msgid "Pages to preload before"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1910
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1911
+msgid "Pages to preload after"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1914
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1917
+msgid "Free hidden pages while scrolling"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1915
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1917
+msgid "Uses less memory on large documents."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1923
+msgid "PDF rendering"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1927
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1930
+msgid "Re-render PDFs when zoom changes by more than"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1928
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1931
+msgid "Sharper PDF backgrounds while zooming. Printing is not affected."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1937
+msgid "Screen calibration"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1939
+#, c-format
+msgid ""
+"Makes 100% zoom show real size. Hold a ruler to the screen and move the "
+"slider until both match."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1942
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1943
+msgid "Detect automatically"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1959
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1961
+msgid "Screen ruler (cm)"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1960
+msgid "Available when “Detect automatically” is off."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1967
+msgid "Modifiers by draw direction"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1968
+msgid "Drawing a shape up or left acts as if Shift or Ctrl were held."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1969
+msgid "Experimental"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1971
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1973
+msgid "Set modifiers by draw direction"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1977
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1979
+msgid "Direction radius"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1978
+msgid "Turn on “Set modifiers by draw direction” to change this."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2024
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2090
+msgid "Search results"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2081
+msgid "No settings match"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2083
+msgid "Try another word, such as pen, zoom or backup."
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2749
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2762
+msgid "System default"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:3186
+msgid "Folder not set - Select a folder to enable recording"
 msgstr ""
 
 #: ../src/core/gui/dialog/SettingsDialogPaletteTab.cpp:31
@@ -1287,6 +3365,7 @@ msgid "User palettes"
 msgstr ""
 
 #: ../src/core/gui/dialog/SettingsDialogPaletteTab.cpp:99
+#, c++-format
 msgid ""
 "<i>The palettes shown below are obtained from the <a href=\"{1}\">Built-in "
 "palettes</a> and <a href=\"{2}\">User palettes</a> directories:</i>\n"
@@ -1310,46 +3389,150 @@ msgstr ""
 msgid "Palette has no Name"
 msgstr ""
 
-#: ../src/core/gui/dialog/ToolbarManageDialog.cpp:27
-msgid "Predefined"
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:119
+msgid "Line"
 msgstr ""
 
-#: ../src/core/gui/dialog/ToolbarManageDialog.cpp:39
-msgid "Customized"
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:121
+msgid "Triangle"
 msgstr ""
 
-#: ../src/core/gui/dialog/ToolbarManageDialog.cpp:65
-msgid "Toolbars"
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:125
+msgid "Circle"
 msgstr ""
 
-#: ../src/core/gui/dialog/ToolbarManageDialog.cpp:87
-msgid "New"
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:236
+msgid "Turn on “Turn strokes into shapes when you hold still” to change this."
 msgstr ""
 
-#: ../src/core/gui/dialog/XojOpenDlg.cpp:49
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:279
+msgid "All shapes together"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:294
+msgid "Strict"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:297
+msgid "Tolerant"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:309
+msgctxt "shape sensitivity"
+msgid "Custom"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:356
+msgid "Fine-tune how strict recognition is for each shape."
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:379
+msgid "Polygon sides straightness"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:383
+msgid "Circle radius error"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:387
+msgid "Open corners allowed (rectangle)"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:390
+msgid "Open corners allowed (triangle)"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:393
+msgid "Straighten near-axis angle"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:431
+msgid "Restore defaults"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:453
+msgid "Try it here"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:458
+#: ../src/core/undo/AddUndoAction.cpp:88
+#: ../src/core/undo/DeleteUndoAction.cpp:90
+msgid "stroke"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:459
+msgid "recognized shape"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:460
+msgid "tolerance and delay"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:462
+msgid "Clear"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:490
+msgid ""
+"Draw a line, triangle, rectangle or circle and hold still at the end without "
+"lifting."
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:628
+msgctxt "shape sensitivity"
+msgid "Default"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:864
+msgid "Pad cleared."
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:875
+#, c++-format
+msgid "Recognized: {1}"
+msgstr ""
+
+#: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:878
+msgid "No shape"
+msgstr ""
+
+#: ../src/core/gui/dialog/XojOpenDlg.cpp:65
 msgid "Attach file to the journal"
 msgstr ""
 
-#: ../src/core/gui/dialog/XojOpenDlg.cpp:81
+#: ../src/core/gui/dialog/XojOpenDlg.cpp:82
 msgid "_Open"
 msgstr ""
 
-#: ../src/core/gui/dialog/XojOpenDlg.cpp:123
+#: ../src/core/gui/dialog/XojOpenDlg.cpp:82
+#: ../src/core/gui/dialog/XojSaveDlg.cpp:20
+msgid "_Cancel"
+msgstr ""
+
+#: ../src/core/gui/dialog/XojOpenDlg.cpp:118
 msgid "Open template file"
 msgstr ""
 
-#: ../src/core/gui/dialog/XojOpenDlg.cpp:136
-#: ../src/core/gui/dialog/XojOpenDlg.cpp:197
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:281
+#: ../src/core/gui/dialog/XojOpenDlg.cpp:131
+#: ../src/core/gui/dialog/XojOpenDlg.cpp:194
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:265
 msgid "Open file"
 msgstr ""
 
-#: ../src/core/gui/dialog/XojOpenDlg.cpp:155
+#: ../src/core/gui/dialog/XojOpenDlg.cpp:150
 msgid "Annotate Pdf file"
 msgstr ""
 
-#: ../src/core/gui/dialog/XojOpenDlg.cpp:173
+#: ../src/core/gui/dialog/XojOpenDlg.cpp:168
 msgid "Choose image file"
+msgstr ""
+
+#: ../src/core/gui/dialog/XojOpenDlg.cpp:212
+msgid "Choose Latex template file"
+msgstr ""
+
+#: ../src/core/gui/dialog/XojSaveDlg.cpp:80
+msgid "Export File"
 msgstr ""
 
 #: ../src/core/gui/dialog/backgroundSelect/ImagesDialog.cpp:30
@@ -1365,6 +3548,7 @@ msgid "Load file"
 msgstr ""
 
 #: ../src/core/gui/dialog/backgroundSelect/ImagesDialog.cpp:107
+#, c++-format
 msgid "This image could not be loaded. Error message: {1}"
 msgstr ""
 
@@ -1381,72 +3565,39 @@ msgid "Show only not used pages (one unused page)"
 msgstr ""
 
 #: ../src/core/gui/dialog/backgroundSelect/PdfPagesDialog.cpp:57
+#, c++-format
 msgid "Show only not used pages ({1} unused pages)"
 msgstr ""
 
-#: ../src/core/gui/dialog/toolbarCustomize/ToolbarAdapter.cpp:162
-msgid "Removed tool item {1} from Toolbar {2} ID {3}"
+#: ../src/core/gui/menus/menubar/Menubar.cpp:54
+#, c++-format
+msgid "Error loading menubar XML file (try to load \"{1}\")"
 msgstr ""
 
-#: ../src/core/gui/dialog/toolbarCustomize/ToolbarAdapter.cpp:164
-msgid "Removed tool item from Toolbar {1} ID {2}"
+#: ../src/core/gui/menus/menubar/Menubar.cpp:187
+msgid "Edit"
 msgstr ""
 
-#: ../src/core/gui/dialog/toolbarCustomize/ToolbarAdapter.cpp:168
-msgid "Could not remove tool item {1} from Toolbar {2} on position {3}"
+#: ../src/core/gui/menus/menubar/Menubar.cpp:195
+#: ../src/core/gui/toolbarMenubar/ToolPageSpinner.cpp:26
+msgid "Page"
 msgstr ""
 
-#: ../src/core/gui/dialog/toolbarCustomize/ToolbarAdapter.cpp:173
-msgid "Could not remove tool item from Toolbar {1} on position {2}"
+#: ../src/core/gui/menus/menubar/Menubar.cpp:196
+msgid "Layers"
 msgstr ""
 
-#: ../src/core/gui/dialog/toolbarCustomize/ToolbarCustomizeDialog.cpp:66
-msgctxt "Item category in toolbar customization dialog"
-msgid "Audio"
+#: ../src/core/gui/menus/menubar/Menubar.cpp:197
+msgid "View"
 msgstr ""
 
-#: ../src/core/gui/dialog/toolbarCustomize/ToolbarCustomizeDialog.cpp:67
-msgctxt "Item category in toolbar customization dialog"
-msgid "Colors"
-msgstr ""
-
-#: ../src/core/gui/dialog/toolbarCustomize/ToolbarCustomizeDialog.cpp:68
-msgctxt "Item category in toolbar customization dialog"
-msgid "Files"
-msgstr ""
-
-#: ../src/core/gui/dialog/toolbarCustomize/ToolbarCustomizeDialog.cpp:69
-msgctxt "Item category in toolbar customization dialog"
-msgid "Miscellaneous"
-msgstr ""
-
-#: ../src/core/gui/dialog/toolbarCustomize/ToolbarCustomizeDialog.cpp:70
-msgctxt "Item category in toolbar customization dialog"
-msgid "Navigation"
-msgstr ""
-
-#: ../src/core/gui/dialog/toolbarCustomize/ToolbarCustomizeDialog.cpp:71
-msgctxt "Item category in toolbar customization dialog"
-msgid "Selection"
-msgstr ""
-
-#: ../src/core/gui/dialog/toolbarCustomize/ToolbarCustomizeDialog.cpp:72
-msgctxt "Item category in toolbar customization dialog"
-msgid "Tools"
-msgstr ""
-
-#: ../src/core/gui/dialog/toolbarCustomize/ToolbarCustomizeDialog.cpp:73
-msgctxt "Item category in toolbar customization dialog"
-msgid "Separators"
-msgstr ""
-
-#: ../src/core/gui/dialog/toolbarCustomize/ToolbarCustomizeDialog.cpp:74
-msgctxt "Item category in toolbar customization dialog"
+#: ../src/core/gui/menus/menubar/Menubar.cpp:206
+#: ../src/core/gui/menus/menubar/PluginsSubmenu.cpp:34
 msgid "Plugins"
 msgstr ""
 
-#: ../src/core/gui/menus/menubar/Menubar.cpp:54
-msgid "Error loading menubar XML file (try to load \"{1}\")"
+#: ../src/core/gui/menus/menubar/Menubar.cpp:226
+msgid "Help"
 msgstr ""
 
 #: ../src/core/gui/menus/menubar/PageTypeSubmenu.cpp:47
@@ -1456,10 +3607,6 @@ msgstr ""
 
 #: ../src/core/gui/menus/menubar/PluginsSubmenu.cpp:15
 msgid "Plugin Manager"
-msgstr ""
-
-#: ../src/core/gui/menus/menubar/PluginsSubmenu.cpp:34
-msgid "Plugin"
 msgstr ""
 
 #: ../src/core/gui/menus/menubar/RecentDocumentsSubmenu.cpp:68
@@ -1536,10 +3683,6 @@ msgstr ""
 msgid "Drawing Type Combo"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/FontButton.cpp:82
-msgid "Font"
-msgstr ""
-
 #: ../src/core/gui/toolbarMenubar/SeparatorItem.cpp:16
 msgid "Separator"
 msgstr ""
@@ -1548,353 +3691,248 @@ msgstr ""
 msgid "Spacer"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:71
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:70
+#, c++-format
 msgid ""
 "Could not parse general toolbar.ini file: {1}\n"
 "No Toolbars will be available"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:80
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:79
+#, c++-format
 msgid ""
 "Could not parse custom toolbar.ini file: {1}\n"
 "Toolbars will not be available"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:280
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:264
 msgid "New Xournal"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:283
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:267
 msgid "Export as PDF"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:284
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:268
 msgid "Print"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:293
-#: ../src/core/undo/UndoRedoHandler.cpp:179
-msgid "Undo"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:296
-#: ../src/core/undo/UndoRedoHandler.cpp:191
-msgid "Redo"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:299
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:283
 msgid "Cut"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:300
-msgid "Copy"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:301
-#: ../src/core/undo/AddUndoAction.cpp:72
-msgid "Paste"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:303
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:287
 msgid "Search"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:305
-#: ../src/core/undo/DeleteUndoAction.cpp:74
-msgid "Delete"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:308
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:292
 msgid "Rotation Snapping"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:309
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:293
 msgid "Grid Snapping"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:317
-msgid "Paired pages"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:319
-msgid "Presentation mode"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:320
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:304
 msgid "Toggle fullscreen"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:321
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:305
 msgid "Toggle sidebar"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:323
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:307
 msgid "Manage Toolbars"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:325
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:309
 msgid "Customize Toolbars"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:327
-msgid "Zoom out"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:328
-msgid "Zoom in"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:329
-msgid "Zoom fit to screen"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:330
-msgid "Zoom to 100%"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:337
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:321
 msgid "Go to first page"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:338
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:462
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:322
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:446
 msgid "Back"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:339
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:323
 msgid "Jump back"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:340
-msgid "Go to page"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:342
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:326
 msgid "Jump forward"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:343
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:327
 msgid "Next"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:344
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:328
 msgid "Go to last page"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:347
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:331
 msgid "Go to previous layer"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:348
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:332
 msgid "Go to next layer"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:349
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:333
 msgid "Go to top layer"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:352
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:336
 msgid "Next annotated page"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:358
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:342
 msgid "Insert page"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:360
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:344
 msgid "Delete current page"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:368
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:377
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:385
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:352
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:361
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:369
 msgid "standard"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:369
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:387
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:353
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:371
 msgid "dashed"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:370
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:389
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:354
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:373
 msgid "dash-/ dotted"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:371
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:391
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:355
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:375
 msgid "dotted"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:378
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:362
 msgid "whiteout"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:379
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:363
 msgid "delete stroke"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:398
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:382
 msgid "Add/Edit Link"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:400
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:384
 msgid "Add/Edit TeX"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:402
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:386
 msgid "Default Tool"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:404
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:388
 #: ../src/core/gui/toolbarMenubar/ToolPdfCombocontrol.cpp:14
 msgid "Select Linear PDF Text"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:406
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:390
 msgid "Select PDF Text in Rectangle"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:408
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:392
 msgid "Setsquare"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:409
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:393
 msgid "Compass"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:412
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:396
 msgid "Toggle Touch Drawing"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:428
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:412
 #: ../src/core/gui/toolbarMenubar/ToolSelectCombocontrol.cpp:13
 msgid "Select Region"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:430
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:414
 #: ../src/core/gui/toolbarMenubar/ToolSelectCombocontrol.cpp:12
 msgid "Select Rectangle"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:433
-#: ../src/core/gui/toolbarMenubar/ToolSelectCombocontrol.cpp:16
-msgid "Select Multi-Layer Region"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:436
-#: ../src/core/gui/toolbarMenubar/ToolSelectCombocontrol.cpp:14
-msgid "Select Multi-Layer Rectangle"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:438
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:422
 #: ../src/core/gui/toolbarMenubar/ToolSelectCombocontrol.cpp:18
 msgid "Select Object"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:440
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:424
 msgid "Vertical Space"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:442
-#: ../src/core/gui/toolbarMenubar/ToolSelectCombocontrol.cpp:19
-msgid "Play Object"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:446
-msgid "Justify text"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:448
-msgid "Align text to the left"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:450
-msgid "Center text"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:452
-msgid "Align text to the right"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:455
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:439
 msgid "Record Audio / Stop Recording"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:457
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:441
 msgid "Pause / Play"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:458
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:442
 msgid "Stop"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:460
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:444
 msgid "Forward"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:496
-msgid "Laser pointer"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:502
-msgid "Fill"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:503
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:487
 msgid "Fill Opacity"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:506
-msgid "Very Fine"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:507
-msgid "Fine"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:512
-msgid "Very Thick"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:172
-msgid "Show all"
-msgstr ""
-
-#: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:173
+#: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:170
 msgid "Hide all"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:175
+#: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:172
 msgid "Add a layer above the active layer"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:176
+#: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:173
 msgid "Add a layer below the active layer"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:203
+#: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:214
+#: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:219
 msgid "Layer"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:300
+#: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:317
 msgid "Layer Combo"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolPageSpinner.cpp:26
-msgid "Page"
-msgstr ""
-
 #: ../src/core/gui/toolbarMenubar/ToolPageSpinner.cpp:82
+#, c++-format
 msgctxt "Page {pagenumber} \"of {pagecount}\""
 msgid " of {1}"
 msgstr ""
 
 #: ../src/core/gui/toolbarMenubar/ToolPageSpinner.cpp:85
+#, c++-format
 msgid "PDF Page {1}"
 msgstr ""
 
 #: ../src/core/gui/toolbarMenubar/ToolPageSpinner.cpp:87
+#, c++-format
 msgid "PDF {1}"
 msgstr ""
 
@@ -1914,7 +3952,7 @@ msgstr ""
 msgid "Selection dropdown menu"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/ToolZoomSlider.cpp:70
+#: ../src/core/gui/toolbarMenubar/ToolZoomSlider.cpp:71
 msgid "Zoom Slider"
 msgstr ""
 
@@ -1973,13 +4011,9 @@ msgctxt "Color"
 msgid "White"
 msgstr ""
 
-#: ../src/core/gui/toolbarMenubar/model/ToolbarModel.cpp:76
-msgctxt "as a noun: a copy of"
-msgid "Copy"
-msgstr ""
-
-#: ../src/core/model/Document.cpp:330 ../src/core/model/Document.cpp:339
-#: ../src/core/model/Document.cpp:342
+#: ../src/core/model/Document.cpp:331 ../src/core/model/Document.cpp:340
+#: ../src/core/model/Document.cpp:343
+#, c++-format
 msgid "Document not loaded! ({1}), {2}"
 msgstr ""
 
@@ -2016,6 +4050,7 @@ msgid "PDF page number is out of range"
 msgstr ""
 
 #: ../src/core/pdf/base/PdfExportBackend.cpp:21
+#, c++-format
 msgid ""
 "Unknown pdf backend: {1}. Available backends are: {2}. Using default backend."
 msgstr ""
@@ -2041,11 +4076,6 @@ msgstr ""
 #: ../src/core/undo/AddUndoAction.cpp:80
 #: ../src/core/undo/DeleteUndoAction.cpp:82
 msgid "elements"
-msgstr ""
-
-#: ../src/core/undo/AddUndoAction.cpp:88
-#: ../src/core/undo/DeleteUndoAction.cpp:90
-msgid "stroke"
 msgstr ""
 
 #: ../src/core/undo/AddUndoAction.cpp:91
@@ -2074,6 +4104,10 @@ msgstr ""
 
 #: ../src/core/undo/EmergencySaveRestore.cpp:22
 msgid "Emergency saved document"
+msgstr ""
+
+#: ../src/core/undo/FillColorUndoAction.cpp:53
+msgid "Change fill"
 msgstr ""
 
 #: ../src/core/undo/FillUndoAction.cpp:86
@@ -2173,12 +4207,14 @@ msgid "Edit text"
 msgstr ""
 
 #: ../src/core/undo/UndoRedoHandler.cpp:114
+#, c++-format
 msgid ""
 "Could not undo \"{1}\"\n"
 "Something went wrong… Please write a bug report…"
 msgstr ""
 
 #: ../src/core/undo/UndoRedoHandler.cpp:140
+#, c++-format
 msgid ""
 "Could not redo \"{1}\"\n"
 "Something went wrong… Please write a bug report…"
@@ -2210,126 +4246,146 @@ msgid "ElementRange::parse(): element indices start with 1"
 msgstr ""
 
 #: ../src/util/GzInputStream.cpp:48
+#, c++-format
 msgid ""
 "Error opening file \"{1}\":\n"
 "{2}"
 msgstr ""
 
 #: ../src/util/GzInputStream.cpp:62 ../src/util/ZipInputStream.cpp:52
+#, c++-format
 msgid ""
 "Error occurred while closing file\n"
 "Error code {1}"
 msgstr ""
 
 #: ../src/util/OutputStream.cpp:30
+#, c++-format
 msgid "Error opening file: \"{1}\""
 msgstr ""
 
 #: ../src/util/OutputStream.cpp:51
+#, c++-format
 msgid "Error writing data to file: \"{1}\""
 msgstr ""
 
 #: ../src/util/OutputStream.cpp:52
+#, c++-format
 msgid "Error code {1}. Message:"
 msgstr ""
 
 #: ../src/util/OutputStream.cpp:72
+#, c++-format
 msgid "Error occurred while closing file: \"{1}\""
 msgstr ""
 
 #: ../src/util/OutputStream.cpp:73
+#, c++-format
 msgid "Error code {1}"
 msgstr ""
 
 #: ../src/util/PathUtil.cpp:124
+#, c++-format
 msgid "Could not open file: {1}"
 msgstr ""
 
 #: ../src/util/PathUtil.cpp:131
+#, c++-format
 msgid ""
 "Error reading \"{1}\":\n"
 "{2}"
 msgstr ""
 
-#: ../src/util/PathUtil.cpp:408
-msgid "xournalpp-{1}"
+#: ../src/util/PathUtil.cpp:449
+#, c++-format
+msgid "morexournal-{1}"
 msgstr ""
 
-#: ../src/util/PathUtil.cpp:417
+#: ../src/util/PathUtil.cpp:458
+#, c++-format
 msgid ""
 "Could not create folder: {1}\n"
 "Failed with error: {2}"
 msgstr ""
 
 #: ../src/util/Util.cpp:66
+#, c++-format
 msgid "Error {1} executing system command: {2}"
 msgstr ""
 
-#: ../src/util/XojMsgBox.cpp:186
+#: ../src/util/XojMsgBox.cpp:203
+#, c++-format
 msgid "The file {1} already exists! Do you want to replace it?"
 msgstr ""
 
-#: ../src/util/XojMsgBox.cpp:190
+#: ../src/util/XojMsgBox.cpp:207
 msgid "Select another name"
 msgstr ""
 
-#: ../src/util/XojMsgBox.cpp:191
+#: ../src/util/XojMsgBox.cpp:208
 msgid "Replace"
 msgstr ""
 
-#: ../src/util/XojMsgBox.cpp:216
+#: ../src/util/XojMsgBox.cpp:233
+#, c++-format
 msgid ""
 "Unable to open the link: {1}\n"
 "{2}"
 msgstr ""
 
 #: ../src/util/ZipInputStream.cpp:38
+#, c++-format
 msgid ""
 "Error opening file \"{1}\" in zip archive:\n"
 "{2}"
 msgstr ""
 
-#: ../src/xoj-preview-extractor/xournalpp-thumbnailer.cpp:121
+#: ../src/xoj-preview-extractor/xournalpp-thumbnailer.cpp:127
 msgid "xoj-preview-extractor: call with INPUT.xoj OUTPUT.png"
 msgstr ""
 
-#: ../src/xoj-preview-extractor/xournalpp-thumbnailer.cpp:134
+#: ../src/xoj-preview-extractor/xournalpp-thumbnailer.cpp:140
+#, c++-format
 msgid "xoj-preview-extractor: file \"{1}\" is not .xoj file"
 msgstr ""
 
-#: ../src/xoj-preview-extractor/xournalpp-thumbnailer.cpp:138
+#: ../src/xoj-preview-extractor/xournalpp-thumbnailer.cpp:144
+#, c++-format
 msgid "xoj-preview-extractor: opening input file \"{1}\" failed"
 msgstr ""
 
-#: ../src/xoj-preview-extractor/xournalpp-thumbnailer.cpp:142
+#: ../src/xoj-preview-extractor/xournalpp-thumbnailer.cpp:148
+#, c++-format
 msgid "xoj-preview-extractor: file \"{1}\" contains no preview"
 msgstr ""
 
-#: ../src/xoj-preview-extractor/xournalpp-thumbnailer.cpp:147
+#: ../src/xoj-preview-extractor/xournalpp-thumbnailer.cpp:153
 msgid ""
 "xoj-preview-extractor: no preview and page found, maybe an invalid file?"
 msgstr ""
 
-#: ../src/xoj-preview-extractor/xournalpp-thumbnailer.cpp:187
+#: ../src/xoj-preview-extractor/xournalpp-thumbnailer.cpp:193
+#, c++-format
 msgid "xoj-preview-extractor: could not find icon \"{1}\""
 msgstr ""
 
-#: ../src/xoj-preview-extractor/xournalpp-thumbnailer.cpp:205
+#: ../src/xoj-preview-extractor/xournalpp-thumbnailer.cpp:211
+#, c++-format
 msgid "xoj-preview-extractor: opening output file \"{1}\" failed"
 msgstr ""
 
-#: ../src/xoj-preview-extractor/xournalpp-thumbnailer.cpp:212
+#: ../src/xoj-preview-extractor/xournalpp-thumbnailer.cpp:218
 msgid "xoj-preview-extractor: successfully extracted"
 msgstr ""
 
 #: ../ui/about.glade:12
-msgid "About Xournal++"
+msgid "About MoreXournal"
 msgstr ""
 
 #: ../ui/about.glade:93
 msgid ""
-"<span size=\"xx-large\" weight=\"bold\">Xournal++</span>\n"
-"<i>The next generation</i>"
+"<span size=\"xx-large\" weight=\"bold\">MoreXournal</span>\n"
+"<i>Based on Xournal++</i>"
 msgstr ""
 
 #: ../ui/about.glade:133
@@ -2338,43 +4394,40 @@ msgstr ""
 
 #: ../ui/about.glade:186
 msgid ""
+"Based on Xournal++ (https://xournalpp.github.io/)\n"
 "Partially based on Xournal\n"
 "by Denis Auroux"
 msgstr ""
 
-#: ../ui/about.glade:218
+#: ../ui/about.glade:219
 msgid "Website"
 msgstr ""
 
-#: ../ui/about.glade:246
+#: ../ui/about.glade:247
 msgid "Source Code / Bug Tracker"
 msgstr ""
 
-#: ../ui/about.glade:283
+#: ../ui/about.glade:284
 msgid "With help from the community"
 msgstr ""
 
-#: ../ui/about.glade:311
+#: ../ui/about.glade:312
 msgid "License"
 msgstr ""
 
-#: ../ui/about.glade:339
+#: ../ui/about.glade:340
 msgid "Authors"
 msgstr ""
 
-#: ../ui/about.glade:397 ../ui/crashDialog.glade:174
-#: ../ui/toolbarCustomizeDialog.glade:73 ../ui/toolbarManageDialog.glade:134
+#: ../ui/about.glade:398 ../ui/crashDialog.glade:174
 msgid "Close"
 msgstr ""
 
-#: ../ui/backgroundSelection.glade:49 ../ui/deviceList.glade:94
-#: ../ui/exportSettings.glade:457 ../ui/extEdTexDialog.glade:168
-#: ../ui/goto.glade:108 ../ui/intEdTexDialog.glade:203
-#: ../ui/linkDialog.glade:275 ../ui/pageFormat.glade:346
-#: ../ui/pageTemplate.glade:278 ../ui/plugin.glade:114
-#: ../ui/renameLayerDialog.glade:71 ../ui/selectOpacity.glade:134
-#: ../ui/settings.glade:6645
-msgid "Ok"
+#: ../ui/backgroundSelection.glade:49 ../ui/extEdTexDialog.glade:168
+#: ../ui/intEdTexDialog.glade:203 ../ui/linkDialog.glade:275
+#: ../ui/pageFormat.glade:346 ../ui/pageTemplate.glade:278
+#: ../ui/selectOpacity.glade:134 ../ui/settingsDeviceClassConfig.glade:54
+msgid "Apply"
 msgstr ""
 
 #: ../ui/crashDialog.glade:7
@@ -2382,7 +4435,7 @@ msgid "Crash report"
 msgstr ""
 
 #: ../ui/crashDialog.glade:23
-msgid "Oops... Xournal++ encountered a fatal error"
+msgid "Oops... MoreXournal encountered a fatal error"
 msgstr ""
 
 #: ../ui/crashDialog.glade:39
@@ -2427,11 +4480,6 @@ msgstr ""
 msgid "Try out your devices in the area below"
 msgstr ""
 
-#: ../ui/deviceTestingArea.glade:70 ../ui/settings.glade:1694
-#: ../ui/settingsDeviceClassConfig.glade:35
-msgid "Mouse"
-msgstr ""
-
 #: ../ui/deviceTestingArea.glade:82
 msgctxt "mouse button"
 msgid "Left"
@@ -2457,7 +4505,7 @@ msgctxt "mouse button"
 msgid "5th"
 msgstr ""
 
-#: ../ui/deviceTestingArea.glade:152 ../ui/settings.glade:2234
+#: ../ui/deviceTestingArea.glade:152
 msgid "Stylus"
 msgstr ""
 
@@ -2466,16 +4514,15 @@ msgctxt "the tip of the stylus"
 msgid "Tip"
 msgstr ""
 
-#: ../ui/deviceTestingArea.glade:178 ../ui/settings.glade:2051
+#: ../ui/deviceTestingArea.glade:178
 msgid "Button 1"
 msgstr ""
 
-#: ../ui/deviceTestingArea.glade:192 ../ui/settings.glade:2083
+#: ../ui/deviceTestingArea.glade:192
 msgid "Button 2"
 msgstr ""
 
-#: ../ui/deviceTestingArea.glade:284 ../ui/settings.glade:2314
-#: ../ui/settings.glade:2902 ../ui/settingsDeviceClassConfig.glade:38
+#: ../ui/deviceTestingArea.glade:284 ../ui/settingsDeviceClassConfig.glade:38
 msgid "Touchscreen"
 msgstr ""
 
@@ -2537,11 +4584,6 @@ msgstr ""
 
 #: ../ui/exportSettings.glade:42
 msgid "Height"
-msgstr ""
-
-#: ../ui/exportSettings.glade:53 ../ui/settings.glade:260
-#: ../ui/settings.glade:277 ../ui/settings.glade:3816
-msgid "None"
 msgstr ""
 
 #: ../ui/exportSettings.glade:56
@@ -2607,6 +4649,10 @@ msgstr ""
 msgid "Backend"
 msgstr ""
 
+#: ../ui/exportSettings.glade:426
+msgid "Export format"
+msgstr ""
+
 #: ../ui/extEdTexDialog.glade:23 ../ui/intEdTexDialog.glade:18
 msgid "Insert Latex"
 msgstr ""
@@ -2619,12 +4665,20 @@ msgstr ""
 msgid "Output generated by the LaTeX command."
 msgstr ""
 
+#: ../ui/extEdTexDialog.glade:117 ../ui/intEdTexDialog.glade:167
+msgid "The formula is empty when rendered or invalid."
+msgstr ""
+
 #: ../ui/extEdTexDialog.glade:138
 msgid "Continue Editing"
 msgstr ""
 
 #: ../ui/goto.glade:23
 msgid "Go to Page"
+msgstr ""
+
+#: ../ui/goto.glade:108
+msgid "Go"
 msgstr ""
 
 #: ../ui/intEdTexDialog.glade:37
@@ -2639,150 +4693,38 @@ msgstr ""
 msgid "Command Output"
 msgstr ""
 
-#: ../ui/latexSettings.glade:36
-msgid "Always check LaTeX dependencies before running"
-msgstr ""
-
-#: ../ui/latexSettings.glade:40
-msgid ""
-"If enabled, check that required LaTeX packages are installed and that the "
-"LaTeX commands are available before running the LaTeX tool."
-msgstr ""
-
-#: ../ui/latexSettings.glade:48
-msgid "General LaTeX tool settings"
-msgstr ""
-
-#: ../ui/latexSettings.glade:76
-msgid "Default LaTeX Text"
-msgstr ""
-
-#: ../ui/latexSettings.glade:105
-msgid "The LaTeX file to use as a template for the LaTeX tool."
-msgstr ""
-
-#: ../ui/latexSettings.glade:107
-msgid "Global template file path"
-msgstr ""
-
-#: ../ui/latexSettings.glade:119
-msgid ""
-"The following strings will be substituted in the global template file when "
-"running the LaTeX tool:"
-msgstr ""
-
-#: ../ui/latexSettings.glade:133
-msgid "%%XPP_TOOL_INPUT%%"
-msgstr ""
-
-#: ../ui/latexSettings.glade:145
-msgid "The math mode formula typed in the LaTeX tool."
-msgstr ""
-
-#: ../ui/latexSettings.glade:158
-msgid "Choose a global LaTeX template file"
-msgstr ""
-
-#: ../ui/latexSettings.glade:170
-msgid "%%XPP_TEXT_COLOR%%"
-msgstr ""
-
-#: ../ui/latexSettings.glade:182
-msgid "The current color of the Text Tool, in hex RGB format."
-msgstr ""
-
-#: ../ui/latexSettings.glade:194
-msgid "%%XPP_VARNAME%%"
-msgstr ""
-
-#: ../ui/latexSettings.glade:206
-msgid ""
-"Any custom variable defined with a %xpp:varname=value directive in the "
-"formula input."
-msgstr ""
-
-#: ../ui/latexSettings.glade:219
-msgid "Template file settings"
-msgstr ""
-
-#: ../ui/latexSettings.glade:248
-msgid "LaTeX generation command"
-msgstr ""
-
-#: ../ui/latexSettings.glade:269
-msgid "Test configuration"
-msgstr ""
-
-#: ../ui/latexSettings.glade:273
+#: ../ui/latexSettings.glade:72
 msgid ""
 "Test if the current configuration is valid by running the LaTeX generation "
 "command on the global template file with a test formula."
 msgstr ""
 
-#: ../ui/latexSettings.glade:289
-msgid "LaTeX executable settings"
+#: ../ui/latexSettings.glade:98
+msgid ""
+"If enabled, check that required LaTeX packages are installed and that the "
+"LaTeX commands are available before running the LaTeX tool."
 msgstr ""
 
-#: ../ui/latexSettings.glade:364
-msgid "Line numbers"
+#: ../ui/latexSettings.glade:144
+msgid ""
+"Substitutes %%XPP_TOOL_INPUT%%, %%XPP_TEXT_COLOR%%, and %%XPP_VARNAME%%."
 msgstr ""
 
-#: ../ui/latexSettings.glade:378
-msgid "Auto-indent"
+#: ../ui/latexSettings.glade:391
+msgid "Use system font"
 msgstr ""
 
-#: ../ui/latexSettings.glade:392
-msgid "Syntax highlighting"
+#: ../ui/latexSettings.glade:438
+msgid "Available when “Use system font” is off."
 msgstr ""
 
-#: ../ui/latexSettings.glade:424
-msgid "Wrap text"
-msgstr ""
-
-#: ../ui/latexSettings.glade:458
-msgid "Use font from system theme."
-msgstr ""
-
-#: ../ui/latexSettings.glade:478
-msgid "Font: "
-msgstr ""
-
-#: ../ui/latexSettings.glade:493
+#: ../ui/latexSettings.glade:452
 msgid "Pick the Editor's Font"
 msgstr ""
 
-#: ../ui/latexSettings.glade:540
-msgid ""
-"You can optionally use an external editor program instead of the built-in "
-"editor. If you enable the option below, the provided editor command "
-"(defaulting to $EDITOR) will start with a popup that only shows a preview "
-"and potential error message instead of the normal one with a built-in "
-"editor. The environment variable XPP_TEXT_COLOR is set to the current Text "
-"Tool color in hex RGB format."
-msgstr ""
-
-#: ../ui/latexSettings.glade:556
-msgid "Use external Editor"
-msgstr ""
-
-#: ../ui/latexSettings.glade:573
-msgid "Editor command"
-msgstr ""
-
-#: ../ui/latexSettings.glade:598
-msgid "Extension of temporary file"
-msgstr ""
-
-#: ../ui/latexSettings.glade:619
-msgid "Automatically confirm on editor exit"
-msgstr ""
-
-#: ../ui/latexSettings.glade:649
-msgid "External Editor (Expert user only)"
-msgstr ""
-
-#: ../ui/latexSettings.glade:665
-msgid "Editor settings"
+#: ../ui/latexSettings.glade:548 ../ui/latexSettings.glade:600
+#: ../ui/latexSettings.glade:653
+msgid "Turn on “Edit formulas in another program” to change this."
 msgstr ""
 
 #: ../ui/linkDialog.glade:63
@@ -2818,36 +4760,34 @@ msgid " = Floating Toolbox (experimental) ="
 msgstr ""
 
 #: ../ui/main.glade:110
-msgid ""
-"<b>Empty Toolbox</b>\n"
-"            <i>Menu: View/Toolbars</i>"
+msgid "<b>Empty Toolbox</b>"
 msgstr ""
 
-#: ../ui/main.glade:421
+#: ../ui/main.glade:420
 msgid "Find previous occurrence of the search string"
 msgstr ""
 
-#: ../ui/main.glade:443
+#: ../ui/main.glade:442
 msgid "Find next occurrence of the search string"
 msgstr ""
 
-#: ../ui/main.glade:645
+#: ../ui/main.glade:644
 msgid "Copy selected text"
 msgstr ""
 
-#: ../ui/main.glade:667
+#: ../ui/main.glade:666
 msgid "Highlight selected text"
 msgstr ""
 
-#: ../ui/main.glade:687
+#: ../ui/main.glade:686
 msgid "Underline selected text"
 msgstr ""
 
-#: ../ui/main.glade:707
+#: ../ui/main.glade:706
 msgid "Strikethrough selected text"
 msgstr ""
 
-#: ../ui/main.glade:727
+#: ../ui/main.glade:726
 msgid "Toggle standard / region text selection"
 msgstr ""
 
@@ -2929,16 +4869,8 @@ msgstr ""
 msgid "Load from file"
 msgstr ""
 
-#: ../ui/paletteSettings.glade:76
-msgid "Color Palettes"
-msgstr ""
-
-#: ../ui/plugin.glade:22
-msgid "Plugins"
-msgstr ""
-
 #: ../ui/plugin.glade:81
-msgid "Plugin changes are only applied after Xournal++ is restarted"
+msgid "Plugin changes are only applied after MoreXournal is restarted"
 msgstr ""
 
 #: ../ui/pluginEntry.glade:59
@@ -2965,1335 +4897,84 @@ msgstr ""
 msgid "Sample layer name"
 msgstr ""
 
+#: ../ui/renameLayerDialog.glade:71
+msgid "Rename"
+msgstr ""
+
 #: ../ui/selectOpacity.glade:23
 msgid "Opacity settings"
 msgstr ""
 
-#: ../ui/settings.glade:263
+#: ../ui/settings.glade:245
 msgid "Arithmetic mean"
 msgstr ""
 
-#: ../ui/settings.glade:266
-msgid "Velocity based Gaussian weights"
+#: ../ui/settings.glade:246
+msgid "Velocity-based Gaussian weights"
 msgstr ""
 
-#: ../ui/settings.glade:280
+#: ../ui/settings.glade:256
 msgid "Deadzone"
 msgstr ""
 
-#: ../ui/settings.glade:283
+#: ../ui/settings.glade:257
 msgid "Inertia"
 msgstr ""
 
-#: ../ui/settings.glade:291
-msgid "Xournal++ Preferences"
+#: ../ui/settings.glade:263 ../ui/mainmenubar.xml:140
+msgid "Preferences"
 msgstr ""
 
-#: ../ui/settings.glade:352
-msgid ""
-"<i>If the document already was saved you can find it in the same folder with "
-"the extension .autosave.xopp\n"
-"If the file was not yet saved you can find it in ~/.cache/xournalpp/"
-"autosaves</i>"
+#: ../ui/settings.glade:344
+msgid "Search settings"
 msgstr ""
 
-#: ../ui/settings.glade:371
-msgid "Enable Autosaving"
-msgstr ""
-
-#: ../ui/settings.glade:394
-msgid "every"
-msgstr ""
-
-#: ../ui/settings.glade:421
-msgid "minutes"
-msgstr ""
-
-#: ../ui/settings.glade:449
-msgid "Autosaving"
-msgstr ""
-
-#: ../ui/settings.glade:475
-msgid "<i>This name will be proposed if you save a new document.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:508 ../ui/settings.glade:677
-msgid "Default name: "
-msgstr ""
-
-#: ../ui/settings.glade:547
-msgid ""
-"%a\t\tAbbreviated weekday name (e.g. Thu)\n"
-"%A\t\tFull weekday name (e.g. Thursday)\n"
-"%b\t\tAbbreviated month name (e.g. Aug)\n"
-"%B\t\tFull month name (e.g. August)\n"
-"%c\t\tDate and time representation (e.g. Thu Aug 23 14:55:02 2001)\n"
-"%d\t\tDay of the month (01-31)\n"
-"%F\t\tDate representation (e.g. 2001-08-23)\n"
-"%H\t\tHour in 24h format (00-23)\n"
-"%I\t\tHour in 12h format (01-12)\n"
-"%j\t\tDay of the year (001-366)\n"
-"%m\t\tMonth as a decimal number (01-12)\n"
-"%M\t\tMinute (00-59)\n"
-"%p\t\tAM or PM designation (e.g. PM)\n"
-"%S\t\tSecond (00-61)\n"
-"%U\t\tWeek number with the first Sunday as the first day of week one "
-"(00-53)\n"
-"%w\t\tWeekday as a decimal number with Sunday as 0 (0-6)\n"
-"%W\t\tWeek number with the first Monday as the first day of week one "
-"(00-53)\n"
-"%x\t\tDate representation (e.g. 08/23/01)\n"
-"%X\t\tTime representation (e.g. 14:55:02)\n"
-"%y\t\tYear, last two digits (00-99)\n"
-"%Y\t\tYear (e.g. 2001)\n"
-"%Z\t\tTimezone name or abbreviation (e.g. CDT)\n"
-"%%\t\t%\n"
-"Illegal characters are replaced with \"_\""
-msgstr ""
-
-#: ../ui/settings.glade:594 ../ui/settings.glade:764
-msgid "Available Placeholders"
-msgstr ""
-
-#: ../ui/settings.glade:618
-msgid "Default Save Name"
-msgstr ""
-
-#: ../ui/settings.glade:644
-msgid "<i>This name will be proposed if you export a document to PDF.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:715
-msgid ""
-"%{name}\tThe filename (if any) of the PDF background\n"
-"%{file}\t\tThe saved filename of the file\n"
-"%a\t\t\tAbbreviated weekday name (e.g. Thu)\n"
-"%A\t\t\tFull weekday name (e.g. Thursday)\n"
-"%b\t\t\tAbbreviated month name (e.g. Aug)\n"
-"%B\t\t\tFull month name (e.g. August)\n"
-"%c\t\t\tDate and time representation (e.g. Thu Aug 23 14:55:02 2001)\n"
-"%d\t\t\tDay of the month (01-31)\n"
-"%F\t\t\tDate representation (e.g. 2001-08-23)\n"
-"%H\t\t\tHour in 24h format (00-23)\n"
-"%I\t\t\tHour in 12h format (01-12)\n"
-"%j\t\t\tDay of the year (001-366)\n"
-"%m\t\t\tMonth as a decimal number (01-12)\n"
-"%M\t\t\tMinute (00-59)\n"
-"%p\t\t\tAM or PM designation (e.g. PM)\n"
-"%S\t\t\tSecond (00-61)\n"
-"%U\t\t\tWeek number with the first Sunday as the first day of week one "
-"(00-53)\n"
-"%w\t\t\tWeekday as a decimal number with Sunday as 0 (0-6)\n"
-"%W\t\t\tWeek number with the first Monday as the first day of week one "
-"(00-53)\n"
-"%x\t\t\tDate representation (e.g. 08/23/01)\n"
-"%X\t\t\tTime representation (e.g. 14:55:02 or 2:55:02 PM)\n"
-"%y\t\t\tYear, last two digits (00-99)\n"
-"%Y\t\t\tYear (e.g. 2001)\n"
-"%Z\t\t\tTimezone name or abbreviation (e.g. CDT)\n"
-"%%\t\t\t%\n"
-"Illegal characters are replaced with \"_\""
-msgstr ""
-
-#: ../ui/settings.glade:788
-msgid "Default Pdf export name"
-msgstr ""
-
-#: ../ui/settings.glade:813
-msgid "Enable Autoloading of Journals"
-msgstr ""
-
-#: ../ui/settings.glade:818
-msgid ""
-"If you open a PDF and there is a Xournal file with the same name it will "
-"open the xoj file."
-msgstr ""
-
-#: ../ui/settings.glade:829
-msgid "Enable autoloading of most recent file on application startup"
-msgstr ""
-
-#: ../ui/settings.glade:834
-msgid ""
-"If enabled Xournal++ will open the most recent document automatically that "
-"you can continue editing your last saved document."
-msgstr ""
-
-#: ../ui/settings.glade:849
-msgid "Autoloading"
-msgstr ""
-
-#: ../ui/settings.glade:877
-msgid "Load / Save"
-msgstr ""
-
-#: ../ui/settings.glade:929
-msgid "Input Devices"
-msgstr ""
-
-#: ../ui/settings.glade:963
-msgid ""
-"Enable drawing outside of window <i>(Drawing will not stop at the border of "
-"the window)</i>"
-msgstr ""
-
-#: ../ui/settings.glade:981
-msgid ""
-"Slower strokes are assigned a greater pressure than faster strokes, if "
-"pressure information is absent.\n"
-"\n"
-"<i>This feature may be useful for devices that lack pressure sensitivity. "
-"For example, a mouse or touchscreen.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:989
-msgid ""
-"Enable Pressure Inference <i>(Guess pressure from drawing speed when device-"
-"supplied pressure is not available)</i>"
-msgstr ""
-
-#: ../ui/settings.glade:1007
-msgid "Options"
-msgstr ""
-
-#: ../ui/settings.glade:1037
-msgid "Averaging method"
-msgstr ""
-
-#: ../ui/settings.glade:1070
-msgid "<i>Pick an input stabilization algorithm and its parameters</i>"
-msgstr ""
-
-#: ../ui/settings.glade:1086
-msgid "Buffersize"
-msgstr ""
-
-#: ../ui/settings.glade:1098
-msgid "20"
-msgstr ""
-
-#: ../ui/settings.glade:1115
-msgid "Deadzone radius"
-msgstr ""
-
-#: ../ui/settings.glade:1127
-msgid "1,30"
-msgstr ""
-
-#: ../ui/settings.glade:1145 ../ui/settings.glade:1157
-msgctxt "Drag = Noun: force opposing the movement"
-msgid ""
-"Drag: If the value is too small, unwanted oscillations may appear. If the "
-"value is too high, there will be no stabilization."
-msgstr ""
-
-#: ../ui/settings.glade:1146
-msgctxt "Noun: force opposing the movement"
-msgid "Drag"
-msgstr ""
-
-#: ../ui/settings.glade:1159
-msgid "0,4"
-msgstr ""
-
-#: ../ui/settings.glade:1177 ../ui/settings.glade:1189
-msgctxt "Mass = Noun: physics term, related to weight"
-msgid "Mass: the higher the mass, the more inertia and the more stabilization"
-msgstr ""
-
-#: ../ui/settings.glade:1178
-msgctxt "Noun: physics term, related to weight"
-msgid "Mass"
-msgstr ""
-
-#: ../ui/settings.glade:1191
-msgid "5"
-msgstr ""
-
-#: ../ui/settings.glade:1209 ../ui/settings.glade:1229
-msgid ""
-"Gaussian parameter: the higher, the more stabilization and the more lag "
-"between your cursor and the painting tip."
-msgstr ""
-
-#: ../ui/settings.glade:1211
-msgid "0,50"
-msgstr ""
-
-#: ../ui/settings.glade:1243
-msgid "Preprocessor"
-msgstr ""
-
-#: ../ui/settings.glade:1274
-msgid "Cusp detection"
-msgstr ""
-
-#: ../ui/settings.glade:1291
-msgid "Finalize the stroke"
-msgstr ""
-
-#: ../ui/settings.glade:1296
-msgid ""
-"Input stabilization can create a gap at the end of your stroke. If enabled, "
-"this gap is filled."
-msgstr ""
-
-#: ../ui/settings.glade:1314
-msgid "Input stabilization"
-msgstr ""
-
-#: ../ui/settings.glade:1345
-msgid "Indent using spaces"
-msgstr ""
-
-#: ../ui/settings.glade:1367
-msgid "Number of Spaces:"
-msgstr ""
-
-#: ../ui/settings.glade:1379
-msgid "Number of spaces inserted with tab."
-msgstr ""
-
-#: ../ui/settings.glade:1381
-msgid "4"
-msgstr ""
-
-#: ../ui/settings.glade:1409
-msgid "Tab"
-msgstr ""
-
-#: ../ui/settings.glade:1440
-msgid "Input System"
-msgstr ""
-
-#: ../ui/settings.glade:1485
-msgid ""
-"<i>Define which tools will be selected if you press a mouse button. After "
-"you release the button the previously selected tool will be selected.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:1519
-msgid "Left Mouse Button"
-msgstr ""
-
-#: ../ui/settings.glade:1551
-msgid "Middle Mouse Button"
-msgstr ""
-
-#: ../ui/settings.glade:1583
-msgid "Right Mouse Button"
-msgstr ""
-
-#: ../ui/settings.glade:1615
-msgid "4th Mouse Button"
-msgstr ""
-
-#: ../ui/settings.glade:1647
-msgid "5th Mouse Button"
-msgstr ""
-
-#: ../ui/settings.glade:1663
-msgid "Mouse Buttons"
-msgstr ""
-
-#: ../ui/settings.glade:1741
-msgid ""
-"<i>Pressure Sensitivity allows you to draw lines with different widths, "
-"depending on how much pressure you apply to the pen. If your tablet does not "
-"support this feature this setting has no effect.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:1755
-msgid "Enable Pressure Sensitivity"
-msgstr ""
-
-#: ../ui/settings.glade:1785
-msgid ""
-"<i>Some devices report unexpectedly small or large pressures. This can be "
-"fixed by setting a minimum pressure or scaling the pressure reported by the "
-"device.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:1807
-msgid "Minimum Pressure:"
-msgstr ""
-
-#: ../ui/settings.glade:1818
-msgid "Pressure Multiplier: "
-msgstr ""
-
-#: ../ui/settings.glade:1877
-msgid "Sensitivity Scale"
-msgstr ""
-
-#: ../ui/settings.glade:1893
-msgid "Pressure Sensitivity"
-msgstr ""
-
-#: ../ui/settings.glade:1917
-msgid ""
-"<i>With some setup, pen strokes have artifacts at their beginning. This can "
-"be avoided by ignoring the first few events/stroke-points when the pen "
-"touches the screen.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:1935
-msgid "Ignore the first"
-msgstr ""
-
-#: ../ui/settings.glade:1953
-msgid "1"
-msgstr ""
-
-#: ../ui/settings.glade:1969
-msgid "events"
-msgstr ""
-
-#: ../ui/settings.glade:1990
-msgid "Artifact workaround"
-msgstr ""
-
-#: ../ui/settings.glade:2017
-msgid ""
-"<i>Specify the tools that will be selected if a button of the stylus is "
-"pressed or the eraser is used. After releasing the button, the previous tool "
-"will be selected.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:2131
-msgid "Stylus Buttons"
-msgstr ""
-
-#: ../ui/settings.glade:2163
-msgid "Stylus-based eraser is visible"
-msgstr ""
-
-#: ../ui/settings.glade:2178
-msgctxt "eraser is never visible"
-msgid "Never"
-msgstr ""
-
-#: ../ui/settings.glade:2179
-msgctxt "eraser is always visible"
-msgid "Always"
-msgstr ""
-
-#: ../ui/settings.glade:2180
-msgctxt "eraser is only visible when floating"
-msgid "When floating"
-msgstr ""
-
-#: ../ui/settings.glade:2181
-msgctxt "eraser is only visible when touching the screen"
-msgid "When touching"
-msgstr ""
-
-#: ../ui/settings.glade:2203
-msgid "Eraser visibility"
-msgstr ""
-
-#: ../ui/settings.glade:2281
-msgid ""
-"<i>You can configure devices, not identified by GTK as touchscreen, to "
-"behave as if they were one.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:2341
-msgid ""
-"<i>If your hardware does not support hand recognition, Xournal++ can disable "
-"your touchscreen when your pen is near the screen.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:2355
-msgid "Enable internal Hand Recognition"
-msgstr ""
-
-#: ../ui/settings.glade:2385
-msgid "Disabling Method"
-msgstr ""
-
-#: ../ui/settings.glade:2396
-msgid "Timeout"
-msgstr ""
-
-#: ../ui/settings.glade:2410
-msgid "Autodetect"
-msgstr ""
-
-#: ../ui/settings.glade:2439
-msgid "s <i>(after which the touchscreen will be reactivated again)</i>"
-msgstr ""
-
-#: ../ui/settings.glade:2484
-msgid ""
-"<i>Specify commands that are called once Hand Recognition triggers. The "
-"commands will be executed in the UI Thread, make sure they are not blocking!"
-"</i>"
-msgstr ""
-
-#: ../ui/settings.glade:2507
-msgid "Enable"
-msgstr ""
-
-#: ../ui/settings.glade:2518
-msgid "Disable"
-msgstr ""
-
-#: ../ui/settings.glade:2551 ../ui/settings.glade:2564
-msgid "Test"
-msgstr ""
-
-#: ../ui/settings.glade:2597
-msgid "Custom Commands (for Method \"Custom\")"
-msgstr ""
-
-#: ../ui/settings.glade:2620
-msgid "Hand Recognition"
-msgstr ""
-
-#: ../ui/settings.glade:2647
-msgid "<i>Use pinch gestures to zoom journal pages.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:2661
-msgid "Enable zoom gestures (requires restart)"
-msgstr ""
-
-#: ../ui/settings.glade:2679
-msgid ""
-"When drawing with touch, two-finger gestures intended to pan the view can "
-"instead cause it to zoom, causing performance issues.\n"
-"This setting can make it easier to draw with touch."
-msgstr ""
-
-#: ../ui/settings.glade:2685
-msgid "Start zooming after a distance "
-msgstr ""
-
-#: ../ui/settings.glade:2697
-msgid "1.0"
-msgstr ""
-
-#: ../ui/settings.glade:2712
-msgid "% greater than the initial distance between the two touches."
-msgstr ""
-
-#: ../ui/settings.glade:2750
-msgid "Zoom Gestures"
-msgstr ""
-
-#: ../ui/settings.glade:2777
-msgid "<i>Use the touchscreen like a multi-touch-aware pen.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:2791
-msgid "Enable touch drawing"
-msgstr ""
-
-#: ../ui/settings.glade:2796
-msgid "Use two fingers to pan/zoom and one finger to use the selected tool."
-msgstr ""
-
-#: ../ui/settings.glade:2811
-msgid "Touch Drawing"
-msgstr ""
-
-#: ../ui/settings.glade:2838
-msgid ""
-"<i>Disabling GTK's built-in touchscreen scrolling can work around scrolling "
-"bugs on some platforms. Consider changing this setting if you experience "
-"jumps/sudden changes in scroll position when attempting to scroll with a "
-"touchscreen.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:2852
-msgid ""
-"Disable GTK's built-in inertial scroll functionality (requires restart)."
-msgstr ""
-
-#: ../ui/settings.glade:2871
-msgid "Touch Scrolling"
-msgstr ""
-
-#: ../ui/settings.glade:2958
-msgid "Show Menubar on Startup"
-msgstr ""
-
-#: ../ui/settings.glade:2976
-msgid "<i>Toggle visibility of menubar with F10</i>"
-msgstr ""
-
-#: ../ui/settings.glade:2994
-msgid "Show filepath in title bar"
-msgstr ""
-
-#: ../ui/settings.glade:3009
-msgid "Show page number in title bar"
-msgstr ""
-
-#: ../ui/settings.glade:3049
-msgid "Border color for current page and other selections"
-msgstr ""
-
-#: ../ui/settings.glade:3063
-msgid "Border color"
-msgstr ""
-
-#: ../ui/settings.glade:3076
-msgid "Background color between pages"
-msgstr ""
-
-#: ../ui/settings.glade:3102
-msgid "Selection Color (Text, Stroke Selection etc.)"
-msgstr ""
-
-#: ../ui/settings.glade:3128
-msgid "Active Selection Color (Search Results etc.)"
-msgstr ""
-
-#: ../ui/settings.glade:3150
-msgid "Use available Stock Icons (requires restart)"
-msgstr ""
-
-#: ../ui/settings.glade:3171
-msgid "Icon Theme"
-msgstr ""
-
-#: ../ui/settings.glade:3186
-msgid "Color"
-msgstr ""
-
-#: ../ui/settings.glade:3200
-msgid "(requires restart)"
-msgstr ""
-
-#: ../ui/settings.glade:3223
-msgid "Theme Variant:"
-msgstr ""
-
-#: ../ui/settings.glade:3243
-msgid "Use system default"
-msgstr ""
-
-#: ../ui/settings.glade:3244
-msgid "Force light theme"
-msgstr ""
-
-#: ../ui/settings.glade:3245
-msgid "Force dark theme"
-msgstr ""
-
-#: ../ui/settings.glade:3258
-msgid "(this may not work, depending on your system theme)"
-msgstr ""
-
-#: ../ui/settings.glade:3275
-msgid "Show shadow behind pages"
-msgstr ""
-
-#: ../ui/settings.glade:3294
-msgid "Colors"
-msgstr ""
-
-#: ../ui/settings.glade:3310
-msgid "Global"
-msgstr ""
-
-#: ../ui/settings.glade:3338
-msgid "Recolor Drawing Area (might introduce lags when moving selections)"
-msgstr ""
-
-#: ../ui/settings.glade:3343
-msgid ""
-"Recolors the drawing area so that light regions get the \"Light Color\" and "
-"dark regions get the \"Dark Color\". Other colors are interpolated "
-"accordingly. Can be use to implement a dark-mode."
-msgstr ""
-
-#: ../ui/settings.glade:3353
-msgid "Recolor Previews in the Sidebar"
-msgstr ""
-
-#: ../ui/settings.glade:3358
-msgid ""
-"Recolors the previews in the sidebar (Page/Layer Preview) the same way as "
-"the drawing area."
-msgstr ""
-
-#: ../ui/settings.glade:3372
-msgid ""
-"The color light regions are translated to\n"
-"(use a dark color for a dark-mode)"
-msgstr ""
-
-#: ../ui/settings.glade:3387
-msgid ""
-"The color dark regions are translated to\n"
-"(use a light color for dark-mode)"
-msgstr ""
-
-#: ../ui/settings.glade:3403
-msgid "Dark Color"
-msgstr ""
-
-#: ../ui/settings.glade:3417
-msgid "Light Color"
-msgstr ""
-
-#: ../ui/settings.glade:3430
-msgid "Recoloring (allows theming)"
-msgstr ""
-
-#: ../ui/settings.glade:3462
-msgid "Cursor icon for pen"
-msgstr ""
-
-#: ../ui/settings.glade:3477
-msgctxt "stylus cursor uses no icon"
-msgid "No icon"
-msgstr ""
-
-#: ../ui/settings.glade:3478
-msgctxt "stylus cursor uses a small dot"
-msgid "Small dot icon"
-msgstr ""
-
-#: ../ui/settings.glade:3479
-msgctxt "stylus cursor uses a big pen icon"
-msgid "Big pen icon"
-msgstr ""
-
-#: ../ui/settings.glade:3480
-msgctxt "stylus cursor uses system cursor"
-msgid "System cursor"
-msgstr ""
-
-#: ../ui/settings.glade:3505
-msgid "Highlight cursor position"
-msgstr ""
-
-#: ../ui/settings.glade:3510
-msgid "Draw a transparent circle around the cursor"
-msgstr ""
-
-#: ../ui/settings.glade:3528 ../ui/settings.glade:3671
-msgid "Choose the color to use for \"Highlight cursor position\""
-msgstr ""
-
-#: ../ui/settings.glade:3542
-msgid "Circle Color"
-msgstr ""
-
-#: ../ui/settings.glade:3566 ../ui/settings.glade:3617
-#: ../ui/settings.glade:5153
-msgid "pixels"
-msgstr ""
-
-#: ../ui/settings.glade:3594
-msgid "Radius"
-msgstr ""
-
-#: ../ui/settings.glade:3630
-msgid "30"
-msgstr ""
-
-#: ../ui/settings.glade:3646
-msgid "Border Width"
-msgstr ""
-
-#: ../ui/settings.glade:3685
-msgid "Border Color"
-msgstr ""
-
-#: ../ui/settings.glade:3717
-msgid "Cursor"
-msgstr ""
-
-#: ../ui/settings.glade:3742
-msgid "Show sidebar on the right side"
-msgstr ""
-
-#: ../ui/settings.glade:3757
-msgid "Show vertical scrollbar on the left side"
-msgstr ""
-
-#: ../ui/settings.glade:3776
-msgid "Left / Right-Handed"
-msgstr ""
-
-#: ../ui/settings.glade:3801
-msgid "Page numbering  "
-msgstr ""
-
-#: ../ui/settings.glade:3817
-msgid "Below preview"
-msgstr ""
-
-#: ../ui/settings.glade:3818
-msgid "Circle background"
-msgstr ""
-
-#: ../ui/settings.glade:3819
-msgid "Square background"
-msgstr ""
-
-#: ../ui/settings.glade:3839
-msgid "Sidebar"
-msgstr ""
-
-#: ../ui/settings.glade:3865
-msgid "Hide the horizontal scrollbar"
-msgstr ""
-
-#: ../ui/settings.glade:3880
-msgid "Hide the vertical scrollbar"
-msgstr ""
-
-#: ../ui/settings.glade:3895
-msgid "Disable scrollbar fade out"
-msgstr ""
-
-#: ../ui/settings.glade:3913
-msgid "Scrollbars"
-msgstr ""
-
-#: ../ui/settings.glade:3967
-msgid ""
-"When an element is selected and moved past the visible portion of the "
-"canvas, pan the screen by an amount equal to this percentage of the visible "
-"part of the canvas. "
-msgstr ""
-
-#: ../ui/settings.glade:3969
-msgid "Base speed"
-msgstr ""
-
-#: ../ui/settings.glade:3980
-msgid ""
-"Multiply the panning speed by up to this amount, based on how much of the "
-"selected element is out of view."
-msgstr ""
-
-#: ../ui/settings.glade:3982
-msgid "Max multiplier"
-msgstr ""
-
-#: ../ui/settings.glade:3995
-msgid "Selection Edge Panning"
-msgstr ""
-
-#: ../ui/settings.glade:4020 ../ui/settings.glade:4094
-#: ../ui/mainmenubar.xml:205
-msgid "Show Menubar"
-msgstr ""
-
-#: ../ui/settings.glade:4035 ../ui/settings.glade:4109
-msgid "Show Toolbar"
-msgstr ""
-
-#: ../ui/settings.glade:4050 ../ui/settings.glade:4139
-#: ../ui/mainmenubar.xml:210
-msgid "Show Sidebar"
-msgstr ""
-
-#: ../ui/settings.glade:4069 ../ui/mainmenubar.xml:193
-msgid "Fullscreen"
-msgstr ""
-
-#: ../ui/settings.glade:4124
-msgid "Go Fullscreen"
-msgstr ""
-
-#: ../ui/settings.glade:4159
-msgid "Select toolbar:"
-msgstr ""
-
-#: ../ui/settings.glade:4192
-msgid "Presentation Mode"
-msgstr ""
-
-#: ../ui/settings.glade:4221
-msgid "Pre-load pages before"
-msgstr ""
-
-#: ../ui/settings.glade:4233
-msgid "Pre-load pages after"
-msgstr ""
-
-#: ../ui/settings.glade:4270
-msgid "Clear cached paged while scrolling"
-msgstr ""
-
-#: ../ui/settings.glade:4297
-msgid "Performance"
-msgstr ""
-
-#: ../ui/settings.glade:4328
-msgid "View"
-msgstr ""
-
-#: ../ui/settings.glade:4377
-msgid "Speed for Ctrl + Scroll"
-msgstr ""
-
-#: ../ui/settings.glade:4404
-msgid "Speed for a Zoomstep"
-msgstr ""
-
-#: ../ui/settings.glade:4464
-msgid "Zoom Speed"
-msgstr ""
-
-#: ../ui/settings.glade:4489
-msgid "Force zoom to fit on document load"
-msgstr ""
-
-#: ../ui/settings.glade:4508
-msgid "Default Zoom"
-msgstr ""
-
-#: ../ui/settings.glade:4535
-msgid "<i>To make sure on 100% zoom the size of elements is natural.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:4555
-msgid ""
-"<i>Put a ruler on your screen and move the slider until both rulers match.</"
-"i>"
-msgstr ""
-
-#: ../ui/settings.glade:4571
-msgid "Automatic"
-msgstr ""
-
-#: ../ui/settings.glade:4628
-msgid "The unit of the ruler is cm"
-msgstr ""
-
-#: ../ui/settings.glade:4649
-msgid "Display DPI Calibration"
-msgstr ""
-
-#: ../ui/settings.glade:4680
-msgid "Zoom"
-msgstr ""
-
-#: ../ui/settings.glade:4729
-msgid ""
-"<i>If you add additional space beside the pages you can choose the area of "
-"the screen you would like to work on.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:4852
-msgid "Add additional horizontal space"
-msgstr ""
-
-#: ../ui/settings.glade:4868
-msgid "Add additional vertical space"
-msgstr ""
-
-#: ../ui/settings.glade:4886
-msgid "<i>or</i>"
-msgstr ""
-
-#: ../ui/settings.glade:4898
-msgid "Unlimited scrolling"
-msgstr ""
-
-#: ../ui/settings.glade:4922
-msgid "<i>The amount is specified in pixels.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:4954
-msgid "Scrolling outside the page"
-msgstr ""
-
-#: ../ui/settings.glade:4981
-msgid "Offset first page this many pages when <b>Pair Pages</b> enabled"
-msgstr ""
-
-#: ../ui/settings.glade:4982
-msgid "First Page Offset "
-msgstr ""
-
-#: ../ui/settings.glade:4995
-msgid "Usually 0 or 1"
-msgstr ""
-
-#: ../ui/settings.glade:5014
-msgid "Paired Pages"
-msgstr ""
-
-#: ../ui/settings.glade:5040
-msgid "when scrolling to end of last page"
-msgstr ""
-
-#: ../ui/settings.glade:5055
-msgid "when drawing on last page"
-msgstr ""
-
-#: ../ui/settings.glade:5070
-msgid "disabled"
-msgstr ""
-
-#: ../ui/settings.glade:5088
-msgid "Automatically Add Empty Last Page (excluding PDFs)"
-msgstr ""
-
-#: ../ui/settings.glade:5112
-msgid "Enable  with determination radius of "
-msgstr ""
-
-#: ../ui/settings.glade:5117
-msgid ""
-"Drag LEFT from start point acts like shift key is being held.\n"
-"Drag UP acts as if Control key is being held.\n"
-"\n"
-"Determination Radius: Radius at which modifiers will lock in until finished "
-"drawing.\n"
-"\n"
-"<i>Useful for operating without keyboard.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:5167
-msgid "Drawing Tools - Set Modifiers by Draw Direction (Experimental)"
-msgstr ""
-
-#: ../ui/settings.glade:5184
-msgid "Preserve line width"
-msgstr ""
-
-#: ../ui/settings.glade:5189
-msgid ""
-"After resizing a selection, the line width of all strokes will be the same "
-"as before the resizing operation. "
-msgstr ""
-
-#: ../ui/settings.glade:5200
-msgid "Resizing"
-msgstr ""
-
-#: ../ui/settings.glade:5236
-msgid "Rotation snapping tolerance"
-msgstr ""
-
-#: ../ui/settings.glade:5248
-msgid "Grid snapping tolerance"
-msgstr ""
-
-#: ../ui/settings.glade:5290
-msgid "Grid size"
-msgstr ""
-
-#: ../ui/settings.glade:5321
-msgid "Use snapping for recognized shapes"
-msgstr ""
-
-#: ../ui/settings.glade:5325
-msgid ""
-"If activated, shapes that have been recognized by the shape recognizer will "
-"be snapped to the grid automatically. This may lead to unexpected results if "
-"you have the shape recognizer turned on while writing."
-msgstr ""
-
-#: ../ui/settings.glade:5340
-msgid "Snapping"
-msgstr ""
-
-#: ../ui/settings.glade:5368
-msgid "Minimum Stroke Size"
-msgstr ""
-
-#: ../ui/settings.glade:5423
-msgctxt "Short taps/clicks will trigger special actions"
-msgid "Enable Tap action"
-msgstr ""
-
-#: ../ui/settings.glade:5428
-msgid ""
-"Do not draw for inputs of short time and length unless it comes in short "
-"succession. Instead, show floating toolbox."
-msgstr ""
-
-#: ../ui/settings.glade:5440
-msgid "Time limit (ms)"
-msgstr ""
-
-#: ../ui/settings.glade:5452
-msgid ""
-"Time limit: taps lasting longer will not trigger a special action\n"
-"\n"
-"<i>Recommended: 150ms</i>"
-msgstr ""
-
-#: ../ui/settings.glade:5472
-msgid ""
-"Length limit: taps moving further away will not trigger a special action\n"
-"\n"
-"<i>Recommended: 1 mm</i>"
-msgstr ""
-
-#: ../ui/settings.glade:5492
-msgid "Length limit (mm)"
-msgstr ""
-
-#: ../ui/settings.glade:5503
-msgid "Frequency limit (ms)"
-msgstr ""
-
-#: ../ui/settings.glade:5515
-msgid ""
-"Frequency limit: A tap happening within this time period after a stroke will "
-"not trigger a special action.\n"
-"\n"
-"<i>Recommended: 500ms</i>"
-msgstr ""
-
-#: ../ui/settings.glade:5532
-msgid "Try to select object first."
-msgstr ""
-
-#: ../ui/settings.glade:5537 ../ui/settings.glade:5567
-msgid ""
-"Try to select object first; if nothing selected then show floating toolbox "
-"if enabled."
-msgstr ""
-
-#: ../ui/settings.glade:5550
-msgid ""
-"All three conditions must be met before stroke is ignored.\n"
-"It must be short in time and length and we can't have ignored another stroke "
-"recently."
-msgstr ""
-
-#: ../ui/settings.glade:5553
-msgid "Settings:"
-msgstr ""
-
-#: ../ui/settings.glade:5562
-msgid "Show Floating Toolbox"
-msgstr ""
-
-#: ../ui/settings.glade:5581
-msgid "Action on Tool Tap"
-msgstr ""
-
-#: ../ui/settings.glade:5609
-msgid ""
-"<i>Re-render PDF backgrounds more often while zooming for better render "
-"quality.\n"
-"<b>Note:</b> This should not affect print quality.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:5631
-msgid ""
-"When zoomed in on a high-resolution PDF, each re-render can take a long "
-"time. Setting this to a large value causes these re-renders to happen less "
-"often.\n"
-"\n"
-"Set this to 0% to always re-render on zoom."
-msgstr ""
-
-#: ../ui/settings.glade:5634
-msgid "Re-render when the page's zoom changes by more than "
-msgstr ""
-
-#: ../ui/settings.glade:5647
-msgid "0.00"
-msgstr ""
-
-#: ../ui/settings.glade:5664
-msgid "%."
-msgstr ""
-
-#: ../ui/settings.glade:5685
-msgid "PDF Cache"
-msgstr ""
-
-#: ../ui/settings.glade:5716
-msgid "Drawing Area"
-msgstr ""
-
-#: ../ui/settings.glade:5763
-msgid "<i>Select the tool and Settings if you press the Default Button.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:5815
-msgid "<b>Default tool</b>"
-msgstr ""
-
-#: ../ui/settings.glade:5851
-msgid ""
-"<i>The laser pointer allows to write strokes that will fade out after a "
-"short while.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:5872
-msgid "Fade out delay (in ms)"
-msgstr ""
-
-#: ../ui/settings.glade:5924
-msgid "<b>Laser pointer</b>"
-msgstr ""
-
-#: ../ui/settings.glade:5964
-msgid "Tools"
-msgstr ""
-
-#: ../ui/settings.glade:6017
-msgid ""
-"<i>\n"
-"Using the checkbox the audio system can be disabled or enabled for future "
-"sessions (restart required).\n"
-"Disabling audio for a single session can be achieved using the <tt>--disable-"
-"audio</tt> flag on the command line.\n"
-"</i>"
-msgstr ""
-
-#: ../ui/settings.glade:6033
-msgid "Disable Audio"
-msgstr ""
-
-#: ../ui/settings.glade:6055
-msgid "Enable or Disable Audio"
-msgstr ""
-
-#: ../ui/settings.glade:6082
-msgid ""
-"<i>Audio recordings are currently stored in a separate folder and referenced "
-"from the journal.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:6101 ../ui/settings.glade:6137
-msgid "Storage Folder"
-msgstr ""
-
-#: ../ui/settings.glade:6116
-msgid "Select Folder"
-msgstr ""
-
-#: ../ui/settings.glade:6164
-msgid ""
-"<i>Specify the audio devices used for recording and playback of audio "
-"attachments.\n"
-"If available select <small><tt>pulse</tt></small> as input / output device.</"
-"i>"
-msgstr ""
-
-#: ../ui/settings.glade:6188
-msgid "Input Device"
-msgstr ""
-
-#: ../ui/settings.glade:6210
-msgid "Output Device"
-msgstr ""
-
-#: ../ui/settings.glade:6241
-msgid "Audio Devices"
-msgstr ""
-
-#: ../ui/settings.glade:6270
-msgid "Sample Rate"
-msgstr ""
-
-#: ../ui/settings.glade:6281
-msgid "Gain"
-msgstr ""
-
-#: ../ui/settings.glade:6328
-msgid "Recording Quality"
-msgstr ""
-
-#: ../ui/settings.glade:6354
-msgid "Default Seek Time (in seconds)"
-msgstr ""
-
-#: ../ui/settings.glade:6367
-msgid "1,00"
-msgstr ""
-
-#: ../ui/settings.glade:6386
-msgid "Playback Settings"
-msgstr ""
-
-#: ../ui/settings.glade:6400
-msgid "<i>Changes take only effect on new recordings and playbacks.</i>"
-msgstr ""
-
-#: ../ui/settings.glade:6431
-msgid "Audio Recording"
-msgstr ""
-
-#: ../ui/settings.glade:6504
-msgid "<i>Select language (requires restart)</i>"
-msgstr ""
-
-#: ../ui/settings.glade:6536 ../ui/settings.glade:6582
-msgid "Language"
-msgstr ""
-
-#: ../ui/settings.glade:6552
-msgid "Language Settings"
-msgstr ""
-
-#: ../ui/settings.glade:6606
-msgid "Palette"
-msgstr ""
-
-#: ../ui/settingsButtonConfig.glade:20
-msgid "Device"
-msgstr ""
-
-#: ../ui/settingsButtonConfig.glade:44
-msgid "Disable drawing for this device"
-msgstr ""
-
-#: ../ui/settingsButtonConfig.glade:138
+#: ../ui/settingsButtonConfig.glade:63
 msgid "Eraser Type - don't change"
 msgstr ""
 
-#: ../ui/settingsButtonConfig.glade:139 ../ui/settingsButtonConfig.glade:157
-msgid "Standard"
-msgstr ""
-
-#: ../ui/settingsButtonConfig.glade:140
-msgid "Whiteout"
-msgstr ""
-
-#: ../ui/settingsButtonConfig.glade:141
+#: ../ui/settingsButtonConfig.glade:66
 msgid "Delete stroke"
 msgstr ""
 
-#: ../ui/settingsButtonConfig.glade:156
+#: ../ui/settingsButtonConfig.glade:77
 msgid "Stroke Type - don't change"
 msgstr ""
 
-#: ../ui/settingsButtonConfig.glade:158
+#: ../ui/settingsButtonConfig.glade:79
 msgid "Dashed"
 msgstr ""
 
-#: ../ui/settingsButtonConfig.glade:159
+#: ../ui/settingsButtonConfig.glade:80
 msgid "Dash-dotted"
+msgstr ""
+
+#: ../ui/settingsButtonConfig.glade:110
+msgid "Device"
+msgstr ""
+
+#: ../ui/settingsButtonConfig.glade:125
+msgid "Disable drawing for this device"
+msgstr ""
+
+#: ../ui/settingsButtonConfig.glade:154
+msgid "Thickness, color and line style for this button"
+msgstr ""
+
+#: ../ui/settingsButtonConfig.glade:159
+msgid "Options"
 msgstr ""
 
 #: ../ui/settingsDeviceClassConfig.glade:34
 msgid "Disabled"
 msgstr ""
 
-#: ../ui/settingsDeviceClassConfig.glade:54
-msgid "Apply"
-msgstr ""
-
-#: ../ui/toolbarCustomizeDialog.glade:30
-msgid "Drag and drop Components from here to the toolbars and back."
-msgstr ""
-
-#: ../ui/toolbarManageDialog.glade:28
-msgid "Manage Toolbar"
-msgstr ""
-
 #: ../ui/mainmenubar.xml:5
 msgid "_File"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:8
+msgid "New"
 msgstr ""
 
 #: ../ui/mainmenubar.xml:13
@@ -4321,693 +5002,590 @@ msgstr ""
 msgid "Export as..."
 msgstr ""
 
-#: ../ui/mainmenubar.xml:54
+#: ../ui/mainmenubar.xml:56
 msgid "Quit"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:61
+#: ../ui/mainmenubar.xml:63
 msgid "_Edit"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:93
+#: ../ui/mainmenubar.xml:83
 msgid "Select All"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:100
+#: ../ui/mainmenubar.xml:88
 msgid "Find"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:114
+#: ../ui/mainmenubar.xml:95
 msgid "Arrange Selection"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:117
+#: ../ui/mainmenubar.xml:98
 msgid "Bring to Front"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:122
+#: ../ui/mainmenubar.xml:103
 msgid "Bring Forward"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:127
+#: ../ui/mainmenubar.xml:108
 msgid "Send Backward"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:132
+#: ../ui/mainmenubar.xml:113
 msgid "Send to Back"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:141
+#: ../ui/mainmenubar.xml:120
 msgid "Move Selection Layer Up"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:145
+#: ../ui/mainmenubar.xml:124
 msgid "Move Selection Layer Down"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:161
-msgid "Preferences"
+#: ../ui/mainmenubar.xml:147
+msgid "_Page"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:166
-msgid "T_oolbars"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:169
-msgid "_Manage"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:173
-msgid "_Customize"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:181
-msgid "_View"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:184
-msgid "_Pair Pages"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:188
-msgid "_Presentation Mode"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:200
-msgid "Show Toolbars"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:217
-msgid "Layout"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:220
-msgid "_Horizontal"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:225
-msgid "_Vertical"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:232
-msgid "_Left to Right"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:237
-msgid "_Right to Left"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:244
-msgid "_Top to Bottom"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:249
-msgid "_Bottom to Top"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:256
-msgid "_Cols/Rows"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:259
-msgid "Set Columns"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:263
-msgid "_1 Column"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:268
-msgid "_2 Columns"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:273
-msgid "_3 Columns"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:278
-msgid "_4 Columns"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:283
-msgid "_5 Columns"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:288
-msgid "_6 Columns"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:293
-msgid "_7 Columns"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:298
-msgid "_8 Columns"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:305
-msgid "Set Rows"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:309
-msgid "_1 Row"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:314
-msgid "_2 Rows"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:319
-msgid "_3 Rows"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:324
-msgid "_4 Rows"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:329
-msgid "_5 Rows"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:334
-msgid "_6 Rows"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:339
-msgid "_7 Rows"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:344
-msgid "_8 Rows"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:355
-msgid "Zoom In"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:360
-msgid "Zoom Out"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:365
-msgid "Normal Size"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:369
-msgid "Zoom to Fit"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:375
-msgid "_Navigation"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:378
-msgid "_First Page"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:383
-msgid "_Previous Page"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:388
-msgid "Jump _Back"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:392
-msgid "_Goto Page"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:397
-msgid "Jump _Forward"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:401
-msgid "_Next Page"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:406
-msgid "_Last Page"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:413
-msgid "_Previous Layer"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:418
-msgid "_Next Layer"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:423
-msgid "_Top Layer"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:429
-msgid "N_ext Annotated Page"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:434
-msgid "P_revious Annotated Page"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:444
+#: ../ui/mainmenubar.xml:150
 msgid "New Page _Before"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:448
-msgid "New Page _After"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:453
+#: ../ui/mainmenubar.xml:154
 msgid "New Page at _End"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:457
+#: ../ui/mainmenubar.xml:158
 msgid "Duplicate Page"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:461
+#: ../ui/mainmenubar.xml:162
 msgid "Move Page _Up"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:465
+#: ../ui/mainmenubar.xml:166
 msgid "Move Page _Down"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:469
-msgid "Append New PDF Pages"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:473
-msgid "Configure Page Template"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:477
+#: ../ui/mainmenubar.xml:170
 msgid "_Delete Page"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:484
-msgid "Add a _Layer above the active layer"
+#: ../ui/mainmenubar.xml:177
+msgid "Append New PDF Pages"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:493
-msgid "Delete Layer"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:498
-msgid "Merge Layer Down"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:503
-msgid "Rename Layer"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:510
+#: ../ui/mainmenubar.xml:183
 msgid "Paper _Format"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:514
+#: ../ui/mainmenubar.xml:187
 msgid "Paper _Color"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:523
+#: ../ui/mainmenubar.xml:195
+msgid "Configure Page Template"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:201
+msgid "Go to"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:204
+msgid "_First Page"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:209
+msgid "_Last Page"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:216
+msgid "P_revious Annotated Page"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:221
+msgid "N_ext Annotated Page"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:228
+msgid "Jump _Back"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:232
+msgid "Jump _Forward"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:240
+msgid "_Layers"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:243
+msgid "_Previous Layer"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:248
+msgid "_Next Layer"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:253
+msgid "_Top Layer"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:259
+msgid "Rename Layer"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:264
+msgid "Merge Layer Down"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:269
+msgid "Delete Layer"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:276
+msgid "_View"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:279
+msgid "_Pair Pages"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:283
+msgid "_Presentation Mode"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:288
+msgid "_Fullscreen"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:295
+msgid "Layout"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:298
+msgid "_Horizontal"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:303
+msgid "_Vertical"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:310
+msgid "_Left to Right"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:315
+msgid "_Right to Left"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:322
+msgid "_Top to Bottom"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:327
+msgid "_Bottom to Top"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:334
+msgid "_Cols/Rows"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:337
+msgid "Set Columns"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:341
+msgid "_1 Column"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:346
+msgid "_2 Columns"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:351
+msgid "_3 Columns"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:356
+msgid "_4 Columns"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:361
+msgid "_5 Columns"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:366
+msgid "_6 Columns"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:371
+msgid "_7 Columns"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:376
+msgid "_8 Columns"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:383
+msgid "Set Rows"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:387
+msgid "_1 Row"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:392
+msgid "_2 Rows"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:397
+msgid "_3 Rows"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:402
+msgid "_4 Rows"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:407
+msgid "_5 Rows"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:412
+msgid "_6 Rows"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:417
+msgid "_7 Rows"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:422
+msgid "_8 Rows"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:433
+msgid "Show Menubar"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:439
+msgid "Show Toolbars"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:446
 msgid "_Tools"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:526
-msgid "_Pen"
+#: ../ui/mainmenubar.xml:449
+msgid "Select PDF Text"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:532
-msgid "_Eraser"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:538
+#: ../ui/mainmenubar.xml:452
 msgid "Select Linear Text"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:544
+#: ../ui/mainmenubar.xml:458
 msgid "Select Text In Rectangle"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:550
-msgid "_Highlighter"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:556
-msgid "_Text"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:562
-msgid "_Link"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:568
-msgid "LaTe_X"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:574
-msgid "_Image"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:580
-msgid "_Default Tool"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:587
-msgid "Drawing Type"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:589
-msgid "_Shape Recognizer"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:619
-msgid "Draw _Line"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:660
-msgid "_Vertical Space"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:672
-msgid "H_and Tool"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:688
-msgid "Pen _Options"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:691 ../ui/mainmenubar.xml:753
-#: ../ui/mainmenubar.xml:800
-msgid "_very fine"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:696 ../ui/mainmenubar.xml:758
-#: ../ui/mainmenubar.xml:805
-msgid "_fine"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:701 ../ui/mainmenubar.xml:763
-#: ../ui/mainmenubar.xml:810
-msgid "_medium"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:706 ../ui/mainmenubar.xml:768
-#: ../ui/mainmenubar.xml:815
-msgid "_thick"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:711 ../ui/mainmenubar.xml:773
-#: ../ui/mainmenubar.xml:820
-msgid "ver_y thick"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:740 ../ui/mainmenubar.xml:827
-msgid "Fi_ll"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:744 ../ui/mainmenubar.xml:831
-msgid "Fill opacity"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:750
-msgid "Eraser Optio_ns"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:780
-msgid "_standard"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:785
-msgid "_whiteout"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:790
-msgid "_delete strokes"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:797
-msgid "Highlighter Opti_ons"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:837
-msgid "Select PDF Text Options"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:840
+#: ../ui/mainmenubar.xml:466
 msgid "Marker Opacity"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:846
-msgid "Text Font..."
+#: ../ui/mainmenubar.xml:472
+msgid "_Link"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:851
+#: ../ui/mainmenubar.xml:478
+msgid "LaTe_X"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:484
+msgid "_Vertical Space"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:490
+msgid "_Default Tool"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:497
+msgid "_Shape Recognizer"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:521
+msgid "_very fine"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:526
+msgid "ver_y thick"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:533
+msgid "Audio"
+msgstr ""
+
+#: ../ui/mainmenubar.xml:537
 msgid "Record / Stop"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:856
+#: ../ui/mainmenubar.xml:541
 msgid "Pause"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:878
+#: ../ui/mainmenubar.xml:561
 msgid "_Help"
 msgstr ""
 
-#: ../ui/mainmenubar.xml:882
-msgid "Help"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:886
-msgid "Run Gtk3 demo"
-msgstr ""
-
-#: ../ui/mainmenubar.xml:890
+#: ../ui/mainmenubar.xml:569
 msgid "About"
 msgstr ""
 
-#: ../resources-templates/pagetemplates.ini.in:17
+#: ../resources-templates/pagetemplates.ini.in:16
 msgid "Ruled with vertical line on the right"
 msgstr ""
 
-#: ../resources-templates/pagetemplates.ini.in:42
+#: ../resources-templates/pagetemplates.ini.in:41
 msgid "Graph with border"
 msgstr ""
 
-#: ../resources-templates/pagetemplates.ini.in:47
+#: ../resources-templates/pagetemplates.ini.in:46
 msgid "Graph with border (bold every 5th)"
 msgstr ""
 
-#: ../resources-templates/toolbar.ini.in:51
+#: ../resources-templates/toolbar.ini.in:50
 msgid "All Tools"
 msgstr ""
 
-#: ../resources-templates/toolbar.ini.in:56
+#: ../resources-templates/toolbar.ini.in:55
+msgid "MoreXournal"
+msgstr ""
+
+#: ../resources-templates/toolbar.ini.in:60
 msgid "Portrait"
 msgstr ""
 
-#: ../resources-templates/toolbar.ini.in:62
+#: ../resources-templates/toolbar.ini.in:66
 msgid "Minimal Left"
 msgstr ""
 
-#: ../resources-templates/toolbar.ini.in:66
+#: ../resources-templates/toolbar.ini.in:70
 msgid "Minimal Top"
 msgstr ""
 
-#: ../resources-templates/toolbar.ini.in:70
+#: ../resources-templates/toolbar.ini.in:74
 msgid "Xournal++"
 msgstr ""
 
-#: ../resources-templates/toolbar.ini.in:78
+#: ../resources-templates/toolbar.ini.in:82
 msgid "Tablet mode"
 msgstr ""
 
-#: ../resources-templates/toolbar.ini.in:84
+#: ../resources-templates/toolbar.ini.in:88
 msgid "Right hand Note Taking"
 msgstr ""
 
-#: ../resources-templates/toolbar.ini.in:87
+#: ../resources-templates/toolbar.ini.in:91
 msgid "Toolbar Left"
 msgstr ""
 
-#: ../resources-templates/toolbar.ini.in:93
+#: ../resources-templates/toolbar.ini.in:97
 msgid "Toolbar Right"
 msgstr ""
 
-#: ../resources-templates/toolbar.ini.in:108
+#: ../resources-templates/toolbar.ini.in:112
 msgid "Empty Toolbar"
 msgstr ""
 
-#: ../desktop/com.github.xournalpp.xournalpp.desktop.in:6
+#: ../desktop/io.github.antopatanto.morexournal.desktop.in:5
 msgid "Note-taking application"
 msgstr ""
 
-#: ../desktop/com.github.xournalpp.xournalpp.desktop.in:7
+#: ../desktop/io.github.antopatanto.morexournal.desktop.in:6
 msgid "Take handwritten notes"
 msgstr ""
 
-#: ../desktop/com.github.xournalpp.xournalpp.desktop.in:8
+#: ../desktop/io.github.antopatanto.morexournal.desktop.in:7
 msgid ""
 "tablet;Wacom;pen input;PDF Annotation;markup;journal;handwriting;diary;notes;"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:8
-msgid "Xournalpp Developers"
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:8
+msgid "Xournal++ developers and MoreXournal contributors"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:10
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:10
 msgid ""
-"Xournal++ is a hand note-taking software written in C++ with the target of "
-"flexibility, functionality and speed. Stroke recognizer and other parts are "
-"based on Xournal Code, which you can find at sourceforge. It supports GNU/"
-"Linux (e.g. Ubuntu, Debian, Arch, SUSE), macOS and Windows. Supports pen "
-"input from devices such as Wacom Tablets."
+"MoreXournal, based on Xournal++, is a hand note-taking software written in C+"
+"+ with the target of flexibility, functionality and speed. Stroke recognizer "
+"and other parts are based on Xournal Code, which you can find at "
+"sourceforge. It supports GNU/Linux (e.g. Ubuntu, Debian, Arch, SUSE), macOS "
+"and Windows. Supports pen input from devices such as Wacom Tablets."
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:17
-msgid "Xournal++ features:"
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:17
+msgid "MoreXournal features:"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:21
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:21
+msgid ""
+"Hold-to-shape drawing: hold the pen or highlighter still to convert a stroke "
+"into a recognized line, triangle, rectangle, or circle"
+msgstr ""
+
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:22
+msgid ""
+"Editable shapes from the line, rectangle, and ellipse tools with geometry "
+"handles and a floating shape menu"
+msgstr ""
+
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:23
+msgid ""
+"Single top bar replacing the classic menu bar and toolbar rows, with built-"
+"in light and dark themes"
+msgstr ""
+
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:24
+msgid ""
+"Floating tool controls with recently used colors and bottom-corner zoom and "
+"layer controls"
+msgstr ""
+
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:25
 msgid ""
 "Supports pressure-sensitive styluses and digital pen tables (e.g. Wacom, "
 "Huion, XP Pen, etc. tablets)"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:22
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:26
 msgid "Paper backgrounds for note-taking, scratch paper, or whiteboarding"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:23
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:27
 msgid "Annotate on top of PDFs"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:24
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:28
 msgid ""
 "Select text from the background PDF, copy, highlight or underline it or "
 "strike it through"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:25
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:29
 msgid "Follow links from the background PDF"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:26
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:30
 msgid ""
 "Export to a variety of formats including SVG, PNG and PDF, both from the GUI "
 "and command line"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:27
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:31
 msgid ""
 "Different drawing tools (e.g. pen, highlighter) and stroke styles (e.g. "
 "solid, dotted)"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:28
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:32
 msgid "Shape drawing (line, arrow, circle, rectangle, spline)"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:29
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:33
 msgid ""
 "Use the set-square and compass tools for measurements or as a guide for "
 "drawing straight lines, circular arcs and radii"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:30
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:34
 msgid "Fill shape functionality"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:31
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:35
 msgid "Shape resizing and rotation"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:32
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:36
 msgid "Rotation and grid snapping for precise alignment of objects"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:33
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:37
 msgid "Input stabilization for smoother writing/drawing"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:34
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:38
 msgid "Text tool for adding text in different fonts, colors, and sizes"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:35
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:39
 msgid "Enhanced support for image insertion"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:36
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:40
 msgid "Eraser with multiple configurations"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:37
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:41
 msgid ""
 "LaTeX support (requires a working LaTeX installation) with customizable "
 "template and a resizable editor with syntax highlighting"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:38
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:42
 msgid ""
 "Sidebar containing page previews with advanced page sorting, PDF bookmarks "
 "and layers (can be individually hidden/edited)"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:39
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:43
 msgid "Allows mapping different tools/colors etc. to stylus/mouse buttons"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:40
-msgid ""
-"Customizable toolbar with multiple configurations, e.g. to optimize toolbar "
-"for portrait/landscape"
-msgstr ""
-
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:41
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:44
 msgid "Custom color palette support using the .gpl format"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:42
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:45
 msgid "Page template definitions"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:43
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:46
 msgid "Bug reporting, autosave, and auto backup tools"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:44
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:47
 msgid "Audio recording and playback alongside with handwritten notes"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:45
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:48
 msgid "Multi language support (over 20 languages supported)"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:46
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:49
 msgid "Plugins using Lua scripting"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:57
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:60
 msgid "Note taking"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:61
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:64
 msgid "PDF annotation"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.appdata.xml.in:65
+#: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:68
 msgid "LaTeX with customized preamble"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.xml.in:4
+#: ../resources-templates/io.github.antopatanto.morexournal.xml.in:4
 msgid "Xournal note file"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.xml.in:8
+#: ../resources-templates/io.github.antopatanto.morexournal.xml.in:8
 msgid "Xournal++ note file"
 msgstr ""
 
-#: ../resources-templates/com.github.xournalpp.xournalpp.xml.in:12
+#: ../resources-templates/io.github.antopatanto.morexournal.xml.in:12
 msgid "Xournal++ page template file"
 msgstr ""
