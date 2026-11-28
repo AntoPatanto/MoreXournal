@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+* Built-in local Model Context Protocol (MCP) server (off by default, bound to `127.0.0.1` with bearer-token authentication) so AI tools on the same computer can read the open document and, when **Allow edits** is turned on, add text boxes, freehand strokes, editable shapes and pages as single undo steps
+* New **AI assistants** Preferences page with connection and edit switches, token rotation, active client list and copyable setup snippets for Claude Code, Codex and Claude Desktop
+* Bundled `morexournal-mcp` stdio bridge executable for MCP clients that launch local servers over stdio
+
 ## 0.1.2 (2026-11-27)
 
 Bug fixes from a review of the code added since Xournal++ 1.3.8, and a native title bar on macOS.
