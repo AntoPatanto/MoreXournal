@@ -181,9 +181,9 @@ set(XGETTEXT_VALA_OPTIONS_DEFAULT
   "--keyword=C_:1c,2"
   "--keyword=NC_:1c,2"
 )
+# No --omit-header: without the header xgettext assumes ASCII and drops UTF-8 text such as curly quotes.
 set(XGETTEXT_GLADE_OPTIONS_DEFAULT
   "--language=Glade"
-  "--omit-header"
 )
 set(XGETTEXT_DESKTOP_OPTIONS
   "--language=Desktop"
