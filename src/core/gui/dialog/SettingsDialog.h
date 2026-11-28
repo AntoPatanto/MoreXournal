@@ -32,6 +32,7 @@
 class Control;
 class Settings;
 class DeviceTestingArea;
+class McpSettingsPanel;
 class ShapeSettingsPanel;
 
 struct Palette;
@@ -101,6 +102,7 @@ private:
 
     std::unique_ptr<DeviceTestingArea> deviceTestingArea;
     std::unique_ptr<ShapeSettingsPanel> shapeSettingsPanel;
+    std::unique_ptr<McpSettingsPanel> mcpSettingsPanel;
 
     LanguageConfigGui languageConfig;
     std::vector<std::unique_ptr<ButtonConfigGui>> buttonConfigs;
