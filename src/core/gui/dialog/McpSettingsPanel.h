@@ -73,7 +73,7 @@ private:
     GtkStack* setupStack = nullptr;
     GtkLabel* setupInstructionLabel = nullptr;
     GtkLabel* copiedLabel = nullptr;
-    GtkTextView* commandTextView = nullptr;
+    GtkLabel* commandLabel = nullptr;
 
     bool mcpEnabled = false;
     bool mcpAllowEdits = false;

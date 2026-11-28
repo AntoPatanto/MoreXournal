@@ -251,16 +251,21 @@ GtkWidget* McpSettingsPanel::buildSetupCommandsGroup() {
     gtk_box_append(GTK_BOX(headerBar), copyBtn);
     gtk_box_append(GTK_BOX(group), headerBar);
 
-    commandTextView = GTK_TEXT_VIEW(gtk_text_view_new());
-    gtk_text_view_set_editable(commandTextView, FALSE);
-    gtk_text_view_set_cursor_visible(commandTextView, FALSE);
-    gtk_text_view_set_wrap_mode(commandTextView, GTK_WRAP_CHAR);
-    gtk_text_view_set_left_margin(commandTextView, 12);
-    gtk_text_view_set_right_margin(commandTextView, 12);
-    gtk_text_view_set_top_margin(commandTextView, 8);
-    gtk_text_view_set_bottom_margin(commandTextView, 10);
-    gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(commandTextView)), "mx-mcp-code");
-    gtk_box_append(GTK_BOX(group), GTK_WIDGET(commandTextView));
+    // A selectable label instead of a text view: GTK 3 text views can't turn off the hyphens Pango inserts when
+    // it breaks a long word, and a hyphen inside the token would be copied by hand as part of it.
+    commandLabel = GTK_LABEL(gtk_label_new(nullptr));
+    gtk_label_set_selectable(commandLabel, TRUE);
+    gtk_label_set_line_wrap(commandLabel, TRUE);
+    gtk_label_set_line_wrap_mode(commandLabel, PANGO_WRAP_CHAR);
+    gtk_label_set_xalign(commandLabel, 0.0);
+#if PANGO_VERSION_CHECK(1, 44, 0)
+    PangoAttrList* attrs = pango_attr_list_new();
+    pango_attr_list_insert(attrs, pango_attr_insert_hyphens_new(FALSE));
+    gtk_label_set_attributes(commandLabel, attrs);
+    pango_attr_list_unref(attrs);
+#endif
+    gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(commandLabel)), "mx-mcp-code");
+    gtk_box_append(GTK_BOX(group), GTK_WIDGET(commandLabel));
 
     return group;
 }
@@ -424,8 +429,7 @@ void McpSettingsPanel::updateSetupCommand() {
     }
 
     std::string snippet = buildCurrentSnippet();
-    GtkTextBuffer* buf = gtk_text_view_get_buffer(commandTextView);
-    gtk_text_buffer_set_text(buf, snippet.c_str(), static_cast<gint>(snippet.size()));
+    gtk_label_set_text(commandLabel, snippet.c_str());
 }
 
 void McpSettingsPanel::refreshConnectedClients() {
