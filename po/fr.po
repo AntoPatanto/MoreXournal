@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xournalpp\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-28 17:32+0100\n"
+"POT-Creation-Date: 2026-11-28 20:23+0100\n"
 "PO-Revision-Date: 2026-09-23 09:43\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
@@ -3270,7 +3270,7 @@ msgid "Recording"
 msgstr "Enregistrement"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1683
-#: ../src/core/gui/dialog/SettingsDialog.cpp:3181
+#: ../src/core/gui/dialog/SettingsDialog.cpp:3166
 #: ../src/core/gui/dialog/XojOpenDlg.cpp:82
 msgid "Select folder"
 msgstr "Sélectionner un dossier"
@@ -3626,25 +3626,24 @@ msgstr ""
 "Activez « Définir les modificateurs selon la direction du tracé » pour "
 "modifier ce réglage."
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2025
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2091
-msgid "Search results"
-msgstr "Résultats de recherche"
-
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2082
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2069
 msgid "No settings match"
 msgstr "Aucun réglage ne correspond"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2084
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2071
 msgid "Try another word, such as pen, zoom or backup."
 msgstr "Essayez un autre mot, tel que stylo, zoom ou sauvegarde."
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2750
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2763
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2078
+msgid "Search results"
+msgstr "Résultats de recherche"
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2735
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2748
 msgid "System default"
 msgstr "Valeur par défaut du système"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:3187
+#: ../src/core/gui/dialog/SettingsDialog.cpp:3172
 msgid "Folder not set - Select a folder to enable recording"
 msgstr ""
 "Dossier non défini - Sélectionnez un dossier pour activer l'enregistrement"
@@ -4757,7 +4756,8 @@ msgstr "Licence"
 msgid "Authors"
 msgstr "Auteurs"
 
-#: ../ui/about.glade:398 ../ui/crashDialog.glade:174
+#: ../ui/about.glade:398 ../ui/crashDialog.glade:174 ../ui/settings.glade:325
+#: ../ui/settings.glade:328
 msgid "Close"
 msgstr "Fermer"
 
@@ -5293,11 +5293,11 @@ msgstr "Zone aveugle"
 msgid "Inertia"
 msgstr "Inertie"
 
-#: ../ui/settings.glade:263 ../ui/mainmenubar.xml:140
+#: ../ui/settings.glade:263 ../ui/settings.glade:295 ../ui/mainmenubar.xml:140
 msgid "Preferences"
 msgstr "Préférences"
 
-#: ../ui/settings.glade:344
+#: ../ui/settings.glade:384
 msgid "Search settings"
 msgstr "Rechercher dans les réglages"
 

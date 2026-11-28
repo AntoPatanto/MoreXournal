@@ -129,7 +129,6 @@ private:
     void onSearchChanged();
     void jumpToSearchResult(size_t targetIndex);
     void clearFlash();
-    void updateHeaderTitle();
 
     void save();
     void setDpi(int dpi);
@@ -171,7 +170,6 @@ private:
 
     Builder builder;
     xoj::util::GtkWindowUPtr window;
-    GtkHeaderBar* headerBar = nullptr;
     GtkSearchEntry* searchEntry = nullptr;
     GtkListBox* navList = nullptr;
     GtkStack* contentStack = nullptr;

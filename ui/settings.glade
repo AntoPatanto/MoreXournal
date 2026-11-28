@@ -272,43 +272,83 @@
     </style>
 
     <child type="titlebar">
-      <object class="GtkHeaderBar" id="prefsHeaderBar">
+      <object class="GtkBox" id="prefsTitlebar">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
-        <property name="title" translatable="yes">General</property>
-        <property name="show-close-button">False</property>
+        <property name="orientation">horizontal</property>
         <style>
-          <class name="mx-prefs-headerbar"/>
+          <class name="mx-prefs-titlebar"/>
         </style>
         <child>
-          <object class="GtkButton" id="btOk">
-            <property name="label" translatable="yes">Save</property>
+          <object class="GtkBox" id="prefsTitlebarLeft">
             <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="can-default">True</property>
-            <property name="has-default">True</property>
-            <property name="receives-default">True</property>
+            <property name="can-focus">False</property>
+            <property name="orientation">horizontal</property>
+            <property name="hexpand">False</property>
             <style>
-              <class name="suggested-action"/>
-              <class name="mx-prefs-pill"/>
+              <class name="mx-prefs-titlebar-left"/>
             </style>
+            <child>
+              <object class="GtkLabel" id="prefsTitleLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Preferences</property>
+                <property name="xalign">0</property>
+                <property name="valign">center</property>
+                <style>
+                  <class name="mx-prefs-titlebar-title"/>
+                </style>
+              </object>
+            </child>
           </object>
           <packing>
-            <property name="pack-type">end</property>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="btCancel">
-            <property name="label" translatable="yes">Cancel</property>
+          <object class="GtkBox" id="prefsTitlebarRight">
             <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">False</property>
+            <property name="can-focus">False</property>
+            <property name="orientation">horizontal</property>
+            <property name="hexpand">True</property>
             <style>
-              <class name="mx-prefs-pill"/>
+              <class name="mx-prefs-titlebar-right"/>
             </style>
+            <child>
+              <object class="GtkButton" id="btClose">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="relief">none</property>
+                <property name="valign">center</property>
+                <property name="tooltip-text" translatable="yes">Close</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="btClose-atkobject">
+                    <property name="AtkObject::accessible-name" translatable="yes">Close</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkImage">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="icon-name">window-close-symbolic</property>
+                    <property name="pixel-size">16</property>
+                  </object>
+                </child>
+                <style>
+                  <class name="flat"/>
+                  <class name="mx-prefs-close"/>
+                </style>
+              </object>
+              <packing>
+                <property name="pack-type">end</property>
+              </packing>
+            </child>
           </object>
           <packing>
-            <property name="pack-type">end</property>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
           </packing>
         </child>
       </object>
@@ -371,19 +411,78 @@
           </object>
         </child>
         <child>
-          <object class="GtkStack" id="prefsContentStack">
+          <object class="GtkBox" id="prefsContentColumn">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
+            <property name="orientation">vertical</property>
             <property name="hexpand">True</property>
             <property name="vexpand">True</property>
-            <property name="transition-type">crossfade</property>
-            <property name="transition-duration">120</property>
-            <style>
-              <class name="mx-prefs-content"/>
-            </style>
+            <child>
+              <object class="GtkStack" id="prefsContentStack">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <property name="transition-type">crossfade</property>
+                <property name="transition-duration">120</property>
+                <style>
+                  <class name="mx-prefs-content"/>
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox" id="prefsFooter">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="orientation">horizontal</property>
+                <property name="spacing">8</property>
+                <style>
+                  <class name="mx-prefs-footer"/>
+                </style>
+                <child>
+                  <object class="GtkButton" id="btOk">
+                    <property name="label" translatable="yes">Save</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="can-default">True</property>
+                    <property name="has-default">True</property>
+                    <property name="receives-default">True</property>
+                    <style>
+                      <class name="suggested-action"/>
+                      <class name="mx-prefs-pill"/>
+                    </style>
+                  </object>
+                  <packing>
+                    <property name="pack-type">end</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btCancel">
+                    <property name="label" translatable="yes">Cancel</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">False</property>
+                    <style>
+                      <class name="mx-prefs-pill"/>
+                    </style>
+                  </object>
+                  <packing>
+                    <property name="pack-type">end</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
           </object>
         </child>
       </object>
     </child>
+  </object>
+
+  <object class="GtkSizeGroup" id="prefsSidebarSizeGroup">
+    <property name="mode">horizontal</property>
+    <widgets>
+      <widget name="prefsTitlebarLeft"/>
+      <widget name="prefsSidebar"/>
+    </widgets>
   </object>
 </interface>

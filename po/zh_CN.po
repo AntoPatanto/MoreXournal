@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xournalpp\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-28 17:32+0100\n"
+"POT-Creation-Date: 2026-11-28 20:23+0100\n"
 "PO-Revision-Date: 2026-09-23 09:43\n"
 "Last-Translator: \n"
 "Language-Team: Chinese Simplified\n"
@@ -3132,7 +3132,7 @@ msgid "Recording"
 msgstr "录制"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1683
-#: ../src/core/gui/dialog/SettingsDialog.cpp:3181
+#: ../src/core/gui/dialog/SettingsDialog.cpp:3166
 #: ../src/core/gui/dialog/XojOpenDlg.cpp:82
 msgid "Select folder"
 msgstr "选择文件夹"
@@ -3468,25 +3468,24 @@ msgstr "方向半径"
 msgid "Turn on “Set modifiers by draw direction” to change this."
 msgstr "开启“按绘制方向设置修饰键”后可更改此项。"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2025
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2091
-msgid "Search results"
-msgstr "搜索结果"
-
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2082
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2069
 msgid "No settings match"
 msgstr "没有匹配的设置项"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2084
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2071
 msgid "Try another word, such as pen, zoom or backup."
 msgstr "请尝试其他关键词，例如“画笔”“缩放”或“备份”。"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2750
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2763
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2078
+msgid "Search results"
+msgstr "搜索结果"
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2735
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2748
 msgid "System default"
 msgstr "系统默认"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:3187
+#: ../src/core/gui/dialog/SettingsDialog.cpp:3172
 msgid "Folder not set - Select a folder to enable recording"
 msgstr "未设置文件夹 - 请选择一个文件夹以启用录音"
 
@@ -4582,7 +4581,8 @@ msgstr "许可协议"
 msgid "Authors"
 msgstr "作者"
 
-#: ../ui/about.glade:398 ../ui/crashDialog.glade:174
+#: ../ui/about.glade:398 ../ui/crashDialog.glade:174 ../ui/settings.glade:325
+#: ../ui/settings.glade:328
 msgid "Close"
 msgstr "关闭"
 
@@ -5098,11 +5098,11 @@ msgstr "盲区"
 msgid "Inertia"
 msgstr "惯性"
 
-#: ../ui/settings.glade:263 ../ui/mainmenubar.xml:140
+#: ../ui/settings.glade:263 ../ui/settings.glade:295 ../ui/mainmenubar.xml:140
 msgid "Preferences"
 msgstr "首选项"
 
-#: ../ui/settings.glade:344
+#: ../ui/settings.glade:384
 msgid "Search settings"
 msgstr "搜索设置"
 
