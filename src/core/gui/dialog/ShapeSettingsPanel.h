@@ -32,6 +32,9 @@ public:
     ShapeSettingsPanel& operator=(const ShapeSettingsPanel&) = delete;
 
     GtkWidget* getPanel() const { return rootBox; }
+    GtkWidget* getAdvancedCard() const { return advancedCard; }
+    GtkExpander* getAdvancedExpander() const { return GTK_EXPANDER(advancedExpander); }
+    GtkWidget* getRowWidget(const char* id) const;
 
     void load(const Settings& settings);
     void save(Settings& settings) const;
@@ -92,26 +95,35 @@ private:
     std::function<double()> getZoom100;
 
     GtkWidget* rootBox = nullptr;
+    GtkWidget* advancedCard = nullptr;
 
     // Hold-specific widgets (disabled when hold-to-shape is turned off)
-    GtkWidget* delayLabelBox = nullptr;
+    GtkWidget* delayRow = nullptr;
+    GtkWidget* delayDepHint = nullptr;
     GtkScale* delayScale = nullptr;
     GtkLabel* delayValueLabel = nullptr;
 
-    GtkWidget* jitterLabelBox = nullptr;
+    GtkWidget* jitterRow = nullptr;
+    GtkWidget* jitterDepHint = nullptr;
     GtkScale* jitterScale = nullptr;
     GtkLabel* jitterValueLabel = nullptr;
 
     // Sensitivity & min size
+    GtkWidget* sensitivityRow = nullptr;
     GtkScale* sensitivityScale = nullptr;
     GtkLabel* sensitivityValueLabel = nullptr;
     GtkLabel* customBadgeLabel = nullptr;
 
+    GtkWidget* minSizeRow = nullptr;
     GtkScale* minSizeScale = nullptr;
     GtkLabel* minSizeValueLabel = nullptr;
 
+    GtkWidget* padRow = nullptr;
+    GtkWidget* resetRow = nullptr;
+
     GtkWidget* advancedExpander = nullptr;
     std::array<AdvRow, 8> advRows{};
+    std::array<GtkWidget*, 8> advRowWidgets{};
 
     bool updatingSliders = false;
     bool customThresholds = false;

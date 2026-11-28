@@ -42,41 +42,53 @@ GtkWidget* makeSubLabel(const char* text) {
 GtkWidget* makeGroupBox() {
     GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_style_context_add_class(gtk_widget_get_style_context(box), "mx-mcp-group");
+    gtk_style_context_add_class(gtk_widget_get_style_context(box), "mx-prefs-card");
     return box;
 }
 
 GtkWidget* makeRowBox(GtkOrientation orientation, int spacing) {
     GtkWidget* box = gtk_box_new(orientation, spacing);
     gtk_style_context_add_class(gtk_widget_get_style_context(box), "mx-mcp-row");
+    gtk_style_context_add_class(gtk_widget_get_style_context(box), "mx-prefs-row");
     return box;
+}
+
+GtkWidget* makeSectionCaption(const char* text) {
+    GtkWidget* lbl = gtk_label_new(text);
+    gtk_label_set_xalign(GTK_LABEL(lbl), 0.0F);
+    gtk_style_context_add_class(gtk_widget_get_style_context(lbl), "mx-prefs-section-title");
+    return lbl;
 }
 
 }  // namespace
 
 McpSettingsPanel::McpSettingsPanel(Control* control): control(control) {
-    rootBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
-    gtk_widget_set_margin_start(rootBox, 16);
-    gtk_widget_set_margin_end(rootBox, 16);
-    gtk_widget_set_margin_top(rootBox, 12);
-    gtk_widget_set_margin_bottom(rootBox, 16);
+    rootBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 20);
 
-    GtkWidget* heading = gtk_label_new(_("AI assistants"));
-    gtk_label_set_xalign(GTK_LABEL(heading), 0.0F);
-    gtk_style_context_add_class(gtk_widget_get_style_context(heading), "mx-mcp-heading");
-    gtk_box_append(GTK_BOX(rootBox), heading);
-
+    // Section 1: AI assistants
+    GtkWidget* connectSection = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+    gtk_box_append(GTK_BOX(connectSection), makeSectionCaption(_("AI assistants")));
     GtkWidget* intro = makeSubLabel(
             _("Let AI tools on this computer, such as Claude Code or Codex, see the open document through the Model "
               "Context Protocol (MCP). Nothing leaves this computer unless the AI tool itself sends it."));
-    gtk_box_append(GTK_BOX(rootBox), intro);
+    gtk_style_context_add_class(gtk_widget_get_style_context(intro), "mx-prefs-section-note");
+    gtk_box_append(GTK_BOX(connectSection), intro);
+    gtk_box_append(GTK_BOX(connectSection), buildMainSwitchesGroup());
+    gtk_box_append(GTK_BOX(rootBox), connectSection);
 
-    gtk_box_append(GTK_BOX(rootBox), buildMainSwitchesGroup());
-
+    // Section 2: Connection
+    GtkWidget* connSection = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+    gtk_box_append(GTK_BOX(connSection), makeSectionCaption(_("Connection")));
     connectionGroup = buildConnectionInfoGroup();
-    gtk_box_append(GTK_BOX(rootBox), connectionGroup);
+    gtk_box_append(GTK_BOX(connSection), connectionGroup);
+    gtk_box_append(GTK_BOX(rootBox), connSection);
 
+    // Section 3: Set up an assistant
+    GtkWidget* setupSection = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+    gtk_box_append(GTK_BOX(setupSection), makeSectionCaption(_("Set up an assistant")));
     setupGroup = buildSetupCommandsGroup();
-    gtk_box_append(GTK_BOX(rootBox), setupGroup);
+    gtk_box_append(GTK_BOX(setupSection), setupGroup);
+    gtk_box_append(GTK_BOX(rootBox), setupSection);
 
     gtk_widget_show_all(rootBox);
     gtk_widget_set_visible(GTK_WIDGET(copiedLabel), FALSE);
@@ -90,6 +102,20 @@ McpSettingsPanel::McpSettingsPanel(Control* control): control(control) {
                 return G_SOURCE_CONTINUE;
             },
             this);
+}
+
+GtkWidget* McpSettingsPanel::getTargetWidget(const char* id) const {
+    std::string_view key(id ? id : "");
+    if (key == "ai-edit") {
+        return allowEditsRow;
+    }
+    if (key == "ai-address" || key == "ai-token" || key == "ai-clients") {
+        return connectionGroup;
+    }
+    if (key == "ai-setup") {
+        return setupGroup;
+    }
+    return rootBox;
 }
 
 McpSettingsPanel::~McpSettingsPanel() {

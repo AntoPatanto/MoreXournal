@@ -52,7 +52,7 @@ SettingsDialogPaletteTab::SettingsDialogPaletteTab(GladeSearchpath* gladeSearchP
         builder(gladeSearchPath, UI_FILE) {
     colorPaletteExplainLabel = GTK_LABEL(builder.get("colorPaletteExplainLabel"));
     paletteListBox = GTK_LIST_BOX(builder.get("paletteListBox"));
-    panel = GTK_SCROLLED_WINDOW(builder.get(UI_PANEL_NAME));
+    panel = builder.get(UI_PANEL_NAME);
     renderColorPaletteExplainLabel();
     setAllPaletteFilePaths(paletteDirectories);
 }

@@ -52,6 +52,7 @@ ButtonConfigGui::ButtonConfigGui(GladeSearchpath* gladeSearchPath, GtkBox* box, 
 
     this->cbDevice = builder.get("labelDevice");
     this->cbDisableDrawing = builder.get("cbDisableDrawing");
+    this->btnOptions = builder.get("btnOptions");
 
     if (withDevice) {
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(this->cbDevice), _("No device"));
@@ -62,9 +63,8 @@ ButtonConfigGui::ButtonConfigGui(GladeSearchpath* gladeSearchPath, GtkBox* box, 
             gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(this->cbDevice), txt.c_str());
         }
     } else {
-        gtk_widget_hide(builder.get("lbDevice"));
-        gtk_widget_hide(this->cbDevice);
-        gtk_widget_hide(this->cbDisableDrawing);
+        gtk_widget_hide(builder.get("box1"));
+        gtk_widget_set_no_show_all(builder.get("box1"), TRUE);
     }
 
     GtkListStore* typeModel = gtk_list_store_new(3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_INT);
@@ -296,12 +296,20 @@ void ButtonConfigGui::enableDisableTools() {
     gtk_tree_model_get_value(model, &iter, 2, &value);
     auto action = static_cast<ToolType>(g_value_get_int(&value));
 
-    gtk_widget_set_visible(cbThickness, action != TOOL_NONE && xoj::tool::hasCapability(action, TOOL_CAP_SIZE));
-    bool hasColor = action != TOOL_NONE && xoj::tool::hasCapability(action, TOOL_CAP_COLOR);
+    const bool hasSize = action != TOOL_NONE && xoj::tool::hasCapability(action, TOOL_CAP_SIZE);
+    const bool hasColor = action != TOOL_NONE && xoj::tool::hasCapability(action, TOOL_CAP_COLOR);
+    const bool hasDrawingType = action != TOOL_NONE && xoj::tool::hasCapability(action, TOOL_CAP_RECTANGLE);
+    const bool isEraser = action == TOOL_ERASER;
+    const bool isPen = action == TOOL_PEN;
+
+    gtk_widget_set_visible(cbThickness, hasSize);
     gtk_widget_set_visible(cbColor, hasColor);
     gtk_widget_set_visible(colorButton, hasColor);
     gtk_widget_set_sensitive(colorButton, gtk_combo_box_get_active(GTK_COMBO_BOX(cbColor)) == 1);
-    gtk_widget_set_visible(cbDrawingType, action != TOOL_NONE && xoj::tool::hasCapability(action, TOOL_CAP_RECTANGLE));
-    gtk_widget_set_visible(cbEraserType, action == TOOL_ERASER);
-    gtk_widget_set_visible(cbStrokeType, action == TOOL_PEN);
+    gtk_widget_set_visible(cbDrawingType, hasDrawingType);
+    gtk_widget_set_visible(cbEraserType, isEraser);
+    gtk_widget_set_visible(cbStrokeType, isPen);
+
+    const bool hasAnyOption = hasSize || hasColor || hasDrawingType || isEraser || isPen;
+    gtk_widget_set_sensitive(btnOptions, hasAnyOption);
 }

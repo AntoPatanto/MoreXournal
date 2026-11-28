@@ -1295,3 +1295,421 @@ window.mx-touch popover.background.mx-popover scale slider {
 	border-radius: 0 0 8px 8px;
 	padding: 8px 12px 10px 12px;
 }
+
+/*
+ * Preferences dialog (Variant B: sidebar + boxed lists + live search)
+ */
+window.mx-prefs-window {
+	background-color: @mx_surface;
+	color: @mx_text;
+}
+
+headerbar.mx-prefs-headerbar {
+	min-height: 50px;
+	padding: 0 12px;
+	background-color: @mx_chrome;
+	background-image: none;
+	color: @mx_text;
+	border-bottom: 1px solid @mx_line;
+	box-shadow: none;
+}
+
+headerbar.mx-prefs-headerbar .title {
+	font-weight: 700;
+	color: @mx_text;
+}
+
+headerbar.mx-prefs-headerbar button.mx-prefs-pill {
+	border-radius: 9999px;
+	min-height: 32px;
+	padding: 0 14px;
+	border: 1px solid @mx_line;
+	background-color: @mx_surface;
+	background-image: none;
+	box-shadow: none;
+	color: @mx_text;
+	text-shadow: none;
+}
+
+headerbar.mx-prefs-headerbar button.mx-prefs-pill:hover {
+	background-color: @mx_hover;
+}
+
+headerbar.mx-prefs-headerbar button.mx-prefs-pill.suggested-action {
+	background-color: @mx_accent;
+	border-color: @mx_accent;
+	color: @mx_on_accent;
+	font-weight: 600;
+}
+
+headerbar.mx-prefs-headerbar button.mx-prefs-pill.suggested-action:hover {
+	background-color: shade(@mx_accent, 1.08);
+	border-color: shade(@mx_accent, 1.08);
+}
+
+.mx-prefs-sidebar {
+	background-color: @mx_chrome;
+	border-right: 1px solid @mx_line;
+}
+
+.mx-prefs-search-wrap {
+	padding: 10px 10px 6px 10px;
+}
+
+entry.mx-prefs-search {
+	border-radius: 9999px;
+	min-height: 34px;
+	padding: 0 12px;
+	background-color: @mx_surface;
+	background-image: none;
+	border: 1px solid @mx_line;
+	color: @mx_text;
+	box-shadow: none;
+}
+
+entry.mx-prefs-search:focus {
+	border-color: @mx_accent;
+	box-shadow: 0 0 0 3px @mx_accent_tint;
+}
+
+list.mx-prefs-nav {
+	background-color: transparent;
+	padding: 4px 8px 12px 8px;
+}
+
+list.mx-prefs-nav row {
+	border-radius: 9999px;
+	min-height: 36px;
+	padding: 0 12px;
+	margin: 1px 0;
+	background-color: transparent;
+	color: @mx_text;
+}
+
+list.mx-prefs-nav row:hover {
+	background-color: @mx_hover;
+}
+
+list.mx-prefs-nav row:selected,
+list.mx-prefs-nav row:selected:hover {
+	background-color: @mx_accent_tint;
+	color: @mx_accent_text;
+	font-weight: 600;
+}
+
+list.mx-prefs-nav row:selected label,
+list.mx-prefs-nav row:selected image {
+	color: @mx_accent_text;
+}
+
+list.mx-prefs-nav row.mx-prefs-nav-dim {
+	opacity: 0.45;
+}
+
+.mx-prefs-nav-section {
+	font-size: 12px;
+	font-weight: 700;
+	color: @mx_text2;
+	padding: 12px 12px 4px 12px;
+}
+
+separator.mx-prefs-nav-sep {
+	background-color: @mx_line;
+	min-height: 1px;
+	margin: 8px 10px;
+}
+
+.mx-prefs-nav-count {
+	font-size: 12px;
+	color: @mx_text2;
+	font-feature-settings: "tnum";
+}
+
+.mx-prefs-content {
+	background-color: @mx_surface;
+}
+
+.mx-prefs-page-title {
+	font-size: 20px;
+	font-weight: 700;
+	color: @mx_text;
+	margin-bottom: 4px;
+}
+
+.mx-prefs-lead {
+	color: @mx_text2;
+	font-size: 13px;
+	margin-bottom: 12px;
+}
+
+.mx-prefs-section-title {
+	font-size: 13.5px;
+	font-weight: 700;
+	color: @mx_text;
+}
+
+.mx-prefs-section-note {
+	font-size: 12.5px;
+	color: @mx_text2;
+}
+
+.mx-prefs-card {
+	background-color: @mx_prefs_card;
+	border: 1px solid @mx_line;
+	border-radius: 12px;
+}
+
+.mx-prefs-row {
+	padding: 10px 16px;
+	min-height: 36px;
+	transition: background-color 600ms ease-out;
+}
+
+.mx-prefs-row:disabled {
+	opacity: 0.52;
+}
+
+.mx-prefs-row.mx-prefs-row-flash,
+.mx-prefs-card.mx-prefs-row-flash {
+	background-color: @mx_flash;
+	border-radius: 10px;
+}
+
+separator.mx-prefs-row-sep {
+	background-color: @mx_line;
+	min-height: 1px;
+}
+
+.mx-prefs-row-title {
+	font-weight: 500;
+	color: @mx_text;
+}
+
+.mx-prefs-row-sub {
+	font-size: 12.5px;
+	color: @mx_text2;
+}
+
+.mx-prefs-unit {
+	font-size: 12.5px;
+	color: @mx_text2;
+	min-width: 18px;
+}
+
+.mx-prefs-tag {
+	font-size: 11px;
+	font-weight: 700;
+	border-radius: 9999px;
+	padding: 1px 8px;
+	background-color: @mx_warn_tint;
+	color: @mx_warn;
+}
+
+/* Preferences switches, pill buttons, combos, spinbuttons, entries and segmented controls */
+.mx-prefs-window switch {
+	min-width: 42px;
+	min-height: 24px;
+	border-radius: 9999px;
+	border: none;
+	background-color: alpha(@mx_text, 0.22);
+	background-image: none;
+	box-shadow: none;
+	color: transparent;
+	text-shadow: none;
+	font-size: 0;
+}
+
+.mx-prefs-window switch:checked {
+	background-color: @mx_accent;
+	color: transparent;
+}
+
+.mx-prefs-window switch image {
+	color: transparent;
+	opacity: 0;
+	min-width: 0;
+	min-height: 0;
+	-gtk-icon-transform: scale(0);
+}
+
+.mx-prefs-window switch slider,
+.mx-prefs-window switch:hover slider,
+.mx-prefs-window switch:checked slider,
+.mx-prefs-window switch:not(:checked) slider {
+	min-width: 18px;
+	min-height: 18px;
+	margin: 3px;
+	padding: 0;
+	border-radius: 9999px;
+	background-color: #ffffff;
+	background-image: none;
+	border: none;
+	box-shadow: 0 1px 2px @mx_shadow;
+}
+
+.mx-prefs-card button:not(.mx-prefs-seg-btn):not(.color):not(.up):not(.down),
+.mx-prefs-card combobox button.combo {
+	border-radius: 9999px;
+	min-height: 32px;
+	padding: 0 12px;
+	border: 1px solid @mx_line;
+	background-color: @mx_surface;
+	background-image: none;
+	box-shadow: none;
+	color: @mx_text;
+	text-shadow: none;
+}
+
+.mx-prefs-card button:not(.mx-prefs-seg-btn):not(.color):not(.up):not(.down):hover,
+.mx-prefs-card combobox button.combo:hover {
+	background-color: @mx_hover;
+}
+
+.mx-prefs-card entry {
+	border-radius: 9999px;
+	min-height: 32px;
+	padding: 0 12px;
+	border: 1px solid @mx_line;
+	background-color: @mx_surface;
+	background-image: none;
+	color: @mx_text;
+	box-shadow: none;
+}
+
+.mx-prefs-card entry:focus {
+	border-color: @mx_accent;
+	box-shadow: 0 0 0 3px @mx_accent_tint;
+}
+
+.mx-prefs-card entry.mx-prefs-mono {
+	font-family: monospace;
+	font-size: 12.5px;
+}
+
+.mx-prefs-card spinbutton {
+	border-radius: 9999px;
+	min-height: 32px;
+	border: 1px solid @mx_line;
+	background-color: @mx_surface;
+	color: @mx_text;
+}
+
+.mx-prefs-card spinbutton entry {
+	border: none;
+	border-radius: 9999px 0 0 9999px;
+	box-shadow: none;
+	min-height: 30px;
+	padding: 0 8px;
+}
+
+.mx-prefs-card spinbutton button.up,
+.mx-prefs-card spinbutton button.down {
+	border: none;
+	border-left: 1px solid @mx_line;
+	border-radius: 0;
+	min-height: 30px;
+	min-width: 28px;
+	padding: 0 4px;
+	background-color: transparent;
+	background-image: none;
+	box-shadow: none;
+	color: @mx_text2;
+}
+
+.mx-prefs-card spinbutton button.up:hover,
+.mx-prefs-card spinbutton button.down:hover {
+	background-color: @mx_hover;
+	color: @mx_text;
+}
+
+.mx-prefs-card spinbutton button:last-child {
+	border-radius: 0 9999px 9999px 0;
+}
+
+.mx-prefs-seg {
+	background-color: @mx_surface2;
+	border: 1px solid @mx_line;
+	border-radius: 9999px;
+	padding: 2px;
+}
+
+.mx-prefs-seg button.mx-prefs-seg-btn {
+	border: none;
+	border-radius: 9999px;
+	min-height: 28px;
+	padding: 0 12px;
+	background-color: transparent;
+	background-image: none;
+	box-shadow: none;
+	color: @mx_text2;
+	text-shadow: none;
+}
+
+.mx-prefs-seg button.mx-prefs-seg-btn:hover {
+	color: @mx_text;
+}
+
+.mx-prefs-seg button.mx-prefs-seg-btn:checked {
+	background-color: @mx_seg_checked;
+	color: @mx_accent_text;
+	font-weight: 600;
+	box-shadow: 0 1px 2px @mx_shadow;
+}
+
+.mx-prefs-expander > title {
+	padding: 10px 14px;
+	font-weight: 500;
+	color: @mx_text;
+}
+
+.mx-prefs-expander > title:hover {
+	background-color: @mx_hover;
+	border-radius: 10px;
+}
+
+list.mx-prefs-results-list {
+	background-color: @mx_prefs_card;
+	border: 1px solid @mx_line;
+	border-radius: 12px;
+}
+
+list.mx-prefs-results-list row {
+	padding: 10px 16px;
+	background-color: transparent;
+}
+
+list.mx-prefs-results-list row:hover {
+	background-color: @mx_hover;
+}
+
+list.mx-prefs-results-list row:selected {
+	background-color: @mx_accent_tint;
+	color: @mx_accent_text;
+}
+
+.mx-prefs-empty {
+	color: @mx_text2;
+	padding: 40px 16px;
+}
+
+list.mx-prefs-palette-list {
+	background-color: transparent;
+}
+
+list.mx-prefs-palette-list row {
+	padding: 8px 12px;
+	border-radius: 8px;
+}
+
+list.mx-prefs-palette-list row:hover {
+	background-color: @mx_hover;
+}
+
+list.mx-prefs-palette-list row:selected {
+	background-color: @mx_accent_tint;
+	color: @mx_accent_text;
+}
+
+list.mx-prefs-palette-list row:selected label {
+	color: @mx_accent_text;
+}

@@ -26,6 +26,7 @@ public:
     McpSettingsPanel& operator=(const McpSettingsPanel&) = delete;
 
     GtkWidget* getPanel() const { return rootBox; }
+    GtkWidget* getTargetWidget(const char* id) const;
 
     void load(const Settings& settings);
     void save(Settings& settings) const;

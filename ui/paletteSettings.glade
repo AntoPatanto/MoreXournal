@@ -1,90 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
-  <object class="GtkScrolledWindow" id="paletteSettingsPanel">
+  <object class="GtkBox" id="paletteSettingsPanel">
     <property name="visible">True</property>
-    <property name="can-focus">True</property>
-    <property name="min-content-width">500</property>
-    <property name="min-content-height">450</property>
+    <property name="can-focus">False</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">0</property>
     <child>
-      <object class="GtkViewport">
+      <object class="GtkBox">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
-        <property name="shadow-type">none</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">8</property>
+        <property name="margin-start">16</property>
+        <property name="margin-end">16</property>
+        <property name="margin-top">12</property>
+        <property name="margin-bottom">12</property>
         <child>
-          <object class="GtkBox">
+          <object class="GtkLabel" id="colorPaletteExplainLabel">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkAlignment">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="bottom-padding">8</property>
-                <property name="left-padding">12</property>
-                <property name="right-padding">12</property>
-                <child>
-                  <object class="GtkFrame" id="frame1">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label-xalign">0.009999999776482582</property>
-                    <child>
-                      <object class="GtkAlignment">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="bottom-padding">8</property>
-                        <property name="left-padding">12</property>
-                        <property name="right-padding">12</property>
-                        <child>
-                          <object class="GtkBox">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkLabel" id="colorPaletteExplainLabel">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="halign">start</property>
-                                <property name="use-markup">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkListBox" id="paletteListBox">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child type="label">
-                      <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Color Palettes</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
+            <property name="halign">start</property>
+            <property name="xalign">0</property>
+            <property name="use-markup">True</property>
+            <property name="wrap">True</property>
+            <style>
+              <class name="mx-prefs-row-sub"/>
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkListBox" id="paletteListBox">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <style>
+              <class name="mx-prefs-palette-list"/>
+            </style>
           </object>
         </child>
       </object>

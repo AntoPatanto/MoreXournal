@@ -21,3 +21,7 @@
 @define-color mx_ring rgba(255, 255, 255, 0.07);
 /* Background of the selected button of a segmented control */
 @define-color mx_seg_checked rgba(134, 162, 255, 0.2);
+@define-color mx_warn #f5c36b;
+@define-color mx_warn_tint rgba(245, 195, 107, 0.14);
+@define-color mx_flash rgba(255, 214, 10, 0.25);
+@define-color mx_prefs_card #23262d;
