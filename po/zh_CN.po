@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xournalpp\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-28 17:19+0100\n"
+"POT-Creation-Date: 2026-11-28 17:32+0100\n"
 "PO-Revision-Date: 2026-09-23 09:43\n"
 "Last-Translator: \n"
 "Language-Team: Chinese Simplified\n"
@@ -23,7 +23,7 @@ msgid ""
 "Please set the recording folder under \"Preferences > Audio recording\""
 msgstr ""
 "音频文件夹未设置或无效！录音功能将无法使用！\n"
-"请在“偏好设置 > 音频录制”中设置录音文件夹"
+"请在“首选项 > 音频录制”中设置录音文件夹"
 
 #: ../src/core/control/Control.cpp:236
 #, c++-format
@@ -39,7 +39,7 @@ msgstr "无法删除旧的自动保存文件“{1}”：{2}"
 msgid ""
 "Initialization of audio devices failed. You can disable audio support in "
 "Settings->Audio"
-msgstr ""
+msgstr "音频设备初始化失败。您可以在“设置 -> 音频”中禁用音频支持"
 
 #: ../src/core/control/Control.cpp:815 ../src/core/control/Control.cpp:1884
 #: ../src/core/control/Control.cpp:2264
@@ -254,17 +254,15 @@ msgstr "未保存文档"
 
 #: ../src/core/control/Control.cpp:2085
 msgid "Not saved yet"
-msgstr ""
+msgstr "尚未保存"
 
 #: ../src/core/control/Control.cpp:2085
-#, fuzzy
 msgid "Unsaved changes"
-msgstr "未保存文档"
+msgstr "有未保存的更改"
 
 #: ../src/core/control/Control.cpp:2085
-#, fuzzy
 msgid "Saved"
-msgstr "保存"
+msgstr "已保存"
 
 #: ../src/core/control/Control.cpp:2257
 msgid "Document file was removed."
@@ -411,11 +409,10 @@ msgid "Please delete the file manually"
 msgstr "请手动删除文件"
 
 #: ../src/core/control/XournalMain.cpp:146
-#, fuzzy
 msgid ""
 "MoreXournal crashed last time. Would you like to restore the last edited "
 "file?"
-msgstr "Xournal++ 上次崩溃了。是否恢复最后一次编辑的文件？"
+msgstr "MoreXournal 上次意外崩溃了。是否要恢复最后一次编辑的文件？"
 
 #: ../src/core/control/XournalMain.cpp:149
 msgid "Recovery file detected"
@@ -770,7 +767,7 @@ msgstr "无法启动 {1}: {2} (退出代码: {3})"
 #: ../src/core/control/layer/LayerController.cpp:424
 #, c++-format
 msgid "Layer {1}"
-msgstr "{1}图层"
+msgstr "图层 {1}"
 
 #: ../src/core/control/pagetype/PageTypeHandler.cpp:28
 msgid "Could not load pagetemplates.ini file"
@@ -825,64 +822,63 @@ msgstr "%{name}_已批注"
 #: ../src/core/control/shaperecognizer/CircleRecognizer.cpp:83
 #, c++-format
 msgid "Not a circle: radius error {1} (limit {2})"
-msgstr ""
+msgstr "非圆形：半径误差 {1}（上限 {2}）"
 
 #: ../src/core/control/shaperecognizer/CircleRecognizer.cpp:88
 #, c++-format
 msgid "Not a circle: roundness {1} (minimum {2})"
-msgstr ""
+msgstr "非圆形：圆度 {1}（下限 {2}）"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:94
 #, c++-format
 msgid "Not a triangle: a corner is open by {1} pt (limit {2} pt)"
-msgstr ""
+msgstr "非三角形：某角开口 {1} pt（上限 {2} pt）"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:142
 #, c++-format
 msgid "Not a rectangle: a corner is off 90° by {1}° (limit {2}°)"
-msgstr ""
+msgstr "非矩形：某角偏离 90° 达 {1}°（上限 {2}°）"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:167
 #, c++-format
 msgid "Not a rectangle: a corner is open by {1} pt (limit {2} pt)"
-msgstr ""
+msgstr "非矩形：某角开口 {1} pt（上限 {2} pt）"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:378
 #, c++-format
 msgid "Stroke too small: {1} pt (minimum {2} pt)"
-msgstr ""
+msgstr "笔画过小：{1} pt（下限 {2} pt）"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:382
 msgid "Stroke has too few points"
-msgstr ""
+msgstr "笔画采样点过少"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:413
 #, c++-format
 msgid "Found 1 straight side (det {1}, limit {2})"
-msgstr ""
+msgstr "检测到 1 条直边（det {1}，上限 {2}）"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:416
 #, c++-format
 msgid "Found {1} straight sides (det {2}, limit {3})"
-msgstr ""
+msgstr "检测到 {1} 条直边（det {2}，上限 {3}）"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:506
 #, c++-format
 msgid "Not a line: curvature {1} (limit {2})"
-msgstr ""
+msgstr "非直线：曲率 {1}（上限 {2}）"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:512
 msgid "No group of straight sides found (maximum 4)"
-msgstr ""
+msgstr "未找到匹配的直边组合（最多 4 条）"
 
 #: ../src/core/control/shapes/ShapeEditController.cpp:78
-#, fuzzy
 msgid "Edit shape"
-msgstr "编辑文本"
+msgstr "编辑形状"
 
 #: ../src/core/control/shapes/ShapeEditController.cpp:86
 msgid "Convert shape to stroke"
-msgstr ""
+msgstr "将形状转换为笔画"
 
 #: ../src/core/control/tools/EditSelection.cpp:473
 msgid "Arrange"
@@ -1201,20 +1197,17 @@ msgstr "非常粗"
 
 #: ../src/core/gui/ShapeToolbox.cpp:320 ../src/core/gui/ShapeToolbox.cpp:325
 #: ../src/core/gui/ShapeToolbox.cpp:695
-#, fuzzy
 msgid "Stroke color"
-msgstr "笔划识别"
+msgstr "线条颜色"
 
 #: ../src/core/gui/ShapeToolbox.cpp:331 ../src/core/gui/ShapeToolbox.cpp:425
-#, fuzzy
 msgid "Custom…"
-msgstr "设置"
+msgstr "自定义…"
 
 #: ../src/core/gui/ShapeToolbox.cpp:343 ../src/core/gui/ShapeToolbox.cpp:348
 #: ../src/core/gui/ToolPill.cpp:651 ../src/core/gui/ToolPill.cpp:664
-#, fuzzy
 msgid "Thickness"
-msgstr "粗"
+msgstr "粗细"
 
 #: ../src/core/gui/ShapeToolbox.cpp:390 ../src/core/gui/ToolPill.cpp:724
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:486
@@ -1222,9 +1215,8 @@ msgid "Fill"
 msgstr "填充"
 
 #: ../src/core/gui/ShapeToolbox.cpp:402
-#, fuzzy
 msgid "Fill color and opacity"
-msgstr "填充不透明度"
+msgstr "填充颜色和不透明度"
 
 #: ../src/core/gui/ShapeToolbox.cpp:419 ../src/core/gui/ShapeToolbox.cpp:764
 #: ../src/core/gui/dialog/SelectOpacityDialog.cpp:33
@@ -1233,37 +1225,32 @@ msgid "Fill color"
 msgstr "填充色"
 
 #: ../src/core/gui/ShapeToolbox.cpp:429
-#, fuzzy
 msgid "Opacity"
-msgstr "填充不透明度"
+msgstr "不透明度"
 
 #: ../src/core/gui/ShapeToolbox.cpp:459 ../src/core/gui/ToolPill.cpp:705
 msgctxt "line style"
 msgid "Solid"
-msgstr ""
+msgstr "实线"
 
 #: ../src/core/gui/ShapeToolbox.cpp:459 ../src/core/gui/ToolPill.cpp:706
-#, fuzzy
 msgctxt "line style"
 msgid "Dashed"
 msgstr "虚线"
 
 #: ../src/core/gui/ShapeToolbox.cpp:460 ../src/core/gui/ToolPill.cpp:707
-#, fuzzy
 msgctxt "line style"
 msgid "Dash-dot"
 msgstr "点划线"
 
 #: ../src/core/gui/ShapeToolbox.cpp:460 ../src/core/gui/ToolPill.cpp:708
-#, fuzzy
 msgctxt "line style"
 msgid "Dotted"
 msgstr "点虚线"
 
 #: ../src/core/gui/ShapeToolbox.cpp:475 ../src/core/gui/ToolPill.cpp:502
-#, fuzzy
 msgid "Duplicate"
-msgstr "复制页面"
+msgstr "创建副本"
 
 #: ../src/core/gui/ShapeToolbox.cpp:478 ../src/core/gui/ToolPill.cpp:512
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:289
@@ -1272,9 +1259,8 @@ msgid "Delete"
 msgstr "删除"
 
 #: ../src/core/gui/ShapeToolbox.cpp:486
-#, fuzzy
 msgid "Convert to stroke"
-msgstr "笔画补全"
+msgstr "转换为笔画"
 
 #: ../src/core/gui/ToolPill.cpp:252
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:133
@@ -1326,23 +1312,20 @@ msgstr "绘制坐标系统"
 
 #: ../src/core/gui/ToolPill.cpp:465
 msgid "Lasso"
-msgstr ""
+msgstr "套索"
 
 #: ../src/core/gui/ToolPill.cpp:467 ../src/core/gui/ToolPill.cpp:955
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:123
-#, fuzzy
 msgid "Rectangle"
-msgstr "绘制矩形"
+msgstr "矩形"
 
 #: ../src/core/gui/ToolPill.cpp:469
-#, fuzzy
 msgid "Object"
-msgstr "播放对象"
+msgstr "对象"
 
 #: ../src/core/gui/ToolPill.cpp:474
-#, fuzzy
 msgid "More selection tools"
-msgstr "下移选区图层"
+msgstr "更多选择工具"
 
 #: ../src/core/gui/ToolPill.cpp:485
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:417
@@ -1371,32 +1354,28 @@ msgid "Whiteout"
 msgstr "涂白"
 
 #: ../src/core/gui/ToolPill.cpp:524
-#, fuzzy
 msgid "Whole stroke"
-msgstr "删除笔划"
+msgstr "整笔擦除"
 
 #: ../src/core/gui/ToolPill.cpp:613
-#, fuzzy
 msgid "More colors"
-msgstr "边界颜色"
+msgstr "更多颜色"
 
 #: ../src/core/gui/ToolPill.cpp:617
 msgid "Colors"
 msgstr "颜色"
 
 #: ../src/core/gui/ToolPill.cpp:633
-#, fuzzy
 msgid "Custom color…"
-msgstr "自定义导出"
+msgstr "自定义颜色…"
 
 #: ../src/core/gui/ToolPill.cpp:650
 msgid "Thickness and line style, shared with the pen"
-msgstr ""
+msgstr "粗细与线条样式（与画笔共享）"
 
 #: ../src/core/gui/ToolPill.cpp:697
-#, fuzzy
 msgid "Line style"
-msgstr "更改线条样式"
+msgstr "线条样式"
 
 #: ../src/core/gui/ToolPill.cpp:756
 msgid "Fill opacity"
@@ -1423,14 +1402,12 @@ msgid "Justify text"
 msgstr "对齐文本"
 
 #: ../src/core/gui/ToolPill.cpp:834
-#, fuzzy
 msgid "Insert image from file"
-msgstr "插入图片"
+msgstr "从文件插入图片"
 
 #: ../src/core/gui/ToolPill.cpp:837
-#, fuzzy
 msgid "Insert image…"
-msgstr "插入图片"
+msgstr "插入图片…"
 
 #: ../src/core/gui/ToolPill.cpp:888
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:285
@@ -1439,29 +1416,26 @@ msgid "Paste"
 msgstr "粘贴"
 
 #: ../src/core/gui/ToolPill.cpp:892
-#, fuzzy
 msgid "or tap the page"
-msgstr "末页"
+msgstr "或轻点页面"
 
 #: ../src/core/gui/ToolPill.cpp:904
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1726
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1729
-#, fuzzy
 msgid "LaTeX"
-msgstr "LaTe_X"
+msgstr "LaTeX"
 
 #: ../src/core/gui/ToolPill.cpp:905
 msgid "Tap where to insert the formula"
-msgstr ""
+msgstr "轻点要插入公式的位置"
 
 #: ../src/core/gui/ToolPill.cpp:909
-#, fuzzy
 msgid "Link"
-msgstr "链接(_L)"
+msgstr "链接"
 
 #: ../src/core/gui/ToolPill.cpp:910
 msgid "Tap where to insert the link"
-msgstr ""
+msgstr "轻点要插入链接的位置"
 
 #: ../src/core/gui/ToolPill.cpp:914
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:86
@@ -1470,24 +1444,23 @@ msgstr "垂直间距"
 
 #: ../src/core/gui/ToolPill.cpp:915
 msgid "Drag down to make room"
-msgstr ""
+msgstr "向下拖动以腾出空间"
 
 #: ../src/core/gui/ToolPill.cpp:920
-#, fuzzy
 msgid "PDF text selection"
-msgstr "PDF 文本选择下拉菜单"
+msgstr "PDF 文本选择"
 
 #: ../src/core/gui/ToolPill.cpp:933
 msgid "Return to default tool"
-msgstr ""
+msgstr "返回默认工具"
 
 #: ../src/core/gui/ToolPill.cpp:952
 msgid "Linear"
-msgstr ""
+msgstr "连续"
 
 #: ../src/core/gui/TopBar.cpp:426 ../src/core/gui/TopBar.cpp:843
 msgid "Main menu"
-msgstr ""
+msgstr "主菜单"
 
 #: ../src/core/gui/TopBar.cpp:524 ../src/core/gui/dialog/ButtonConfigGui.cpp:79
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1271
@@ -1508,13 +1481,12 @@ msgid "Eraser"
 msgstr "橡皮"
 
 #: ../src/core/gui/TopBar.cpp:527
-#, fuzzy
 msgid "Select"
 msgstr "选择"
 
 #: ../src/core/gui/TopBar.cpp:528
 msgid "Shapes"
-msgstr ""
+msgstr "形状"
 
 #: ../src/core/gui/TopBar.cpp:529 ../src/core/gui/dialog/ButtonConfigGui.cpp:82
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:381
@@ -1540,15 +1512,13 @@ msgstr "重复"
 
 #: ../src/core/gui/TopBar.cpp:591 ../src/core/gui/TopBar.cpp:857
 #: ../src/core/gui/dialog/SettingsDialog.cpp:945
-#, fuzzy
 msgid "Page sidebar"
-msgstr "切换侧边栏"
+msgstr "页面侧边栏"
 
 #: ../src/core/gui/TopBar.cpp:598 ../src/core/gui/TopBar.cpp:646
 #: ../src/core/gui/TopBar.cpp:858
-#, fuzzy
 msgid "Previous page"
-msgstr "前一页(_P)"
+msgstr "上一页"
 
 #: ../src/core/gui/TopBar.cpp:599 ../src/core/gui/TopBar.cpp:616
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:324
@@ -1557,19 +1527,16 @@ msgstr "跳转到页面"
 
 #: ../src/core/gui/TopBar.cpp:606 ../src/core/gui/TopBar.cpp:648
 #: ../src/core/gui/TopBar.cpp:859
-#, fuzzy
 msgid "Next page"
-msgstr "下一页(_N)"
+msgstr "下一页"
 
 #: ../src/core/gui/TopBar.cpp:651 ../src/core/gui/TopBar.cpp:860
-#, fuzzy
 msgid "Go to page…"
-msgstr "跳转到页面"
+msgstr "跳转到页面…"
 
 #: ../src/core/gui/TopBar.cpp:663 ../src/core/gui/TopBar.cpp:865
-#, fuzzy
 msgid "New page"
-msgstr "插入页面"
+msgstr "新建页面"
 
 #: ../src/core/gui/TopBar.cpp:667 ../src/core/gui/TopBar.cpp:868
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1223
@@ -1578,12 +1545,12 @@ msgstr "全屏"
 
 #: ../src/core/gui/TopBar.cpp:677
 msgid "More"
-msgstr ""
+msgstr "更多"
 
 #: ../src/core/gui/TopBar.cpp:840
 #, c++-format
 msgid "Main menu: {1}, {2}"
-msgstr ""
+msgstr "主菜单：{1}，{2}"
 
 #: ../src/core/gui/dialog/AboutDialog.cpp:41
 msgid "Version"
@@ -1676,11 +1643,11 @@ msgstr "从 PDF 中选择区域文本"
 
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:119
 msgid "Color - don't change"
-msgstr ""
+msgstr "颜色 - 不更改"
 
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:121
 msgid "Custom color"
-msgstr ""
+msgstr "自定义颜色"
 
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:127
 msgid "Drawing Type - don't change"
@@ -1739,16 +1706,15 @@ msgid "Image files"
 msgstr "图像文件"
 
 #: ../src/core/gui/dialog/FileChooserFiltersHelper.cpp:51
-#, fuzzy
 msgid "Latex files"
-msgstr "图像文件"
+msgstr "LaTeX 文件"
 
 #: ../src/core/gui/dialog/FormatDialog.cpp:50
 #: ../src/core/gui/dialog/PageTemplateDialog.cpp:94
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1474
 #: ../src/core/gui/menus/popoverMenus/PageTypeSelectionPopover.cpp:163
 msgid "Custom"
-msgstr "设置"
+msgstr "自定义"
 
 #: ../src/core/gui/dialog/LanguageConfigGui.cpp:49
 msgid "System Default"
@@ -1760,16 +1726,14 @@ msgstr "已选择的语言不再可用！"
 
 #: ../src/core/gui/dialog/LatexSettingsPanel.cpp:65
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1740
-#, fuzzy
 msgid "Editor theme"
-msgstr "LaTeX 编辑器主题："
+msgstr "编辑器主题"
 
 #: ../src/core/gui/dialog/LatexSettingsPanel.cpp:75
-#, fuzzy
 msgid ""
 "GtkSourceView was disabled when building MoreXournal. Some editor options "
 "are unavailable."
-msgstr "在构建 Xournal++ 时禁用了 GtkSourceView！一些选项将不可用。"
+msgstr "构建 MoreXournal 时未启用 GtkSourceView。部分编辑器选项不可用。"
 
 #: ../src/core/gui/dialog/LatexSettingsPanel.cpp:162
 #, c++-format
@@ -1797,7 +1761,7 @@ msgstr "错误： {1} 不是常规文件。请检查您的 LaTeX 模板文件设
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1772
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1775
 msgid "AI assistants"
-msgstr ""
+msgstr "AI 助手"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:72
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1770
@@ -1806,34 +1770,35 @@ msgid ""
 "document through the Model Context Protocol (MCP). Nothing leaves this "
 "computer unless the AI tool itself sends it."
 msgstr ""
+"允许本机上的 AI 工具（如 Claude Code 或 Codex）通过模型上下文协议（MCP）查看"
+"当前打开的文档。除非 AI 工具主动发送，否则任何内容都不会离开此计算机。"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:81
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1779
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1781
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1784
-#, fuzzy
 msgid "Connection"
-msgstr "选择"
+msgstr "连接"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:88
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1786
 msgid "Set up an assistant"
-msgstr ""
+msgstr "配置助手"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:142
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1773
 msgid "Allow AI assistants to connect"
-msgstr ""
+msgstr "允许 AI 助手连接"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:149
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:423
 msgid "Off. No AI tool can connect."
-msgstr ""
+msgstr "已关闭。所有 AI 工具均无法连接。"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:169
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1775
 msgid "Allow edits"
-msgstr ""
+msgstr "允许编辑"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:171
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1776
@@ -1841,99 +1806,97 @@ msgid ""
 "Assistants can add text, strokes, shapes and pages. Each change is one undo "
 "step, and assistants can't delete what you wrote."
 msgstr ""
+"助手可以添加文本、笔画、形状和页面。每次修改均对应一步撤销操作，且助手无法删"
+"除您书写的内容。"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:191
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1779
 msgid "Address"
-msgstr ""
+msgstr "地址"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:202
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1781
 msgid "Access token"
-msgstr ""
+msgstr "访问令牌"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:210
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:453
-#, fuzzy
 msgid "Show"
-msgstr "显示全部"
+msgstr "显示"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:214
-#, fuzzy
 msgid "New token"
-msgstr "新建日记"
+msgstr "生成新令牌"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:223
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1782
 msgid ""
 "A new token disconnects every AI tool until you paste the new setup command."
-msgstr ""
+msgstr "生成新令牌将断开所有已连接的 AI 工具，直到您粘贴新的配置命令。"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:230
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1784
 msgid "Connected now"
-msgstr ""
+msgstr "当前已连接"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:244
 msgid "Claude Code"
-msgstr ""
+msgstr "Claude Code"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:244
 msgid "Codex"
-msgstr ""
+msgstr "Codex"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:244
 msgid "Claude Desktop"
-msgstr ""
+msgstr "Claude Desktop"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:273
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:460
 msgid "Run once in a terminal:"
-msgstr ""
+msgstr "在终端中运行一次："
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:276
 msgid "Copied"
-msgstr ""
+msgstr "已复制"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:280
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:284
 msgid "Copy"
-msgstr "拷贝"
+msgstr "复制"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:438
 msgid "On after you press Save. No AI tool can connect yet."
-msgstr ""
+msgstr "点击“保存”后生效。当前尚无 AI 工具可连接。"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:444
 msgid "On. Listening on this computer only (127.0.0.1)."
-msgstr ""
+msgstr "已开启。仅在本机监听（127.0.0.1）。"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:450
-#, fuzzy
 msgid "Hide"
-msgstr "隐藏所有"
+msgstr "隐藏"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:463
 msgid "Add to ~/.codex/config.toml:"
-msgstr ""
+msgstr "添加到 ~/.codex/config.toml："
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:467
 msgid "Add to claude_desktop_config.json (uses the bundled stdio bridge):"
-msgstr ""
+msgstr "添加到 claude_desktop_config.json（使用内置 stdio 桥接器）："
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:488
-#, fuzzy
 msgid "None yet"
-msgstr "无"
+msgstr "暂无"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:500
 msgid "connected just now"
-msgstr ""
+msgstr "刚刚连接"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:502
 #, c++-format
 msgid "connected {1} min ago"
-msgstr ""
+msgstr "{1} 分钟前连接"
 
 #: ../src/core/gui/dialog/PageTemplateDialog.cpp:135
 #: ../src/core/gui/dialog/XojSaveDlg.cpp:72
@@ -1983,14 +1946,13 @@ msgstr ""
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:107
 msgid "Input"
-msgstr ""
+msgstr "输入"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:107
 msgid "Features"
-msgstr ""
+msgstr "功能"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:154
-#, fuzzy
 msgid ""
 "%{name}\tFilename of the PDF background (if any)\n"
 "%{file}\t\tSaved filename of the document\n"
@@ -2020,44 +1982,45 @@ msgid ""
 "\n"
 "Illegal characters are replaced with \"_\"."
 msgstr ""
-"%{name}\t导出文档的名称\n"
-"%a\t\t星期几的缩写 (如周四）\n"
-"%A\t\t星期几的全称 (如星期四）\n"
-"%b\t\t月份缩写 （如八月）\n"
-"%B\t\t月份全称 （如八月）\n"
-"%c\t\t日期与时间的表示方式 (如 2011年8月23日星期四14:55:02)\n"
-"%d\t\t每个月的第几天 (01-31)\n"
-"%F\t\t日期表示方式 (如 2001-08-23)\n"
-"%H\t\t24小时表示的小时 (00-23)\n"
-"%I\t\t12小时表示的小时 (01-12)\n"
-"%j\t\t一年中第几天 (001-366)\n"
-"%m\t\t十进制月份 (01-12)\n"
-"%M\t\t分 (00-59)\n"
-"%p\t\t上下午的区分 (如下午)\n"
-"%S\t\t秒 (00-61)\n"
-"%U\t\t第几周 (按第一个周日是第一周的第一天计算） (00-53)\n"
-"%w\t\t周几（按周日为0计算) (0-6)\n"
-"%W\t\t第几周（按第一个周一是第一周的第一天计算） (00-53)\n"
-"%x\t\t日期表示方式 (如 08/23/01)\n"
-"%X\t\t时间表示方式 (如 14:55:02)\n"
-"%y\t\t年份最后两位 (00-99)\n"
-"%Y\t\t年份 (如 2001)\n"
-"%Z\t\t时区名或缩写 (如 CDT)\n"
-"%%\t\t%符号\n"
-"非法字符会被替换成“_”"
+"%{name}\tPDF 背景的文件名（如果有）\n"
+"%{file}\t\t文档已保存的文件名\n"
+"%a\t\t星期缩写（例如周四）\n"
+"%A\t\t星期全称（例如星期四）\n"
+"%b\t\t月份缩写（例如 8 月）\n"
+"%B\t\t月份全称（例如八月）\n"
+"%c\t\t日期和时间表示\n"
+"%d\t\t当月第几天（01-31）\n"
+"%F\t\t日期表示（例如 2026-11-28）\n"
+"%H\t\t24 小时制小时（00-23）\n"
+"%I\t\t12 小时制小时（01-12）\n"
+"%j\t\t当年第几天（001-366）\n"
+"%m\t\t十进制月份（01-12）\n"
+"%M\t\t分钟（00-59）\n"
+"%p\t\t上午或下午标记\n"
+"%S\t\t秒（00-61）\n"
+"%U\t\t一年中的第几周，周日为每周第一天（00-53）\n"
+"%w\t\t十进制星期，周日 = 0（0-6）\n"
+"%W\t\t一年中的第几周，周一为每周第一天（00-53）\n"
+"%x\t\t本地日期表示\n"
+"%X\t\t本地时间表示\n"
+"%y\t\t年份后两位（00-99）\n"
+"%Y\t\t年份（例如 2026）\n"
+"%Z\t\t时区名称或缩写\n"
+"%%\t\t字面量 %\n"
+"\n"
+"非法字符将被替换为“_”。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:398
-#, fuzzy
 msgid "Select folder for audio recordings"
-msgstr "无法播放音频录音 {1}"
+msgstr "选择音频录制文件夹"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:576
 msgid "Restart needed"
-msgstr ""
+msgstr "需要重启"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:802
 msgid "General"
-msgstr ""
+msgstr "常规"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:806
 msgid "Language"
@@ -2066,7 +2029,7 @@ msgstr "语言"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:810
 #: ../src/core/gui/dialog/SettingsDialog.cpp:812
 msgid "Interface language"
-msgstr ""
+msgstr "界面语言"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:811
 #: ../src/core/gui/dialog/SettingsDialog.cpp:813
@@ -2079,17 +2042,16 @@ msgstr ""
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1502
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1504
 msgid "Takes effect after a restart."
-msgstr ""
+msgstr "重启后生效。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:818
-#, fuzzy
 msgid "Autosave"
 msgstr "自动保存"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:821
 #: ../src/core/gui/dialog/SettingsDialog.cpp:824
 msgid "Save a backup copy automatically"
-msgstr ""
+msgstr "自动保存备份副本"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:822
 #: ../src/core/gui/dialog/SettingsDialog.cpp:825
@@ -2097,47 +2059,44 @@ msgid ""
 "Saved next to the document as .autosave.xopp. Unsaved documents go to the "
 "configuration folder."
 msgstr ""
+"以 .autosave.xopp 形式保存在文档同级目录。未保存的文档将存入配置文件夹。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:828
 #: ../src/core/gui/dialog/SettingsDialog.cpp:830
 msgid "Interval"
-msgstr ""
+msgstr "间隔"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:829
-#, fuzzy
 msgid "min"
-msgstr "放大"
+msgstr "分钟"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:829
 msgid "Turn on “Save a backup copy automatically” to change this."
-msgstr ""
+msgstr "开启“自动保存备份副本”后可更改此项。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:836
-#, fuzzy
 msgid "Default file names"
-msgstr "默认名称: "
+msgstr "默认文件名"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:840
 #: ../src/core/gui/dialog/SettingsDialog.cpp:841
-#, fuzzy
 msgid "New documents"
-msgstr "最近文档(_D)"
+msgstr "新建文档"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:840
 #: ../src/core/gui/dialog/SettingsDialog.cpp:842
 msgid "Example: 2026-11-28-Note-09-15"
-msgstr ""
+msgstr "示例：2026-11-28-笔记-09-15"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:844
 #: ../src/core/gui/dialog/SettingsDialog.cpp:846
-#, fuzzy
 msgid "Annotated PDF export"
-msgstr "标注 PDF(_A)"
+msgstr "标注 PDF 导出"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:845
 #: ../src/core/gui/dialog/SettingsDialog.cpp:847
 msgid "Example: lecture-07_annotated.pdf"
-msgstr ""
+msgstr "示例：lecture-07_已批注.pdf"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:850
 #: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:169
@@ -2146,39 +2105,35 @@ msgstr "显示全部"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:853
 #: ../src/core/gui/dialog/SettingsDialog.cpp:855
-#, fuzzy
 msgid "Placeholders"
-msgstr "可用的占位符"
+msgstr "占位符"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:854
 #: ../src/core/gui/dialog/SettingsDialog.cpp:856
 msgid "%F date, %H hour, %M minute, %{name} PDF name and more"
-msgstr ""
+msgstr "%F 日期、%H 小时、%M 分钟、%{name} PDF 名称等"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:861
 msgid "Appearance"
-msgstr ""
+msgstr "外观"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:865
 #: ../src/core/gui/dialog/SettingsDialog.cpp:868
 #: ../src/core/gui/dialog/SettingsDialog.cpp:869
-#, fuzzy
 msgid "Theme"
-msgstr "图标主题"
+msgstr "主题"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:868
-#, fuzzy
 msgid "System"
-msgstr "输入系统"
+msgstr "跟随系统"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:868
-#, fuzzy
 msgid "Light"
-msgstr "右键"
+msgstr "浅色"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:868
 msgid "Dark"
-msgstr ""
+msgstr "深色"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:872
 msgid "Color"
@@ -2186,28 +2141,26 @@ msgstr "颜色"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:872
 msgid "Lucide"
-msgstr ""
+msgstr "Lucide"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:872
 #: ../src/core/gui/dialog/SettingsDialog.cpp:874
-#, fuzzy
 msgid "Icon style"
-msgstr "图标主题"
+msgstr "图标风格"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:877
 #: ../src/core/gui/dialog/SettingsDialog.cpp:879
 msgid "Use system icons when available"
-msgstr ""
+msgstr "可用时使用系统图标"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:882
 #: ../src/core/gui/dialog/SettingsDialog.cpp:883
-#, fuzzy
 msgid "Shadow behind pages"
-msgstr "显示页面背后的阴影"
+msgstr "页面阴影"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:889
 msgid "Touch mode"
-msgstr ""
+msgstr "触摸模式"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:892
 msgid "Automatic"
@@ -2215,72 +2168,66 @@ msgstr "自动"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:892
 msgid "Off"
-msgstr ""
+msgstr "关闭"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:892
-#, fuzzy
 msgid "On"
-msgstr "打开"
+msgstr "开启"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:892
 #: ../src/core/gui/dialog/SettingsDialog.cpp:894
 msgid "Larger controls for fingers"
-msgstr ""
+msgstr "放大控件以便手指操作"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:893
 #: ../src/core/gui/dialog/SettingsDialog.cpp:895
 msgid ""
 "Automatic switches on with finger touch and mouse. The pen keeps the current "
 "layout."
-msgstr ""
+msgstr "“自动”会在使用手指触摸或鼠标时开启。使用画笔时保持当前布局。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:901
 msgid "Window"
-msgstr ""
+msgstr "窗口"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:904
 #: ../src/core/gui/dialog/SettingsDialog.cpp:906
 msgid "Always show the menu bar"
-msgstr ""
+msgstr "始终显示菜单栏"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:905
 #: ../src/core/gui/dialog/SettingsDialog.cpp:907
 msgid "Otherwise press Alt to show it. F10 toggles it."
-msgstr ""
+msgstr "否则可按 Alt 键显示，按 F10 切换。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:910
 #: ../src/core/gui/dialog/SettingsDialog.cpp:911
-#, fuzzy
 msgid "File path in the title"
-msgstr "标题栏显示完整路径"
+msgstr "在标题栏显示文件路径"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:914
 #: ../src/core/gui/dialog/SettingsDialog.cpp:915
-#, fuzzy
 msgid "Page number in the title"
-msgstr "页码  "
+msgstr "在标题栏显示页码"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:919
 #: ../src/core/gui/dialog/SettingsDialog.cpp:920
-#, fuzzy
 msgid "Tools in the title bar"
-msgstr "标题栏显示完整路径"
+msgstr "在标题栏显示工具"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:931
 msgid "Left-handed layout"
-msgstr ""
+msgstr "左手习惯布局"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:934
 #: ../src/core/gui/dialog/SettingsDialog.cpp:935
-#, fuzzy
 msgid "Page sidebar on the right"
-msgstr "侧边栏右置"
+msgstr "页面侧边栏居右"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:938
 #: ../src/core/gui/dialog/SettingsDialog.cpp:940
-#, fuzzy
 msgid "Vertical scrollbar on the left"
-msgstr "垂直滚动条左置"
+msgstr "垂直滚动条居左"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:950
 msgid "None"
@@ -2300,7 +2247,6 @@ msgstr "方形背景"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:950
 #: ../src/core/gui/dialog/SettingsDialog.cpp:951
-#, fuzzy
 msgid "Page numbers"
 msgstr "页码"
 
@@ -2321,111 +2267,98 @@ msgstr "隐藏垂直滚动条"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:968
 #: ../src/core/gui/dialog/SettingsDialog.cpp:970
 msgid "Keep scrollbars visible"
-msgstr ""
+msgstr "始终显示滚动条"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:969
 #: ../src/core/gui/dialog/SettingsDialog.cpp:971
 msgid "Turns off fading out when you stop scrolling."
-msgstr ""
+msgstr "停止滚动时不自动淡出隐藏。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:976
 msgid "Interface colors"
-msgstr ""
+msgstr "界面颜色"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:979
 #: ../src/core/gui/dialog/SettingsDialog.cpp:981
-#, fuzzy
 msgid "Current page and selection border"
-msgstr "当前页面和其他选择的边框颜色"
+msgstr "当前页面和选区边框"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:983
 #: ../src/core/gui/dialog/SettingsDialog.cpp:984
-#, fuzzy
 msgid "Background between pages"
-msgstr "页面背景颜色"
+msgstr "页面间背景"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:987
 #: ../src/core/gui/dialog/SettingsDialog.cpp:988
-#, fuzzy
 msgid "Selection"
-msgstr "选择"
+msgstr "选区"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:987
 #: ../src/core/gui/dialog/SettingsDialog.cpp:989
-#, fuzzy
 msgid "Selected text and strokes."
-msgstr "删除笔划(_D)"
+msgstr "选中的文本和笔画。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:991
 #: ../src/core/gui/dialog/SettingsDialog.cpp:992
-#, fuzzy
 msgid "Active selection"
-msgstr "排列选择"
+msgstr "当前活动选区"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:991
 #: ../src/core/gui/dialog/SettingsDialog.cpp:993
 msgid "Current search result."
-msgstr ""
+msgstr "当前搜索结果。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:998
-#, fuzzy
 msgid "Recolor pages"
-msgstr "所有页面"
+msgstr "重新着色页面"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:999
 msgid ""
 "Recoloring makes pages follow a dark theme. It can slow down moving "
 "selections."
-msgstr ""
+msgstr "重新着色可使页面适配深色主题，但可能会降低移动选区时的流畅度。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1001
 msgid "Turn on “Recolor the pages” to change this."
-msgstr ""
+msgstr "开启“重新着色页面”后可更改此项。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1003
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1004
-#, fuzzy
 msgid "Recolor the pages"
-msgstr "在页面外滚动"
+msgstr "重新着色页面"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1008
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1010
 msgid "Recolor sidebar previews"
-msgstr ""
+msgstr "重新着色侧边栏预览"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1012
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1013
-#, fuzzy
 msgid "Light areas become"
-msgstr "浅绿色"
+msgstr "浅色区域变为"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1016
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1017
 msgid "Dark areas become"
-msgstr ""
+msgstr "深色区域变为"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1023
-#, fuzzy
 msgid "Pen cursor"
-msgstr "光标"
+msgstr "画笔光标"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1027
-#, fuzzy
 msgid "No icon"
 msgstr "无图标"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1027
-#, fuzzy
 msgid "Small dot icon"
-msgstr "小图标"
+msgstr "小圆点图标"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1027
-#, fuzzy
 msgid "Big pen icon"
-msgstr "粗笔图标"
+msgstr "大画笔图标"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1027
-#, fuzzy
 msgid "System cursor"
 msgstr "系统光标"
 
@@ -2436,26 +2369,24 @@ msgstr "光标"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1032
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1036
-#, fuzzy
 msgid "Highlight the cursor position"
-msgstr "高亮光标位置"
+msgstr "高亮显示光标位置"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1033
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1036
 msgid "Useful for screen recordings and presentations."
-msgstr ""
+msgstr "适用于录屏和演示场景。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1034
 msgid "Choose “Small dot icon” or “Big pen icon” for Cursor to change this."
-msgstr ""
+msgstr "将“光标”设为“小圆点图标”或“大画笔图标”后可更改此项。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1039
 msgid "Turn on “Highlight the cursor position” to change this."
-msgstr ""
+msgstr "开启“高亮显示光标位置”后可更改此项。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1040
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1041
-#, fuzzy
 msgid "Circle color"
 msgstr "圆圈颜色"
 
@@ -2470,23 +2401,21 @@ msgstr "半径"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1129
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1140
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1145
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1978
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1979
 msgid "px"
-msgstr ""
+msgstr "px"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1049
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1050
-#, fuzzy
 msgid "Border width"
-msgstr "边框厚度"
+msgstr "边框宽度"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1053
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1054
 msgid "Border color"
-msgstr "边界颜色"
+msgstr "边框颜色"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1060
-#, fuzzy
 msgid "Color palette"
 msgstr "调色板"
 
@@ -2496,51 +2425,48 @@ msgstr "调色板"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1066
 msgid "Colors shown in the tool pill and the color menu."
-msgstr ""
+msgstr "工具浮条和颜色菜单中显示的颜色。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1069
-#, fuzzy
 msgid "Open folder"
-msgstr "打开文件"
+msgstr "打开文件夹"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1076
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1078
 msgid "Add your own palettes"
-msgstr ""
+msgstr "添加自定义调色板"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1077
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1079
 msgid "Put .gpl files in the palettes folder."
-msgstr ""
+msgstr "将 .gpl 文件放入调色板文件夹中。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1084
 msgid "Pages and zoom"
-msgstr ""
+msgstr "页面与缩放"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1092
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1093
 msgid "Ctrl + scroll step"
-msgstr ""
+msgstr "Ctrl + 滚轮缩放步长"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1097
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1098
-#, fuzzy
 msgid "Zoom in/out step"
-msgstr "缩小"
+msgstr "放大/缩小步长"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1101
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1103
 msgid "Fit the page when opening a document"
-msgstr ""
+msgstr "打开文档时自动适应页面大小"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1108
-#, fuzzy
 msgid "Space around pages"
-msgstr "页面背景改变"
+msgstr "页面周围留白"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1109
 msgid "Extra space lets you scroll a page edge to the middle of the screen."
-msgstr ""
+msgstr "额外留白可让您将页面边缘滚动到屏幕中央。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1112
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1113
@@ -2549,80 +2475,74 @@ msgstr "无限制滚动"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1116
 msgid "Available when “Unlimited scrolling” is off."
-msgstr ""
+msgstr "关闭“无限制滚动”后可用。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1118
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1119
 msgid "Extra space left and right"
-msgstr ""
+msgstr "左右额外留白"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1122
 msgid ""
 "Turn on “Extra space left and right” while “Unlimited scrolling” is off."
-msgstr ""
+msgstr "在关闭“无限制滚动”的情况下开启“左右额外留白”后可用。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1124
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1125
-#, fuzzy
 msgid "Left space"
-msgstr "垂直间距"
+msgstr "左侧留白"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1129
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1130
-#, fuzzy
 msgid "Right space"
-msgstr "右键"
+msgstr "右侧留白"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1134
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1135
 msgid "Extra space above and below"
-msgstr ""
+msgstr "上下额外留白"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1138
 msgid ""
 "Turn on “Extra space above and below” while “Unlimited scrolling” is off."
-msgstr ""
+msgstr "在关闭“无限制滚动”的情况下开启“上下额外留白”后可用。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1140
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1141
 msgid "Space above"
-msgstr ""
+msgstr "上方留白"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1145
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1146
 msgid "Space below"
-msgstr ""
+msgstr "下方留白"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1152
-#, fuzzy
 msgid "New pages"
-msgstr "双页模式"
+msgstr "自动添加新页"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1156
-#, fuzzy
 msgid "When scrolling past the last page"
-msgstr "当滚动到最后一页尾部"
+msgstr "滚动超出最后一页时"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1158
-#, fuzzy
 msgid "When drawing on the last page"
-msgstr "当在最后一个页面绘制时"
+msgstr "在最后一页绘制时"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1159
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1336
-#, fuzzy
 msgid "Never"
 msgstr "从不"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1169
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1171
 msgid "Add a blank page at the end"
-msgstr ""
+msgstr "在末尾添加空白页"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1169
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1172
 msgid "Not for PDF documents."
-msgstr ""
+msgstr "不适用于 PDF 文档。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1177
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:301
@@ -2631,14 +2551,13 @@ msgstr "双页模式"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1180
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1182
-#, fuzzy
 msgid "First page offset"
-msgstr "第一页偏移 "
+msgstr "首页偏移"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1181
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1183
 msgid "Usually 0 or 1. Use 1 to start a book with a single right-hand page."
-msgstr ""
+msgstr "通常为 0 或 1。设为 1 可模拟书籍以右侧单页开头。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1189
 msgid "Resizing"
@@ -2647,7 +2566,7 @@ msgstr "调整大小"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1192
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1194
 msgid "Keep line width when resizing"
-msgstr ""
+msgstr "调整大小时保持线条粗细不变"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1199
 msgid "Snapping"
@@ -2670,33 +2589,29 @@ msgstr "旋转吸附范围"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1216
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1217
-#, fuzzy
 msgid "Snap recognized shapes"
-msgstr "使用形状识别器识别形状"
+msgstr "吸附识别出的形状"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1226
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1227
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1252
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1253
-#, fuzzy
 msgid "Show the menu bar"
-msgstr "显示菜单"
+msgstr "显示菜单栏"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1230
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1231
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1256
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1257
-#, fuzzy
 msgid "Show the top bar"
-msgstr "跳至顶部层"
+msgstr "显示顶部栏"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1234
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1235
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1260
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1261
-#, fuzzy
 msgid "Show the page sidebar"
-msgstr "显示侧边栏"
+msgstr "显示页面侧边栏"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1245
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:303
@@ -2705,151 +2620,134 @@ msgstr "演讲模式"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1248
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1249
-#, fuzzy
 msgid "Go fullscreen"
-msgstr "全屏显示"
+msgstr "进入全屏"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1275
-#, fuzzy
 msgid "Pressure"
-msgstr "最小压力："
+msgstr "压感"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1278
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1280
-#, fuzzy
 msgid "Pressure sensitivity"
 msgstr "压感"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1279
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1281
 msgid "Line width follows how hard you press."
-msgstr ""
+msgstr "线条粗细随按压力度变化。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1283
-#, fuzzy
 msgid ""
 "Turn on “Pressure sensitivity” or “Guess pressure from speed” to change this."
-msgstr "启用压感或压力提示以更改此设置！"
+msgstr "开启“压感”或“根据速度估算压力”后可更改此项。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1285
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1286
-#, fuzzy
 msgid "Minimum pressure"
-msgstr "最小压力："
+msgstr "最小压力"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1290
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1291
-#, fuzzy
 msgid "Pressure multiplier"
-msgstr "压力增量： "
+msgstr "压力倍增系数"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1294
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1296
 msgid "Guess pressure from speed"
-msgstr ""
+msgstr "根据速度估算压力"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1295
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1297
 msgid "Used when the device reports no pressure, such as a mouse."
-msgstr ""
+msgstr "用于鼠标等不提供压感数据的设备。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1303
-#, fuzzy
 msgid "Pen buttons"
-msgstr "笔选项"
+msgstr "画笔按键"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1305
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1439
 msgid ""
 "The tool is used while the button is held. Releasing it brings back the "
 "previous tool."
-msgstr ""
+msgstr "按住按键时使用对应工具，松开后恢复之前的工具。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1311
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1312
-#, fuzzy
 msgid "Side button 1"
-msgstr "按钮1"
+msgstr "侧键 1"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1311
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1313
 msgid "Usually the one closer to the tip"
-msgstr ""
+msgstr "通常为靠近笔尖的按键"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1318
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1319
-#, fuzzy
 msgid "Side button 2"
-msgstr "按钮 2"
+msgstr "侧键 2"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1318
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1320
 msgid "Usually the one farther from the tip"
-msgstr ""
+msgstr "通常为远离笔尖的按键"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1325
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1326
-#, fuzzy
 msgid "Eraser end"
-msgstr "橡皮"
+msgstr "笔尾橡皮"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1332
-#, fuzzy
 msgid "Eraser cursor"
-msgstr "系统光标"
+msgstr "橡皮光标"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1336
-#, fuzzy
 msgid "Always"
 msgstr "总是"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1336
-#, fuzzy
 msgid "When floating"
-msgstr "当浮云时"
+msgstr "悬停时"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1336
-#, fuzzy
 msgid "When touching"
-msgstr "当触摸时"
+msgstr "接触时"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1337
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1339
-#, fuzzy
 msgid "Show the pen's eraser on the page"
-msgstr "侧边栏右置"
+msgstr "在页面上显示画笔橡皮光标"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1344
 msgid "Stroke smoothing"
-msgstr ""
+msgstr "笔画平滑"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1346
 msgid ""
 "Smoothing reduces shaky lines. Higher values add more lag between the pen "
 "and the line."
-msgstr ""
+msgstr "平滑可减少线条抖动。数值越高，笔迹相对笔尖的延迟越大。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1357
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1358
-#, fuzzy
 msgid "Averaging"
-msgstr "平均方法"
+msgstr "平均算法"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1362
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1363
-#, fuzzy
 msgid "Buffer size"
 msgstr "缓冲区大小"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1366
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1368
 msgid "Gaussian σ"
-msgstr ""
+msgstr "高斯 σ"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1367
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1369
 msgid "Higher values smooth more and add more lag between cursor and tip."
-msgstr ""
+msgstr "数值越高越平滑，但光标与笔迹之间的延迟也越大。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1380
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1381
@@ -2868,126 +2766,112 @@ msgstr "尖端检测"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1393
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1395
-#, fuzzy
 msgid "Drag"
-msgstr "拖拽"
+msgstr "阻力"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1394
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1396
 msgid "Too small causes oscillations; too high disables stabilization."
-msgstr ""
+msgstr "过小会导致笔迹震荡；过高则会使防抖失效。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1399
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1401
-#, fuzzy
 msgid "Mass"
 msgstr "质量"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1400
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1402
-#, fuzzy
 msgid "Higher mass adds more inertia and stabilization."
-msgstr "质量：质量越大惯性越大、越稳定"
+msgstr "质量越大，惯性和防抖效果越强。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1406
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1410
 msgid "Finish the stroke at the pen position"
-msgstr ""
+msgstr "在笔尖位置收尾笔画"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1407
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1411
 msgid "Fills the gap smoothing can leave at the end of a stroke."
-msgstr ""
+msgstr "补齐平滑处理在笔画末端留下的空隙。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1408
 msgid "Choose an averaging method or preprocessor to change this."
-msgstr ""
+msgstr "选择一种平均算法或预处理器后可更改此项。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1417
 msgid "Stroke start fix"
-msgstr ""
+msgstr "起笔杂点修复"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1419
 msgid ""
 "Some pens draw a stray mark at the start of each stroke. Ignoring the first "
 "events removes it."
-msgstr ""
+msgstr "部分画笔在每笔开头会产生杂点。忽略最初的输入事件可将其消除。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1422
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1424
 msgid "Ignore the first events of each stroke"
-msgstr ""
+msgstr "忽略每笔最初的输入事件"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1428
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1430
 msgid "Events to ignore"
-msgstr ""
+msgstr "忽略的事件数"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1429
 msgid "Turn on “Ignore the first events of each stroke” to change this."
-msgstr ""
+msgstr "开启“忽略每笔最初的输入事件”后可更改此项。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1436
 msgid "Mouse"
 msgstr "鼠标"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1438
-#, fuzzy
 msgid "Mouse buttons"
-msgstr "鼠标按钮"
+msgstr "鼠标按键"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1450
-#, fuzzy
 msgid "Left button"
-msgstr "鼠标左键"
+msgstr "左键"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1451
-#, fuzzy
 msgid "Middle button"
-msgstr "鼠标中键"
+msgstr "中键"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1452
-#, fuzzy
 msgid "Right button"
-msgstr "鼠标右键"
+msgstr "右键"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1453
-#, fuzzy
 msgid "Back button"
-msgstr "按钮1"
+msgstr "后退键"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1454
-#, fuzzy
 msgid "Forward button"
-msgstr "下一步"
+msgstr "前进键"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1458
-#, fuzzy
 msgid "Touch"
-msgstr "触摸屏"
+msgstr "触摸"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1462
-#, fuzzy
 msgid "Palm rejection"
-msgstr "选择"
+msgstr "防误触"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1464
-#, fuzzy
 msgid ""
 "If your hardware has no palm rejection, MoreXournal can turn off touch while "
 "the pen is near the screen."
-msgstr ""
-"<i>如果您的硬件不支持手动识别，Xournal++ 可以在您的笔靠近屏幕时禁用您的触摸"
-"屏。</i>"
+msgstr "如果您的硬件不支持防误触，MoreXournal 可以在画笔靠近屏幕时关闭触摸。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1468
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1470
 msgid "Turn off touch while the pen is near"
-msgstr ""
+msgstr "画笔靠近时关闭触摸"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1473
 msgid "Turn on “Turn off touch while the pen is near” to change this."
-msgstr ""
+msgstr "开启“画笔靠近时关闭触摸”后可更改此项。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1474
 msgid "Autodetect"
@@ -2995,93 +2879,86 @@ msgstr "自动检测"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1474
 msgid "X11"
-msgstr ""
+msgstr "X11"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1475
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1476
 msgid "Method"
-msgstr ""
+msgstr "方式"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1480
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1482
 msgid "Turn touch back on after"
-msgstr ""
+msgstr "恢复触摸延时"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1480
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1718
 msgid "s"
-msgstr ""
+msgstr "秒"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1487
-#, fuzzy
 msgid "Finger drawing"
-msgstr "正常绘画"
+msgstr "手指绘制"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1490
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1492
-#, fuzzy
 msgid "Draw with your finger"
-msgstr "带边框方格图纸"
+msgstr "使用手指绘制"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1491
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1493
 msgid "Otherwise one finger scrolls the page."
-msgstr ""
+msgstr "否则单指滑动用于滚动页面。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1498
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1501
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1503
 msgid "Pinch to zoom"
-msgstr ""
+msgstr "双指捏合缩放"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1508
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1510
-#, fuzzy
 msgid "Start zooming after"
-msgstr "开始缩放当距离为 "
+msgstr "缩放触发阈值"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1508
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1511
 msgid "How much farther apart the two fingers must move."
-msgstr ""
+msgstr "两指需要拉开的距离阈值。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1509
 msgid "Turn on “Pinch to zoom” to change this."
-msgstr ""
+msgstr "开启“双指捏合缩放”后可更改此项。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1516
-#, fuzzy
 msgid "Touch scrolling"
 msgstr "触摸滚动"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1520
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1523
 msgid "Turn off GTK inertial scrolling"
-msgstr ""
+msgstr "关闭 GTK 惯性滚动"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1521
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1524
 msgid ""
 "Works around scrolling bugs on some systems. Takes effect after a restart."
-msgstr ""
+msgstr "用于规避部分系统上的滚动异常。重启后生效。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1530
-#, fuzzy
 msgid "Touchscreen device"
-msgstr "触摸屏"
+msgstr "触摸屏设备"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1532
-#, fuzzy
 msgid ""
 "You can configure a device not identified by GTK as a touchscreen to behave "
 "as if it were one."
-msgstr "<i>您可以手动配置未被GTK识别为触摸屏的设备。</i>"
+msgstr "您可以将未被 GTK 识别为触摸屏的设备配置为按触摸屏方式工作。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1538
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1539
-#, fuzzy
 msgid "Device action"
-msgstr "选择"
+msgstr "设备操作"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1545
 #: ../src/core/gui/menus/menubar/Menubar.cpp:198
@@ -3089,150 +2966,138 @@ msgid "Tools"
 msgstr "工具"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1549
-#, fuzzy
 msgid "Automatic shapes"
-msgstr "自动"
+msgstr "自动形状"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1551
 msgid ""
 "Hold the pen still at the end of a stroke to turn it into a line, triangle, "
 "rectangle or circle."
-msgstr ""
+msgstr "笔画结束时停顿画笔，即可自动转换为直线、三角形、矩形或圆形。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1554
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1556
 msgid "Turn strokes into shapes when you hold still"
-msgstr ""
+msgstr "停顿时将笔画转为形状"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1564
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:240
 msgid "Hold time"
-msgstr ""
+msgstr "停顿时间"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1567
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:259
 msgid "Allowed movement while holding"
-msgstr ""
+msgstr "停顿允许偏移"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1569
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:279
-#, fuzzy
 msgid "Recognition"
-msgstr "手势识别"
+msgstr "识别灵敏度"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1572
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:327
 msgid "Smaller strokes stay freehand"
-msgstr ""
+msgstr "短于此尺寸的笔画保持手绘"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1574
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:170
 msgid "Try it"
-msgstr ""
+msgstr "试一试"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1581
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:353
 msgid "Shape recognition thresholds"
-msgstr ""
+msgstr "形状识别阈值"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1583
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:377
 msgid "Line straightness"
-msgstr ""
+msgstr "直线平直度"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1585
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:381
-#, fuzzy
 msgid "Circle roundness"
-msgstr "圆形背景"
+msgstr "圆形圆度"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1587
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:385
 msgid "Rectangle corner angle"
-msgstr ""
+msgstr "矩形直角容差"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1589
 msgid "Open corners allowed"
-msgstr ""
+msgstr "允许角部开口"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1592
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:430
 msgid "Restore the default thresholds"
-msgstr ""
+msgstr "恢复默认阈值"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1598
-#, fuzzy
 msgid "Tap action"
-msgstr "启用点击操作"
+msgstr "轻点操作"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1600
 msgid ""
 "A short tap with a drawing tool can select an object or open the floating "
 "toolbox instead of drawing a dot."
-msgstr ""
+msgstr "使用绘制工具轻点时，可选中对象或打开浮动工具箱，而不是画出一个点。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1603
 msgid "Turn on “Treat short taps as an action” to change this."
-msgstr ""
+msgstr "开启“将轻点视为操作”后可更改此项。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1605
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1607
 msgid "Treat short taps as an action"
-msgstr ""
+msgstr "将轻点视为操作"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1610
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1613
-#, fuzzy
 msgid "Try to select an object first"
-msgstr "请先选择对象。"
+msgstr "优先尝试选中对象"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1615
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1618
-#, fuzzy
 msgid "Show the floating toolbox"
 msgstr "显示浮动工具箱"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1620
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1622
-#, fuzzy
 msgid "Time limit"
-msgstr "时间限制（毫秒）"
+msgstr "时间限制"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1621
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1631
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1655
 msgid "ms"
-msgstr ""
+msgstr "毫秒"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1626
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1627
-#, fuzzy
 msgid "Length limit"
-msgstr "长度限制（毫米）"
+msgstr "长度限制"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1626
 msgid "mm"
-msgstr ""
+msgstr "毫米"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1631
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1632
-#, fuzzy
 msgid "Frequency limit"
-msgstr "频率限制（毫秒）"
+msgstr "频率限制"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1638
-#, fuzzy
 msgid "Default tool"
 msgstr "默认工具"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1639
-#, fuzzy
 msgid "The tool and settings the Default tool button selects."
-msgstr "<i>选择按下默认按钮后的工具和设置</i>"
+msgstr "按下“默认工具”按钮时选中的工具及设置。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1644
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1645
-#, fuzzy
 msgid "Tool"
 msgstr "工具"
 
@@ -3244,117 +3109,107 @@ msgstr "激光笔"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1655
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1656
 msgid "Fade out after"
-msgstr ""
+msgstr "淡出延迟"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1663
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1668
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1671
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1673
-#, fuzzy
 msgid "Audio recording"
-msgstr "音频录音"
+msgstr "音频录制"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1664
 msgid "Turn on “Audio recording” to change this."
-msgstr ""
+msgstr "开启“音频录制”后可更改此项。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1672
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1674
 msgid "Record audio linked to your strokes. Takes effect after a restart."
-msgstr ""
+msgstr "录制与笔画同步关联的音频。重启后生效。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1680
-#, fuzzy
 msgid "Recording"
-msgstr "音频录音"
+msgstr "录制"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1683
-#: ../src/core/gui/dialog/SettingsDialog.cpp:3180
+#: ../src/core/gui/dialog/SettingsDialog.cpp:3181
 #: ../src/core/gui/dialog/XojOpenDlg.cpp:82
-#, fuzzy
 msgid "Select folder"
 msgstr "选择文件夹"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1687
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1688
 msgid "Save recordings in"
-msgstr ""
+msgstr "录音保存位置"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1691
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1692
 msgid "Microphone"
-msgstr ""
+msgstr "麦克风"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1696
 msgid "16000 Hz"
-msgstr ""
+msgstr "16000 Hz"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1696
 msgid "44100 Hz"
-msgstr ""
+msgstr "44100 Hz"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1696
 msgid "96000 Hz"
-msgstr ""
+msgstr "96000 Hz"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1696
 msgid "192000 Hz"
-msgstr ""
+msgstr "192000 Hz"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1697
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1698
-#, fuzzy
 msgid "Sample rate"
 msgstr "采样率"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1702
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1703
 msgid "Gain"
-msgstr "收益"
+msgstr "增益"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1709
-#, fuzzy
 msgid "Playback"
-msgstr "播放设置"
+msgstr "播放"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1710
-#, fuzzy
 msgid "Changes take effect on new recordings and playbacks."
-msgstr "<i>更改仅在新录音和播放时生效。</i>"
+msgstr "更改仅对新的录制和播放生效。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1713
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1714
 msgid "Speakers"
-msgstr ""
+msgstr "扬声器"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1718
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1719
 msgid "Skip forward and back by"
-msgstr ""
+msgstr "快进/快退时长"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1730
-#, fuzzy
 msgid "Generation command"
-msgstr "LaTeX 生成命令"
+msgstr "生成命令"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1733
-#, fuzzy
 msgid "Check LaTeX is installed before running"
-msgstr "运行前总是检查 LaTeX 依赖关系"
+msgstr "运行前检查是否已安装 LaTeX"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1734
-#, fuzzy
 msgid "Template file"
-msgstr "打开模板文件"
+msgstr "模板文件"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1736
-#, fuzzy
 msgid "Default formula"
-msgstr "默认工具"
+msgstr "默认公式"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1739
 msgid "Formula editor"
-msgstr ""
+msgstr "公式编辑器"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1742
 msgid "Line numbers"
@@ -3370,7 +3225,7 @@ msgstr "自动缩进"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1748
 msgid "Wrap long lines"
-msgstr ""
+msgstr "长行自动换行"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1750
 #: ../src/core/gui/toolbarMenubar/FontButton.cpp:47
@@ -3379,39 +3234,38 @@ msgid "Font"
 msgstr "字体"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1753
-#, fuzzy
 msgid "External LaTeX editor"
-msgstr "使用外部编辑器"
+msgstr "外部 LaTeX 编辑器"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1754
 msgid "Edit formulas in another program"
-msgstr ""
+msgstr "在其他程序中编辑公式"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1756
 msgid "Editor command"
 msgstr "编辑器指令"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1758
-#, fuzzy
 msgid "Temporary file extension"
-msgstr "模板文件设置"
+msgstr "临时文件扩展名"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1761
 msgid "Insert the formula when the editor closes"
-msgstr ""
+msgstr "关闭编辑器时自动插入公式"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1793
 msgid "Advanced"
-msgstr ""
+msgstr "高级"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1794
 msgid ""
 "Settings most people never need to change. Use them to fix a device that is "
 "not detected correctly, tune performance, or try experimental behavior."
 msgstr ""
+"大多数用户无需调整这些设置。可用于修复未被正确识别的设备、调优性能或试用实验"
+"性功能。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1799
-#, fuzzy
 msgid "Input devices"
 msgstr "输入设备"
 
@@ -3419,46 +3273,45 @@ msgstr "输入设备"
 msgid ""
 "Choose how each device behaves. Use this when a pen or touchscreen is not "
 "detected correctly."
-msgstr ""
+msgstr "设置各设备的行为方式。当画笔或触摸屏未被正确识别时可使用此项。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1813
 msgid "Input devices and testing area"
-msgstr ""
+msgstr "输入设备与测试区"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1814
 msgid "Change device classes, emulate tip contact, or inspect input logs."
-msgstr ""
+msgstr "更改设备类型、模拟笔尖接触或查看输入日志。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1820
-#, fuzzy
 msgid "Drawing input"
-msgstr "绘制类型"
+msgstr "绘制输入"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1823
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1825
 msgid "Keep drawing past the window edge"
-msgstr ""
+msgstr "超出窗口边缘时继续绘制"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1830
 msgid "Custom palm rejection commands"
-msgstr ""
+msgstr "自定义防误触命令"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1832
 msgid ""
 "Used with the Custom method. They run on the interface thread, so they must "
 "return quickly."
-msgstr ""
+msgstr "与自定义方式配合使用。这些命令会在界面线程上运行，因此必须快速返回。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1835
 msgid ""
 "Turn on “Turn off touch while the pen is near” and select the Custom method "
 "to change this."
-msgstr ""
+msgstr "开启“画笔靠近时关闭触摸”并选择自定义方式后可更改此项。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1837
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1839
 msgid "Command to turn touch on"
-msgstr ""
+msgstr "开启触摸的命令"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1838
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1843
@@ -3468,57 +3321,52 @@ msgstr "测试"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1842
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1845
 msgid "Command to turn touch off"
-msgstr ""
+msgstr "关闭触摸的命令"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1850
-#, fuzzy
 msgid "Text tool"
-msgstr "文本"
+msgstr "文本工具"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1853
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1854
-#, fuzzy
 msgid "Tab inserts spaces"
-msgstr "插入页面"
+msgstr "按 Tab 插入空格"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1859
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1860
-#, fuzzy
 msgid "Spaces per Tab"
-msgstr "间隔"
+msgstr "每个 Tab 的空格数"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1859
 msgid "Turn on “Tab inserts spaces” to change this."
-msgstr ""
+msgstr "开启“按 Tab 插入空格”后可更改此项。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1866
-#, fuzzy
 msgid "Opening documents"
-msgstr "最近文档(_D)"
+msgstr "打开文档"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1869
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1871
 msgid "Reopen the last document at startup"
-msgstr ""
+msgstr "启动时重新打开上次的文档"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1874
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1877
 msgid "Open the matching notes when opening a PDF"
-msgstr ""
+msgstr "打开 PDF 时自动打开对应的笔记"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1875
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1878
 msgid "If lecture.pdf has a lecture.xopp next to it, open the notes instead."
-msgstr ""
+msgstr "如果 lecture.pdf 同级目录下存在 lecture.xopp，则改为打开该笔记。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1884
-#, fuzzy
 msgid "Edge scrolling"
-msgstr "无限制滚动"
+msgstr "边缘滚动"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1885
 msgid "Scrolls the page when you drag a selection to the window edge."
-msgstr ""
+msgstr "将选区拖动到窗口边缘时自动滚动页面。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1889
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1890
@@ -3528,127 +3376,119 @@ msgstr "基本速度"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1893
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1895
 msgid "Maximum speed-up"
-msgstr ""
+msgstr "最大加速倍率"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1901
 msgid "Page preloading"
-msgstr ""
+msgstr "页面预加载"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1905
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1906
-#, fuzzy
 msgid "Pages to preload before"
-msgstr "预加载页面前"
+msgstr "向前预加载页数"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1910
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1911
-#, fuzzy
 msgid "Pages to preload after"
-msgstr "预加载页面后"
+msgstr "向后预加载页数"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1914
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1917
-#, fuzzy
 msgid "Free hidden pages while scrolling"
-msgstr "滚动时清除缓存的分页"
+msgstr "滚动时释放隐藏页面缓存"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1915
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1917
 msgid "Uses less memory on large documents."
-msgstr ""
+msgstr "处理大型文档时可减少内存占用。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1923
 msgid "PDF rendering"
-msgstr ""
+msgstr "PDF 渲染"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1927
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1930
-#, fuzzy
 msgid "Re-render PDFs when zoom changes by more than"
-msgstr "重新渲染每当页面缩放变化大于 "
+msgstr "缩放变化超过此值时重新渲染 PDF"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1928
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1931
 msgid "Sharper PDF backgrounds while zooming. Printing is not affected."
-msgstr ""
+msgstr "缩放时保持 PDF 背景清晰，不影响打印效果。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1937
 msgid "Screen calibration"
-msgstr ""
+msgstr "屏幕校准"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1939
-#, fuzzy, c-format
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1940
+#, no-c-format
 msgid ""
 "Makes 100% zoom show real size. Hold a ruler to the screen and move the "
 "slider until both match."
-msgstr "<i>在你的屏幕上放置一个尺子并移动滑动条直到刻度对齐</i>"
+msgstr ""
+"让 100% 缩放显示为实际尺寸。将尺子贴在屏幕上并移动滑块，直至两者刻度对齐。"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1942
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1943
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1944
 msgid "Detect automatically"
-msgstr ""
-
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1959
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1961
-msgid "Screen ruler (cm)"
-msgstr ""
+msgstr "自动检测"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1960
-msgid "Available when “Detect automatically” is off."
-msgstr ""
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1962
+msgid "Screen ruler (cm)"
+msgstr "屏幕标尺（cm）"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1967
-msgid "Modifiers by draw direction"
-msgstr ""
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1961
+msgid "Available when “Detect automatically” is off."
+msgstr "关闭“自动检测”后可用。"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1968
-msgid "Drawing a shape up or left acts as if Shift or Ctrl were held."
-msgstr ""
+msgid "Modifiers by draw direction"
+msgstr "按绘制方向设置修饰键"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1969
+msgid "Drawing a shape up or left acts as if Shift or Ctrl were held."
+msgstr "向上或向左绘制形状时，效果等同于按住 Shift 或 Ctrl 键。"
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1970
 msgid "Experimental"
-msgstr ""
+msgstr "实验性"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1971
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1973
-#, fuzzy
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1972
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1974
 msgid "Set modifiers by draw direction"
-msgstr "绘图工具 - 依据笔划方向调整设置【实验性】"
-
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1977
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1979
-#, fuzzy
-msgid "Direction radius"
-msgstr "盲区半径"
+msgstr "按绘制方向设置修饰键"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1978
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1980
+msgid "Direction radius"
+msgstr "方向半径"
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1979
 msgid "Turn on “Set modifiers by draw direction” to change this."
-msgstr ""
+msgstr "开启“按绘制方向设置修饰键”后可更改此项。"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2024
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2090
-#, fuzzy
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2025
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2091
 msgid "Search results"
-msgstr "搜索"
+msgstr "搜索结果"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2081
-#, fuzzy
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2082
 msgid "No settings match"
-msgstr "编辑器设置"
+msgstr "没有匹配的设置项"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2083
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2084
 msgid "Try another word, such as pen, zoom or backup."
-msgstr ""
+msgstr "请尝试其他关键词，例如“画笔”“缩放”或“备份”。"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2749
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2762
-#, fuzzy
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2750
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2763
 msgid "System default"
 msgstr "系统默认"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:3186
+#: ../src/core/gui/dialog/SettingsDialog.cpp:3187
 msgid "Folder not set - Select a folder to enable recording"
-msgstr ""
+msgstr "未设置文件夹 - 请选择一个文件夹以启用录音"
 
 #: ../src/core/gui/dialog/SettingsDialogPaletteTab.cpp:31
 msgid "Built-in palettes"
@@ -3688,73 +3528,69 @@ msgid "Palette has no Name"
 msgstr "调色板没有名称"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:119
-#, fuzzy
 msgid "Line"
-msgstr "绘制直线"
+msgstr "直线"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:121
 msgid "Triangle"
-msgstr ""
+msgstr "三角形"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:125
-#, fuzzy
 msgid "Circle"
-msgstr "圆圈颜色"
+msgstr "圆形"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:236
 msgid "Turn on “Turn strokes into shapes when you hold still” to change this."
-msgstr ""
+msgstr "开启“停顿时将笔画转为形状”后可更改此项。"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:279
 msgid "All shapes together"
-msgstr ""
+msgstr "统一调整所有形状"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:294
 msgid "Strict"
-msgstr ""
+msgstr "严格"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:297
 msgid "Tolerant"
-msgstr ""
+msgstr "宽松"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:309
-#, fuzzy
 msgctxt "shape sensitivity"
 msgid "Custom"
-msgstr "设置"
+msgstr "自定义"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:356
 msgid "Fine-tune how strict recognition is for each shape."
-msgstr ""
+msgstr "针对每种形状微调识别严格程度。"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:379
 msgid "Polygon sides straightness"
-msgstr ""
+msgstr "多边形边平直度"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:383
 msgid "Circle radius error"
-msgstr ""
+msgstr "圆形半径误差"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:387
 msgid "Open corners allowed (rectangle)"
-msgstr ""
+msgstr "允许角部开口（矩形）"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:390
 msgid "Open corners allowed (triangle)"
-msgstr ""
+msgstr "允许角部开口（三角形）"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:393
 msgid "Straighten near-axis angle"
-msgstr ""
+msgstr "近轴角度自动拉直"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:431
-#, fuzzy
 msgid "Restore defaults"
-msgstr "还原文件"
+msgstr "恢复默认"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:453
 msgid "Try it here"
-msgstr ""
+msgstr "在此试画"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:458
 #: ../src/core/undo/AddUndoAction.cpp:88
@@ -3763,43 +3599,40 @@ msgid "stroke"
 msgstr "笔划"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:459
-#, fuzzy
 msgid "recognized shape"
-msgstr "使用形状识别器识别形状"
+msgstr "识别出的形状"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:460
 msgid "tolerance and delay"
-msgstr ""
+msgstr "容差与延迟"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:462
-#, fuzzy
 msgid "Clear"
-msgstr "清除列表"
+msgstr "清空"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:490
 msgid ""
 "Draw a line, triangle, rectangle or circle and hold still at the end without "
 "lifting."
-msgstr ""
+msgstr "绘制直线、三角形、矩形或圆形，并在结束时停顿片刻，不要抬笔。"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:628
-#, fuzzy
 msgctxt "shape sensitivity"
 msgid "Default"
 msgstr "默认"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:864
 msgid "Pad cleared."
-msgstr ""
+msgstr "画板已清空。"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:875
 #, c++-format
 msgid "Recognized: {1}"
-msgstr ""
+msgstr "已识别：{1}"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:878
 msgid "No shape"
-msgstr ""
+msgstr "未识别出形状"
 
 #: ../src/core/gui/dialog/XojOpenDlg.cpp:65
 msgid "Attach file to the journal"
@@ -3833,9 +3666,8 @@ msgid "Choose image file"
 msgstr "选择图像文件"
 
 #: ../src/core/gui/dialog/XojOpenDlg.cpp:212
-#, fuzzy
 msgid "Choose Latex template file"
-msgstr "选择LaTex全局模板文件"
+msgstr "选择 LaTeX 模板文件"
 
 #: ../src/core/gui/dialog/XojSaveDlg.cpp:80
 msgid "Export File"
@@ -3881,9 +3713,8 @@ msgid "Error loading menubar XML file (try to load \"{1}\")"
 msgstr "加载菜单栏 XML 文件时出错（尝试加载“{1}”）"
 
 #: ../src/core/gui/menus/menubar/Menubar.cpp:187
-#, fuzzy
 msgid "Edit"
-msgstr "编辑(_E)"
+msgstr "编辑"
 
 #: ../src/core/gui/menus/menubar/Menubar.cpp:195
 #: ../src/core/gui/toolbarMenubar/ToolPageSpinner.cpp:26
@@ -3891,7 +3722,6 @@ msgid "Page"
 msgstr "页面"
 
 #: ../src/core/gui/menus/menubar/Menubar.cpp:196
-#, fuzzy
 msgid "Layers"
 msgstr "图层"
 
@@ -4419,9 +4249,8 @@ msgid "Emergency saved document"
 msgstr "紧急保存的文档"
 
 #: ../src/core/undo/FillColorUndoAction.cpp:53
-#, fuzzy
 msgid "Change fill"
-msgstr "更改笔划填充样式"
+msgstr "更改填充"
 
 #: ../src/core/undo/FillUndoAction.cpp:86
 msgid "Change stroke fill"
@@ -4525,8 +4354,8 @@ msgid ""
 "Could not undo \"{1}\"\n"
 "Something went wrong… Please write a bug report…"
 msgstr ""
-"未能撤销操作\"{1}\"\n"
-"有错误发生***请提交一个错误报告***"
+"未能撤销操作“{1}”\n"
+"发生错误… 请提交错误报告…"
 
 #: ../src/core/undo/UndoRedoHandler.cpp:140
 #, c++-format
@@ -4534,8 +4363,8 @@ msgid ""
 "Could not redo \"{1}\"\n"
 "Something went wrong… Please write a bug report…"
 msgstr ""
-"未能重复操作\"{1}\"\n"
-"有错误发生***请提交一个错误报告***"
+"未能重复操作“{1}”\n"
+"发生错误… 请提交错误报告…"
 
 #: ../src/core/undo/UndoRedoHandler.cpp:174
 msgid "Undo: "
@@ -4620,9 +4449,9 @@ msgstr ""
 "{2}"
 
 #: ../src/util/PathUtil.cpp:449
-#, fuzzy, c++-format
+#, c++-format
 msgid "morexournal-{1}"
-msgstr "xournalpp-{1}"
+msgstr "morexournal-{1}"
 
 #: ../src/util/PathUtil.cpp:458
 #, c++-format
@@ -4708,30 +4537,30 @@ msgid "xoj-preview-extractor: successfully extracted"
 msgstr "xoj-preview-extractor: 成功提取"
 
 #: ../ui/about.glade:12
-#, fuzzy
 msgid "About MoreXournal"
-msgstr "关于Xournal++"
+msgstr "关于 MoreXournal"
 
 #: ../ui/about.glade:93
-#, fuzzy
 msgid ""
 "<span size=\"xx-large\" weight=\"bold\">MoreXournal</span>\n"
 "<i>Based on Xournal++</i>"
 msgstr ""
-"<span size=\"xx-large\" weight=\"bold\">Xournal++</span>\n"
-"<i>浴火重生</i>"
+"<span size=\"xx-large\" weight=\"bold\">MoreXournal</span>\n"
+"<i>基于 Xournal++</i>"
 
 #: ../ui/about.glade:133
 msgid "Icon Designers"
 msgstr "图标设计者"
 
 #: ../ui/about.glade:186
-#, fuzzy
 msgid ""
 "Based on Xournal++ (https://xournalpp.github.io/)\n"
 "Partially based on Xournal\n"
 "by Denis Auroux"
-msgstr "部分基于 Denis Auroux 的 Xournal 软件"
+msgstr ""
+"基于 Xournal++（https://xournalpp.github.io/）\n"
+"部分基于 Xournal\n"
+"作者：Denis Auroux"
 
 #: ../ui/about.glade:219
 msgid "Website"
@@ -4769,9 +4598,8 @@ msgid "Crash report"
 msgstr "崩溃报告"
 
 #: ../ui/crashDialog.glade:23
-#, fuzzy
 msgid "Oops... MoreXournal encountered a fatal error"
-msgstr "Oops... Xournal++ 遇到了一个致命错误"
+msgstr "哎呀... MoreXournal 遇到了致命错误"
 
 #: ../ui/crashDialog.glade:39
 msgid ""
@@ -4996,9 +4824,8 @@ msgid "Backend"
 msgstr "后端"
 
 #: ../ui/exportSettings.glade:426
-#, fuzzy
 msgid "Export format"
-msgstr "导出日志"
+msgstr "导出格式"
 
 #: ../ui/extEdTexDialog.glade:23 ../ui/intEdTexDialog.glade:18
 msgid "Insert Latex"
@@ -5014,7 +4841,7 @@ msgstr "LaTeX 命令生成的输出。"
 
 #: ../ui/extEdTexDialog.glade:117 ../ui/intEdTexDialog.glade:167
 msgid "The formula is empty when rendered or invalid."
-msgstr ""
+msgstr "公式渲染结果为空或无效。"
 
 #: ../ui/extEdTexDialog.glade:138
 msgid "Continue Editing"
@@ -5026,7 +4853,7 @@ msgstr "转到页面"
 
 #: ../ui/goto.glade:108
 msgid "Go"
-msgstr ""
+msgstr "跳转"
 
 #: ../ui/intEdTexDialog.glade:37
 msgid "Enter / edit LaTeX Text"
@@ -5058,16 +4885,15 @@ msgstr ""
 #: ../ui/latexSettings.glade:144
 msgid ""
 "Substitutes %%XPP_TOOL_INPUT%%, %%XPP_TEXT_COLOR%%, and %%XPP_VARNAME%%."
-msgstr ""
+msgstr "将替换 %%XPP_TOOL_INPUT%%、%%XPP_TEXT_COLOR%% 和 %%XPP_VARNAME%%。"
 
 #: ../ui/latexSettings.glade:391
-#, fuzzy
 msgid "Use system font"
-msgstr "使用系统默认"
+msgstr "使用系统字体"
 
 #: ../ui/latexSettings.glade:438
 msgid "Available when “Use system font” is off."
-msgstr ""
+msgstr "关闭“使用系统字体”后可用。"
 
 #: ../ui/latexSettings.glade:452
 msgid "Pick the Editor's Font"
@@ -5076,7 +4902,7 @@ msgstr "选择编辑器字体"
 #: ../ui/latexSettings.glade:548 ../ui/latexSettings.glade:600
 #: ../ui/latexSettings.glade:653
 msgid "Turn on “Edit formulas in another program” to change this."
-msgstr ""
+msgstr "开启“在其他程序中编辑公式”后可更改此项。"
 
 #: ../ui/linkDialog.glade:63
 msgid "Text:"
@@ -5111,9 +4937,8 @@ msgid " = Floating Toolbox (experimental) ="
 msgstr " = 浮动工具箱 (实验性) ="
 
 #: ../ui/main.glade:110
-#, fuzzy
 msgid "<b>Empty Toolbox</b>"
-msgstr "无工具栏"
+msgstr "<b>空工具箱</b>"
 
 #: ../ui/main.glade:420
 msgid "Find previous occurrence of the search string"
@@ -5222,9 +5047,8 @@ msgid "Load from file"
 msgstr "从文件加载"
 
 #: ../ui/plugin.glade:81
-#, fuzzy
 msgid "Plugin changes are only applied after MoreXournal is restarted"
-msgstr "插件改变仅在Xournal++重启后应用"
+msgstr "插件更改仅在重启 MoreXournal 后生效"
 
 #: ../ui/pluginEntry.glade:59
 msgid "Author: "
@@ -5251,9 +5075,8 @@ msgid "Sample layer name"
 msgstr "示例图层名称"
 
 #: ../ui/renameLayerDialog.glade:71
-#, fuzzy
 msgid "Rename"
-msgstr "重命名图层"
+msgstr "重命名"
 
 #: ../ui/selectOpacity.glade:23
 msgid "Opacity settings"
@@ -5264,7 +5087,6 @@ msgid "Arithmetic mean"
 msgstr "算术平均"
 
 #: ../ui/settings.glade:246
-#, fuzzy
 msgid "Velocity-based Gaussian weights"
 msgstr "基于速度的高斯权重"
 
@@ -5281,9 +5103,8 @@ msgid "Preferences"
 msgstr "首选项"
 
 #: ../ui/settings.glade:344
-#, fuzzy
 msgid "Search settings"
-msgstr "透明度设置"
+msgstr "搜索设置"
 
 #: ../ui/settingsButtonConfig.glade:63
 msgid "Eraser Type - don't change"
@@ -5315,7 +5136,7 @@ msgstr "取消此设备绘制"
 
 #: ../ui/settingsButtonConfig.glade:154
 msgid "Thickness, color and line style for this button"
-msgstr ""
+msgstr "此按键对应的粗细、颜色和线条样式"
 
 #: ../ui/settingsButtonConfig.glade:159
 msgid "Options"
@@ -5403,9 +5224,8 @@ msgid "Move Selection Layer Down"
 msgstr "下移选区图层"
 
 #: ../ui/mainmenubar.xml:147
-#, fuzzy
 msgid "_Page"
-msgstr "页面"
+msgstr "页面(_P)"
 
 #: ../ui/mainmenubar.xml:150
 msgid "New Page _Before"
@@ -5421,11 +5241,11 @@ msgstr "复制页面"
 
 #: ../ui/mainmenubar.xml:162
 msgid "Move Page _Up"
-msgstr ""
+msgstr "上移页面(_U)"
 
 #: ../ui/mainmenubar.xml:166
 msgid "Move Page _Down"
-msgstr ""
+msgstr "下移页面(_W)"
 
 #: ../ui/mainmenubar.xml:170
 msgid "_Delete Page"
@@ -5448,9 +5268,8 @@ msgid "Configure Page Template"
 msgstr "配置页模板"
 
 #: ../ui/mainmenubar.xml:201
-#, fuzzy
 msgid "Go to"
-msgstr "跳转到页面"
+msgstr "跳转到"
 
 #: ../ui/mainmenubar.xml:204
 msgid "_First Page"
@@ -5477,9 +5296,8 @@ msgid "Jump _Forward"
 msgstr "向前跳转(_F)"
 
 #: ../ui/mainmenubar.xml:240
-#, fuzzy
 msgid "_Layers"
-msgstr "图层"
+msgstr "图层(_L)"
 
 #: ../ui/mainmenubar.xml:243
 msgid "_Previous Layer"
@@ -5518,9 +5336,8 @@ msgid "_Presentation Mode"
 msgstr "演讲模式(_P)"
 
 #: ../ui/mainmenubar.xml:288
-#, fuzzy
 msgid "_Fullscreen"
-msgstr "全屏"
+msgstr "全屏(_F)"
 
 #: ../ui/mainmenubar.xml:295
 msgid "Layout"
@@ -5639,9 +5456,8 @@ msgid "_Tools"
 msgstr "工具(_T)"
 
 #: ../ui/mainmenubar.xml:449
-#, fuzzy
 msgid "Select PDF Text"
-msgstr "选择线性 PDF 文本"
+msgstr "选择 PDF 文本"
 
 #: ../ui/mainmenubar.xml:452
 msgid "Select Linear Text"
@@ -5684,7 +5500,6 @@ msgid "ver_y thick"
 msgstr "极粗(_Y)"
 
 #: ../ui/mainmenubar.xml:533
-#, fuzzy
 msgid "Audio"
 msgstr "音频"
 
@@ -5721,9 +5536,8 @@ msgid "All Tools"
 msgstr "所有工具"
 
 #: ../resources-templates/toolbar.ini.in:55
-#, fuzzy
 msgid "MoreXournal"
-msgstr "新建日记"
+msgstr "MoreXournal"
 
 #: ../resources-templates/toolbar.ini.in:60
 msgid "Portrait"
@@ -5777,10 +5591,9 @@ msgstr ""
 
 #: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:8
 msgid "Xournal++ developers and MoreXournal contributors"
-msgstr ""
+msgstr "Xournal++ 开发者与 MoreXournal 贡献者"
 
 #: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:10
-#, fuzzy
 msgid ""
 "MoreXournal, based on Xournal++, is a hand note-taking software written in C+"
 "+ with the target of flexibility, functionality and speed. Stroke recognizer "
@@ -5788,39 +5601,40 @@ msgid ""
 "sourceforge. It supports GNU/Linux (e.g. Ubuntu, Debian, Arch, SUSE), macOS "
 "and Windows. Supports pen input from devices such as Wacom Tablets."
 msgstr ""
-"Xournal++ 是一种用C++编写的手写笔记的软件，以灵活性、功能性和速度为目标。 笔"
-"画识别器和其他部件是基于 Xournal 的代码，你可以在 Sourceforge 中找到它。 它支"
-"持 GNU/Linux (Ubuntu, Debian、Arch、SUSE等等)、macOS 和 Windows。支持 Wacom "
-"数位板等设备的笔迹输入。"
+"MoreXournal 基于 Xournal++，是一款使用 C++ 编写的手写笔记软件，注重灵活性、功"
+"能性与速度。笔画识别器及其他部分基于 Xournal 代码（可在 SourceForge 上获"
+"取）。支持 GNU/Linux（如 Ubuntu、Debian、Arch、SUSE）、macOS 和 Windows，并支"
+"持 Wacom 数位板等设备的压感笔输入。"
 
 #: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:17
-#, fuzzy
 msgid "MoreXournal features:"
-msgstr "Xournal++ 功能："
+msgstr "MoreXournal 功能特性："
 
 #: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:21
 msgid ""
 "Hold-to-shape drawing: hold the pen or highlighter still to convert a stroke "
 "into a recognized line, triangle, rectangle, or circle"
 msgstr ""
+"停顿识别形状：使用画笔或荧光笔在笔画结束时停顿，即可将笔画转换为直线、三角"
+"形、矩形或圆形"
 
 #: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:22
 msgid ""
 "Editable shapes from the line, rectangle, and ellipse tools with geometry "
 "handles and a floating shape menu"
-msgstr ""
+msgstr "可编辑形状：直线、矩形和椭圆工具绘制的形状支持几何控制点及浮动形状菜单"
 
 #: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:23
 msgid ""
 "Single top bar replacing the classic menu bar and toolbar rows, with built-"
 "in light and dark themes"
-msgstr ""
+msgstr "单行顶部栏取代经典菜单栏和多行工具栏，内置浅色与深色主题"
 
 #: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:24
 msgid ""
 "Floating tool controls with recently used colors and bottom-corner zoom and "
 "layer controls"
-msgstr ""
+msgstr "浮动工具控件（含最近使用的颜色）以及底角缩放和图层控件"
 
 #: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:25
 msgid ""

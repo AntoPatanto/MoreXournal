@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: morexournal 0.1.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-28 17:19+0100\n"
+"POT-Creation-Date: 2026-11-28 17:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2270,7 +2270,7 @@ msgstr ""
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1129
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1140
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1145
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1978
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1979
 msgid "px"
 msgstr ""
 
@@ -3001,7 +3001,7 @@ msgid "Recording"
 msgstr ""
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1683
-#: ../src/core/gui/dialog/SettingsDialog.cpp:3180
+#: ../src/core/gui/dialog/SettingsDialog.cpp:3181
 #: ../src/core/gui/dialog/XojOpenDlg.cpp:82
 msgid "Select folder"
 msgstr ""
@@ -3287,72 +3287,72 @@ msgstr ""
 msgid "Screen calibration"
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1939
-#, c-format
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1940
+#, no-c-format
 msgid ""
 "Makes 100% zoom show real size. Hold a ruler to the screen and move the "
 "slider until both match."
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1942
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1943
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1944
 msgid "Detect automatically"
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1959
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1961
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1960
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1962
 msgid "Screen ruler (cm)"
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1960
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1961
 msgid "Available when “Detect automatically” is off."
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1967
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1968
 msgid "Modifiers by draw direction"
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1968
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1969
 msgid "Drawing a shape up or left acts as if Shift or Ctrl were held."
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1969
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1970
 msgid "Experimental"
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1971
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1973
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1972
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1974
 msgid "Set modifiers by draw direction"
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1977
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1979
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1978
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1980
 msgid "Direction radius"
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1978
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1979
 msgid "Turn on “Set modifiers by draw direction” to change this."
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2024
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2090
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2025
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2091
 msgid "Search results"
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2081
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2082
 msgid "No settings match"
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2083
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2084
 msgid "Try another word, such as pen, zoom or backup."
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2749
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2762
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2750
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2763
 msgid "System default"
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:3186
+#: ../src/core/gui/dialog/SettingsDialog.cpp:3187
 msgid "Folder not set - Select a folder to enable recording"
 msgstr ""
 

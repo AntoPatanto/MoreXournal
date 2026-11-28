@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xournalpp\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-28 17:19+0100\n"
+"POT-Creation-Date: 2026-11-28 17:32+0100\n"
 "PO-Revision-Date: 2026-09-23 09:43\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
@@ -44,6 +44,8 @@ msgid ""
 "Initialization of audio devices failed. You can disable audio support in "
 "Settings->Audio"
 msgstr ""
+"L'initialisation des périphériques audio a échoué. Vous pouvez désactiver la "
+"prise en charge audio dans Préférences -> Enregistrement audio"
 
 #: ../src/core/control/Control.cpp:815 ../src/core/control/Control.cpp:1884
 #: ../src/core/control/Control.cpp:2264
@@ -266,17 +268,15 @@ msgstr "Document non enregistré"
 
 #: ../src/core/control/Control.cpp:2085
 msgid "Not saved yet"
-msgstr ""
+msgstr "Pas encore enregistré"
 
 #: ../src/core/control/Control.cpp:2085
-#, fuzzy
 msgid "Unsaved changes"
-msgstr "Document non enregistré"
+msgstr "Modifications non enregistrées"
 
 #: ../src/core/control/Control.cpp:2085
-#, fuzzy
 msgid "Saved"
-msgstr "Sauvegarder"
+msgstr "Enregistré"
 
 #: ../src/core/control/Control.cpp:2257
 msgid "Document file was removed."
@@ -432,13 +432,12 @@ msgid "Please delete the file manually"
 msgstr "Veuillez supprimer le fichier manuellement"
 
 #: ../src/core/control/XournalMain.cpp:146
-#, fuzzy
 msgid ""
 "MoreXournal crashed last time. Would you like to restore the last edited "
 "file?"
 msgstr ""
-"Xournal++ a échoué la dernière fois. Voulez-vous restaurer le dernier "
-"fichier modifié ?"
+"MoreXournal a planté la dernière fois. Voulez-vous restaurer le dernier "
+"fichier modifié ?"
 
 #: ../src/core/control/XournalMain.cpp:149
 msgid "Recovery file detected"
@@ -539,7 +538,7 @@ msgstr "Aller à la page (première page : 1)"
 
 #: ../src/core/control/XournalMain.cpp:650
 msgid "Get version of xournalpp"
-msgstr "Récupérer la version de Xournal++"
+msgstr "Récupérer la version de xournalpp"
 
 #: ../src/core/control/XournalMain.cpp:652
 msgid "Disable audio for this session"
@@ -865,64 +864,63 @@ msgstr "%{name}_annoté"
 #: ../src/core/control/shaperecognizer/CircleRecognizer.cpp:83
 #, c++-format
 msgid "Not a circle: radius error {1} (limit {2})"
-msgstr ""
+msgstr "Pas un cercle : erreur de rayon {1} (limite {2})"
 
 #: ../src/core/control/shaperecognizer/CircleRecognizer.cpp:88
 #, c++-format
 msgid "Not a circle: roundness {1} (minimum {2})"
-msgstr ""
+msgstr "Pas un cercle : circularité {1} (minimum {2})"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:94
 #, c++-format
 msgid "Not a triangle: a corner is open by {1} pt (limit {2} pt)"
-msgstr ""
+msgstr "Pas un triangle : un sommet est ouvert de {1} pt (limite {2} pt)"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:142
 #, c++-format
 msgid "Not a rectangle: a corner is off 90° by {1}° (limit {2}°)"
-msgstr ""
+msgstr "Pas un rectangle : un angle s'écarte de 90° de {1}° (limite {2}°)"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:167
 #, c++-format
 msgid "Not a rectangle: a corner is open by {1} pt (limit {2} pt)"
-msgstr ""
+msgstr "Pas un rectangle : un sommet est ouvert de {1} pt (limite {2} pt)"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:378
 #, c++-format
 msgid "Stroke too small: {1} pt (minimum {2} pt)"
-msgstr ""
+msgstr "Trait trop petit : {1} pt (minimum {2} pt)"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:382
 msgid "Stroke has too few points"
-msgstr ""
+msgstr "Le trait comporte trop peu de points"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:413
 #, c++-format
 msgid "Found 1 straight side (det {1}, limit {2})"
-msgstr ""
+msgstr "1 côté droit détecté (det {1}, limite {2})"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:416
 #, c++-format
 msgid "Found {1} straight sides (det {2}, limit {3})"
-msgstr ""
+msgstr "{1} côtés droits détectés (det {2}, limite {3})"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:506
 #, c++-format
 msgid "Not a line: curvature {1} (limit {2})"
-msgstr ""
+msgstr "Pas une ligne : courbure {1} (limite {2})"
 
 #: ../src/core/control/shaperecognizer/ShapeRecognizer.cpp:512
 msgid "No group of straight sides found (maximum 4)"
-msgstr ""
+msgstr "Aucun ensemble de côtés droits détecté (maximum 4)"
 
 #: ../src/core/control/shapes/ShapeEditController.cpp:78
-#, fuzzy
 msgid "Edit shape"
-msgstr "Modifier le texte"
+msgstr "Modifier la forme"
 
 #: ../src/core/control/shapes/ShapeEditController.cpp:86
 msgid "Convert shape to stroke"
-msgstr ""
+msgstr "Convertir la forme en trait"
 
 #: ../src/core/control/tools/EditSelection.cpp:473
 msgid "Arrange"
@@ -1273,20 +1271,17 @@ msgstr "Très Épais"
 
 #: ../src/core/gui/ShapeToolbox.cpp:320 ../src/core/gui/ShapeToolbox.cpp:325
 #: ../src/core/gui/ShapeToolbox.cpp:695
-#, fuzzy
 msgid "Stroke color"
-msgstr "Identificateur de trait"
+msgstr "Couleur du trait"
 
 #: ../src/core/gui/ShapeToolbox.cpp:331 ../src/core/gui/ShapeToolbox.cpp:425
-#, fuzzy
 msgid "Custom…"
-msgstr "Personnalisé"
+msgstr "Personnalisé…"
 
 #: ../src/core/gui/ShapeToolbox.cpp:343 ../src/core/gui/ShapeToolbox.cpp:348
 #: ../src/core/gui/ToolPill.cpp:651 ../src/core/gui/ToolPill.cpp:664
-#, fuzzy
 msgid "Thickness"
-msgstr "Gras"
+msgstr "Épaisseur"
 
 #: ../src/core/gui/ShapeToolbox.cpp:390 ../src/core/gui/ToolPill.cpp:724
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:486
@@ -1294,9 +1289,8 @@ msgid "Fill"
 msgstr "Remplir"
 
 #: ../src/core/gui/ShapeToolbox.cpp:402
-#, fuzzy
 msgid "Fill color and opacity"
-msgstr "Opacité du remplissage"
+msgstr "Couleur et opacité de remplissage"
 
 #: ../src/core/gui/ShapeToolbox.cpp:419 ../src/core/gui/ShapeToolbox.cpp:764
 #: ../src/core/gui/dialog/SelectOpacityDialog.cpp:33
@@ -1305,37 +1299,32 @@ msgid "Fill color"
 msgstr "Couleur de remplissage"
 
 #: ../src/core/gui/ShapeToolbox.cpp:429
-#, fuzzy
 msgid "Opacity"
-msgstr "Opacité de remplissage"
+msgstr "Opacité"
 
 #: ../src/core/gui/ShapeToolbox.cpp:459 ../src/core/gui/ToolPill.cpp:705
 msgctxt "line style"
 msgid "Solid"
-msgstr ""
+msgstr "Continu"
 
 #: ../src/core/gui/ShapeToolbox.cpp:459 ../src/core/gui/ToolPill.cpp:706
-#, fuzzy
 msgctxt "line style"
 msgid "Dashed"
-msgstr "Tiret"
+msgstr "Tirets"
 
 #: ../src/core/gui/ShapeToolbox.cpp:460 ../src/core/gui/ToolPill.cpp:707
-#, fuzzy
 msgctxt "line style"
 msgid "Dash-dot"
-msgstr "Tiret pointillé"
+msgstr "Tiret-point"
 
 #: ../src/core/gui/ShapeToolbox.cpp:460 ../src/core/gui/ToolPill.cpp:708
-#, fuzzy
 msgctxt "line style"
 msgid "Dotted"
-msgstr "Pointillé"
+msgstr "Pointillés"
 
 #: ../src/core/gui/ShapeToolbox.cpp:475 ../src/core/gui/ToolPill.cpp:502
-#, fuzzy
 msgid "Duplicate"
-msgstr "Dupliquer la page"
+msgstr "Dupliquer"
 
 #: ../src/core/gui/ShapeToolbox.cpp:478 ../src/core/gui/ToolPill.cpp:512
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:289
@@ -1344,9 +1333,8 @@ msgid "Delete"
 msgstr "Supprimer"
 
 #: ../src/core/gui/ShapeToolbox.cpp:486
-#, fuzzy
 msgid "Convert to stroke"
-msgstr "Terminer le tracé"
+msgstr "Convertir en trait"
 
 #: ../src/core/gui/ToolPill.cpp:252
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:133
@@ -1398,23 +1386,20 @@ msgstr "Dessiner un système de coordonnées"
 
 #: ../src/core/gui/ToolPill.cpp:465
 msgid "Lasso"
-msgstr ""
+msgstr "Lasso"
 
 #: ../src/core/gui/ToolPill.cpp:467 ../src/core/gui/ToolPill.cpp:955
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:123
-#, fuzzy
 msgid "Rectangle"
-msgstr "Dessiner un rectangle"
+msgstr "Rectangle"
 
 #: ../src/core/gui/ToolPill.cpp:469
-#, fuzzy
 msgid "Object"
-msgstr "Jouer l'objet"
+msgstr "Objet"
 
 #: ../src/core/gui/ToolPill.cpp:474
-#, fuzzy
 msgid "More selection tools"
-msgstr "Déplacer la sélection vers le calque inférieur"
+msgstr "Plus d'outils de sélection"
 
 #: ../src/core/gui/ToolPill.cpp:485
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:417
@@ -1443,32 +1428,28 @@ msgid "Whiteout"
 msgstr "Blanc"
 
 #: ../src/core/gui/ToolPill.cpp:524
-#, fuzzy
 msgid "Whole stroke"
-msgstr "supprimer le trait"
+msgstr "Trait entier"
 
 #: ../src/core/gui/ToolPill.cpp:613
-#, fuzzy
 msgid "More colors"
-msgstr "Couleur de la bordure"
+msgstr "Plus de couleurs"
 
 #: ../src/core/gui/ToolPill.cpp:617
 msgid "Colors"
 msgstr "Couleurs"
 
 #: ../src/core/gui/ToolPill.cpp:633
-#, fuzzy
 msgid "Custom color…"
-msgstr "Couleur personnalisée"
+msgstr "Couleur personnalisée…"
 
 #: ../src/core/gui/ToolPill.cpp:650
 msgid "Thickness and line style, shared with the pen"
-msgstr ""
+msgstr "Épaisseur et style de ligne, partagés avec le stylo"
 
 #: ../src/core/gui/ToolPill.cpp:697
-#, fuzzy
 msgid "Line style"
-msgstr "Changer le style de ligne"
+msgstr "Style de ligne"
 
 #: ../src/core/gui/ToolPill.cpp:756
 msgid "Fill opacity"
@@ -1495,14 +1476,12 @@ msgid "Justify text"
 msgstr "Justifier le texte"
 
 #: ../src/core/gui/ToolPill.cpp:834
-#, fuzzy
 msgid "Insert image from file"
-msgstr "Insérer une image"
+msgstr "Insérer une image depuis un fichier"
 
 #: ../src/core/gui/ToolPill.cpp:837
-#, fuzzy
 msgid "Insert image…"
-msgstr "Insérer une image"
+msgstr "Insérer une image…"
 
 #: ../src/core/gui/ToolPill.cpp:888
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:285
@@ -1511,29 +1490,26 @@ msgid "Paste"
 msgstr "Coller"
 
 #: ../src/core/gui/ToolPill.cpp:892
-#, fuzzy
 msgid "or tap the page"
-msgstr "Aller à la dernière page"
+msgstr "ou appuyez sur la page"
 
 #: ../src/core/gui/ToolPill.cpp:904
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1726
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1729
-#, fuzzy
 msgid "LaTeX"
-msgstr "LaTe_X"
+msgstr "LaTeX"
 
 #: ../src/core/gui/ToolPill.cpp:905
 msgid "Tap where to insert the formula"
-msgstr ""
+msgstr "Appuyez à l'endroit où insérer la formule"
 
 #: ../src/core/gui/ToolPill.cpp:909
-#, fuzzy
 msgid "Link"
-msgstr "_Lien"
+msgstr "Lien"
 
 #: ../src/core/gui/ToolPill.cpp:910
 msgid "Tap where to insert the link"
-msgstr ""
+msgstr "Appuyez à l'endroit où insérer le lien"
 
 #: ../src/core/gui/ToolPill.cpp:914
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:86
@@ -1542,24 +1518,23 @@ msgstr "Espace vertical"
 
 #: ../src/core/gui/ToolPill.cpp:915
 msgid "Drag down to make room"
-msgstr ""
+msgstr "Faites glisser vers le bas pour faire de la place"
 
 #: ../src/core/gui/ToolPill.cpp:920
-#, fuzzy
 msgid "PDF text selection"
-msgstr "Menu déroulant de sélection de texte PDF"
+msgstr "Sélection de texte PDF"
 
 #: ../src/core/gui/ToolPill.cpp:933
 msgid "Return to default tool"
-msgstr ""
+msgstr "Revenir à l'outil par défaut"
 
 #: ../src/core/gui/ToolPill.cpp:952
 msgid "Linear"
-msgstr ""
+msgstr "Linéaire"
 
 #: ../src/core/gui/TopBar.cpp:426 ../src/core/gui/TopBar.cpp:843
 msgid "Main menu"
-msgstr ""
+msgstr "Menu principal"
 
 #: ../src/core/gui/TopBar.cpp:524 ../src/core/gui/dialog/ButtonConfigGui.cpp:79
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1271
@@ -1580,13 +1555,12 @@ msgid "Eraser"
 msgstr "Gomme"
 
 #: ../src/core/gui/TopBar.cpp:527
-#, fuzzy
 msgid "Select"
-msgstr "Sélection"
+msgstr "Sélectionner"
 
 #: ../src/core/gui/TopBar.cpp:528
 msgid "Shapes"
-msgstr ""
+msgstr "Formes"
 
 #: ../src/core/gui/TopBar.cpp:529 ../src/core/gui/dialog/ButtonConfigGui.cpp:82
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:381
@@ -1612,15 +1586,13 @@ msgstr "Refaire"
 
 #: ../src/core/gui/TopBar.cpp:591 ../src/core/gui/TopBar.cpp:857
 #: ../src/core/gui/dialog/SettingsDialog.cpp:945
-#, fuzzy
 msgid "Page sidebar"
-msgstr "Afficher/masquer le panneau latéral"
+msgstr "Barre latérale des pages"
 
 #: ../src/core/gui/TopBar.cpp:598 ../src/core/gui/TopBar.cpp:646
 #: ../src/core/gui/TopBar.cpp:858
-#, fuzzy
 msgid "Previous page"
-msgstr "Page _précédente"
+msgstr "Page précédente"
 
 #: ../src/core/gui/TopBar.cpp:599 ../src/core/gui/TopBar.cpp:616
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:324
@@ -1629,19 +1601,16 @@ msgstr "Aller à la page"
 
 #: ../src/core/gui/TopBar.cpp:606 ../src/core/gui/TopBar.cpp:648
 #: ../src/core/gui/TopBar.cpp:859
-#, fuzzy
 msgid "Next page"
-msgstr "Page _suivante"
+msgstr "Page suivante"
 
 #: ../src/core/gui/TopBar.cpp:651 ../src/core/gui/TopBar.cpp:860
-#, fuzzy
 msgid "Go to page…"
-msgstr "Aller à la page"
+msgstr "Aller à la page…"
 
 #: ../src/core/gui/TopBar.cpp:663 ../src/core/gui/TopBar.cpp:865
-#, fuzzy
 msgid "New page"
-msgstr "Insérer une page"
+msgstr "Nouvelle page"
 
 #: ../src/core/gui/TopBar.cpp:667 ../src/core/gui/TopBar.cpp:868
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1223
@@ -1650,12 +1619,12 @@ msgstr "Plein écran"
 
 #: ../src/core/gui/TopBar.cpp:677
 msgid "More"
-msgstr ""
+msgstr "Plus"
 
 #: ../src/core/gui/TopBar.cpp:840
 #, c++-format
 msgid "Main menu: {1}, {2}"
-msgstr ""
+msgstr "Menu principal : {1}, {2}"
 
 #: ../src/core/gui/dialog/AboutDialog.cpp:41
 msgid "Version"
@@ -1811,9 +1780,8 @@ msgid "Image files"
 msgstr "Fichiers image"
 
 #: ../src/core/gui/dialog/FileChooserFiltersHelper.cpp:51
-#, fuzzy
 msgid "Latex files"
-msgstr "Fichiers image"
+msgstr "Fichiers LaTeX"
 
 #: ../src/core/gui/dialog/FormatDialog.cpp:50
 #: ../src/core/gui/dialog/PageTemplateDialog.cpp:94
@@ -1832,18 +1800,16 @@ msgstr "La langue sélectionnée précédemment n'est plus disponible !"
 
 #: ../src/core/gui/dialog/LatexSettingsPanel.cpp:65
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1740
-#, fuzzy
 msgid "Editor theme"
-msgstr "Thème de l'éditeur LaTeX :"
+msgstr "Thème de l'éditeur"
 
 #: ../src/core/gui/dialog/LatexSettingsPanel.cpp:75
-#, fuzzy
 msgid ""
 "GtkSourceView was disabled when building MoreXournal. Some editor options "
 "are unavailable."
 msgstr ""
-"GtkSourceView a été désactivé lors de la compilation de Xournal++ ! "
-"Certaines options ne seront pas disponibles."
+"GtkSourceView a été désactivé lors de la compilation de MoreXournal. "
+"Certaines options de l'éditeur sont indisponibles."
 
 #: ../src/core/gui/dialog/LatexSettingsPanel.cpp:162
 #, c++-format
@@ -1873,7 +1839,7 @@ msgstr ""
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1772
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1775
 msgid "AI assistants"
-msgstr ""
+msgstr "Assistants IA"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:72
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1770
@@ -1882,34 +1848,36 @@ msgid ""
 "document through the Model Context Protocol (MCP). Nothing leaves this "
 "computer unless the AI tool itself sends it."
 msgstr ""
+"Autorisez les outils d'IA sur cet ordinateur, tels que Claude Code ou Codex, "
+"à consulter le document ouvert via le Model Context Protocol (MCP). Rien ne "
+"quitte cet ordinateur, sauf si l'outil d'IA l'envoie lui-même."
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:81
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1779
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1781
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1784
-#, fuzzy
 msgid "Connection"
-msgstr "Sélection"
+msgstr "Connexion"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:88
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1786
 msgid "Set up an assistant"
-msgstr ""
+msgstr "Configurer un assistant"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:142
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1773
 msgid "Allow AI assistants to connect"
-msgstr ""
+msgstr "Autoriser la connexion des assistants IA"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:149
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:423
 msgid "Off. No AI tool can connect."
-msgstr ""
+msgstr "Désactivé. Aucun outil d'IA ne peut se connecter."
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:169
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1775
 msgid "Allow edits"
-msgstr ""
+msgstr "Autoriser les modifications"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:171
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1776
@@ -1917,59 +1885,62 @@ msgid ""
 "Assistants can add text, strokes, shapes and pages. Each change is one undo "
 "step, and assistants can't delete what you wrote."
 msgstr ""
+"Les assistants peuvent ajouter du texte, des traits, des formes et des "
+"pages. Chaque modification correspond à une étape d'annulation, et les "
+"assistants ne peuvent pas supprimer ce que vous avez écrit."
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:191
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1779
 msgid "Address"
-msgstr ""
+msgstr "Adresse"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:202
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1781
 msgid "Access token"
-msgstr ""
+msgstr "Jeton d'accès"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:210
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:453
-#, fuzzy
 msgid "Show"
-msgstr "Afficher tout"
+msgstr "Afficher"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:214
-#, fuzzy
 msgid "New token"
-msgstr "Nouveau Xournal"
+msgstr "Nouveau jeton"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:223
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1782
 msgid ""
 "A new token disconnects every AI tool until you paste the new setup command."
 msgstr ""
+"Un nouveau jeton déconnecte tous les outils d'IA jusqu'à ce que vous colliez "
+"la nouvelle commande de configuration."
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:230
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1784
 msgid "Connected now"
-msgstr ""
+msgstr "Connectés actuellement"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:244
 msgid "Claude Code"
-msgstr ""
+msgstr "Claude Code"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:244
 msgid "Codex"
-msgstr ""
+msgstr "Codex"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:244
 msgid "Claude Desktop"
-msgstr ""
+msgstr "Claude Desktop"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:273
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:460
 msgid "Run once in a terminal:"
-msgstr ""
+msgstr "Exécutez une fois dans un terminal :"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:276
 msgid "Copied"
-msgstr ""
+msgstr "Copié"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:280
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:284
@@ -1979,37 +1950,37 @@ msgstr "Copier"
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:438
 msgid "On after you press Save. No AI tool can connect yet."
 msgstr ""
+"Activé après avoir cliqué sur Sauvegarder. Aucun outil d'IA ne peut encore "
+"se connecter."
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:444
 msgid "On. Listening on this computer only (127.0.0.1)."
-msgstr ""
+msgstr "Activé. Écoute uniquement sur cet ordinateur (127.0.0.1)."
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:450
-#, fuzzy
 msgid "Hide"
-msgstr "Masquer tout"
+msgstr "Masquer"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:463
 msgid "Add to ~/.codex/config.toml:"
-msgstr ""
+msgstr "Ajoutez à ~/.codex/config.toml :"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:467
 msgid "Add to claude_desktop_config.json (uses the bundled stdio bridge):"
-msgstr ""
+msgstr "Ajoutez à claude_desktop_config.json (utilise le pont stdio inclus) :"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:488
-#, fuzzy
 msgid "None yet"
-msgstr "Aucune"
+msgstr "Aucun pour le moment"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:500
 msgid "connected just now"
-msgstr ""
+msgstr "connecté à l'instant"
 
 #: ../src/core/gui/dialog/McpSettingsPanel.cpp:502
 #, c++-format
 msgid "connected {1} min ago"
-msgstr ""
+msgstr "connecté il y a {1} min"
 
 #: ../src/core/gui/dialog/PageTemplateDialog.cpp:135
 #: ../src/core/gui/dialog/XojSaveDlg.cpp:72
@@ -2059,14 +2030,13 @@ msgstr ""
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:107
 msgid "Input"
-msgstr ""
+msgstr "Entrée"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:107
 msgid "Features"
-msgstr ""
+msgstr "Fonctionnalités"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:154
-#, fuzzy
 msgid ""
 "%{name}\tFilename of the PDF background (if any)\n"
 "%{file}\t\tSaved filename of the document\n"
@@ -2096,49 +2066,45 @@ msgid ""
 "\n"
 "Illegal characters are replaced with \"_\"."
 msgstr ""
-"%{name}\t\t\tNom du fichier (s'il existe) du PDF en arrière-plan\n"
-"%{file}\t\t\tNom du fichier enregistré\n"
-"%a\t\t\tNom abrégé du jour de la semaine (p.ex. jeu.)\n"
-"%A\t\t\tNom complet du jour de la semaine (p.ex. jeudi)\n"
-"%b\t\t\tNom abrégé du mois (p.ex. juil.)\n"
-"%B\t\t\tNom complet du mois (p.ex. juillet)\n"
-"%c\t\t\tReprésentation de la date et de l’heure (p.ex. ven. 21 juil. 2023 "
-"09:31:46)\n"
-"%d\t\t\tJour du mois (01-31)\n"
-"%F\t\t\tReprésentation de la date (p.ex. 2023-07-21)\n"
-"%H\t\t\tHeure au format 24h (00-23)\n"
-"%I\t\t\tHeure au format 12h (01-12)\n"
-"%j\t\t\tJour de l'année (001-366)\n"
-"%m\t\t\tMois sous forme décimale (01-12)\n"
-"%M\t\t\tMinute (00-59)\n"
-"%p\t\t\tDésignation AM ou PM (p.ex. PM)\n"
-"%S\t\t\tseconde (00-59)\n"
-"%U\t\t\tNuméro de semaine avec le premier dimanche comme premier jour de la "
-"première semaine (00-53)\n"
-"%w\t\t\tJour de la semaine sous forme de nombre décimal avec dimanche comme "
-"0 (0-6)\n"
-"%W\t\t\tNuméro de semaine avec le premier lundi comme premier jour de la "
-"première semaine (00-53)\n"
-"%x\t\t\tReprésentation de la date (p.ex. 23/08/01)\n"
-"%X\t\t\tReprésentation de l'heure (p.ex. 14:55:02)\n"
-"%y\t\t\tAnnée, deux derniers chiffres (00-99)\n"
-"%Y\t\t\tAnnée (p.ex. 2001)\n"
-"%Z\t\t\tNom du fuseau horaire ou son abréviation (p.ex. CDT)\n"
-"%%\t\t\tLe signe %\n"
-"Les caractères interdits sont remplacés par \"_\""
+"%{name}\tNom du fichier PDF d'arrière-plan (le cas échéant)\n"
+"%{file}\t\tNom du fichier enregistré du document\n"
+"%a\t\tNom abrégé du jour de la semaine (p. ex. jeu.)\n"
+"%A\t\tNom complet du jour de la semaine (p. ex. jeudi)\n"
+"%b\t\tNom abrégé du mois (p. ex. août)\n"
+"%B\t\tNom complet du mois (p. ex. août)\n"
+"%c\t\tReprésentation de la date et de l'heure\n"
+"%d\t\tJour du mois (01-31)\n"
+"%F\t\tReprésentation de la date (p. ex. 2026-11-28)\n"
+"%H\t\tHeure au format 24 h (00-23)\n"
+"%I\t\tHeure au format 12 h (01-12)\n"
+"%j\t\tJour de l'année (001-366)\n"
+"%m\t\tMois sous forme décimale (01-12)\n"
+"%M\t\tMinute (00-59)\n"
+"%p\t\tDésignation AM ou PM\n"
+"%S\t\tSeconde (00-61)\n"
+"%U\t\tNuméro de semaine, dimanche en premier (00-53)\n"
+"%w\t\tJour de la semaine en décimal, dimanche = 0 (0-6)\n"
+"%W\t\tNuméro de semaine, lundi en premier (00-53)\n"
+"%x\t\tReprésentation locale de la date\n"
+"%X\t\tReprésentation locale de l'heure\n"
+"%y\t\tAnnée, deux derniers chiffres (00-99)\n"
+"%Y\t\tAnnée (p. ex. 2026)\n"
+"%Z\t\tNom ou abréviation du fuseau horaire\n"
+"%%\t\tCaractère littéral %\n"
+"\n"
+"Les caractères interdits sont remplacés par \"_\"."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:398
-#, fuzzy
 msgid "Select folder for audio recordings"
-msgstr "Impossible de lire l'enregistrement audio {1}"
+msgstr "Sélectionner le dossier des enregistrements audio"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:576
 msgid "Restart needed"
-msgstr ""
+msgstr "Redémarrage requis"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:802
 msgid "General"
-msgstr ""
+msgstr "Général"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:806
 msgid "Language"
@@ -2147,7 +2113,7 @@ msgstr "Langue"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:810
 #: ../src/core/gui/dialog/SettingsDialog.cpp:812
 msgid "Interface language"
-msgstr ""
+msgstr "Langue de l'interface"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:811
 #: ../src/core/gui/dialog/SettingsDialog.cpp:813
@@ -2160,17 +2126,16 @@ msgstr ""
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1502
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1504
 msgid "Takes effect after a restart."
-msgstr ""
+msgstr "Prend effet après un redémarrage."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:818
-#, fuzzy
 msgid "Autosave"
 msgstr "Enregistrement automatique"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:821
 #: ../src/core/gui/dialog/SettingsDialog.cpp:824
 msgid "Save a backup copy automatically"
-msgstr ""
+msgstr "Enregistrer automatiquement une copie de sauvegarde"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:822
 #: ../src/core/gui/dialog/SettingsDialog.cpp:825
@@ -2178,47 +2143,47 @@ msgid ""
 "Saved next to the document as .autosave.xopp. Unsaved documents go to the "
 "configuration folder."
 msgstr ""
+"Enregistrée à côté du document sous le nom .autosave.xopp. Les documents non "
+"enregistrés sont placés dans le dossier de configuration."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:828
 #: ../src/core/gui/dialog/SettingsDialog.cpp:830
 msgid "Interval"
-msgstr ""
+msgstr "Intervalle"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:829
-#, fuzzy
 msgid "min"
-msgstr "Zoomer"
+msgstr "min"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:829
 msgid "Turn on “Save a backup copy automatically” to change this."
 msgstr ""
+"Activez « Enregistrer automatiquement une copie de sauvegarde » pour "
+"modifier ce réglage."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:836
-#, fuzzy
 msgid "Default file names"
-msgstr "Nom par défaut: "
+msgstr "Noms de fichiers par défaut"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:840
 #: ../src/core/gui/dialog/SettingsDialog.cpp:841
-#, fuzzy
 msgid "New documents"
-msgstr "_Documents récents"
+msgstr "Nouveaux documents"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:840
 #: ../src/core/gui/dialog/SettingsDialog.cpp:842
 msgid "Example: 2026-11-28-Note-09-15"
-msgstr ""
+msgstr "Exemple : 2026-11-28-Note-09-15"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:844
 #: ../src/core/gui/dialog/SettingsDialog.cpp:846
-#, fuzzy
 msgid "Annotated PDF export"
-msgstr "_Annoter un PDF"
+msgstr "Exportation de PDF annoté"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:845
 #: ../src/core/gui/dialog/SettingsDialog.cpp:847
 msgid "Example: lecture-07_annotated.pdf"
-msgstr ""
+msgstr "Exemple : cours-07_annoté.pdf"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:850
 #: ../src/core/gui/toolbarMenubar/ToolPageLayer.cpp:169
@@ -2227,39 +2192,35 @@ msgstr "Afficher tout"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:853
 #: ../src/core/gui/dialog/SettingsDialog.cpp:855
-#, fuzzy
 msgid "Placeholders"
-msgstr "Espaces réservés disponibles"
+msgstr "Variables"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:854
 #: ../src/core/gui/dialog/SettingsDialog.cpp:856
 msgid "%F date, %H hour, %M minute, %{name} PDF name and more"
-msgstr ""
+msgstr "%F date, %H heure, %M minute, %{name} nom du PDF et plus encore"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:861
 msgid "Appearance"
-msgstr ""
+msgstr "Apparence"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:865
 #: ../src/core/gui/dialog/SettingsDialog.cpp:868
 #: ../src/core/gui/dialog/SettingsDialog.cpp:869
-#, fuzzy
 msgid "Theme"
-msgstr "Thème d'icône"
+msgstr "Thème"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:868
-#, fuzzy
 msgid "System"
-msgstr "Système d'entrée"
+msgstr "Système"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:868
-#, fuzzy
 msgid "Light"
-msgstr "Droite"
+msgstr "Clair"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:868
 msgid "Dark"
-msgstr ""
+msgstr "Sombre"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:872
 msgid "Color"
@@ -2267,28 +2228,26 @@ msgstr "Couleur"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:872
 msgid "Lucide"
-msgstr ""
+msgstr "Lucide"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:872
 #: ../src/core/gui/dialog/SettingsDialog.cpp:874
-#, fuzzy
 msgid "Icon style"
-msgstr "Thème d'icône"
+msgstr "Style d'icônes"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:877
 #: ../src/core/gui/dialog/SettingsDialog.cpp:879
 msgid "Use system icons when available"
-msgstr ""
+msgstr "Utiliser les icônes système si disponibles"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:882
 #: ../src/core/gui/dialog/SettingsDialog.cpp:883
-#, fuzzy
 msgid "Shadow behind pages"
-msgstr "Afficher une ombre derrière les pages"
+msgstr "Ombre derrière les pages"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:889
 msgid "Touch mode"
-msgstr ""
+msgstr "Mode tactile"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:892
 msgid "Automatic"
@@ -2296,17 +2255,16 @@ msgstr "Automatique"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:892
 msgid "Off"
-msgstr ""
+msgstr "Désactivé"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:892
-#, fuzzy
 msgid "On"
-msgstr "Ouvrir"
+msgstr "Activé"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:892
 #: ../src/core/gui/dialog/SettingsDialog.cpp:894
 msgid "Larger controls for fingers"
-msgstr ""
+msgstr "Contrôles agrandis pour les doigts"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:893
 #: ../src/core/gui/dialog/SettingsDialog.cpp:895
@@ -2314,54 +2272,53 @@ msgid ""
 "Automatic switches on with finger touch and mouse. The pen keeps the current "
 "layout."
 msgstr ""
+"Automatique s'active au doigt et à la souris. Le stylet conserve la "
+"disposition actuelle."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:901
 msgid "Window"
-msgstr ""
+msgstr "Fenêtre"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:904
 #: ../src/core/gui/dialog/SettingsDialog.cpp:906
 msgid "Always show the menu bar"
-msgstr ""
+msgstr "Toujours afficher la barre de menus"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:905
 #: ../src/core/gui/dialog/SettingsDialog.cpp:907
 msgid "Otherwise press Alt to show it. F10 toggles it."
 msgstr ""
+"Sinon, appuyez sur Alt pour l'afficher. F10 permet de l'afficher ou de la "
+"masquer."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:910
 #: ../src/core/gui/dialog/SettingsDialog.cpp:911
-#, fuzzy
 msgid "File path in the title"
-msgstr "Afficher le chemin d'accès dans la barre de titre"
+msgstr "Chemin du fichier dans le titre"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:914
 #: ../src/core/gui/dialog/SettingsDialog.cpp:915
-#, fuzzy
 msgid "Page number in the title"
-msgstr "Numérotation des pages  "
+msgstr "Numéro de page dans le titre"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:919
 #: ../src/core/gui/dialog/SettingsDialog.cpp:920
-#, fuzzy
 msgid "Tools in the title bar"
-msgstr "Afficher le chemin d'accès dans la barre de titre"
+msgstr "Outils dans la barre de titre"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:931
 msgid "Left-handed layout"
-msgstr ""
+msgstr "Disposition pour gaucher"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:934
 #: ../src/core/gui/dialog/SettingsDialog.cpp:935
-#, fuzzy
 msgid "Page sidebar on the right"
-msgstr "Afficher la barre latérale sur le côté droit"
+msgstr "Barre latérale des pages à droite"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:938
 #: ../src/core/gui/dialog/SettingsDialog.cpp:940
-#, fuzzy
 msgid "Vertical scrollbar on the left"
-msgstr "Afficher la barre de défilement verticale sur le côté gauche"
+msgstr "Barre de défilement verticale à gauche"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:950
 msgid "None"
@@ -2381,9 +2338,8 @@ msgstr "Sur gommette carrée"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:950
 #: ../src/core/gui/dialog/SettingsDialog.cpp:951
-#, fuzzy
 msgid "Page numbers"
-msgstr "Numéro de page"
+msgstr "Numéros de page"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:957
 msgid "Scrollbars"
@@ -2402,111 +2358,101 @@ msgstr "Masquer la barre de défilement verticale"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:968
 #: ../src/core/gui/dialog/SettingsDialog.cpp:970
 msgid "Keep scrollbars visible"
-msgstr ""
+msgstr "Garder les barres de défilement visibles"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:969
 #: ../src/core/gui/dialog/SettingsDialog.cpp:971
 msgid "Turns off fading out when you stop scrolling."
 msgstr ""
+"Désactive la disparition progressive lorsque vous arrêtez de faire défiler."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:976
 msgid "Interface colors"
-msgstr ""
+msgstr "Couleurs de l'interface"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:979
 #: ../src/core/gui/dialog/SettingsDialog.cpp:981
-#, fuzzy
 msgid "Current page and selection border"
-msgstr "Couleur de bordure pour la page courante et d'autres sélections"
+msgstr "Bordure de la page courante et de la sélection"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:983
 #: ../src/core/gui/dialog/SettingsDialog.cpp:984
-#, fuzzy
 msgid "Background between pages"
-msgstr "Couleur d'arrière-plan entre les pages"
+msgstr "Arrière-plan entre les pages"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:987
 #: ../src/core/gui/dialog/SettingsDialog.cpp:988
-#, fuzzy
 msgid "Selection"
 msgstr "Sélection"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:987
 #: ../src/core/gui/dialog/SettingsDialog.cpp:989
-#, fuzzy
 msgid "Selected text and strokes."
-msgstr "_suppression de traits"
+msgstr "Texte et traits sélectionnés."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:991
 #: ../src/core/gui/dialog/SettingsDialog.cpp:992
-#, fuzzy
 msgid "Active selection"
-msgstr "Réordonner la sélection"
+msgstr "Sélection active"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:991
 #: ../src/core/gui/dialog/SettingsDialog.cpp:993
 msgid "Current search result."
-msgstr ""
+msgstr "Résultat de recherche actuel."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:998
-#, fuzzy
 msgid "Recolor pages"
-msgstr "Toutes les pages"
+msgstr "Recolorer les pages"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:999
 msgid ""
 "Recoloring makes pages follow a dark theme. It can slow down moving "
 "selections."
 msgstr ""
+"La recoloration adapte les pages à un thème sombre. Cela peut ralentir le "
+"déplacement des sélections."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1001
 msgid "Turn on “Recolor the pages” to change this."
-msgstr ""
+msgstr "Activez « Recolorer les pages » pour modifier ce réglage."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1003
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1004
-#, fuzzy
 msgid "Recolor the pages"
-msgstr "Défilement en dehors de la page"
+msgstr "Recolorer les pages"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1008
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1010
 msgid "Recolor sidebar previews"
-msgstr ""
+msgstr "Recolorer les aperçus de la barre latérale"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1012
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1013
-#, fuzzy
 msgid "Light areas become"
-msgstr "Vert clair"
+msgstr "Les zones claires deviennent"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1016
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1017
 msgid "Dark areas become"
-msgstr ""
+msgstr "Les zones sombres deviennent"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1023
-#, fuzzy
 msgid "Pen cursor"
-msgstr "curseur"
+msgstr "Curseur du stylo"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1027
-#, fuzzy
 msgid "No icon"
 msgstr "Aucune icône"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1027
-#, fuzzy
 msgid "Small dot icon"
 msgstr "Petite icône de point"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1027
-#, fuzzy
 msgid "Big pen icon"
 msgstr "Grande icône de stylo"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1027
-#, fuzzy
 msgid "System cursor"
 msgstr "Curseur système"
 
@@ -2517,26 +2463,26 @@ msgstr "Curseur"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1032
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1036
-#, fuzzy
 msgid "Highlight the cursor position"
 msgstr "Surligner la position du curseur"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1033
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1036
 msgid "Useful for screen recordings and presentations."
-msgstr ""
+msgstr "Utile pour les captures vidéo et les présentations."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1034
 msgid "Choose “Small dot icon” or “Big pen icon” for Cursor to change this."
 msgstr ""
+"Choisissez « Petite icône de point » ou « Grande icône de stylo » pour "
+"Curseur afin de modifier ce réglage."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1039
 msgid "Turn on “Highlight the cursor position” to change this."
-msgstr ""
+msgstr "Activez « Surligner la position du curseur » pour modifier ce réglage."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1040
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1041
-#, fuzzy
 msgid "Circle color"
 msgstr "Couleur du cercle"
 
@@ -2551,15 +2497,14 @@ msgstr "Rayon"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1129
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1140
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1145
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1978
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1979
 msgid "px"
-msgstr ""
+msgstr "px"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1049
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1050
-#, fuzzy
 msgid "Border width"
-msgstr "Épaisseur de bordure"
+msgstr "Épaisseur de la bordure"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1053
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1054
@@ -2567,9 +2512,8 @@ msgid "Border color"
 msgstr "Couleur de la bordure"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1060
-#, fuzzy
 msgid "Color palette"
-msgstr "Palettes de couleurs"
+msgstr "Palette de couleurs"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1065
 msgid "Palette"
@@ -2578,50 +2522,50 @@ msgstr "Palette"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1066
 msgid "Colors shown in the tool pill and the color menu."
 msgstr ""
+"Couleurs affichées dans la barre d'outils flottante et le menu des couleurs."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1069
-#, fuzzy
 msgid "Open folder"
-msgstr "Ouvrir un fichier"
+msgstr "Ouvrir le dossier"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1076
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1078
 msgid "Add your own palettes"
-msgstr ""
+msgstr "Ajouter vos propres palettes"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1077
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1079
 msgid "Put .gpl files in the palettes folder."
-msgstr ""
+msgstr "Placez les fichiers .gpl dans le dossier des palettes."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1084
 msgid "Pages and zoom"
-msgstr ""
+msgstr "Pages et zoom"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1092
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1093
 msgid "Ctrl + scroll step"
-msgstr ""
+msgstr "Pas de Ctrl + molette"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1097
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1098
-#, fuzzy
 msgid "Zoom in/out step"
-msgstr "Dézoomer"
+msgstr "Pas du zoom avant/arrière"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1101
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1103
 msgid "Fit the page when opening a document"
-msgstr ""
+msgstr "Ajuster la page à l'ouverture d'un document"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1108
-#, fuzzy
 msgid "Space around pages"
-msgstr "Arrière-plan de la page modifié"
+msgstr "Espace autour des pages"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1109
 msgid "Extra space lets you scroll a page edge to the middle of the screen."
 msgstr ""
+"L'espace supplémentaire permet de faire défiler le bord d'une page jusqu'au "
+"milieu de l'écran."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1112
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1113
@@ -2630,80 +2574,78 @@ msgstr "Défilement illimité"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1116
 msgid "Available when “Unlimited scrolling” is off."
-msgstr ""
+msgstr "Disponible lorsque « Défilement illimité » est désactivé."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1118
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1119
 msgid "Extra space left and right"
-msgstr ""
+msgstr "Espace supplémentaire à gauche et à droite"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1122
 msgid ""
 "Turn on “Extra space left and right” while “Unlimited scrolling” is off."
 msgstr ""
+"Activez « Espace supplémentaire à gauche et à droite » lorsque « Défilement "
+"illimité » est désactivé."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1124
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1125
-#, fuzzy
 msgid "Left space"
-msgstr "Espace vertical"
+msgstr "Espace à gauche"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1129
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1130
-#, fuzzy
 msgid "Right space"
-msgstr "Droite"
+msgstr "Espace à droite"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1134
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1135
 msgid "Extra space above and below"
-msgstr ""
+msgstr "Espace supplémentaire au-dessus et en dessous"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1138
 msgid ""
 "Turn on “Extra space above and below” while “Unlimited scrolling” is off."
 msgstr ""
+"Activez « Espace supplémentaire au-dessus et en dessous » lorsque "
+"« Défilement illimité » est désactivé."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1140
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1141
 msgid "Space above"
-msgstr ""
+msgstr "Espace au-dessus"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1145
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1146
 msgid "Space below"
-msgstr ""
+msgstr "Espace en dessous"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1152
-#, fuzzy
 msgid "New pages"
-msgstr "Pages liées"
+msgstr "Nouvelles pages"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1156
-#, fuzzy
 msgid "When scrolling past the last page"
-msgstr "lors du défilement vers la fin de la dernière page"
+msgstr "En défilant au-delà de la dernière page"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1158
-#, fuzzy
 msgid "When drawing on the last page"
-msgstr "lors du dessin sur la dernière page"
+msgstr "En dessinant sur la dernière page"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1159
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1336
-#, fuzzy
 msgid "Never"
 msgstr "Jamais"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1169
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1171
 msgid "Add a blank page at the end"
-msgstr ""
+msgstr "Ajouter une page vierge à la fin"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1169
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1172
 msgid "Not for PDF documents."
-msgstr ""
+msgstr "Ne s'applique pas aux documents PDF."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1177
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:301
@@ -2712,14 +2654,15 @@ msgstr "Pages liées"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1180
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1182
-#, fuzzy
 msgid "First page offset"
-msgstr "Décalage de la première page "
+msgstr "Décalage de la première page"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1181
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1183
 msgid "Usually 0 or 1. Use 1 to start a book with a single right-hand page."
 msgstr ""
+"Généralement 0 ou 1. Utilisez 1 pour commencer un livre par une page de "
+"droite seule."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1189
 msgid "Resizing"
@@ -2728,7 +2671,7 @@ msgstr "Redimensionnement"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1192
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1194
 msgid "Keep line width when resizing"
-msgstr ""
+msgstr "Conserver l'épaisseur de trait lors du redimensionnement"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1199
 msgid "Snapping"
@@ -2751,15 +2694,13 @@ msgstr "Tolérance de rotation"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1216
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1217
-#, fuzzy
 msgid "Snap recognized shapes"
-msgstr "Utiliser l'ancrage pour les formes reconnues"
+msgstr "Ancrer les formes reconnues"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1226
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1227
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1252
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1253
-#, fuzzy
 msgid "Show the menu bar"
 msgstr "Afficher la barre de menus"
 
@@ -2767,17 +2708,15 @@ msgstr "Afficher la barre de menus"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1231
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1256
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1257
-#, fuzzy
 msgid "Show the top bar"
-msgstr "Aller au calque le plus haut"
+msgstr "Afficher la barre supérieure"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1234
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1235
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1260
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1261
-#, fuzzy
 msgid "Show the page sidebar"
-msgstr "Afficher la barre latérale"
+msgstr "Afficher la barre latérale des pages"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1245
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:303
@@ -2786,60 +2725,54 @@ msgstr "Mode présentation"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1248
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1249
-#, fuzzy
 msgid "Go fullscreen"
 msgstr "Passer en plein écran"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1275
-#, fuzzy
 msgid "Pressure"
-msgstr "Pression minimale :"
+msgstr "Pression"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1278
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1280
-#, fuzzy
 msgid "Pressure sensitivity"
-msgstr "Sensibilité de la pression"
+msgstr "Sensibilité à la pression"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1279
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1281
 msgid "Line width follows how hard you press."
-msgstr ""
+msgstr "L'épaisseur du trait dépend de la force de votre appui."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1283
-#, fuzzy
 msgid ""
 "Turn on “Pressure sensitivity” or “Guess pressure from speed” to change this."
 msgstr ""
-"Activer la sensibilité de pression ou l'inférence de pression pour changer "
-"ce paramètre !"
+"Activez « Sensibilité à la pression » ou « Estimer la pression selon la "
+"vitesse » pour modifier ce réglage."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1285
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1286
-#, fuzzy
 msgid "Minimum pressure"
-msgstr "Pression minimale :"
+msgstr "Pression minimale"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1290
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1291
-#, fuzzy
 msgid "Pressure multiplier"
-msgstr "Multiplicateur de pression : "
+msgstr "Multiplicateur de pression"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1294
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1296
 msgid "Guess pressure from speed"
-msgstr ""
+msgstr "Estimer la pression selon la vitesse"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1295
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1297
 msgid "Used when the device reports no pressure, such as a mouse."
 msgstr ""
+"Utilisé lorsque le périphérique ne fournit pas de pression, comme une souris."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1303
-#, fuzzy
 msgid "Pen buttons"
-msgstr "Options du stylet"
+msgstr "Boutons du stylet"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1305
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1439
@@ -2847,92 +2780,88 @@ msgid ""
 "The tool is used while the button is held. Releasing it brings back the "
 "previous tool."
 msgstr ""
+"L'outil est actif tant que le bouton est maintenu enfoncé. Le relâcher "
+"ramène l'outil précédent."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1311
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1312
-#, fuzzy
 msgid "Side button 1"
-msgstr "Bouton 1"
+msgstr "Bouton latéral 1"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1311
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1313
 msgid "Usually the one closer to the tip"
-msgstr ""
+msgstr "Généralement le plus proche de la pointe"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1318
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1319
-#, fuzzy
 msgid "Side button 2"
-msgstr "Bouton 2"
+msgstr "Bouton latéral 2"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1318
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1320
 msgid "Usually the one farther from the tip"
-msgstr ""
+msgstr "Généralement le plus éloigné de la pointe"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1325
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1326
-#, fuzzy
 msgid "Eraser end"
-msgstr "Gomme"
+msgstr "Extrémité gomme"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1332
-#, fuzzy
 msgid "Eraser cursor"
-msgstr "Curseur système"
+msgstr "Curseur de la gomme"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1336
-#, fuzzy
 msgid "Always"
 msgstr "Toujours"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1336
-#, fuzzy
 msgid "When floating"
-msgstr "En flottant"
+msgstr "En survol"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1336
-#, fuzzy
 msgid "When touching"
-msgstr "Lorsque vous touchez"
+msgstr "Au contact"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1337
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1339
-#, fuzzy
 msgid "Show the pen's eraser on the page"
-msgstr "Afficher la barre latérale sur le côté droit"
+msgstr "Afficher la gomme du stylet sur la page"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1344
 msgid "Stroke smoothing"
-msgstr ""
+msgstr "Lissage du trait"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1346
 msgid ""
 "Smoothing reduces shaky lines. Higher values add more lag between the pen "
 "and the line."
 msgstr ""
+"Le lissage réduit les tremblements. Des valeurs plus élevées ajoutent "
+"davantage de retard entre le stylet et le trait."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1357
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1358
-#, fuzzy
 msgid "Averaging"
-msgstr "Méthode de calcul de moyenne"
+msgstr "Calcul de moyenne"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1362
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1363
-#, fuzzy
 msgid "Buffer size"
 msgstr "Taille du tampon"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1366
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1368
 msgid "Gaussian σ"
-msgstr ""
+msgstr "σ gaussien"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1367
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1369
 msgid "Higher values smooth more and add more lag between cursor and tip."
 msgstr ""
+"Des valeurs plus élevées lissent davantage et ajoutent du retard entre le "
+"curseur et la pointe."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1380
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1381
@@ -2942,7 +2871,7 @@ msgstr "Préprocesseur"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1385
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1386
 msgid "Deadzone radius"
-msgstr "Angle de la zone aveugle"
+msgstr "Rayon de la zone aveugle"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1389
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1390
@@ -2951,129 +2880,124 @@ msgstr "Détection des points de rebroussement"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1393
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1395
-#, fuzzy
 msgid "Drag"
-msgstr "Faire glisser"
+msgstr "Frottement"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1394
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1396
 msgid "Too small causes oscillations; too high disables stabilization."
 msgstr ""
+"Une valeur trop faible provoque des oscillations ; trop élevée, elle "
+"désactive la stabilisation."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1399
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1401
-#, fuzzy
 msgid "Mass"
 msgstr "Masse"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1400
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1402
-#, fuzzy
 msgid "Higher mass adds more inertia and stabilization."
-msgstr ""
-"Masse : plus la masse est élevée, plus l'inertie est élevée et plus la "
-"stabilisation est importante"
+msgstr "Une masse plus élevée ajoute davantage d'inertie et de stabilisation."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1406
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1410
 msgid "Finish the stroke at the pen position"
-msgstr ""
+msgstr "Terminer le trait à la position du stylet"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1407
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1411
 msgid "Fills the gap smoothing can leave at the end of a stroke."
-msgstr ""
+msgstr "Comble l'écart que le lissage peut laisser à la fin d'un trait."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1408
 msgid "Choose an averaging method or preprocessor to change this."
 msgstr ""
+"Choisissez une méthode de calcul de moyenne ou un préprocesseur pour "
+"modifier ce réglage."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1417
 msgid "Stroke start fix"
-msgstr ""
+msgstr "Correction du début de trait"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1419
 msgid ""
 "Some pens draw a stray mark at the start of each stroke. Ignoring the first "
 "events removes it."
 msgstr ""
+"Certains stylets tracent une marque parasite au début de chaque trait. "
+"Ignorer les premiers événements la supprime."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1422
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1424
 msgid "Ignore the first events of each stroke"
-msgstr ""
+msgstr "Ignorer les premiers événements de chaque trait"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1428
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1430
 msgid "Events to ignore"
-msgstr ""
+msgstr "Événements à ignorer"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1429
 msgid "Turn on “Ignore the first events of each stroke” to change this."
 msgstr ""
+"Activez « Ignorer les premiers événements de chaque trait » pour modifier ce "
+"réglage."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1436
 msgid "Mouse"
 msgstr "Souris"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1438
-#, fuzzy
 msgid "Mouse buttons"
-msgstr "Bouton de souris"
+msgstr "Boutons de la souris"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1450
-#, fuzzy
 msgid "Left button"
-msgstr "Bouton gauche de la souris"
+msgstr "Bouton gauche"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1451
-#, fuzzy
 msgid "Middle button"
-msgstr "Bouton central de la souris"
+msgstr "Bouton central"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1452
-#, fuzzy
 msgid "Right button"
-msgstr "Bouton droit de la souris"
+msgstr "Bouton droit"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1453
-#, fuzzy
 msgid "Back button"
-msgstr "Bouton 1"
+msgstr "Bouton Précédent"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1454
-#, fuzzy
 msgid "Forward button"
-msgstr "Avancer"
+msgstr "Bouton Suivant"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1458
-#, fuzzy
 msgid "Touch"
-msgstr "Écran tactile"
+msgstr "Tactile"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1462
-#, fuzzy
 msgid "Palm rejection"
-msgstr "Sélection"
+msgstr "Rejet de la paume"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1464
-#, fuzzy
 msgid ""
 "If your hardware has no palm rejection, MoreXournal can turn off touch while "
 "the pen is near the screen."
 msgstr ""
-"<i>Si votre matériel ne supporte pas la reconnaissance manuelle, Xournal++ "
-"peut désactiver votre écran tactile lorsque votre stylet est proche de "
-"l'écran.</i>"
+"Si votre matériel ne gère pas le rejet de la paume, MoreXournal peut "
+"désactiver le tactile lorsque le stylet est proche de l'écran."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1468
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1470
 msgid "Turn off touch while the pen is near"
-msgstr ""
+msgstr "Désactiver le tactile lorsque le stylet est proche"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1473
 msgid "Turn on “Turn off touch while the pen is near” to change this."
 msgstr ""
+"Activez « Désactiver le tactile lorsque le stylet est proche » pour modifier "
+"ce réglage."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1474
 msgid "Autodetect"
@@ -3081,95 +3005,90 @@ msgstr "Détection automatique"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1474
 msgid "X11"
-msgstr ""
+msgstr "X11"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1475
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1476
 msgid "Method"
-msgstr ""
+msgstr "Méthode"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1480
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1482
 msgid "Turn touch back on after"
-msgstr ""
+msgstr "Réactiver le tactile après"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1480
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1718
 msgid "s"
-msgstr ""
+msgstr "s"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1487
-#, fuzzy
 msgid "Finger drawing"
-msgstr "Dessin normal"
+msgstr "Dessin au doigt"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1490
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1492
-#, fuzzy
 msgid "Draw with your finger"
-msgstr "À carreaux, avec marges"
+msgstr "Dessiner avec le doigt"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1491
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1493
 msgid "Otherwise one finger scrolls the page."
-msgstr ""
+msgstr "Sinon, un doigt fait défiler la page."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1498
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1501
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1503
 msgid "Pinch to zoom"
-msgstr ""
+msgstr "Pincer pour zoomer"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1508
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1510
-#, fuzzy
 msgid "Start zooming after"
-msgstr "Commencez à zoomer après une certaine distance "
+msgstr "Commencer à zoomer après"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1508
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1511
 msgid "How much farther apart the two fingers must move."
-msgstr ""
+msgstr "Distance supplémentaire dont les deux doigts doivent s'écarter."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1509
 msgid "Turn on “Pinch to zoom” to change this."
-msgstr ""
+msgstr "Activez « Pincer pour zoomer » pour modifier ce réglage."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1516
-#, fuzzy
 msgid "Touch scrolling"
 msgstr "Défilement tactile"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1520
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1523
 msgid "Turn off GTK inertial scrolling"
-msgstr ""
+msgstr "Désactiver le défilement par inertie de GTK"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1521
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1524
 msgid ""
 "Works around scrolling bugs on some systems. Takes effect after a restart."
 msgstr ""
+"Contourne des bogues de défilement sur certains systèmes. Prend effet après "
+"un redémarrage."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1530
-#, fuzzy
 msgid "Touchscreen device"
-msgstr "Écran tactile"
+msgstr "Périphérique d'écran tactile"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1532
-#, fuzzy
 msgid ""
 "You can configure a device not identified by GTK as a touchscreen to behave "
 "as if it were one."
 msgstr ""
-"<i>Vous pouvez configurer des périphériques, non identifiés par GTK comme "
-"écran tactile, pour vous comporter comme s'ils étaient un.</i>"
+"Vous pouvez configurer un périphérique non reconnu par GTK comme écran "
+"tactile afin qu'il se comporte comme tel."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1538
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1539
-#, fuzzy
 msgid "Device action"
-msgstr "Sélection"
+msgstr "Action du périphérique"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1545
 #: ../src/core/gui/menus/menubar/Menubar.cpp:198
@@ -3177,154 +3096,146 @@ msgid "Tools"
 msgstr "Outils"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1549
-#, fuzzy
 msgid "Automatic shapes"
-msgstr "Automatique"
+msgstr "Formes automatiques"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1551
 msgid ""
 "Hold the pen still at the end of a stroke to turn it into a line, triangle, "
 "rectangle or circle."
 msgstr ""
+"Maintenez le stylet immobile à la fin d'un trait pour le convertir en ligne, "
+"triangle, rectangle ou cercle."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1554
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1556
 msgid "Turn strokes into shapes when you hold still"
-msgstr ""
+msgstr "Convertir les traits en formes en restant immobile"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1564
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:240
 msgid "Hold time"
-msgstr ""
+msgstr "Temps de maintien"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1567
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:259
 msgid "Allowed movement while holding"
-msgstr ""
+msgstr "Mouvement toléré pendant le maintien"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1569
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:279
-#, fuzzy
 msgid "Recognition"
-msgstr "Reconnaissance manuelle"
+msgstr "Reconnaissance"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1572
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:327
 msgid "Smaller strokes stay freehand"
-msgstr ""
+msgstr "Les traits plus petits restent à main levée"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1574
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:170
 msgid "Try it"
-msgstr ""
+msgstr "Essayer"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1581
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:353
 msgid "Shape recognition thresholds"
-msgstr ""
+msgstr "Seuils de reconnaissance de formes"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1583
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:377
 msgid "Line straightness"
-msgstr ""
+msgstr "Rectitude des lignes"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1585
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:381
-#, fuzzy
 msgid "Circle roundness"
-msgstr "Sur gommette circulaire"
+msgstr "Circularité du cercle"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1587
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:385
 msgid "Rectangle corner angle"
-msgstr ""
+msgstr "Angle des coins du rectangle"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1589
 msgid "Open corners allowed"
-msgstr ""
+msgstr "Coins ouverts tolérés"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1592
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:430
 msgid "Restore the default thresholds"
-msgstr ""
+msgstr "Rétablir les seuils par défaut"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1598
-#, fuzzy
 msgid "Tap action"
-msgstr "Activer l'action du bouton"
+msgstr "Appui court"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1600
 msgid ""
 "A short tap with a drawing tool can select an object or open the floating "
 "toolbox instead of drawing a dot."
 msgstr ""
+"Un appui court avec un outil de dessin peut sélectionner un objet ou ouvrir "
+"la boîte à outils flottante au lieu de tracer un point."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1603
 msgid "Turn on “Treat short taps as an action” to change this."
 msgstr ""
+"Activez « Traiter les appuis courts comme une action » pour modifier ce "
+"réglage."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1605
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1607
 msgid "Treat short taps as an action"
-msgstr ""
+msgstr "Traiter les appuis courts comme une action"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1610
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1613
-#, fuzzy
 msgid "Try to select an object first"
-msgstr "Essayez d'abord de sélectionner l'objet."
+msgstr "Essayer d'abord de sélectionner un objet"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1615
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1618
-#, fuzzy
 msgid "Show the floating toolbox"
 msgstr "Afficher la boîte à outils flottante"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1620
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1622
-#, fuzzy
 msgid "Time limit"
-msgstr "Limite de temps (ms)"
+msgstr "Limite de temps"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1621
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1631
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1655
 msgid "ms"
-msgstr ""
+msgstr "ms"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1626
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1627
-#, fuzzy
 msgid "Length limit"
-msgstr "Limite de longueur (mm)"
+msgstr "Limite de longueur"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1626
 msgid "mm"
-msgstr ""
+msgstr "mm"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1631
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1632
-#, fuzzy
 msgid "Frequency limit"
-msgstr "Limite en fréquence (ms)"
+msgstr "Limite de fréquence"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1638
-#, fuzzy
 msgid "Default tool"
 msgstr "Outil par défaut"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1639
-#, fuzzy
 msgid "The tool and settings the Default tool button selects."
-msgstr ""
-"<i>Sélectionnez l'outil et les paramètres si vous appuyez sur le bouton par "
-"défaut.</i>"
+msgstr "L'outil et les réglages sélectionnés par le bouton Outil par défaut."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1644
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1645
-#, fuzzy
 msgid "Tool"
-msgstr "Outils"
+msgstr "Outil"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1651
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:480
@@ -3334,66 +3245,64 @@ msgstr "Pointeur laser"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1655
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1656
 msgid "Fade out after"
-msgstr ""
+msgstr "Estomper après"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1663
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1668
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1671
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1673
-#, fuzzy
 msgid "Audio recording"
 msgstr "Enregistrement audio"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1664
 msgid "Turn on “Audio recording” to change this."
-msgstr ""
+msgstr "Activez « Enregistrement audio » pour modifier ce réglage."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1672
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1674
 msgid "Record audio linked to your strokes. Takes effect after a restart."
 msgstr ""
+"Enregistrer de l'audio associé à vos traits. Prend effet après un "
+"redémarrage."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1680
-#, fuzzy
 msgid "Recording"
-msgstr "Enregistrement audio"
+msgstr "Enregistrement"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1683
-#: ../src/core/gui/dialog/SettingsDialog.cpp:3180
+#: ../src/core/gui/dialog/SettingsDialog.cpp:3181
 #: ../src/core/gui/dialog/XojOpenDlg.cpp:82
-#, fuzzy
 msgid "Select folder"
-msgstr "Choisir un répertoire"
+msgstr "Sélectionner un dossier"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1687
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1688
 msgid "Save recordings in"
-msgstr ""
+msgstr "Enregistrer les fichiers audio dans"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1691
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1692
 msgid "Microphone"
-msgstr ""
+msgstr "Microphone"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1696
 msgid "16000 Hz"
-msgstr ""
+msgstr "16 000 Hz"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1696
 msgid "44100 Hz"
-msgstr ""
+msgstr "44 100 Hz"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1696
 msgid "96000 Hz"
-msgstr ""
+msgstr "96 000 Hz"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1696
 msgid "192000 Hz"
-msgstr ""
+msgstr "192 000 Hz"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1697
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1698
-#, fuzzy
 msgid "Sample rate"
 msgstr "Taux d'échantillonnage"
 
@@ -3403,50 +3312,44 @@ msgid "Gain"
 msgstr "Gain"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1709
-#, fuzzy
 msgid "Playback"
-msgstr "Paramètres de lecture"
+msgstr "Lecture"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1710
-#, fuzzy
 msgid "Changes take effect on new recordings and playbacks."
 msgstr ""
-"<i>Les modifications ne prennent effet que sur les nouveaux enregistrements "
-"et les nouvelles lectures.</i>"
+"Les modifications prennent effet pour les nouveaux enregistrements et les "
+"nouvelles lectures."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1713
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1714
 msgid "Speakers"
-msgstr ""
+msgstr "Haut-parleurs"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1718
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1719
 msgid "Skip forward and back by"
-msgstr ""
+msgstr "Saut avant et arrière de"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1730
-#, fuzzy
 msgid "Generation command"
-msgstr "Commande de génération LaTeX"
+msgstr "Commande de génération"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1733
-#, fuzzy
 msgid "Check LaTeX is installed before running"
-msgstr "Toujours vérifier les dépendances LaTeX avant de lancer"
+msgstr "Vérifier que LaTeX est installé avant l'exécution"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1734
-#, fuzzy
 msgid "Template file"
-msgstr "Ouvrir un fichier modèle"
+msgstr "Fichier modèle"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1736
-#, fuzzy
 msgid "Default formula"
-msgstr "Outil par défaut"
+msgstr "Formule par défaut"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1739
 msgid "Formula editor"
-msgstr ""
+msgstr "Éditeur de formules"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1742
 msgid "Line numbers"
@@ -3462,7 +3365,7 @@ msgstr "Indentation automatique"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1748
 msgid "Wrap long lines"
-msgstr ""
+msgstr "Retour à la ligne automatique"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1750
 #: ../src/core/gui/toolbarMenubar/FontButton.cpp:47
@@ -3471,39 +3374,39 @@ msgid "Font"
 msgstr "Police"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1753
-#, fuzzy
 msgid "External LaTeX editor"
-msgstr "Utiliser un éditeur externe"
+msgstr "Éditeur LaTeX externe"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1754
 msgid "Edit formulas in another program"
-msgstr ""
+msgstr "Modifier les formules dans un autre programme"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1756
 msgid "Editor command"
 msgstr "Commande de l'éditeur"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1758
-#, fuzzy
 msgid "Temporary file extension"
-msgstr "Paramètres du fichier de modèle"
+msgstr "Extension de fichier temporaire"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1761
 msgid "Insert the formula when the editor closes"
-msgstr ""
+msgstr "Insérer la formule à la fermeture de l'éditeur"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1793
 msgid "Advanced"
-msgstr ""
+msgstr "Avancé"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1794
 msgid ""
 "Settings most people never need to change. Use them to fix a device that is "
 "not detected correctly, tune performance, or try experimental behavior."
 msgstr ""
+"Réglages que la plupart des utilisateurs n'ont jamais besoin de modifier. "
+"Utilisez-les pour corriger un périphérique mal détecté, ajuster les "
+"performances ou essayer un comportement expérimental."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1799
-#, fuzzy
 msgid "Input devices"
 msgstr "Périphériques d'entrée"
 
@@ -3512,45 +3415,52 @@ msgid ""
 "Choose how each device behaves. Use this when a pen or touchscreen is not "
 "detected correctly."
 msgstr ""
+"Choisissez le comportement de chaque périphérique. Utilisez ceci lorsqu'un "
+"stylet ou un écran tactile n'est pas correctement détecté."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1813
 msgid "Input devices and testing area"
-msgstr ""
+msgstr "Périphériques d'entrée et zone de test"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1814
 msgid "Change device classes, emulate tip contact, or inspect input logs."
 msgstr ""
+"Modifiez les classes de périphériques, émulez le contact de la pointe ou "
+"inspectez les journaux d'entrée."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1820
-#, fuzzy
 msgid "Drawing input"
-msgstr "Type de dessin"
+msgstr "Entrée de dessin"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1823
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1825
 msgid "Keep drawing past the window edge"
-msgstr ""
+msgstr "Continuer à dessiner au-delà du bord de la fenêtre"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1830
 msgid "Custom palm rejection commands"
-msgstr ""
+msgstr "Commandes personnalisées de rejet de la paume"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1832
 msgid ""
 "Used with the Custom method. They run on the interface thread, so they must "
 "return quickly."
 msgstr ""
+"Utilisées avec la méthode Personnalisé. Elles s'exécutent dans le fil "
+"d'interface et doivent donc se terminer rapidement."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1835
 msgid ""
 "Turn on “Turn off touch while the pen is near” and select the Custom method "
 "to change this."
 msgstr ""
+"Activez « Désactiver le tactile lorsque le stylet est proche » et "
+"sélectionnez la méthode Personnalisé pour modifier ce réglage."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1837
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1839
 msgid "Command to turn touch on"
-msgstr ""
+msgstr "Commande pour activer le tactile"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1838
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1843
@@ -3560,57 +3470,55 @@ msgstr "Test"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1842
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1845
 msgid "Command to turn touch off"
-msgstr ""
+msgstr "Commande pour désactiver le tactile"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1850
-#, fuzzy
 msgid "Text tool"
-msgstr "Texte"
+msgstr "Outil texte"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1853
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1854
-#, fuzzy
 msgid "Tab inserts spaces"
-msgstr "Insérer une page"
+msgstr "Tab insère des espaces"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1859
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1860
-#, fuzzy
 msgid "Spaces per Tab"
-msgstr "Espaceur"
+msgstr "Espaces par tabulation"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1859
 msgid "Turn on “Tab inserts spaces” to change this."
-msgstr ""
+msgstr "Activez « Tab insère des espaces » pour modifier ce réglage."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1866
-#, fuzzy
 msgid "Opening documents"
-msgstr "_Documents récents"
+msgstr "Ouverture des documents"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1869
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1871
 msgid "Reopen the last document at startup"
-msgstr ""
+msgstr "Rouvrir le dernier document au démarrage"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1874
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1877
 msgid "Open the matching notes when opening a PDF"
-msgstr ""
+msgstr "Ouvrir les notes correspondantes à l'ouverture d'un PDF"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1875
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1878
 msgid "If lecture.pdf has a lecture.xopp next to it, open the notes instead."
 msgstr ""
+"Si cours.pdf est accompagné d'un fichier cours.xopp, ouvrir plutôt les notes."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1884
-#, fuzzy
 msgid "Edge scrolling"
-msgstr "Défilement illimité"
+msgstr "Défilement sur les bords"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1885
 msgid "Scrolls the page when you drag a selection to the window edge."
 msgstr ""
+"Fait défiler la page lorsque vous faites glisser une sélection vers le bord "
+"de la fenêtre."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1889
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1890
@@ -3620,131 +3528,126 @@ msgstr "Vitesse de base"
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1893
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1895
 msgid "Maximum speed-up"
-msgstr ""
+msgstr "Accélération maximale"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1901
 msgid "Page preloading"
-msgstr ""
+msgstr "Préchargement des pages"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1905
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1906
-#, fuzzy
 msgid "Pages to preload before"
-msgstr "Précharger les pages avant"
+msgstr "Pages à précharger avant"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1910
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1911
-#, fuzzy
 msgid "Pages to preload after"
-msgstr "Précharger les pages après"
+msgstr "Pages à précharger après"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1914
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1917
-#, fuzzy
 msgid "Free hidden pages while scrolling"
-msgstr "Vider le cache paginé lors du défilement"
+msgstr "Libérer les pages masquées pendant le défilement"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1915
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1917
 msgid "Uses less memory on large documents."
-msgstr ""
+msgstr "Utilise moins de mémoire pour les documents volumineux."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1923
 msgid "PDF rendering"
-msgstr ""
+msgstr "Rendu PDF"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1927
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1930
-#, fuzzy
 msgid "Re-render PDFs when zoom changes by more than"
-msgstr "Recalculer le rendu lorsque le zoom de la page change de plus de "
+msgstr "Recalculer le rendu des PDF quand le zoom change de plus de"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1928
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1931
 msgid "Sharper PDF backgrounds while zooming. Printing is not affected."
 msgstr ""
+"Arrière-plans PDF plus nets lors du zoom. L'impression n'est pas affectée."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1937
 msgid "Screen calibration"
-msgstr ""
+msgstr "Étalonnage de l'écran"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1939
-#, fuzzy, c-format
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1940
+#, no-c-format
 msgid ""
 "Makes 100% zoom show real size. Hold a ruler to the screen and move the "
 "slider until both match."
 msgstr ""
-"<i>Mettez une règle sur votre écran et déplacez le curseur jusqu'à ce que "
-"les deux règles correspondent.</i>"
+"Fait correspondre le zoom à 100 % à la taille réelle. Placez une règle "
+"contre l'écran et déplacez le curseur jusqu'à ce que les deux correspondent."
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1942
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1943
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1944
 msgid "Detect automatically"
-msgstr ""
-
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1959
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1961
-msgid "Screen ruler (cm)"
-msgstr ""
+msgstr "Détecter automatiquement"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1960
-msgid "Available when “Detect automatically” is off."
-msgstr ""
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1962
+msgid "Screen ruler (cm)"
+msgstr "Règle d'écran (cm)"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1967
-msgid "Modifiers by draw direction"
-msgstr ""
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1961
+msgid "Available when “Detect automatically” is off."
+msgstr "Disponible lorsque « Détecter automatiquement » est désactivé."
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1968
-msgid "Drawing a shape up or left acts as if Shift or Ctrl were held."
-msgstr ""
+msgid "Modifiers by draw direction"
+msgstr "Modificateurs selon la direction du tracé"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1969
+msgid "Drawing a shape up or left acts as if Shift or Ctrl were held."
+msgstr ""
+"Tracer une forme vers le haut ou vers la gauche agit comme si Maj ou Ctrl "
+"était maintenu."
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1970
 msgid "Experimental"
-msgstr ""
+msgstr "Expérimental"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1971
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1973
-#, fuzzy
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1972
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1974
 msgid "Set modifiers by draw direction"
-msgstr ""
-"Outils de dessin - Définir les modificateurs par la direction de dessin "
-"(Expérimental)"
-
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1977
-#: ../src/core/gui/dialog/SettingsDialog.cpp:1979
-#, fuzzy
-msgid "Direction radius"
-msgstr "Angle de la zone aveugle"
+msgstr "Définir les modificateurs selon la direction du tracé"
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1978
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1980
+msgid "Direction radius"
+msgstr "Rayon de direction"
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:1979
 msgid "Turn on “Set modifiers by draw direction” to change this."
 msgstr ""
+"Activez « Définir les modificateurs selon la direction du tracé » pour "
+"modifier ce réglage."
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2024
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2090
-#, fuzzy
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2025
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2091
 msgid "Search results"
-msgstr "Rechercher"
+msgstr "Résultats de recherche"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2081
-#, fuzzy
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2082
 msgid "No settings match"
-msgstr "Paramètres de l'éditeur"
+msgstr "Aucun réglage ne correspond"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2083
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2084
 msgid "Try another word, such as pen, zoom or backup."
-msgstr ""
+msgstr "Essayez un autre mot, tel que stylo, zoom ou sauvegarde."
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2749
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2762
-#, fuzzy
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2750
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2763
 msgid "System default"
 msgstr "Valeur par défaut du système"
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:3186
+#: ../src/core/gui/dialog/SettingsDialog.cpp:3187
 msgid "Folder not set - Select a folder to enable recording"
 msgstr ""
+"Dossier non défini - Sélectionnez un dossier pour activer l'enregistrement"
 
 #: ../src/core/gui/dialog/SettingsDialogPaletteTab.cpp:31
 msgid "Built-in palettes"
@@ -3761,8 +3664,8 @@ msgid ""
 "palettes</a> and <a href=\"{2}\">User palettes</a> directories:</i>\n"
 msgstr ""
 "<i>Les palettes affichées ci-dessous proviennent des répertoires de <a "
-"href=\"file://{1}\">palettes intégrées</a> et de <a href=\"file://"
-"{2}\">palettes utilisateurs</a> :</i>\n"
+"href=\"{1}\">palettes intégrées</a> et de <a href=\"{2}\">palettes "
+"utilisateurs</a> :</i>\n"
 
 #: ../src/core/gui/dialog/SettingsDialogPaletteTab.cpp:117
 msgid ""
@@ -3786,73 +3689,71 @@ msgid "Palette has no Name"
 msgstr "La palette n'a pas de nom"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:119
-#, fuzzy
 msgid "Line"
-msgstr "Tracer une ligne"
+msgstr "Ligne"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:121
 msgid "Triangle"
-msgstr ""
+msgstr "Triangle"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:125
-#, fuzzy
 msgid "Circle"
-msgstr "Couleur du cercle"
+msgstr "Cercle"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:236
 msgid "Turn on “Turn strokes into shapes when you hold still” to change this."
 msgstr ""
+"Activez « Convertir les traits en formes en restant immobile » pour modifier "
+"ce réglage."
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:279
 msgid "All shapes together"
-msgstr ""
+msgstr "Toutes les formes ensemble"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:294
 msgid "Strict"
-msgstr ""
+msgstr "Strict"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:297
 msgid "Tolerant"
-msgstr ""
+msgstr "Tolérant"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:309
-#, fuzzy
 msgctxt "shape sensitivity"
 msgid "Custom"
 msgstr "Personnalisé"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:356
 msgid "Fine-tune how strict recognition is for each shape."
-msgstr ""
+msgstr "Ajustez finement la tolérance de reconnaissance pour chaque forme."
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:379
 msgid "Polygon sides straightness"
-msgstr ""
+msgstr "Rectitude des côtés des polygones"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:383
 msgid "Circle radius error"
-msgstr ""
+msgstr "Erreur de rayon du cercle"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:387
 msgid "Open corners allowed (rectangle)"
-msgstr ""
+msgstr "Coins ouverts tolérés (rectangle)"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:390
 msgid "Open corners allowed (triangle)"
-msgstr ""
+msgstr "Coins ouverts tolérés (triangle)"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:393
 msgid "Straighten near-axis angle"
-msgstr ""
+msgstr "Aligner les angles proches des axes"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:431
-#, fuzzy
 msgid "Restore defaults"
-msgstr "Restaurer le fichier"
+msgstr "Rétablir les valeurs par défaut"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:453
 msgid "Try it here"
-msgstr ""
+msgstr "Essayez ici"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:458
 #: ../src/core/undo/AddUndoAction.cpp:88
@@ -3861,43 +3762,42 @@ msgid "stroke"
 msgstr "trait"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:459
-#, fuzzy
 msgid "recognized shape"
-msgstr "Utiliser l'ancrage pour les formes reconnues"
+msgstr "forme reconnue"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:460
 msgid "tolerance and delay"
-msgstr ""
+msgstr "tolérance et délai"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:462
-#, fuzzy
 msgid "Clear"
-msgstr "Vider la liste"
+msgstr "Effacer"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:490
 msgid ""
 "Draw a line, triangle, rectangle or circle and hold still at the end without "
 "lifting."
 msgstr ""
+"Tracez une ligne, un triangle, un rectangle ou un cercle et restez immobile "
+"à la fin sans lever le stylet."
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:628
-#, fuzzy
 msgctxt "shape sensitivity"
 msgid "Default"
-msgstr "Défaut"
+msgstr "Par défaut"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:864
 msgid "Pad cleared."
-msgstr ""
+msgstr "Zone effacée."
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:875
 #, c++-format
 msgid "Recognized: {1}"
-msgstr ""
+msgstr "Reconnu : {1}"
 
 #: ../src/core/gui/dialog/ShapeSettingsPanel.cpp:878
 msgid "No shape"
-msgstr ""
+msgstr "Aucune forme"
 
 #: ../src/core/gui/dialog/XojOpenDlg.cpp:65
 msgid "Attach file to the journal"
@@ -3931,9 +3831,8 @@ msgid "Choose image file"
 msgstr "Choisir un fichier image"
 
 #: ../src/core/gui/dialog/XojOpenDlg.cpp:212
-#, fuzzy
 msgid "Choose Latex template file"
-msgstr "Choisir un fichier de modèle LaTeX global"
+msgstr "Choisir un fichier modèle LaTeX"
 
 #: ../src/core/gui/dialog/XojSaveDlg.cpp:80
 msgid "Export File"
@@ -3981,9 +3880,8 @@ msgstr ""
 "charger «{1}»)"
 
 #: ../src/core/gui/menus/menubar/Menubar.cpp:187
-#, fuzzy
 msgid "Edit"
-msgstr "_Editer"
+msgstr "Édition"
 
 #: ../src/core/gui/menus/menubar/Menubar.cpp:195
 #: ../src/core/gui/toolbarMenubar/ToolPageSpinner.cpp:26
@@ -3991,9 +3889,8 @@ msgid "Page"
 msgstr "Page"
 
 #: ../src/core/gui/menus/menubar/Menubar.cpp:196
-#, fuzzy
 msgid "Layers"
-msgstr "Calque"
+msgstr "Calques"
 
 #: ../src/core/gui/menus/menubar/Menubar.cpp:197
 msgid "View"
@@ -4521,9 +4418,8 @@ msgid "Emergency saved document"
 msgstr "Document d'urgence enregistré"
 
 #: ../src/core/undo/FillColorUndoAction.cpp:53
-#, fuzzy
 msgid "Change fill"
-msgstr "Changer le remplissage"
+msgstr "Modifier le remplissage"
 
 #: ../src/core/undo/FillUndoAction.cpp:86
 msgid "Change stroke fill"
@@ -4724,9 +4620,9 @@ msgid ""
 msgstr "Erreur de lecture \"{1}\" : {2}"
 
 #: ../src/util/PathUtil.cpp:449
-#, fuzzy, c++-format
+#, c++-format
 msgid "morexournal-{1}"
-msgstr "xournalpp-{1}"
+msgstr "morexournal-{1}"
 
 #: ../src/util/PathUtil.cpp:458
 #, c++-format
@@ -4816,30 +4712,28 @@ msgid "xoj-preview-extractor: successfully extracted"
 msgstr "extracteur-xoj-preview : extrait avec succès"
 
 #: ../ui/about.glade:12
-#, fuzzy
 msgid "About MoreXournal"
-msgstr "À propos de Xournal++"
+msgstr "À propos de MoreXournal"
 
 #: ../ui/about.glade:93
-#, fuzzy
 msgid ""
 "<span size=\"xx-large\" weight=\"bold\">MoreXournal</span>\n"
 "<i>Based on Xournal++</i>"
 msgstr ""
-"<span size=\"xx-large\" weight=\"bold\">Xournal++</span>\n"
-"<i>La prochaine génération</i>"
+"<span size=\"xx-large\" weight=\"bold\">MoreXournal</span>\n"
+"<i>Basé sur Xournal++</i>"
 
 #: ../ui/about.glade:133
 msgid "Icon Designers"
 msgstr "Concepteurs des icônes"
 
 #: ../ui/about.glade:186
-#, fuzzy
 msgid ""
 "Based on Xournal++ (https://xournalpp.github.io/)\n"
 "Partially based on Xournal\n"
 "by Denis Auroux"
 msgstr ""
+"Basé sur Xournal++ (https://xournalpp.github.io/)\n"
 "Partiellement basé sur Xournal\n"
 "par Denis Auroux"
 
@@ -4879,9 +4773,8 @@ msgid "Crash report"
 msgstr "Rapport d'erreur"
 
 #: ../ui/crashDialog.glade:23
-#, fuzzy
 msgid "Oops... MoreXournal encountered a fatal error"
-msgstr "Oups... Xournal++ a rencontré une erreur fatale"
+msgstr "Oups... MoreXournal a rencontré une erreur fatale"
 
 #: ../ui/crashDialog.glade:39
 msgid ""
@@ -5117,9 +5010,8 @@ msgid "Backend"
 msgstr "Backend"
 
 #: ../ui/exportSettings.glade:426
-#, fuzzy
 msgid "Export format"
-msgstr "Exporter les journaux"
+msgstr "Format d'exportation"
 
 #: ../ui/extEdTexDialog.glade:23 ../ui/intEdTexDialog.glade:18
 msgid "Insert Latex"
@@ -5135,7 +5027,7 @@ msgstr "Sortie générée par la commande LaTeX."
 
 #: ../ui/extEdTexDialog.glade:117 ../ui/intEdTexDialog.glade:167
 msgid "The formula is empty when rendered or invalid."
-msgstr ""
+msgstr "La formule est vide après rendu ou invalide."
 
 #: ../ui/extEdTexDialog.glade:138
 msgid "Continue Editing"
@@ -5147,7 +5039,7 @@ msgstr "Aller à la page"
 
 #: ../ui/goto.glade:108
 msgid "Go"
-msgstr ""
+msgstr "Aller"
 
 #: ../ui/intEdTexDialog.glade:37
 msgid "Enter / edit LaTeX Text"
@@ -5180,16 +5072,15 @@ msgstr ""
 #: ../ui/latexSettings.glade:144
 msgid ""
 "Substitutes %%XPP_TOOL_INPUT%%, %%XPP_TEXT_COLOR%%, and %%XPP_VARNAME%%."
-msgstr ""
+msgstr "Remplace %%XPP_TOOL_INPUT%%, %%XPP_TEXT_COLOR%% et %%XPP_VARNAME%%."
 
 #: ../ui/latexSettings.glade:391
-#, fuzzy
 msgid "Use system font"
-msgstr "Utiliser les paramètres par défaut"
+msgstr "Utiliser la police système"
 
 #: ../ui/latexSettings.glade:438
 msgid "Available when “Use system font” is off."
-msgstr ""
+msgstr "Disponible lorsque « Utiliser la police système » est désactivé."
 
 #: ../ui/latexSettings.glade:452
 msgid "Pick the Editor's Font"
@@ -5199,6 +5090,8 @@ msgstr "Choisir la police de l'éditeur"
 #: ../ui/latexSettings.glade:653
 msgid "Turn on “Edit formulas in another program” to change this."
 msgstr ""
+"Activez « Modifier les formules dans un autre programme » pour modifier ce "
+"réglage."
 
 #: ../ui/linkDialog.glade:63
 msgid "Text:"
@@ -5233,9 +5126,8 @@ msgid " = Floating Toolbox (experimental) ="
 msgstr " = Boîte à outils flottante (expérimental) ="
 
 #: ../ui/main.glade:110
-#, fuzzy
 msgid "<b>Empty Toolbox</b>"
-msgstr "Vide"
+msgstr "<b>Boîte à outils vide</b>"
 
 #: ../ui/main.glade:420
 msgid "Find previous occurrence of the search string"
@@ -5348,11 +5240,10 @@ msgid "Load from file"
 msgstr "Charger depuis le fichier"
 
 #: ../ui/plugin.glade:81
-#, fuzzy
 msgid "Plugin changes are only applied after MoreXournal is restarted"
 msgstr ""
-"Les modifications de greffons ne sont appliquées qu'après le redémarrage de "
-"Xournal++"
+"Les modifications des greffons ne prennent effet qu'après le redémarrage de "
+"MoreXournal"
 
 #: ../ui/pluginEntry.glade:59
 msgid "Author: "
@@ -5379,9 +5270,8 @@ msgid "Sample layer name"
 msgstr "Nom du calque d'échantillon"
 
 #: ../ui/renameLayerDialog.glade:71
-#, fuzzy
 msgid "Rename"
-msgstr "Renommer le calque"
+msgstr "Renommer"
 
 #: ../ui/selectOpacity.glade:23
 msgid "Opacity settings"
@@ -5392,7 +5282,6 @@ msgid "Arithmetic mean"
 msgstr "Moyenne arithmétique"
 
 #: ../ui/settings.glade:246
-#, fuzzy
 msgid "Velocity-based Gaussian weights"
 msgstr "Pondération gaussienne basée sur la vitesse"
 
@@ -5409,9 +5298,8 @@ msgid "Preferences"
 msgstr "Préférences"
 
 #: ../ui/settings.glade:344
-#, fuzzy
 msgid "Search settings"
-msgstr "Réglages d'opacité"
+msgstr "Rechercher dans les réglages"
 
 #: ../ui/settingsButtonConfig.glade:63
 msgid "Eraser Type - don't change"
@@ -5443,7 +5331,7 @@ msgstr "Désactiver le dessin pour ce périphérique"
 
 #: ../ui/settingsButtonConfig.glade:154
 msgid "Thickness, color and line style for this button"
-msgstr ""
+msgstr "Épaisseur, couleur et style de ligne pour ce bouton"
 
 #: ../ui/settingsButtonConfig.glade:159
 msgid "Options"
@@ -5531,9 +5419,8 @@ msgid "Move Selection Layer Down"
 msgstr "Déplacer la sélection vers le calque inférieur"
 
 #: ../ui/mainmenubar.xml:147
-#, fuzzy
 msgid "_Page"
-msgstr "Page"
+msgstr "_Page"
 
 #: ../ui/mainmenubar.xml:150
 msgid "New Page _Before"
@@ -5549,11 +5436,11 @@ msgstr "Dupliquer la page"
 
 #: ../ui/mainmenubar.xml:162
 msgid "Move Page _Up"
-msgstr "Déplacer la page vers le haut"
+msgstr "Déplacer la page vers le _haut"
 
 #: ../ui/mainmenubar.xml:166
 msgid "Move Page _Down"
-msgstr "Déplacer la page vers le bas"
+msgstr "Déplacer la page vers le _bas"
 
 #: ../ui/mainmenubar.xml:170
 msgid "_Delete Page"
@@ -5576,9 +5463,8 @@ msgid "Configure Page Template"
 msgstr "Configurer le modèle de page"
 
 #: ../ui/mainmenubar.xml:201
-#, fuzzy
 msgid "Go to"
-msgstr "Aller à la page"
+msgstr "Aller à"
 
 #: ../ui/mainmenubar.xml:204
 msgid "_First Page"
@@ -5598,16 +5484,15 @@ msgstr "Page annotée s_uivante"
 
 #: ../ui/mainmenubar.xml:228
 msgid "Jump _Back"
-msgstr "Retour en arrière"
+msgstr "Re_tour en arrière"
 
 #: ../ui/mainmenubar.xml:232
 msgid "Jump _Forward"
-msgstr "Avancer"
+msgstr "_Avancer"
 
 #: ../ui/mainmenubar.xml:240
-#, fuzzy
 msgid "_Layers"
-msgstr "Calque"
+msgstr "Ca_lques"
 
 #: ../ui/mainmenubar.xml:243
 msgid "_Previous Layer"
@@ -5646,9 +5531,8 @@ msgid "_Presentation Mode"
 msgstr "Mode _présentation"
 
 #: ../ui/mainmenubar.xml:288
-#, fuzzy
 msgid "_Fullscreen"
-msgstr "Plein écran"
+msgstr "P_lein écran"
 
 #: ../ui/mainmenubar.xml:295
 msgid "Layout"
@@ -5767,9 +5651,8 @@ msgid "_Tools"
 msgstr "_Outils"
 
 #: ../ui/mainmenubar.xml:449
-#, fuzzy
 msgid "Select PDF Text"
-msgstr "Sélectionner des lignes de texte PDF"
+msgstr "Sélectionner du texte PDF"
 
 #: ../ui/mainmenubar.xml:452
 msgid "Select Linear Text"
@@ -5812,7 +5695,6 @@ msgid "ver_y thick"
 msgstr "Trè_s épais"
 
 #: ../ui/mainmenubar.xml:533
-#, fuzzy
 msgid "Audio"
 msgstr "Audio"
 
@@ -5849,9 +5731,8 @@ msgid "All Tools"
 msgstr "Tous les outils"
 
 #: ../resources-templates/toolbar.ini.in:55
-#, fuzzy
 msgid "MoreXournal"
-msgstr "Nouveau Xournal"
+msgstr "MoreXournal"
 
 #: ../resources-templates/toolbar.ini.in:60
 msgid "Portrait"
@@ -5906,10 +5787,9 @@ msgstr ""
 
 #: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:8
 msgid "Xournal++ developers and MoreXournal contributors"
-msgstr ""
+msgstr "Développeurs de Xournal++ et contributeurs de MoreXournal"
 
 #: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:10
-#, fuzzy
 msgid ""
 "MoreXournal, based on Xournal++, is a hand note-taking software written in C+"
 "+ with the target of flexibility, functionality and speed. Stroke recognizer "
@@ -5917,42 +5797,48 @@ msgid ""
 "sourceforge. It supports GNU/Linux (e.g. Ubuntu, Debian, Arch, SUSE), macOS "
 "and Windows. Supports pen input from devices such as Wacom Tablets."
 msgstr ""
-"Xournal++ est un logiciel de prise de notes écrit en C++ qui combine "
-"flexibilité, fonctionnalité et rapidité. Certaines parties du code, dont la "
-"reconnaissance de traits, sont basées sur le code du projet Xournal, que "
-"vous pouvez trouver sur Sourceforge. Xournal++ prend en charge GNU/Linux "
-"(Ubuntu, Debian, Arch, ou SUSE par exemple), macOS et Windows, et supporte "
-"l'entrée à partir de stylets à l'aide de périphériques tels que les "
-"tablettes Wacom."
+"MoreXournal, basé sur Xournal++, est un logiciel de prise de notes "
+"manuscrites écrit en C++ visant flexibilité, fonctionnalité et rapidité. La "
+"reconnaissance de traits et d'autres parties reposent sur le code de "
+"Xournal, disponible sur SourceForge. Il prend en charge GNU/Linux (p. ex. "
+"Ubuntu, Debian, Arch, SUSE), macOS et Windows, ainsi que la saisie au stylet "
+"sur des appareils tels que les tablettes Wacom."
 
 #: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:17
-#, fuzzy
 msgid "MoreXournal features:"
-msgstr "Fonctionnalités de Xournal++ :"
+msgstr "Fonctionnalités de MoreXournal :"
 
 #: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:21
 msgid ""
 "Hold-to-shape drawing: hold the pen or highlighter still to convert a stroke "
 "into a recognized line, triangle, rectangle, or circle"
 msgstr ""
+"Formes par maintien : maintenez le stylo ou le surligneur immobile pour "
+"convertir un trait en ligne, triangle, rectangle ou cercle reconnu"
 
 #: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:22
 msgid ""
 "Editable shapes from the line, rectangle, and ellipse tools with geometry "
 "handles and a floating shape menu"
 msgstr ""
+"Formes modifiables depuis les outils ligne, rectangle et ellipse, avec "
+"poignées géométriques et menu flottant de forme"
 
 #: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:23
 msgid ""
 "Single top bar replacing the classic menu bar and toolbar rows, with built-"
 "in light and dark themes"
 msgstr ""
+"Barre supérieure unique remplaçant la barre de menus et les rangées d'outils "
+"classiques, avec thèmes clair et sombre intégrés"
 
 #: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:24
 msgid ""
 "Floating tool controls with recently used colors and bottom-corner zoom and "
 "layer controls"
 msgstr ""
+"Contrôles d'outils flottants avec couleurs récentes et commandes de zoom et "
+"de calques dans le coin inférieur"
 
 #: ../resources-templates/io.github.antopatanto.morexournal.appdata.xml.in:25
 msgid ""

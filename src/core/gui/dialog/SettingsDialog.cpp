@@ -1936,6 +1936,7 @@ void SettingsDialog::buildAdvancedPage() {
     {
         const char* secTitle = _("Screen calibration");
         const char* secNote =
+                // xgettext:no-c-format
                 _("Makes 100% zoom show real size. Hold a ruler to the screen and move the slider until both match.");
         GtkBox* card = addSection(page, "dpi", secTitle, secNote);
 
