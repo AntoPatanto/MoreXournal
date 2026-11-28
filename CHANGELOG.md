@@ -12,6 +12,7 @@
 ### Changed
 
 * Preferences are reorganised into 11 pages in a sidebar (General, Appearance, Pages and zoom; Pen, Mouse, Touch; Tools, Audio recording, LaTeX, AI assistants; Advanced), with on/off switches, plainer setting names and a "Restart needed" tag on settings that apply after a restart
+* The Preferences window has rounded corners and no title strip: the sidebar reaches the top edge, a close button sits at the top right, and Cancel and Save moved to the bottom right
 * Every entry of the main menu now has an icon at its left; entries inside submenus and the classic menu bar keep their current look
 * Italian, German, French and Simplified Chinese translations cover every string again, including the new Preferences, the touch mode and the AI assistants page
 

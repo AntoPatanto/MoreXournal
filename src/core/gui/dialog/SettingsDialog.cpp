@@ -202,7 +202,6 @@ SettingsDialog::SettingsDialog(GladeSearchpath* gladeSearchPath, Settings* setti
         callib(zoomcallib_new()),
         builder(gladeSearchPath, UI_FILE),
         window(GTK_WINDOW(builder.get(UI_DIALOG_NAME))),
-        headerBar(GTK_HEADER_BAR(builder.get("prefsHeaderBar"))),
         searchEntry(GTK_SEARCH_ENTRY(builder.get("prefsSearchEntry"))),
         navList(GTK_LIST_BOX(builder.get("prefsNavList"))),
         contentStack(GTK_STACK(builder.get("prefsContentStack"))),
@@ -231,7 +230,7 @@ SettingsDialog::SettingsDialog(GladeSearchpath* gladeSearchPath, Settings* setti
 
     capSettingsDialogDefaultSize(this->window.get(), this->control ? this->control->getGtkWindow() : nullptr);
 
-    // Header bar Save / Cancel
+    // Footer Save / Cancel and titlebar Close
     GtkWidget* btOk = builder.get("btOk");
     gtk_window_set_default(this->window.get(), btOk);
     g_signal_connect_swapped(btOk, "clicked", G_CALLBACK(+[](SettingsDialog* self) {
@@ -241,6 +240,7 @@ SettingsDialog::SettingsDialog(GladeSearchpath* gladeSearchPath, Settings* setti
                              }),
                              this);
     g_signal_connect_swapped(builder.get("btCancel"), "clicked", G_CALLBACK(gtk_window_close), window.get());
+    g_signal_connect_swapped(builder.get("btClose"), "clicked", G_CALLBACK(gtk_window_close), window.get());
 
     // Navigation and search
     g_signal_connect(navList, "row-selected", G_CALLBACK(+[](GtkListBox*, GtkListBoxRow* row, gpointer self) {
@@ -463,7 +463,7 @@ SettingsDialog::PageInfo& SettingsDialog::addPage(const char* id, const char* ti
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroller), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 
     GtkWidget* contentBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 20);
-    gtk_widget_set_margin_top(contentBox, 24);
+    gtk_widget_set_margin_top(contentBox, 4);
     gtk_widget_set_margin_bottom(contentBox, 40);
     gtk_widget_set_margin_start(contentBox, 24);
     gtk_widget_set_margin_end(contentBox, 24);
@@ -1987,7 +1987,7 @@ void SettingsDialog::buildSearchResultsPage() {
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroller), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 
     GtkWidget* contentBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 16);
-    gtk_widget_set_margin_top(contentBox, 24);
+    gtk_widget_set_margin_top(contentBox, 4);
     gtk_widget_set_margin_bottom(contentBox, 40);
     gtk_widget_set_margin_start(contentBox, 24);
     gtk_widget_set_margin_end(contentBox, 24);
@@ -2016,18 +2016,6 @@ void SettingsDialog::onNavRowSelected(GtkListBoxRow* row) {
     }
 
     gtk_stack_set_visible_child_name(contentStack, activePageId.c_str());
-    updateHeaderTitle();
-}
-
-void SettingsDialog::updateHeaderTitle() {
-    const char* visible = gtk_stack_get_visible_child_name(contentStack);
-    if (visible && std::string_view(visible) == "__search__") {
-        gtk_header_bar_set_title(headerBar, _("Search results"));
-        return;
-    }
-    if (auto it = pageIndexById.find(activePageId); it != pageIndexById.end()) {
-        gtk_header_bar_set_title(headerBar, pages[it->second].title.c_str());
-    }
 }
 
 void SettingsDialog::onSearchChanged() {
@@ -2042,7 +2030,6 @@ void SettingsDialog::onSearchChanged() {
             gtk_widget_hide(GTK_WIDGET(p.countLabel));
         }
         gtk_stack_set_visible_child_name(contentStack, activePageId.c_str());
-        updateHeaderTitle();
         return;
     }
 
@@ -2172,7 +2159,6 @@ void SettingsDialog::onSearchChanged() {
 
     gtk_widget_show_all(GTK_WIDGET(searchResultsBox));
     gtk_stack_set_visible_child_name(contentStack, "__search__");
-    updateHeaderTitle();
 }
 
 void SettingsDialog::jumpToSearchResult(size_t targetIndex) {
@@ -2189,7 +2175,6 @@ void SettingsDialog::jumpToSearchResult(size_t targetIndex) {
     gtk_entry_set_text(GTK_ENTRY(searchEntry), "");
     gtk_list_box_select_row(navList, pages[pageIt->second].navRow);
     gtk_stack_set_visible_child_name(contentStack, activePageId.c_str());
-    updateHeaderTitle();
 
     if (target.parentExpander) {
         gtk_expander_set_expanded(target.parentExpander, TRUE);

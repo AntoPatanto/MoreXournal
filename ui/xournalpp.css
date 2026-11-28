@@ -1297,29 +1297,112 @@ window.mx-touch popover.background.mx-popover scale slider {
 }
 
 /*
- * Preferences dialog (Variant B: sidebar + boxed lists + live search)
+ * Preferences dialog (split borderless titlebar, sidebar, boxed lists, footer actions)
  */
 window.mx-prefs-window {
 	background-color: @mx_surface;
 	color: @mx_text;
+	border-radius: 12px;
 }
 
-headerbar.mx-prefs-headerbar {
-	min-height: 50px;
-	padding: 0 12px;
-	background-color: @mx_chrome;
+window.mx-prefs-window decoration {
+	border-radius: 12px;
+}
+
+/* Neutralise Adwaita .titlebar styling so the split columns form the top edge */
+window.mx-prefs-window .titlebar.mx-prefs-titlebar {
+	min-height: 52px;
+	padding: 0;
+	margin: 0;
+	border: none;
+	border-radius: 12px 12px 0 0;
+	background-color: transparent;
 	background-image: none;
-	color: @mx_text;
-	border-bottom: 1px solid @mx_line;
 	box-shadow: none;
 }
 
-headerbar.mx-prefs-headerbar .title {
+window.mx-prefs-window .titlebar.mx-prefs-titlebar:backdrop {
+	border: none;
+	background-color: transparent;
+	background-image: none;
+	box-shadow: none;
+}
+
+.mx-prefs-titlebar-left {
+	min-height: 52px;
+	padding: 0 16px;
+	background-color: @mx_chrome;
+	background-image: none;
+	border: none;
+	border-right: 1px solid @mx_line;
+	border-radius: 12px 0 0 0;
+	box-shadow: none;
+	color: @mx_text;
+}
+
+.mx-prefs-titlebar-left:backdrop {
+	background-color: @mx_chrome;
+	color: @mx_text;
+}
+
+.mx-prefs-titlebar-title {
 	font-weight: 700;
 	color: @mx_text;
 }
 
-headerbar.mx-prefs-headerbar button.mx-prefs-pill {
+.mx-prefs-titlebar-right {
+	min-height: 52px;
+	padding: 0 10px;
+	background-color: @mx_surface;
+	background-image: none;
+	border: none;
+	border-radius: 0 12px 0 0;
+	box-shadow: none;
+	color: @mx_text;
+}
+
+.mx-prefs-titlebar-right:backdrop {
+	background-color: @mx_surface;
+	color: @mx_text;
+}
+
+.mx-prefs-titlebar-right button.mx-prefs-close {
+	min-width: 30px;
+	min-height: 30px;
+	padding: 0;
+	margin: 0;
+	border: none;
+	border-radius: 9999px;
+	background-color: transparent;
+	background-image: none;
+	box-shadow: none;
+	color: @mx_text2;
+}
+
+.mx-prefs-titlebar-right button.mx-prefs-close:hover {
+	background-color: @mx_hover;
+	color: @mx_text;
+}
+
+.mx-prefs-titlebar-right button.mx-prefs-close:active {
+	background-color: @mx_press;
+	color: @mx_text;
+}
+
+.mx-prefs-titlebar-right button.mx-prefs-close:focus {
+	outline: 2px solid @mx_accent;
+	outline-offset: -1px;
+	-gtk-outline-radius: 9999px;
+}
+
+.mx-prefs-footer {
+	background-color: @mx_surface;
+	border-top: 1px solid @mx_line;
+	padding: 12px 16px;
+	border-radius: 0 0 12px 0;
+}
+
+.mx-prefs-footer button.mx-prefs-pill {
 	border-radius: 9999px;
 	min-height: 32px;
 	padding: 0 14px;
@@ -1331,18 +1414,18 @@ headerbar.mx-prefs-headerbar button.mx-prefs-pill {
 	text-shadow: none;
 }
 
-headerbar.mx-prefs-headerbar button.mx-prefs-pill:hover {
+.mx-prefs-footer button.mx-prefs-pill:hover {
 	background-color: @mx_hover;
 }
 
-headerbar.mx-prefs-headerbar button.mx-prefs-pill.suggested-action {
+.mx-prefs-footer button.mx-prefs-pill.suggested-action {
 	background-color: @mx_accent;
 	border-color: @mx_accent;
 	color: @mx_on_accent;
 	font-weight: 600;
 }
 
-headerbar.mx-prefs-headerbar button.mx-prefs-pill.suggested-action:hover {
+.mx-prefs-footer button.mx-prefs-pill.suggested-action:hover {
 	background-color: shade(@mx_accent, 1.08);
 	border-color: shade(@mx_accent, 1.08);
 }
@@ -1350,10 +1433,64 @@ headerbar.mx-prefs-headerbar button.mx-prefs-pill.suggested-action:hover {
 .mx-prefs-sidebar {
 	background-color: @mx_chrome;
 	border-right: 1px solid @mx_line;
+	border-radius: 0 0 0 12px;
+}
+
+/* Square off corners when maximized, tiled or fullscreen */
+window.mx-prefs-window.maximized,
+window.mx-prefs-window.tiled,
+window.mx-prefs-window.tiled-top,
+window.mx-prefs-window.tiled-left,
+window.mx-prefs-window.tiled-right,
+window.mx-prefs-window.tiled-bottom,
+window.mx-prefs-window.fullscreen,
+window.mx-prefs-window.maximized decoration,
+window.mx-prefs-window.tiled decoration,
+window.mx-prefs-window.tiled-top decoration,
+window.mx-prefs-window.tiled-left decoration,
+window.mx-prefs-window.tiled-right decoration,
+window.mx-prefs-window.tiled-bottom decoration,
+window.mx-prefs-window.fullscreen decoration,
+window.mx-prefs-window.maximized .titlebar.mx-prefs-titlebar,
+window.mx-prefs-window.tiled .titlebar.mx-prefs-titlebar,
+window.mx-prefs-window.tiled-top .titlebar.mx-prefs-titlebar,
+window.mx-prefs-window.tiled-left .titlebar.mx-prefs-titlebar,
+window.mx-prefs-window.tiled-right .titlebar.mx-prefs-titlebar,
+window.mx-prefs-window.tiled-bottom .titlebar.mx-prefs-titlebar,
+window.mx-prefs-window.fullscreen .titlebar.mx-prefs-titlebar,
+window.mx-prefs-window.maximized .mx-prefs-titlebar-left,
+window.mx-prefs-window.tiled .mx-prefs-titlebar-left,
+window.mx-prefs-window.tiled-top .mx-prefs-titlebar-left,
+window.mx-prefs-window.tiled-left .mx-prefs-titlebar-left,
+window.mx-prefs-window.tiled-right .mx-prefs-titlebar-left,
+window.mx-prefs-window.tiled-bottom .mx-prefs-titlebar-left,
+window.mx-prefs-window.fullscreen .mx-prefs-titlebar-left,
+window.mx-prefs-window.maximized .mx-prefs-titlebar-right,
+window.mx-prefs-window.tiled .mx-prefs-titlebar-right,
+window.mx-prefs-window.tiled-top .mx-prefs-titlebar-right,
+window.mx-prefs-window.tiled-left .mx-prefs-titlebar-right,
+window.mx-prefs-window.tiled-right .mx-prefs-titlebar-right,
+window.mx-prefs-window.tiled-bottom .mx-prefs-titlebar-right,
+window.mx-prefs-window.fullscreen .mx-prefs-titlebar-right,
+window.mx-prefs-window.maximized .mx-prefs-sidebar,
+window.mx-prefs-window.tiled .mx-prefs-sidebar,
+window.mx-prefs-window.tiled-top .mx-prefs-sidebar,
+window.mx-prefs-window.tiled-left .mx-prefs-sidebar,
+window.mx-prefs-window.tiled-right .mx-prefs-sidebar,
+window.mx-prefs-window.tiled-bottom .mx-prefs-sidebar,
+window.mx-prefs-window.fullscreen .mx-prefs-sidebar,
+window.mx-prefs-window.maximized .mx-prefs-footer,
+window.mx-prefs-window.tiled .mx-prefs-footer,
+window.mx-prefs-window.tiled-top .mx-prefs-footer,
+window.mx-prefs-window.tiled-left .mx-prefs-footer,
+window.mx-prefs-window.tiled-right .mx-prefs-footer,
+window.mx-prefs-window.tiled-bottom .mx-prefs-footer,
+window.mx-prefs-window.fullscreen .mx-prefs-footer {
+	border-radius: 0;
 }
 
 .mx-prefs-search-wrap {
-	padding: 10px 10px 6px 10px;
+	padding: 0 10px 6px 10px;
 }
 
 entry.mx-prefs-search {

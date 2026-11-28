@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: morexournal 0.1.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-28 17:32+0100\n"
+"POT-Creation-Date: 2026-11-28 20:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3001,7 +3001,7 @@ msgid "Recording"
 msgstr ""
 
 #: ../src/core/gui/dialog/SettingsDialog.cpp:1683
-#: ../src/core/gui/dialog/SettingsDialog.cpp:3181
+#: ../src/core/gui/dialog/SettingsDialog.cpp:3166
 #: ../src/core/gui/dialog/XojOpenDlg.cpp:82
 msgid "Select folder"
 msgstr ""
@@ -3334,25 +3334,24 @@ msgstr ""
 msgid "Turn on “Set modifiers by draw direction” to change this."
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2025
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2091
-msgid "Search results"
-msgstr ""
-
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2082
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2069
 msgid "No settings match"
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2084
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2071
 msgid "Try another word, such as pen, zoom or backup."
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2750
-#: ../src/core/gui/dialog/SettingsDialog.cpp:2763
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2078
+msgid "Search results"
+msgstr ""
+
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2735
+#: ../src/core/gui/dialog/SettingsDialog.cpp:2748
 msgid "System default"
 msgstr ""
 
-#: ../src/core/gui/dialog/SettingsDialog.cpp:3187
+#: ../src/core/gui/dialog/SettingsDialog.cpp:3172
 msgid "Folder not set - Select a folder to enable recording"
 msgstr ""
 
@@ -4419,7 +4418,8 @@ msgstr ""
 msgid "Authors"
 msgstr ""
 
-#: ../ui/about.glade:398 ../ui/crashDialog.glade:174
+#: ../ui/about.glade:398 ../ui/crashDialog.glade:174 ../ui/settings.glade:325
+#: ../ui/settings.glade:328
 msgid "Close"
 msgstr ""
 
@@ -4921,11 +4921,11 @@ msgstr ""
 msgid "Inertia"
 msgstr ""
 
-#: ../ui/settings.glade:263 ../ui/mainmenubar.xml:140
+#: ../ui/settings.glade:263 ../ui/settings.glade:295 ../ui/mainmenubar.xml:140
 msgid "Preferences"
 msgstr ""
 
-#: ../ui/settings.glade:344
+#: ../ui/settings.glade:384
 msgid "Search settings"
 msgstr ""
 
