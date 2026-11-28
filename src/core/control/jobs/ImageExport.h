@@ -73,9 +73,8 @@ public:
      * @brief Render a single page to PNG bytes in memory, scaling so max(width, height) == maxSizePx.
      * Takes a shared lock on doc. Returns true on success.
      */
-    static bool renderPageToPngBytes(Document* doc, size_t pageId, int maxSizePx,
-                                     ExportBackgroundType exportBackground, std::vector<uint8_t>& outPng,
-                                     std::string& outError);
+    static bool renderPageToPngBytes(Document* doc, size_t pageId, int maxSizePx, ExportBackgroundType exportBackground,
+                                     std::vector<uint8_t>& outPng, std::string& outError);
 
 private:
     /**

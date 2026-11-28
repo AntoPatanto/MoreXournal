@@ -20,8 +20,8 @@ auto makeJsonRpcResult(const nlohmann::json& id, nlohmann::json result) -> nlohm
     return {{"jsonrpc", "2.0"}, {"id", id}, {"result", std::move(result)}};
 }
 
-auto makeJsonHttpResponse(int status, const nlohmann::json& payload,
-                          std::string_view protocolVersionHeader = {}) -> HttpResponse {
+auto makeJsonHttpResponse(int status, const nlohmann::json& payload, std::string_view protocolVersionHeader = {})
+        -> HttpResponse {
     HttpResponse resp;
     resp.status = status;
     resp.reason = status == 200 ? "OK" : "Bad Request";
@@ -65,7 +65,8 @@ auto ToolCallResult::jsonText(const nlohmann::json& data) -> ToolCallResult { re
 auto ToolCallResult::pngImage(std::string base64Data) -> ToolCallResult {
     ToolCallResult res;
     res.isError = false;
-    res.content = nlohmann::json::array({{{"type", "image"}, {"data", std::move(base64Data)}, {"mimeType", "image/png"}}});
+    res.content =
+            nlohmann::json::array({{{"type", "image"}, {"data", std::move(base64Data)}, {"mimeType", "image/png"}}});
     return res;
 }
 
@@ -83,7 +84,8 @@ auto buildToolListJson() -> nlohmann::json {
                      "page count, 1-based current page, per-page width and height in page points (1/72 inch, origin "
                      "top-left), current layer, zoom level, active tool, color, size, and a summary of the current "
                      "selection."},
-                    {"inputSchema", {{"type", "object"}, {"properties", nlohmann::json::object()}, {"additionalProperties", false}}},
+                    {"inputSchema",
+                     {{"type", "object"}, {"properties", nlohmann::json::object()}, {"additionalProperties", false}}},
                     {"annotations", readOnlyAnnotations()},
             },
             {
@@ -153,19 +155,27 @@ auto buildToolListJson() -> nlohmann::json {
                              {"required", nlohmann::json::array({"page", "x", "y", "text"})},
                              {"properties",
                               {
-                                      {"page", {{"type", "integer"}, {"minimum", 1}, {"description", "1-based page number."}}},
-                                      {"x", {{"type", "number"}, {"description", "Left coordinate in page points (origin top-left)."}}},
-                                      {"y", {{"type", "number"}, {"description", "Top coordinate in page points (origin top-left)."}}},
-                                      {"text", {{"type", "string"}, {"minLength", 1}, {"description", "UTF-8 text content."}}},
+                                      {"page",
+                                       {{"type", "integer"}, {"minimum", 1}, {"description", "1-based page number."}}},
+                                      {"x",
+                                       {{"type", "number"},
+                                        {"description", "Left coordinate in page points (origin top-left)."}}},
+                                      {"y",
+                                       {{"type", "number"},
+                                        {"description", "Top coordinate in page points (origin top-left)."}}},
+                                      {"text",
+                                       {{"type", "string"}, {"minLength", 1}, {"description", "UTF-8 text content."}}},
                                       {"color",
                                        {{"type", "string"},
                                         {"pattern", "^#[0-9a-fA-F]{6}$"},
-                                        {"description", "Optional text color as #rrggbb hex (defaults to text tool color)."}}},
+                                        {"description",
+                                         "Optional text color as #rrggbb hex (defaults to text tool color)."}}},
                                       {"font_size",
                                        {{"type", "number"},
                                         {"minimum", 4.0},
                                         {"maximum", 200.0},
-                                        {"description", "Optional font size in points (defaults to current font size)."}}},
+                                        {"description",
+                                         "Optional font size in points (defaults to current font size)."}}},
                               }},
                              {"additionalProperties", false},
                      }},
@@ -183,7 +193,8 @@ auto buildToolListJson() -> nlohmann::json {
                              {"required", nlohmann::json::array({"page", "strokes"})},
                              {"properties",
                               {
-                                      {"page", {{"type", "integer"}, {"minimum", 1}, {"description", "1-based page number."}}},
+                                      {"page",
+                                       {{"type", "integer"}, {"minimum", 1}, {"description", "1-based page number."}}},
                                       {"strokes",
                                        {
                                                {"type", "array"},
@@ -201,20 +212,23 @@ auto buildToolListJson() -> nlohmann::json {
                                                                    {"items",
                                                                     {{"type", "array"},
                                                                      {"prefixItems",
-                                                                      nlohmann::json::array({{{"type", "number"}}, {{"type", "number"}}})},
+                                                                      nlohmann::json::array({{{"type", "number"}},
+                                                                                             {{"type", "number"}}})},
                                                                      {"minItems", 2},
                                                                      {"maxItems", 2}}},
-                                                                   {"description",
-                                                                    "Sequence of [x, y] points in page points (origin top-left)."}}},
+                                                                   {"description", "Sequence of [x, y] points in page "
+                                                                                   "points (origin top-left)."}}},
                                                                  {"color",
                                                                   {{"type", "string"},
                                                                    {"pattern", "^#[0-9a-fA-F]{6}$"},
-                                                                   {"description", "Optional stroke color as #rrggbb hex."}}},
+                                                                   {"description",
+                                                                    "Optional stroke color as #rrggbb hex."}}},
                                                                  {"width",
                                                                   {{"type", "number"},
                                                                    {"minimum", 0.1},
                                                                    {"maximum", 100.0},
-                                                                   {"description", "Optional stroke width in page points."}}},
+                                                                   {"description",
+                                                                    "Optional stroke width in page points."}}},
                                                          }},
                                                         {"additionalProperties", false},
                                                 }},
@@ -238,15 +252,20 @@ auto buildToolListJson() -> nlohmann::json {
                              {"required", nlohmann::json::array({"page", "type", "x1", "y1", "x2", "y2"})},
                              {"properties",
                               {
-                                      {"page", {{"type", "integer"}, {"minimum", 1}, {"description", "1-based page number."}}},
+                                      {"page",
+                                       {{"type", "integer"}, {"minimum", 1}, {"description", "1-based page number."}}},
                                       {"type",
                                        {{"type", "string"},
                                         {"enum", nlohmann::json::array({"line", "rectangle", "ellipse"})},
                                         {"description", "Shape type."}}},
-                                      {"x1", {{"type", "number"}, {"description", "First X coordinate in page points."}}},
-                                      {"y1", {{"type", "number"}, {"description", "First Y coordinate in page points."}}},
-                                      {"x2", {{"type", "number"}, {"description", "Second X coordinate in page points."}}},
-                                      {"y2", {{"type", "number"}, {"description", "Second Y coordinate in page points."}}},
+                                      {"x1",
+                                       {{"type", "number"}, {"description", "First X coordinate in page points."}}},
+                                      {"y1",
+                                       {{"type", "number"}, {"description", "First Y coordinate in page points."}}},
+                                      {"x2",
+                                       {{"type", "number"}, {"description", "Second X coordinate in page points."}}},
+                                      {"y2",
+                                       {{"type", "number"}, {"description", "Second Y coordinate in page points."}}},
                                       {"stroke_color",
                                        {{"type", "string"},
                                         {"pattern", "^#[0-9a-fA-F]{6}$"},
@@ -266,8 +285,8 @@ auto buildToolListJson() -> nlohmann::json {
                                        {{"type", "integer"},
                                         {"minimum", 0},
                                         {"maximum", 255},
-                                        {"description",
-                                         "Optional fill opacity (0 = unfilled, 1..255 = alpha) for rectangle or ellipse."}}},
+                                        {"description", "Optional fill opacity (0 = unfilled, 1..255 = alpha) for "
+                                                        "rectangle or ellipse."}}},
                                       {"line_style",
                                        {{"type", "string"},
                                         {"enum", nlohmann::json::array({"solid", "dash", "dashdot", "dot"})},
@@ -311,7 +330,8 @@ auto buildToolListJson() -> nlohmann::json {
                              {"required", nlohmann::json::array({"page"})},
                              {"properties",
                               {
-                                      {"page", {{"type", "integer"}, {"minimum", 1}, {"description", "1-based page number."}}},
+                                      {"page",
+                                       {{"type", "integer"}, {"minimum", 1}, {"description", "1-based page number."}}},
                               }},
                              {"additionalProperties", false},
                      }},
@@ -320,8 +340,8 @@ auto buildToolListJson() -> nlohmann::json {
     });
 }
 
-auto dispatchMcpRequest(const HttpRequest& req, const ToolCallHandler& toolHandler,
-                        std::string_view serverVersion) -> McpDispatchOutcome {
+auto dispatchMcpRequest(const HttpRequest& req, const ToolCallHandler& toolHandler, std::string_view serverVersion)
+        -> McpDispatchOutcome {
     McpDispatchOutcome outcome;
 
     std::string responseProtoHeader;

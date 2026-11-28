@@ -252,8 +252,8 @@ GtkWidget* McpSettingsPanel::buildSetupCommandsGroup() {
     gtk_widget_set_no_show_all(GTK_WIDGET(copiedLabel), TRUE);
 
     GtkWidget* copyBtn = gtk_button_new_with_label(_("Copy"));
-    g_signal_connect_swapped(copyBtn, "clicked",
-                             G_CALLBACK(+[](McpSettingsPanel* self) { self->onCopyCommand(); }), this);
+    g_signal_connect_swapped(copyBtn, "clicked", G_CALLBACK(+[](McpSettingsPanel* self) { self->onCopyCommand(); }),
+                             this);
 
     gtk_box_append(GTK_BOX(headerBar), GTK_WIDGET(setupInstructionLabel));
     gtk_box_append(GTK_BOX(headerBar), GTK_WIDGET(copiedLabel));

@@ -220,8 +220,7 @@ auto McpServer::start(uint16_t port, const std::string& token, bool allowEdits) 
     g_object_unref(bindAddr);
 
     if (!ok) {
-        std::string msg = "Could not listen on port " + std::to_string(port) +
-                          ". Another program may be using it.";
+        std::string msg = "Could not listen on port " + std::to_string(port) + ". Another program may be using it.";
         if (err) {
             g_warning("MCP server failed to bind 127.0.0.1:%u: %s", static_cast<unsigned>(port), err->message);
             g_error_free(err);

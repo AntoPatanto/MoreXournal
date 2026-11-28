@@ -47,7 +47,7 @@ auto isSupportedProtocolVersion(std::string_view version) -> bool;
 auto buildToolListJson() -> nlohmann::json;
 
 /// Dispatch a validated POST /mcp HTTP request through JSON-RPC 2.0 / MCP handling.
-auto dispatchMcpRequest(const HttpRequest& req, const ToolCallHandler& toolHandler,
-                        std::string_view serverVersion) -> McpDispatchOutcome;
+auto dispatchMcpRequest(const HttpRequest& req, const ToolCallHandler& toolHandler, std::string_view serverVersion)
+        -> McpDispatchOutcome;
 
 }  // namespace xoj::mcp

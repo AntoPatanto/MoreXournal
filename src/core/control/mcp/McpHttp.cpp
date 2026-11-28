@@ -226,7 +226,8 @@ auto parseHttpHeaders(std::string_view rawHeaders) -> HttpHeaderParseResult {
         size_t pos = firstCrlf + 2;
         while (pos < block.size()) {
             size_t nextCrlf = block.find("\r\n", pos);
-            std::string_view line = nextCrlf == std::string_view::npos ? block.substr(pos) : block.substr(pos, nextCrlf - pos);
+            std::string_view line =
+                    nextCrlf == std::string_view::npos ? block.substr(pos) : block.substr(pos, nextCrlf - pos);
             pos = nextCrlf == std::string_view::npos ? block.size() : nextCrlf + 2;
 
             size_t colon = line.find(':');

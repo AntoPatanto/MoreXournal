@@ -24,6 +24,7 @@
 #include "control/mcp/McpToken.h"
 #include "control/mcp/McpTools.h"
 #include "control/settings/Settings.h"
+
 #include "filesystem.h"
 
 namespace {
@@ -149,14 +150,16 @@ TEST(McpHttpTest, rejectMalformedRequestLine) {
 }
 
 TEST(McpHttpTest, rejectOversizeHeadersAndBody) {
-    std::string hugeHeader = "POST /mcp HTTP/1.1\r\nHost: 127.0.0.1\r\nX-Pad: " +
-                             std::string(MAX_HTTP_HEADER_BYTES + 100, 'a') + "\r\nContent-Length: 0\r\n\r\n";
+    std::string hugeHeader =
+            "POST /mcp HTTP/1.1\r\nHost: 127.0.0.1\r\nX-Pad: " + std::string(MAX_HTTP_HEADER_BYTES + 100, 'a') +
+            "\r\nContent-Length: 0\r\n\r\n";
     auto resHdr = parseHttpHeaders(hugeHeader);
     EXPECT_FALSE(resHdr.ok);
     EXPECT_EQ(resHdr.errorStatus, 431);
 
-    std::string hugeBody = "POST /mcp HTTP/1.1\r\nHost: 127.0.0.1\r\nContent-Length: " +
-                           std::to_string(MAX_HTTP_BODY_BYTES + 1) + "\r\n\r\n";
+    std::string hugeBody =
+            "POST /mcp HTTP/1.1\r\nHost: 127.0.0.1\r\nContent-Length: " + std::to_string(MAX_HTTP_BODY_BYTES + 1) +
+            "\r\n\r\n";
     auto resBody = parseHttpHeaders(hugeBody);
     EXPECT_FALSE(resBody.ok);
     EXPECT_EQ(resBody.errorStatus, 413);
@@ -167,8 +170,8 @@ TEST(McpHttpTest, rejectMissingContentLengthAndChunked) {
     EXPECT_FALSE(missingCl.ok);
     EXPECT_EQ(missingCl.errorStatus, 411);
 
-    auto chunked = parseHttpHeaders(
-            "POST /mcp HTTP/1.1\r\nHost: 127.0.0.1\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n\r\n");
+    auto chunked =
+            parseHttpHeaders("POST /mcp HTTP/1.1\r\nHost: 127.0.0.1\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n\r\n");
     EXPECT_FALSE(chunked.ok);
     EXPECT_TRUE(chunked.errorStatus == 400 || chunked.errorStatus == 411);
 }
@@ -196,11 +199,10 @@ TEST(McpHttpTest, authOriginHostAndMethodChecks) {
     };
 
     // Valid request passes
-    EXPECT_FALSE(validateHttpRequest(makeReq("POST", "/mcp", "127.0.0.1:47615", "", "Bearer " + token), token)
-                         .has_value());
-    EXPECT_FALSE(validateHttpRequest(makeReq("POST", "/mcp", "localhost:47615", "http://localhost:3000",
-                                             "Bearer " + token),
-                                     token)
+    EXPECT_FALSE(
+            validateHttpRequest(makeReq("POST", "/mcp", "127.0.0.1:47615", "", "Bearer " + token), token).has_value());
+    EXPECT_FALSE(validateHttpRequest(
+                         makeReq("POST", "/mcp", "localhost:47615", "http://localhost:3000", "Bearer " + token), token)
                          .has_value());
     EXPECT_FALSE(
             validateHttpRequest(makeReq("POST", "/mcp", "[::1]:47615", "http://127.0.0.1", "Bearer " + token), token)
@@ -384,7 +386,8 @@ TEST(McpToolsValidationTest, validatesInputsAndRejectsBadValues) {
 
     // add_text validation: NaN, bad color, out of bounds, empty text
     {
-        auto nanJson = nlohmann::json{{"page", 1}, {"x", std::numeric_limits<double>::quiet_NaN()}, {"y", 10}, {"text", "hi"}};
+        auto nanJson =
+                nlohmann::json{{"page", 1}, {"x", std::numeric_limits<double>::quiet_NaN()}, {"y", 10}, {"text", "hi"}};
         EXPECT_TRUE(std::holds_alternative<std::string>(validateAddTextArgs(nanJson, 2, fixedPageSize())));
 
         auto badColor = nlohmann::json{{"page", 1}, {"x", 10}, {"y", 10}, {"text", "hi"}, {"color", "red"}};
@@ -396,7 +399,8 @@ TEST(McpToolsValidationTest, validatesInputsAndRejectsBadValues) {
         auto emptyText = nlohmann::json{{"page", 1}, {"x", 10}, {"y", 10}, {"text", ""}};
         EXPECT_TRUE(std::holds_alternative<std::string>(validateAddTextArgs(emptyText, 2, fixedPageSize())));
 
-        auto valid = nlohmann::json{{"page", 2}, {"x", 50}, {"y", 60}, {"text", "Hello"}, {"color", "#112233"}, {"font_size", 14}};
+        auto valid = nlohmann::json{{"page", 2},          {"x", 50},        {"y", 60}, {"text", "Hello"},
+                                    {"color", "#112233"}, {"font_size", 14}};
         auto res = validateAddTextArgs(valid, 2, fixedPageSize());
         ASSERT_TRUE(std::holds_alternative<AddTextArgs>(res));
         EXPECT_EQ(std::get<AddTextArgs>(res).pageIndex, 1U);
@@ -423,13 +427,20 @@ TEST(McpToolsValidationTest, validatesInputsAndRejectsBadValues) {
         nlohmann::json badType = {{"page", 1}, {"type", "triangle"}, {"x1", 10}, {"y1", 10}, {"x2", 50}, {"y2", 50}};
         EXPECT_TRUE(std::holds_alternative<std::string>(validateAddShapeArgs(badType, 1, fixedPageSize())));
 
-        nlohmann::json badStyle = {{"page", 1}, {"type", "line"}, {"x1", 10}, {"y1", 10}, {"x2", 50}, {"y2", 50}, {"line_style", "wavy"}};
+        nlohmann::json badStyle = {{"page", 1}, {"type", "line"},      {"x1", 10}, {"y1", 10}, {"x2", 50},
+                                   {"y2", 50},  {"line_style", "wavy"}};
         EXPECT_TRUE(std::holds_alternative<std::string>(validateAddShapeArgs(badStyle, 1, fixedPageSize())));
 
-        nlohmann::json goodEllipse = {{"page", 1},          {"type", "ellipse"},     {"x1", 20},
-                                      {"y1", 30},           {"x2", 120},             {"y2", 90},
-                                      {"stroke_color", "#3563e9"}, {"fill_color", "#e3eaff"},
-                                      {"fill_opacity", 100}, {"line_style", "dash"}};
+        nlohmann::json goodEllipse = {{"page", 1},
+                                      {"type", "ellipse"},
+                                      {"x1", 20},
+                                      {"y1", 30},
+                                      {"x2", 120},
+                                      {"y2", 90},
+                                      {"stroke_color", "#3563e9"},
+                                      {"fill_color", "#e3eaff"},
+                                      {"fill_opacity", 100},
+                                      {"line_style", "dash"}};
         auto res = validateAddShapeArgs(goodEllipse, 1, fixedPageSize());
         ASSERT_TRUE(std::holds_alternative<AddShapeArgs>(res));
         EXPECT_EQ(std::get<AddShapeArgs>(res).shapeInfo.type, ShapeType::ELLIPSE);
@@ -478,9 +489,8 @@ TEST(McpServerLiveTest, loopbackSocketRequestAuthAndTokenRotation) {
         std::string initBody =
                 R"({"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","clientInfo":{"name":"UnitTestClient"}}})";
         std::string resp = sendRawHttp(
-                port,
-                makeRawPost("/mcp", initBody, "Authorization: Bearer " + token1 + "\r\nUser-Agent: unit-test/1.0\r\n",
-                            host));
+                port, makeRawPost("/mcp", initBody,
+                                  "Authorization: Bearer " + token1 + "\r\nUser-Agent: unit-test/1.0\r\n", host));
         EXPECT_EQ(extractHttpStatus(resp), 200);
         auto j = nlohmann::json::parse(extractHttpBody(resp));
         EXPECT_EQ(j["result"]["protocolVersion"], "2025-11-25");
@@ -493,8 +503,8 @@ TEST(McpServerLiveTest, loopbackSocketRequestAuthAndTokenRotation) {
     {
         std::string callBody =
                 R"({"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"get_document_info","arguments":{}}})";
-        std::string resp = sendRawHttp(
-                port, makeRawPost("/mcp", callBody, "Authorization: Bearer " + token1 + "\r\n", host));
+        std::string resp =
+                sendRawHttp(port, makeRawPost("/mcp", callBody, "Authorization: Bearer " + token1 + "\r\n", host));
         EXPECT_EQ(extractHttpStatus(resp), 200);
         auto j = nlohmann::json::parse(extractHttpBody(resp));
         EXPECT_EQ(j["id"], 2);
@@ -507,12 +517,12 @@ TEST(McpServerLiveTest, loopbackSocketRequestAuthAndTokenRotation) {
     server.updateRuntimeConfig(token2, true);
     {
         std::string pingBody = R"({"jsonrpc":"2.0","id":3,"method":"ping"})";
-        std::string oldResp = sendRawHttp(
-                port, makeRawPost("/mcp", pingBody, "Authorization: Bearer " + token1 + "\r\n", host));
+        std::string oldResp =
+                sendRawHttp(port, makeRawPost("/mcp", pingBody, "Authorization: Bearer " + token1 + "\r\n", host));
         EXPECT_EQ(extractHttpStatus(oldResp), 401);
 
-        std::string newResp = sendRawHttp(
-                port, makeRawPost("/mcp", pingBody, "Authorization: Bearer " + token2 + "\r\n", host));
+        std::string newResp =
+                sendRawHttp(port, makeRawPost("/mcp", pingBody, "Authorization: Bearer " + token2 + "\r\n", host));
         EXPECT_EQ(extractHttpStatus(newResp), 200);
     }
 

@@ -13,6 +13,7 @@
 #include <stdlib.h>  // arc4random_buf
 #else
 #include <cerrno>
+
 #include <fcntl.h>
 #include <unistd.h>
 #if defined(__linux__)

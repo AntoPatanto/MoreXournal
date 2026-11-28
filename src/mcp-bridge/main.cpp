@@ -58,8 +58,8 @@ struct BridgeHttpResponse {
 };
 
 auto postJsonToServer(uint16_t port, const std::string& token, const std::string& jsonBody,
-                      const std::string& protocolVersion, const std::string& mcpMethod,
-                      const std::string& mcpName) -> BridgeHttpResponse {
+                      const std::string& protocolVersion, const std::string& mcpMethod, const std::string& mcpName)
+        -> BridgeHttpResponse {
     BridgeHttpResponse res;
 
     GSocketClient* client = g_socket_client_new();
@@ -186,9 +186,7 @@ auto postJsonToServer(uint16_t port, const std::string& token, const std::string
     return res;
 }
 
-void writeJsonLine(const nlohmann::json& j) {
-    std::cout << j.dump() << '\n' << std::flush;
-}
+void writeJsonLine(const nlohmann::json& j) { std::cout << j.dump() << '\n' << std::flush; }
 
 void writeJsonRpcError(const nlohmann::json& id, int code, std::string_view message) {
     writeJsonLine({{"jsonrpc", "2.0"}, {"id", id}, {"error", {{"code", code}, {"message", message}}}});

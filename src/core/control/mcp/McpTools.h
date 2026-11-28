@@ -26,8 +26,7 @@ class Control;
 
 namespace xoj::mcp {
 
-constexpr std::string_view EDITS_DISABLED_ERROR =
-        "Edits are off. Turn on Allow edits in Preferences > AI assistants.";
+constexpr std::string_view EDITS_DISABLED_ERROR = "Edits are off. Turn on Allow edits in Preferences > AI assistants.";
 
 constexpr double PAGE_COORD_MARGIN_PT = 100.0;
 constexpr int DEFAULT_PAGE_IMAGE_MAX_PX = 1600;

@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstdio>
 #include <cstdint>
+#include <cstdio>
 #include <limits>
 #include <mutex>
 #include <shared_mutex>
@@ -56,8 +56,8 @@ auto isFiniteNumber(const nlohmann::json& j, double& out) -> bool {
     return true;
 }
 
-auto validatePageNumber1Based(const nlohmann::json& j, size_t pageCount, size_t& outZeroBased,
-                              std::string& err) -> bool {
+auto validatePageNumber1Based(const nlohmann::json& j, size_t pageCount, size_t& outZeroBased, std::string& err)
+        -> bool {
     if (pageCount == 0) {
         err = "The document has no pages";
         return false;
@@ -109,10 +109,10 @@ auto rectToJson(const xoj::util::Rectangle<double>& r) -> nlohmann::json {
     return {{"x", r.x}, {"y", r.y}, {"width", r.width}, {"height", r.height}};
 }
 
-void collectElementIntoLayerJson(const Element* elem, bool includePoints, size_t& strokesListed,
-                                 size_t& pointsReturned, bool& strokesTruncated, bool& pointsTruncated,
-                                 nlohmann::json& textsArr, nlohmann::json& shapesArr, nlohmann::json& strokesItems,
-                                 size_t& plainStrokeCount, nlohmann::json& imagesArr, nlohmann::json& latexArr) {
+void collectElementIntoLayerJson(const Element* elem, bool includePoints, size_t& strokesListed, size_t& pointsReturned,
+                                 bool& strokesTruncated, bool& pointsTruncated, nlohmann::json& textsArr,
+                                 nlohmann::json& shapesArr, nlohmann::json& strokesItems, size_t& plainStrokeCount,
+                                 nlohmann::json& imagesArr, nlohmann::json& latexArr) {
     if (!elem) {
         return;
     }
@@ -795,8 +795,7 @@ auto validatePageImageArgs(const nlohmann::json& args, size_t pageCount, size_t 
             return std::string("Parameter 'max_size_px' must be an integer");
         }
         int64_t val = args["max_size_px"].get<int64_t>();
-        out.maxSizePx = static_cast<int>(
-                std::clamp<int64_t>(val, MIN_PAGE_IMAGE_MAX_PX, MAX_PAGE_IMAGE_MAX_PX));
+        out.maxSizePx = static_cast<int>(std::clamp<int64_t>(val, MIN_PAGE_IMAGE_MAX_PX, MAX_PAGE_IMAGE_MAX_PX));
     }
 
     return out;
@@ -933,8 +932,7 @@ auto validateAddStrokesArgs(const nlohmann::json& args, size_t pageCount,
 
         totalPoints += sObj["points"].size();
         if (totalPoints > MAX_STROKE_POINTS_PER_CALL) {
-            return std::string("Total stroke points exceed the limit of " +
-                               std::to_string(MAX_STROKE_POINTS_PER_CALL));
+            return std::string("Total stroke points exceed the limit of " + std::to_string(MAX_STROKE_POINTS_PER_CALL));
         }
 
         StrokeSpec spec;
