@@ -1,7 +1,8 @@
 #include "TopBar.h"
 
-#include <algorithm>  // for clamp, max, min
-#include <utility>    // for pair
+#include <algorithm>      // for clamp, max, min
+#include <unordered_map>  // for unordered_map
+#include <utility>        // for move, pair
 
 #include "control/Control.h"                 // for Control
 #include "control/ToolHandler.h"             // for ToolHandler
@@ -288,6 +289,64 @@ T getActionState(ActionDatabase* db, Action a) {
     xoj::util::GVariantSPtr state(g_action_get_state(G_ACTION(db->getAction(a).get())), xoj::util::adopt);
     return getGVariantValue<T>(state.get());
 }
+
+void collectTopLevelSubmenuIcons(GMenuModel* model,
+                                 std::unordered_map<std::string, xoj::util::GObjectSPtr<GIcon>>& out) {
+    if (model == nullptr) {
+        return;
+    }
+    const int n = g_menu_model_get_n_items(model);
+    for (int i = 0; i < n; ++i) {
+        if (xoj::util::GObjectSPtr<GMenuModel> sec(g_menu_model_get_item_link(model, i, G_MENU_LINK_SECTION),
+                                                   xoj::util::adopt);
+            sec) {
+            collectTopLevelSubmenuIcons(sec.get(), out);
+            continue;
+        }
+        xoj::util::GObjectSPtr<GMenuModel> sub(g_menu_model_get_item_link(model, i, G_MENU_LINK_SUBMENU),
+                                               xoj::util::adopt);
+        if (!sub) {
+            continue;
+        }
+        xoj::util::GVariantSPtr labelVar(
+                g_menu_model_get_item_attribute_value(model, i, G_MENU_ATTRIBUTE_LABEL, G_VARIANT_TYPE_STRING),
+                xoj::util::adopt);
+        xoj::util::GVariantSPtr iconVar(g_menu_model_get_item_attribute_value(model, i, G_MENU_ATTRIBUTE_ICON, nullptr),
+                                        xoj::util::adopt);
+        if (!labelVar || !iconVar) {
+            continue;
+        }
+        if (xoj::util::GObjectSPtr<GIcon> icon(g_icon_deserialize(iconVar.get()), xoj::util::adopt); icon) {
+            out.emplace(g_variant_get_string(labelVar.get(), nullptr), std::move(icon));
+        }
+    }
+}
+
+/// GTK 3's GtkMenuTracker skips G_MENU_ATTRIBUTE_ICON on submenu GtkModelMenuItems even though
+/// GtkModelMenuItem supports an "icon" property with the same box and 16 px image layout as action items.
+void applySubmenuIcons(GtkMenu* popup, GMenuModel* model) {
+    std::unordered_map<std::string, xoj::util::GObjectSPtr<GIcon>> submenuIcons;
+    collectTopLevelSubmenuIcons(model, submenuIcons);
+    if (submenuIcons.empty()) {
+        return;
+    }
+    GList* children = gtk_container_get_children(GTK_CONTAINER(popup));
+    for (GList* l = children; l != nullptr; l = l->next) {
+        GtkWidget* child = GTK_WIDGET(l->data);
+        if (!GTK_IS_MENU_ITEM(child) || gtk_menu_item_get_submenu(GTK_MENU_ITEM(child)) == nullptr) {
+            continue;
+        }
+        if (g_object_class_find_property(G_OBJECT_GET_CLASS(child), "icon") == nullptr) {
+            continue;
+        }
+        if (const char* label = gtk_menu_item_get_label(GTK_MENU_ITEM(child))) {
+            if (auto it = submenuIcons.find(label); it != submenuIcons.end()) {
+                g_object_set(child, "icon", it->second.get(), nullptr);
+            }
+        }
+    }
+    g_list_free(children);
+}
 }  // namespace
 
 TopBar::TopBar(Control* control, GMenuModel* mainMenu): control(control) {
@@ -379,6 +438,9 @@ void TopBar::createStart(GMenuModel* mainMenu) {
                            this);
 
     if (GtkMenu* popup = gtk_menu_button_get_popup(GTK_MENU_BUTTON(menuButton))) {
+        // Top-level entries have no check or radio indicators; let the menu icons sit in that column
+        gtk_menu_set_reserve_toggle_size(popup, false);
+        applySubmenuIcons(popup, mainMenu);
         xoj::chrome::applyMenuClassesRecursive(GTK_WIDGET(popup), false);
         xoj::chrome::hideTooltipWhilePopupOpen(menuButton, GTK_WIDGET(popup));
 

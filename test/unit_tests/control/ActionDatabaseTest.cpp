@@ -384,6 +384,77 @@ TEST(ActionDatabaseTest, testMainMenuStructureAndLiveLinks) {
     EXPECT_EQ(liveActions.count("win.plugin-manager"), 1U);
 }
 
+namespace {
+void expectNoIconsRecursive(GMenuModel* model) {
+    const int n = g_menu_model_get_n_items(model);
+    for (int i = 0; i < n; ++i) {
+        xoj::util::GVariantSPtr iconVar(g_menu_model_get_item_attribute_value(model, i, G_MENU_ATTRIBUTE_ICON, nullptr),
+                                        xoj::util::adopt);
+        EXPECT_FALSE(iconVar) << "Unexpected icon attribute on menu item \""
+                              << getItemStringAttr(model, i, G_MENU_ATTRIBUTE_LABEL) << "\"";
+
+        xoj::util::GObjectSPtr<GMenuLinkIter> it(g_menu_model_iterate_item_links(model, i), xoj::util::adopt);
+        while (g_menu_link_iter_next(it.get())) {
+            xoj::util::GObjectSPtr<GMenuModel> linked(g_menu_link_iter_get_value(it.get()), xoj::util::adopt);
+            if (linked) {
+                expectNoIconsRecursive(linked.get());
+            }
+        }
+    }
+}
+}  // namespace
+
+TEST(ActionDatabaseTest, testMainMenuIcons) {
+    auto builder = loadMenubarBuilder();
+    ASSERT_TRUE(builder);
+
+    xoj::util::GObjectSPtr<GMenu> dummyPlugins(g_menu_new(), xoj::util::adopt);
+    g_menu_append(dummyPlugins.get(), "Plugin Manager", "win.plugin-manager");
+    auto mainMenu = Menubar::buildMainMenu(builder.get(), G_MENU_MODEL(dummyPlugins.get()));
+    ASSERT_TRUE(mainMenu);
+
+    const auto iconDir = fs::path(GET_UI_FOLDER) / "iconsMore/hicolor/scalable/actions";
+    int topLevelCount = 0;
+    GMenuModel* root = G_MENU_MODEL(mainMenu.get());
+    const int sectionCount = g_menu_model_get_n_items(root);
+    for (int s = 0; s < sectionCount; ++s) {
+        xoj::util::GObjectSPtr<GMenuModel> sec(g_menu_model_get_item_link(root, s, G_MENU_LINK_SECTION),
+                                               xoj::util::adopt);
+        ASSERT_TRUE(sec);
+        const int itemCount = g_menu_model_get_n_items(sec.get());
+        for (int i = 0; i < itemCount; ++i) {
+            ++topLevelCount;
+            const std::string label = getItemStringAttr(sec.get(), i, G_MENU_ATTRIBUTE_LABEL);
+            xoj::util::GVariantSPtr iconVar(
+                    g_menu_model_get_item_attribute_value(sec.get(), i, G_MENU_ATTRIBUTE_ICON, nullptr),
+                    xoj::util::adopt);
+            ASSERT_TRUE(iconVar) << "Top-level main menu item missing icon: \"" << label << "\"";
+
+            xoj::util::GObjectSPtr<GIcon> icon(g_icon_deserialize(iconVar.get()), xoj::util::adopt);
+            ASSERT_TRUE(icon && G_IS_THEMED_ICON(icon.get())) << "Icon for \"" << label << "\" is not a GThemedIcon";
+            const char* const* names = g_themed_icon_get_names(G_THEMED_ICON(icon.get()));
+            ASSERT_TRUE(names != nullptr && names[0] != nullptr);
+            const std::string iconName = names[0];
+            EXPECT_EQ(iconName.rfind("mx-menu-", 0), 0U) << "Unexpected icon name: " << iconName;
+            EXPECT_TRUE(fs::exists(iconDir / (iconName + ".svg")))
+                    << "Missing symbolic icon file for \"" << label << "\": " << iconName << ".svg";
+
+            // Entries inside submenus must stay icon-free
+            if (xoj::util::GObjectSPtr<GMenuModel> sub(g_menu_model_get_item_link(sec.get(), i, G_MENU_LINK_SUBMENU),
+                                                       xoj::util::adopt);
+                sub) {
+                expectNoIconsRecursive(sub.get());
+            }
+        }
+    }
+    EXPECT_EQ(topLevelCount, 18);
+
+    // The classic menubar must remain completely free of icons
+    GMenuModel* classicMenubar = G_MENU_MODEL(gtk_builder_get_object(builder.get(), MENU_ID));
+    ASSERT_TRUE(classicMenubar);
+    expectNoIconsRecursive(classicMenubar);
+}
+
 TEST(ActionDatabaseTest, testMovedAcceleratorsDefined) {
     EXPECT_TRUE(actionHasAccel<Action::DELETE>("Delete"));
     EXPECT_TRUE(actionHasAccel<Action::FULLSCREEN>("F11"));

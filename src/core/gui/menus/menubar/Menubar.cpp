@@ -87,6 +87,70 @@ void Menubar::populate(const GladeSearchpath* gladeSearchPath, MainWindow* win) 
     createSectionedMenu();
 }
 
+namespace {
+constexpr std::pair<std::string_view, const char*> MAIN_MENU_ACTION_ICONS[] = {
+        {"win.new-file", "mx-menu-new-symbolic"},
+        {"win.open", "mx-menu-open-symbolic"},
+        {"win.annotate-pdf", "mx-menu-annotate-pdf-symbolic"},
+        {"win.save", "mx-menu-save-symbolic"},
+        {"win.save-as", "mx-menu-save-as-symbolic"},
+        {"win.export-as-pdf", "mx-menu-export-pdf-symbolic"},
+        {"win.export-as", "mx-menu-export-symbolic"},
+        {"win.print", "mx-menu-print-symbolic"},
+        {"app.preferences", "mx-menu-preferences-symbolic"},
+        {"app.quit", "mx-menu-quit-symbolic"},
+};
+
+const char* iconNameForMainMenuAction(std::string_view action) {
+    for (const auto& [name, icon]: MAIN_MENU_ACTION_ICONS) {
+        if (name == action) {
+            return icon;
+        }
+    }
+    return nullptr;
+}
+
+void setMenuItemIcon(GMenuItem* item, const char* iconName) {
+    if (iconName == nullptr) {
+        return;
+    }
+    xoj::util::GObjectSPtr<GIcon> icon(g_themed_icon_new(iconName), xoj::util::adopt);
+    g_menu_item_set_icon(item, icon.get());
+}
+
+void appendSubmenuWithIcon(GMenu* target, const char* label, GMenuModel* submenu, const char* iconName) {
+    xoj::util::GObjectSPtr<GMenuItem> item(g_menu_item_new_submenu(label, submenu), xoj::util::adopt);
+    setMenuItemIcon(item.get(), iconName);
+    g_menu_append_item(target, item.get());
+}
+
+/// Copy a top-level section's items into a new GMenu and attach icons, leaving the shared
+/// menubar section untouched while preserving live submenu links (such as recent documents).
+auto copySectionWithIcons(GMenuModel* src, GMenuModel* recentModel) -> xoj::util::GObjectSPtr<GMenu> {
+    xoj::util::GObjectSPtr<GMenu> copy(g_menu_new(), xoj::util::adopt);
+    const int n = g_menu_model_get_n_items(src);
+    for (int i = 0; i < n; ++i) {
+        xoj::util::GObjectSPtr<GMenuItem> item(g_menu_item_new_from_model(src, i), xoj::util::adopt);
+        const char* iconName = nullptr;
+        xoj::util::GVariantSPtr actionVar(
+                g_menu_model_get_item_attribute_value(src, i, G_MENU_ATTRIBUTE_ACTION, G_VARIANT_TYPE_STRING),
+                xoj::util::adopt);
+        if (actionVar) {
+            iconName = iconNameForMainMenuAction(g_variant_get_string(actionVar.get(), nullptr));
+        } else if (recentModel != nullptr) {
+            xoj::util::GObjectSPtr<GMenuModel> sub(g_menu_model_get_item_link(src, i, G_MENU_LINK_SUBMENU),
+                                                   xoj::util::adopt);
+            if (sub.get() == recentModel) {
+                iconName = "mx-menu-recent-symbolic";
+            }
+        }
+        setMenuItemIcon(item.get(), iconName);
+        g_menu_append_item(copy.get(), item.get());
+    }
+    return copy;
+}
+}  // namespace
+
 auto Menubar::buildMainMenu(GtkBuilder* builder, GMenuModel* pluginsModel) -> xoj::util::GObjectSPtr<GMenu> {
     auto getModelById = [builder](const char* id) -> GMenuModel* {
         GObject* obj = gtk_builder_get_object(builder, id);
@@ -98,11 +162,14 @@ auto Menubar::buildMainMenu(GtkBuilder* builder, GMenuModel* pluginsModel) -> xo
     };
 
     xoj::util::GObjectSPtr<GMenu> mainMenu(g_menu_new(), xoj::util::adopt);
+    GMenuModel* recentModel = getModelById("menuFileRecent");
 
-    // Inline document items: link the File sections so dynamic entries (recent documents) stay live
+    // Inline document items: copy top-level entries to attach icons without altering the classic menu bar;
+    // g_menu_item_new_from_model preserves the live submenu link to menuFileRecent.
     for (const char* id: {"sectionFileDocument", "sectionFileExport", "sectionFilePrint"}) {
         if (GMenuModel* sec = getModelById(id)) {
-            g_menu_append_section(mainMenu.get(), nullptr, sec);
+            auto secCopy = copySectionWithIcons(sec, recentModel);
+            g_menu_append_section(mainMenu.get(), nullptr, G_MENU_MODEL(secCopy.get()));
         }
     }
 
@@ -117,21 +184,26 @@ auto Menubar::buildMainMenu(GtkBuilder* builder, GMenuModel* pluginsModel) -> xo
             g_menu_append_section(editSubmenu.get(), nullptr, sec);
         }
     }
-    g_menu_append_submenu(categoriesSection.get(), _("Edit"), G_MENU_MODEL(editSubmenu.get()));
+    appendSubmenuWithIcon(categoriesSection.get(), _("Edit"), G_MENU_MODEL(editSubmenu.get()), "mx-menu-edit-symbolic");
 
-    const std::pair<const char*, std::string> categorySubmenus[] = {
-            {"menuPage", _("Page")},
-            {"menuLayers", _("Layers")},
-            {"menuView", _("View")},
-            {"menuTools", _("Tools")},
+    struct CategorySubmenu {
+        const char* id;
+        std::string label;
+        const char* icon;
     };
-    for (const auto& [id, label]: categorySubmenus) {
-        if (GMenuModel* sub = getModelById(id)) {
-            g_menu_append_submenu(categoriesSection.get(), label.c_str(), sub);
+    const CategorySubmenu categorySubmenus[] = {
+            {"menuPage", _("Page"), "mx-menu-page-symbolic"},
+            {"menuLayers", _("Layers"), "mx-menu-layers-symbolic"},
+            {"menuView", _("View"), "mx-menu-view-symbolic"},
+            {"menuTools", _("Tools"), "mx-menu-tools-symbolic"},
+    };
+    for (const auto& entry: categorySubmenus) {
+        if (GMenuModel* sub = getModelById(entry.id)) {
+            appendSubmenuWithIcon(categoriesSection.get(), entry.label.c_str(), sub, entry.icon);
         }
     }
     if (pluginsModel != nullptr) {
-        g_menu_append_submenu(categoriesSection.get(), _("Plugins"), pluginsModel);
+        appendSubmenuWithIcon(categoriesSection.get(), _("Plugins"), pluginsModel, "mx-menu-plugins-symbolic");
     }
     g_menu_append_section(mainMenu.get(), nullptr, G_MENU_MODEL(categoriesSection.get()));
 
@@ -141,16 +213,23 @@ auto Menubar::buildMainMenu(GtkBuilder* builder, GMenuModel* pluginsModel) -> xo
         const int n = g_menu_model_get_n_items(editPrefs);
         for (int i = 0; i < n; ++i) {
             xoj::util::GObjectSPtr<GMenuItem> item(g_menu_item_new_from_model(editPrefs, i), xoj::util::adopt);
+            xoj::util::GVariantSPtr actionVar(
+                    g_menu_model_get_item_attribute_value(editPrefs, i, G_MENU_ATTRIBUTE_ACTION, G_VARIANT_TYPE_STRING),
+                    xoj::util::adopt);
+            if (actionVar) {
+                setMenuItemIcon(item.get(), iconNameForMainMenuAction(g_variant_get_string(actionVar.get(), nullptr)));
+            }
             g_menu_append_item(appSection.get(), item.get());
         }
     }
     if (GMenuModel* help = getModelById("menuHelp")) {
-        g_menu_append_submenu(appSection.get(), _("Help"), help);
+        appendSubmenuWithIcon(appSection.get(), _("Help"), help, "mx-menu-help-symbolic");
     }
     g_menu_append_section(mainMenu.get(), nullptr, G_MENU_MODEL(appSection.get()));
 
     if (GMenuModel* quitSec = getModelById("sectionFileQuit")) {
-        g_menu_append_section(mainMenu.get(), nullptr, quitSec);
+        auto quitCopy = copySectionWithIcons(quitSec, recentModel);
+        g_menu_append_section(mainMenu.get(), nullptr, G_MENU_MODEL(quitCopy.get()));
     }
 
     return mainMenu;
