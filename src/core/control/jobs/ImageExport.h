@@ -12,7 +12,9 @@
 #pragma once
 
 #include <cstddef>  // for size_t
+#include <cstdint>  // for uint8_t
 #include <string>   // for string
+#include <vector>   // for vector
 
 #include <cairo.h>  // for cairo_surface_t, cairo_t
 
@@ -66,6 +68,13 @@ public:
      * @param str A string parsed to get a list of layers
      */
     void setLayerRange(const char* str);
+
+    /**
+     * @brief Render a single page to PNG bytes in memory, scaling so max(width, height) == maxSizePx.
+     * Takes a shared lock on doc. Returns true on success.
+     */
+    static bool renderPageToPngBytes(Document* doc, size_t pageId, int maxSizePx, ExportBackgroundType exportBackground,
+                                     std::vector<uint8_t>& outPng, std::string& outError);
 
 private:
     /**

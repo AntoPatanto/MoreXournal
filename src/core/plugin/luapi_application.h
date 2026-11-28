@@ -23,6 +23,7 @@
 #include <stdint.h>
 
 #include "control/Control.h"
+#include "control/DocumentMutationHelpers.h"
 #include "control/ExportHelper.h"
 #include "control/PageBackgroundChangeController.h"
 #include "control/ScrollHandler.h"
@@ -1573,13 +1574,13 @@ static int applib_addTexts(lua_State* L) {
         if (!lua_isstring(L, -8)) {
             return luaL_error(L, "Missing text!/'text' must be a string");
         }
-        text->setText(lua_tostring(L, -8));
+        std::string textContent = lua_tostring(L, -8);
 
         XojFont font{};
         font.setName(luaL_optstring(L, -6, default_font.getName().c_str()));
         font.setSize(luaL_optnumber(L, -5, default_font.getSize()));
-        text->setFont(font);
 
+        Color textColor = default_color;
         if (lua_isinteger(L, -4)) {  // Check if the color was provided
             uint32_t color = static_cast<uint32_t>(as_unsigned(lua_tointeger(L, -4)));
             if (color > 0xffffff) {
@@ -1587,10 +1588,8 @@ static int applib_addTexts(lua_State* L) {
                 msg << "Color 0x" << std::hex << color << " is no valid RGB color.";
                 return luaL_error(L, msg.str().c_str());  // luaL_error does not support %x for hex numbers
             }
-            text->setColor(Color(color | 0xff000000U));
-        } else if (lua_isnil(L, -4)) {
-            text->setColor(default_color);
-        } else {
+            textColor = Color(color | 0xff000000U);
+        } else if (!lua_isnil(L, -4)) {
             return luaL_error(L, "'color' must be an integer/hex-code or unset");
         }
 
@@ -1600,11 +1599,13 @@ static int applib_addTexts(lua_State* L) {
         if (!lua_isnumber(L, -2)) {  // Check if y was provided
             return luaL_error(L, "Missing Y-Coordinate!/must be a number");
         }
-        text->move(lua_tonumber(L, -3), lua_tonumber(L, -2));
-
-        text->setWrap(luaL_optnumber(L, -1, Text::NO_WRAP));
+        const double x = lua_tonumber(L, -3);
+        const double y = lua_tonumber(L, -2);
+        const double wrap = luaL_optnumber(L, -1, Text::NO_WRAP);
 
         lua_pop(L, 9);  // remove values read out from the text table + text-table itself
+
+        text = xoj::control::createTextElement(std::move(textContent), font, textColor, x, y, wrap);
 
         // Finish building the Text and apply it to the layer.
         texts.push_back(text.get());

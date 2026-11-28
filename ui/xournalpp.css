@@ -1230,3 +1230,68 @@ window.mx-touch popover.background.mx-popover scale slider {
 .mx-dot-hold {
 	background-color: #f59e0b;
 }
+
+/* AI assistants (MCP) settings panel */
+.mx-mcp-heading {
+	font-size: 15px;
+	font-weight: 700;
+	color: @mx_text;
+}
+
+.mx-mcp-row-title {
+	font-weight: 600;
+	color: @mx_text;
+}
+
+.mx-mcp-hint {
+	color: @mx_text2;
+}
+
+.mx-mcp-error {
+	color: @mx_danger;
+	font-weight: 600;
+}
+
+.mx-mcp-copied {
+	color: @mx_success;
+	font-weight: 600;
+}
+
+.mx-mcp-group {
+	border: 1px solid @mx_line;
+	border-radius: 8px;
+	background-color: @mx_surface;
+}
+
+.mx-mcp-row {
+	padding: 10px 12px;
+}
+
+.mx-mcp-dot {
+	min-width: 8px;
+	min-height: 8px;
+	border-radius: 9999px;
+	background-color: @mx_text2;
+}
+
+.mx-mcp-dot-ok {
+	background-color: @mx_success;
+}
+
+.mx-mcp-dot-err {
+	background-color: @mx_danger;
+}
+
+.mx-mcp-mono,
+.mx-mcp-code,
+.mx-mcp-code text {
+	font-family: monospace;
+	font-size: 12px;
+	background-color: @mx_surface2;
+	color: @mx_text;
+}
+
+.mx-mcp-code {
+	border-radius: 0 0 8px 8px;
+	padding: 8px 12px 10px 12px;
+}

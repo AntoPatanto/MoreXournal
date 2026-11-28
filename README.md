@@ -92,6 +92,37 @@ On Linux, configuration, cache, data and state live under `morexournal`: `~/.con
 
 Notes are saved in the gzipped XML `.xopp` format shared with Xournal++. A PDF you annotate is linked by its path, or, if you choose to attach it, copied next to the note as `<name>.xopp.bg.pdf`, because it is never embedded in the `.xopp` file. Editable shapes are saved as extra attributes (`mxShape`, `mxShapeParams`, `mxFillColor`) on `<stroke>` elements, which upstream Xournal++ ignores so the same file opens there as regular strokes. Exporting to legacy `.xoj` drops Xournal++ and MoreXournal extensions.
 
+## Connect an AI assistant
+
+MoreXournal includes a local Model Context Protocol (MCP) server so AI tools on the same computer (such as Claude Code, Codex, Cursor or Claude Desktop) can inspect the open document and, if you allow it, add text boxes, strokes, editable shapes or pages.
+
+The server is off by default. When enabled, it listens only on `127.0.0.1` (default port `47615`), requires a random bearer token, and exposes only the document currently open in MoreXournal. Edits are controlled by a separate **Allow edits** switch (also off by default): assistants can never delete, move or modify existing content, and every write call is recorded as a single undo step.
+
+To turn it on, open **Preferences → AI assistants**, toggle **Allow AI assistants to connect**, and copy the setup snippet for your tool (replace `<token>` with the token shown in Preferences, and `<path-to-morexournal-mcp>` with the installed bridge path shown there):
+
+- **Claude Code:**
+
+  ```bash
+  claude mcp add --transport http morexournal http://127.0.0.1:47615/mcp --header "Authorization: Bearer <token>"
+  ```
+
+- **Codex (`~/.codex/config.toml`):**
+
+  ```toml
+  [mcp_servers.morexournal]
+  url = "http://127.0.0.1:47615/mcp"
+  http_headers = { Authorization = "Bearer <token>" }
+  ```
+
+- **Claude Desktop (`claude_desktop_config.json`, using the bundled `morexournal-mcp` stdio bridge):**
+
+  ```json
+  "morexournal": {
+    "command": "<path-to-morexournal-mcp>",
+    "args": ["--port", "47615", "--token", "<token>"]
+  }
+  ```
+
 ## Build from source
 
 Build MoreXournal from source with CMake and Ninja if you are on a platform without a prebuilt package or want to develop locally.

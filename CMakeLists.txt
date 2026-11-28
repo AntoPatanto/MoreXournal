@@ -268,9 +268,14 @@ if (TARGET X11::X11)
     set(ENABLE_X11 ON)
 endif ()
 
+add_library(nlohmann_json INTERFACE)
+target_include_directories(nlohmann_json SYSTEM INTERFACE "${PROJECT_SOURCE_DIR}/src/third_party")
+add_library(nlohmann::json ALIAS nlohmann_json)
+
 add_library(external_modules INTERFACE)
 target_link_libraries(external_modules INTERFACE
         PkgConfig::ExternalModules
+        nlohmann::json
         $<$<TARGET_EXISTS:Lua::lua>:Lua::lua>
         $<$<TARGET_EXISTS:PkgConfig::GtkSourceView>:PkgConfig::GtkSourceView>
         $<$<TARGET_EXISTS:PkgConfig::ExternalAudioModules>:PkgConfig::ExternalAudioModules>

@@ -31,7 +31,7 @@ echo "copy installed files"
 (cd $build_dir && cmake --install . --prefix "$setup_dir")
 
 echo "copy libraries"
-ldd "$build_dir/morexournal.exe" | grep "${prefix}.*\.dll" -o | sort -u | xargs -I{} cp "{}" "$setup_dir"/bin/
+ldd "$build_dir/morexournal.exe" "$build_dir/morexournal-mcp.exe" | grep "${prefix}.*\.dll" -o | sort -u | xargs -I{} cp "{}" "$setup_dir"/bin/
 # CI workaround: copy libcrypto and libssl in case they are not already copied.
 ldd "$build_dir/morexournal.exe" | grep -E 'lib(ssl|crypto)[^\.]*\.dll' -o | sort -u | xargs -I{} cp "${prefix}/bin/{}" "$setup_dir"/bin/
 

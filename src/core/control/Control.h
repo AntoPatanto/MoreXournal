@@ -71,6 +71,10 @@ class XojPdfRectangle;
 class ActionDatabase;
 class NavigationHistory;
 
+namespace xoj::mcp {
+class McpServer;
+}  // namespace xoj::mcp
+
 class Control:
         public ToolListener,
         public DocumentHandler,
@@ -325,6 +329,8 @@ public:
     PageBackgroundChangeController* getPageBackgroundChangeController() const;
     LayerController* getLayerController() const;
     PluginController* getPluginController() const;
+    xoj::mcp::McpServer* getMcpServer() const;
+    void applyMcpSettings();
     const Palette& getPalette() const;
 
     /**
@@ -572,4 +578,6 @@ private:
 
     // Keep after the ActionDatabase so it is destroyed first: ~AudioController refers to the ActionDatabase
     std::unique_ptr<AudioController> audioController;
+
+    std::unique_ptr<xoj::mcp::McpServer> mcpServer;
 };

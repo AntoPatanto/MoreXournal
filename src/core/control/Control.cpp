@@ -31,6 +31,7 @@
 #include "control/jobs/Scheduler.h"                     // for JOB_...
 #include "control/jobs/XournalScheduler.h"              // for Xour...
 #include "control/layer/LayerController.h"              // for Laye...
+#include "control/mcp/McpServer.h"                      // for McpServer
 #include "control/pagetype/PageTypeHandler.h"           // for Page...
 #include "control/settings/ButtonConfig.h"              // for Butt...
 #include "control/settings/MetadataManager.h"           // for Meta...
@@ -175,6 +176,10 @@ Control::Control(GApplication* gtkApp, GladeSearchpath* gladeSearchPath): gtkApp
 }
 
 Control::~Control() {
+    if (this->mcpServer) {
+        this->mcpServer->stop();
+        this->mcpServer.reset();
+    }
     g_source_remove(this->changeTimout);
     this->enableAutosave(false);
 
@@ -331,6 +336,9 @@ void Control::initWindow(MainWindow* win, bool disableAudio) {
     this->clipboardHandler = new ClipboardHandler(this, win->getXournal()->getWidget());
 
     this->enableAutosave(settings->isAutosaveEnabled());
+
+    this->mcpServer = std::make_unique<xoj::mcp::McpServer>(this);
+    this->applyMcpSettings();
 }
 
 auto Control::autosaveCallback(Control* control) -> bool {
@@ -1462,6 +1470,8 @@ void Control::showSettings() {
                 ctrl->getActionDatabase()->setActionState(Action::TOGGLE_TOUCH_DRAWING,
                                                           settings->getTouchDrawingEnabled());
                 ctrl->getActionDatabase()->setActionState(Action::HOLD_TO_SHAPE, settings->isHoldToShapeEnabled());
+
+                ctrl->applyMcpSettings();
             });
     dlg.show(GTK_WINDOW(this->win->getWindow()));
 }
@@ -2766,6 +2776,14 @@ auto Control::getPageBackgroundChangeController() const -> PageBackgroundChangeC
 auto Control::getLayerController() const -> LayerController* { return this->layerController; }
 
 auto Control::getPluginController() const -> PluginController* { return this->pluginController; }
+
+auto Control::getMcpServer() const -> xoj::mcp::McpServer* { return this->mcpServer.get(); }
+
+void Control::applyMcpSettings() {
+    if (this->mcpServer && this->settings) {
+        this->mcpServer->applySettings(*this->settings);
+    }
+}
 
 auto Control::getPalette() const -> const Palette& { return *(this->palette); }
 

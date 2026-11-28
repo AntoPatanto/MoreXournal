@@ -663,6 +663,21 @@ public:
     void setLaserPointerFadeOutTime(unsigned int timeInMs);
     unsigned int getLaserPointerFadeOutTime() const;
 
+    /**
+     * Built-in MCP server settings
+     */
+    static constexpr int DEFAULT_MCP_PORT = 47615;
+    bool isMcpEnabled() const;
+    void setMcpEnabled(bool enabled);
+    bool isMcpAllowEdits() const;
+    void setMcpAllowEdits(bool allow);
+    int getMcpPort() const;
+    void setMcpPort(int port);
+    std::string const& getMcpToken() const;
+    void setMcpToken(const std::string& token);
+    /// Returns the existing token or generates, stores and saves a new one if empty.
+    std::string const& ensureMcpToken();
+
 public:
     // Custom settings
     SElement& getCustomElement(const std::string& name);
@@ -1297,4 +1312,9 @@ private:
     unsigned int numberOfSpacesForTab{};
 
     unsigned int laserPointerFadeOutTime{};  ///< Time in ms before the laser pointer strokes start fading out
+
+    bool mcpEnabled{};
+    bool mcpAllowEdits{};
+    int mcpPort{};
+    std::string mcpToken;
 };

@@ -34,6 +34,7 @@
 #include "DeviceTestingArea.h"   // for DeviceTestingArea
 #include "LanguageConfigGui.h"   // for LanguageConfigGui
 #include "LatexSettingsPanel.h"  // for LatexSettingsPanel
+#include "McpSettingsPanel.h"    // for McpSettingsPanel
 #include "ShapeSettingsPanel.h"  // for ShapeSettingsPanel
 #include "XojOpenDlg.h"          // for showSelectFolderDialog
 #include "filesystem.h"          // for is_directory
@@ -113,6 +114,10 @@ SettingsDialog::SettingsDialog(GladeSearchpath* gladeSearchPath, Settings* setti
     gtk_box_append(GTK_BOX(builder.get("latexTabBox")), this->latexPanel.getPanel());
     gtk_widget_set_vexpand(this->paletteTab.getPanel(), true);
     gtk_box_append(GTK_BOX(builder.get("paletteTabBox")), this->paletteTab.getPanel());
+
+    mcpSettingsPanel = std::make_unique<McpSettingsPanel>(this->control);
+    gtk_widget_set_vexpand(mcpSettingsPanel->getPanel(), true);
+    gtk_box_append(GTK_BOX(builder.get("mcpTabBox")), mcpSettingsPanel->getPanel());
 
     capSettingsDialogDefaultSize(this->window.get(), this->control ? this->control->getGtkWindow() : nullptr);
 
@@ -822,6 +827,7 @@ void SettingsDialog::load() {
 
     this->latexPanel.load(settings->latexSettings);
     paletteTab.renderPaletteTab(this->control->getPalette().getFilePath());
+    this->mcpSettingsPanel->load(*settings);
 }
 
 void SettingsDialog::save() {
@@ -1223,6 +1229,7 @@ void SettingsDialog::save() {
     this->deviceTestingArea->saveSettings();
 
     this->latexPanel.save(settings->latexSettings);
+    this->mcpSettingsPanel->save(*settings);
 
     settings->transactionEnd();
 

@@ -1,10 +1,12 @@
 #include "ImageExport.h"
 
-#include <cmath>    // for round
-#include <cstddef>  // for size_t
-#include <memory>   // for __shared_ptr_access, allocat...
-#include <utility>  // for move
-#include <vector>   // for vector
+#include <algorithm>  // for max
+#include <cmath>      // for round
+#include <cstddef>    // for size_t
+#include <cstdint>    // for uint8_t
+#include <memory>     // for __shared_ptr_access, allocat...
+#include <utility>    // for move
+#include <vector>     // for vector
 
 #include <cairo-svg.h>  // for cairo_svg_surface_create
 
@@ -157,25 +159,18 @@ auto ImageExport::getFilenameWithNumber(size_t no) const -> fs::path {
  * @param format The format of the exported image
  * @param view A DocumentView for drawing the page
  */
-void ImageExport::exportImagePage(size_t pageId, size_t id, double zoomRatio, ExportFormat format, DocumentView& view) {
-    std::shared_lock<Document> lock(*doc);
-    ConstPageRef page = doc->getPage(pageId);
+namespace {
 
-    zoomRatio = createSurface(page->getWidth(), page->getHeight(), id, zoomRatio);
-
-    cairo_status_t state = cairo_surface_status(this->surface);
-    if (state != CAIRO_STATUS_SUCCESS) {
-        this->lastError = _("Error save image #1");
-        return;
-    }
-
+void renderPageOntoContext(Document* doc, const ConstPageRef& page, cairo_t* cr, ExportFormat format,
+                           ExportBackgroundType exportBackground, const LayerRangeVector* layerRange,
+                           DocumentView& view, std::string& lastError) {
     if (page->getBackgroundType().isPdfPage() && (exportBackground != EXPORT_BACKGROUND_NONE)) {
         // Handle the pdf page separately, to call renderForPrinting for better quality.
         auto pgNo = page->getPdfPageNr();
         XojPdfPageSPtr popplerPage = doc->getPdfPage(pgNo);
         if (!popplerPage) {
-            this->lastError = _("Error while exporting the pdf background: I cannot find the pdf page number ");
-            this->lastError += std::to_string(pgNo);
+            lastError = _("Error while exporting the pdf background: I cannot find the pdf page number ");
+            lastError += std::to_string(pgNo);
         } else if (format == EXPORT_GRAPHICS_PNG) {
             popplerPage->render(cr);
         } else {
@@ -191,16 +186,98 @@ void ImageExport::exportImagePage(size_t pageId, size_t id, double zoomRatio, Ex
                                                                        xoj::view::SHOW_RULING_BACKGROUND;
 
     if (layerRange) {
-        view.drawLayersOfPage(*layerRange, page, this->cr, true /* dont render eraseable */, flags);
+        view.drawLayersOfPage(*layerRange, page, cr, true /* dont render eraseable */, flags);
     } else {
-        view.drawPage(page, this->cr, true /* dont render eraseable */, flags);
+        view.drawPage(page, cr, true /* dont render eraseable */, flags);
     }
+}
+
+cairo_status_t pngStreamWriteCallback(void* closure, const unsigned char* data, unsigned int length) {
+    auto* out = static_cast<std::vector<uint8_t>*>(closure);
+    out->insert(out->end(), data, data + length);
+    return CAIRO_STATUS_SUCCESS;
+}
+
+}  // namespace
+
+void ImageExport::exportImagePage(size_t pageId, size_t id, double zoomRatio, ExportFormat format, DocumentView& view) {
+    std::shared_lock<Document> lock(*doc);
+    ConstPageRef page = doc->getPage(pageId);
+
+    zoomRatio = createSurface(page->getWidth(), page->getHeight(), id, zoomRatio);
+
+    cairo_status_t state = cairo_surface_status(this->surface);
+    if (state != CAIRO_STATUS_SUCCESS) {
+        this->lastError = _("Error save image #1");
+        return;
+    }
+
+    renderPageOntoContext(doc, page, this->cr, format, exportBackground, layerRange.get(), view, this->lastError);
 
     if (!freeSurface(id)) {
         // could not create this file...
         this->lastError = _("Error save image #2");
         return;
     }
+}
+
+bool ImageExport::renderPageToPngBytes(Document* doc, size_t pageId, int maxSizePx,
+                                       ExportBackgroundType exportBackground, std::vector<uint8_t>& outPng,
+                                       std::string& outError) {
+    if (!doc) {
+        outError = "No document is open";
+        return false;
+    }
+
+    std::shared_lock<Document> lock(*doc);
+    if (pageId >= doc->getPageCount()) {
+        outError = "Page index out of range";
+        return false;
+    }
+
+    ConstPageRef page = doc->getPage(pageId);
+    const double width = page->getWidth();
+    const double height = page->getHeight();
+    if (width <= 0.0 || height <= 0.0) {
+        outError = "Invalid page dimensions";
+        return false;
+    }
+
+    const double maxDim = std::max(width, height);
+    const double scale = static_cast<double>(maxSizePx) / maxDim;
+    const int pixelWidth = std::max(1, static_cast<int>(std::round(width * scale)));
+    const int pixelHeight = std::max(1, static_cast<int>(std::round(height * scale)));
+
+    cairo_surface_t* surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, pixelWidth, pixelHeight);
+    if (cairo_surface_status(surf) != CAIRO_STATUS_SUCCESS) {
+        cairo_surface_destroy(surf);
+        outError = "Failed to allocate Cairo surface for page render";
+        return false;
+    }
+
+    cairo_t* context = cairo_create(surf);
+    cairo_scale(context, scale, scale);
+
+    DocumentView view;
+    std::string renderErr;
+    renderPageOntoContext(doc, page, context, EXPORT_GRAPHICS_PNG, exportBackground, nullptr, view, renderErr);
+
+    cairo_destroy(context);
+
+    outPng.clear();
+    cairo_status_t writeStatus = cairo_surface_write_to_png_stream(surf, pngStreamWriteCallback, &outPng);
+    cairo_surface_destroy(surf);
+
+    if (writeStatus != CAIRO_STATUS_SUCCESS) {
+        outPng.clear();
+        outError = "Failed to encode rendered page as PNG";
+        return false;
+    }
+    if (!renderErr.empty()) {
+        outError = std::move(renderErr);
+        return false;
+    }
+    return true;
 }
 
 /**
