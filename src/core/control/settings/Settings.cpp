@@ -15,6 +15,7 @@
 
 #include "control/DeviceListHelper.h"                       // for InputDevice
 #include "control/ToolEnums.h"                              // for ERASER_TYPE_NONE
+#include "control/mcp/McpToken.h"                           // for generateToken
 #include "control/settings/LatexSettings.h"                 // for LatexSettings
 #include "control/settings/PageTemplateSettings.h"          // for PageTemplateSettings
 #include "control/settings/SettingsEnums.h"                 // for InputDeviceTypeOp...
@@ -291,6 +292,11 @@ void Settings::loadDefault() {
     this->numberOfSpacesForTab = 4;
 
     this->laserPointerFadeOutTime = 500;
+
+    this->mcpEnabled = false;
+    this->mcpAllowEdits = false;
+    this->mcpPort = DEFAULT_MCP_PORT;
+    this->mcpToken.clear();
 
     this->colorPaletteSetting = Util::getBuiltInPaletteDirectoryPath() / DEFAULT_PALETTE_FILE;
 }
@@ -801,6 +807,15 @@ void Settings::parseItem(xmlDocPtr doc, xmlNodePtr cur) {
     } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("laserPointerFadeOutTime")) == 0) {
         this->laserPointerFadeOutTime =
                 static_cast<unsigned int>(g_ascii_strtoull(reinterpret_cast<const char*>(value), nullptr, 10));
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("mcpEnabled")) == 0) {
+        this->mcpEnabled = xmlStrcmp(value, reinterpret_cast<const xmlChar*>("true")) == 0;
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("mcpAllowEdits")) == 0) {
+        this->mcpAllowEdits = xmlStrcmp(value, reinterpret_cast<const xmlChar*>("true")) == 0;
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("mcpPort")) == 0) {
+        int parsedPort = static_cast<int>(g_ascii_strtoll(reinterpret_cast<const char*>(value), nullptr, 10));
+        this->mcpPort = (parsedPort >= 1 && parsedPort <= 65535) ? parsedPort : DEFAULT_MCP_PORT;
+    } else if (xmlStrcmp(name, reinterpret_cast<const xmlChar*>("mcpToken")) == 0) {
+        this->mcpToken = reinterpret_cast<const char*>(value);
         /**
          * Stabilizer related settings
          */
@@ -1340,6 +1355,11 @@ void Settings::save() {
     SAVE_UINT_PROP(numberOfSpacesForTab);
 
     SAVE_UINT_PROP(laserPointerFadeOutTime);
+
+    SAVE_BOOL_PROP(mcpEnabled);
+    SAVE_BOOL_PROP(mcpAllowEdits);
+    SAVE_INT_PROP(mcpPort);
+    SAVE_STRING_PROP(mcpToken);
 
     /**
      * Stabilizer related settings
@@ -3004,3 +3024,55 @@ void Settings::setLaserPointerFadeOutTime(unsigned int timeInMs) {
 }
 
 unsigned int Settings::getLaserPointerFadeOutTime() const { return this->laserPointerFadeOutTime; }
+
+bool Settings::isMcpEnabled() const { return this->mcpEnabled; }
+
+void Settings::setMcpEnabled(bool enabled) {
+    if (this->mcpEnabled == enabled) {
+        return;
+    }
+    this->mcpEnabled = enabled;
+    if (enabled && this->mcpToken.empty()) {
+        this->mcpToken = xoj::mcp::generateToken();
+    }
+    save();
+}
+
+bool Settings::isMcpAllowEdits() const { return this->mcpAllowEdits; }
+
+void Settings::setMcpAllowEdits(bool allow) {
+    if (this->mcpAllowEdits == allow) {
+        return;
+    }
+    this->mcpAllowEdits = allow;
+    save();
+}
+
+int Settings::getMcpPort() const { return this->mcpPort; }
+
+void Settings::setMcpPort(int port) {
+    int clamped = (port >= 1 && port <= 65535) ? port : DEFAULT_MCP_PORT;
+    if (this->mcpPort == clamped) {
+        return;
+    }
+    this->mcpPort = clamped;
+    save();
+}
+
+std::string const& Settings::getMcpToken() const { return this->mcpToken; }
+
+void Settings::setMcpToken(const std::string& token) {
+    if (this->mcpToken == token) {
+        return;
+    }
+    this->mcpToken = token;
+    save();
+}
+
+std::string const& Settings::ensureMcpToken() {
+    if (this->mcpToken.empty()) {
+        this->mcpToken = xoj::mcp::generateToken();
+        save();
+    }
+    return this->mcpToken;
+}
