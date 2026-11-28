@@ -177,3 +177,4 @@ install(TARGETS morexournal
         )
 
 add_subdirectory(xoj-preview-extractor)
+add_subdirectory(mcp-bridge)

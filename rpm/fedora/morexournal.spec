@@ -80,6 +80,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/io.github.anto
 %license LICENSE
 %doc README.md AUTHORS
 %{_bindir}/%{name}
+%{_bindir}/%{name}-mcp
 %{_bindir}/%{name}-thumbnailer
 %{_bindir}/%{name}-wrapper
 %{_datadir}/applications/io.github.antopatanto.morexournal.desktop
